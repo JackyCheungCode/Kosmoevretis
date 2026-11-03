@@ -15,7 +15,7 @@ const providers: Provider[] = [
   { id: "google", name: "Google · Gemini", models: ["Gemini Pro", "Gemini Flash"] },
   { id: "openrouter", name: "OpenRouter", models: ["连接后同步模型目录"] },
   { id: "siliconflow", name: "SiliconFlow", models: ["连接后同步模型目录"] },
-  { id: "cloudflare", name: "Cloudflare Workers AI", models: ["@cf/meta/llama-3.1-8b-instruct"] },
+  { id: "cloudflare", name: "Cloudflare Workers AI", models: ["@cf/zai-org/glm-4.7-flash"] },
 ];
 const dimensions = [
   { id: "strategy", title: "企业战略与经营诊断", desc: "商业模式、核心能力、经营目标与战略一致性", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
@@ -33,13 +33,14 @@ const initialAssignments: Record<string, Assignment> = Object.fromEntries(dimens
   const provider = providerById(d.models[0]);
   return [d.id, { provider: provider.id, model: provider.models[0] }];
 }));
-export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: boolean; onContinue?: () => void } = {}) {
+export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onContinue }: { embedded?: boolean; enterpriseName?: string; profile?: Record<string, string>; onContinue?: () => void } = {}) {
   const location = useLocation();
-  const enterprise = (location.state as { enterpriseName?: string; profile?: Record<string, string>; completion?: number } | null) || {};
+  const routeEnterprise = (location.state as { enterpriseName?: string; profile?: Record<string, string>; completion?: number } | null) || {};
+  const enterprise = { ...routeEnterprise, enterpriseName: enterpriseName || routeEnterprise.enterpriseName, profile: profile || routeEnterprise.profile };
   const [assignments, setAssignments] = useState(initialAssignments);
   const [selected, setSelected] = useState<string[]>(dimensions.map((d) => d.id));
   const [globalProvider, setGlobalProvider] = useState("cloudflare");
-  const [globalModel, setGlobalModel] = useState("@cf/meta/llama-3.1-8b-instruct");
+  const [globalModel, setGlobalModel] = useState("@cf/zai-org/glm-4.7-flash");
   const [allocationMode, setAllocationMode] = useState<"uniform" | "independent">("independent");
   const [notice, setNotice] = useState("");
   const [advanced, setAdvanced] = useState(false);
