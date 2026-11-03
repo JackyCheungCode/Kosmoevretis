@@ -208,7 +208,7 @@ export function MarketTrendsPage() {
       } catch (e) { setActorInputError(e instanceof Error ? e.message : "Actor JSON 格式无效。"); return; }
     }
     setActorInputError("");
-    if (maxItems < 1 || maxItems > 5000) { setError("最大数据量必须在 1 至 5,000 条之间。"); return; }
+    if (!actorInputText.trim() && (maxItems < 1 || maxItems > 5000)) { setError("最大数据量必须在 1 至 5,000 条之间。"); return; }
     setBusy(true); setError(""); setNotice(""); setActiveTask(null);
     try {
       const response = await fetch("/api/market-trends", {
