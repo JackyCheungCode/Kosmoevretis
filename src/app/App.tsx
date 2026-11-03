@@ -6,6 +6,7 @@ import { WorkspacePage } from "../features/workspace/WorkspacePage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { EnterpriseWorkflowPage } from "../features/enterprise-workflow/EnterpriseWorkflowPage";
+import { MarketTrendsPage } from "../features/market-trends/MarketTrendsPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { session, workspace, loading } = useAuth();
@@ -30,6 +31,7 @@ export function App() {
       <Route path="/enterprise-workflow" element={<Protected><EnterpriseWorkflowPage /></Protected>} />
       <Route path="/enterprise-profile" element={<Navigate to="/enterprise-workflow" replace />} />
       <Route path="/enterprise-profile/:enterpriseId" element={<Navigate to="/enterprise-workflow" replace />} />
+      <Route path="/market-trends" element={<Protected><MarketTrendsPage /></Protected>} />
       <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
       <Route path="/ai-analysis" element={<Navigate to="/enterprise-workflow" replace />} />
       <Route path="/analysis-results" element={<Navigate to="/enterprise-workflow" replace />} />
