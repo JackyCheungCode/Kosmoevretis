@@ -7,8 +7,8 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: A
   if (id === "cloudflare") {
     if (!env.AI) return Response.json({ error: "Workers AI 绑定未配置。" }, { status: 503 });
     try {
-      const result = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", { messages: [{ role: "user", content: "请只回复：Kosmoevretis Workers AI 连接测试成功。" }], max_tokens: 100 });
-      return Response.json({ ok: true, provider: "Cloudflare Workers AI", model: "@cf/meta/llama-3.1-8b-instruct", result });
+      const result = await env.AI.run("@cf/zai-org/glm-4.7-flash", { messages: [{ role: "user", content: "请只回复：Kosmoevretis Workers AI 连接测试成功。" }], max_tokens: 100 });
+      return Response.json({ ok: true, provider: "Cloudflare Workers AI", model: "@cf/zai-org/glm-4.7-flash", result });
     } catch (e) { return Response.json({ error: e instanceof Error ? e.message : "Workers AI 调用失败" }, { status: 502 }); }
   }
   const raw = await env.AI_CONFIG_KV.get(`provider:${id}`);
