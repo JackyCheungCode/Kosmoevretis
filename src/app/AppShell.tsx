@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [sidebarOpen]);
 
-  const pageLabel = location.pathname === "/dashboard" ? "总览" : location.pathname.startsWith("/enterprise-profile") ? "企业档案" : "模块";
+  const pageLabel = location.pathname === "/dashboard" ? "总览" : location.pathname.startsWith("/enterprise-profile") ? "企业档案" : location.pathname === "/settings" ? "设置" : "模块";
 
   return (
     <div className="app-frame">
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             : <NavLink key={to} to={to} className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}><Icon size={18} /><span>{label}</span></NavLink>
           )}
         </nav>
-        <div className="sidebar-end"><div className="nav-caption">系统</div><div className="nav-item disabled"><Settings size={18} /><span>设置</span></div><div className="sidebar-version"><i /> 平台基础版本 <b>v0.2</b></div></div>
+        <div className="sidebar-end"><div className="nav-caption">系统</div><NavLink to="/settings" className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}><Settings size={18} /><span>设置</span></NavLink><div className="sidebar-version"><i /> 平台基础版本 <b>v0.2</b></div></div>
       </aside>
       <main className="main"><div className="breadcrumb">工作空间 <span>/</span> <b>{pageLabel}</b></div>{children}</main>
     </div>
