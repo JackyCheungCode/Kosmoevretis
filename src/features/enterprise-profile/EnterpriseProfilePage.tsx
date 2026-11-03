@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ArrowRight, ChartLine, Globe, Search, Security } from "@carbon/icons-react";
 import { Dropdown, MultiSelect } from "@carbon/react";
 import { AIAnalysisPage } from "../ai-analysis/AIAnalysisPage";
+import { AnalysisResultsPage } from "../analysis-results/AnalysisResultsPage";
 
 type CreateMode = "search" | "website" | "manual";
 type TabId = "overview" | "identity" | "business" | "offerings" | "market" | "operations" | "strategy" | "sources";
@@ -200,7 +201,7 @@ export function EnterpriseProfilePage() {
             {activeTab === "sources" && <div className="ep-panel ep-detail-panel"><div className="ep-panel-toolbar"><div><b>企业资料来源与修改记录</b><small>正式版本应为每个字段记录来源 URL、采集时间、确认人和修改前后值。</small></div><span className="ep-status pending">审计服务待接入</span></div><button className="ep-source-row" type="button" onClick={() => setExpandedSource(expandedSource === "identity" ? "" : "identity")}><span><b>企业身份登记</b><small>{identitySource} · 当前会话</small></span><span className="ep-status confirmed">用户确认</span><span>{expandedSource === "identity" ? "−" : "+"}</span></button>{expandedSource === "identity" && <div className="ep-source-detail"><p>企业名称：{displayName}</p><p>身份：当前系统使用方 / 本企业。</p><p>说明：用户确认不等同于官方注册信息独立核验。</p></div>}<div className="ep-source-row static"><span><b>官网资料采集</b><small>官网页面、产品资料、公司介绍及公开信息</small></span><span className="ep-status pending">待接入</span></div><div className="ep-source-row static"><span><b>用户资料修改历史</b><small>字段级版本、修改人、修改时间和原始值</small></span><span className="ep-status pending">待接入</span></div><div className="ep-source-row static"><span><b>AI 分析与推断</b><small>AI 生成结论应与用户提供事实明确区分并附依据</small></span><span className="ep-status pending">待接入</span></div></div>}
           </section></>}
           {workspaceTab === "analysis" && <AIAnalysisPage embedded />}
-          {workspaceTab === "results" && <section className="ep-tab-content"><div className="ep-tab-heading"><div><div className="ep-section-kicker">ANALYSIS REPORTS</div><h2>分析结果</h2><p>集中查看本企业历次 AI 分析报告、维度结论与版本变化。</p></div></div><div className="ep-panel ep-detail-panel"><div className="ep-panel-toolbar"><div><b>尚无已完成的分析报告</b><small>完成 AI 分析后，报告将在这里按版本归档。当前预览环境尚未接入真实 AI 调用与结果持久化。</small></div><span className="ep-status pending">等待分析</span></div><button type="button" className="ep-button-primary" onClick={() => setWorkspaceTab("analysis")}>配置 AI 分析 <ArrowRight size={15}/></button></div></section>}
+          {workspaceTab === "results" && <AnalysisResultsPage companyName={displayName} onConfigureAnalysis={() => setWorkspaceTab("analysis")} /> }
         </>
       )}
       <div className="ep-page-footer"><span>KOSMOEVRETIS · ENTERPRISE PROFILE</span><span>本企业经营认知 · AI 规划基础</span></div>
