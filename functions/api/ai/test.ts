@@ -1,4 +1,4 @@
-import { requireAdmin, type AIEnv } from "../../_lib/ai";
+import { requireAdmin, type AIEnv } from "../../lib/ai";
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: AIEnv }) => {
   const denied = await requireAdmin(request, env);
