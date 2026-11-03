@@ -5,7 +5,7 @@ import {
   DataTable as DataTableIcon, Code
 } from "@carbon/icons-react";
 import {
-  Button, InlineLoading, InlineNotification,
+  Accordion, AccordionItem, Button, InlineLoading, InlineNotification,
   Dropdown, NumberInput, Tag, TextArea, Toggle
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
@@ -396,9 +396,11 @@ export function MarketTrendsPage() {
           {activeTab === "raw" && <div className="mt-result-content">
             <div className="mt-raw-toolbar"><div><h3>Actor 完整数据集</h3><p>{rawItems.length.toLocaleString()} 条记录 · 完整保留 Actor 返回的全部字段。</p></div><div><Button kind="tertiary" size="sm" renderIcon={Download} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={Download} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
             <DataTable rows={rawItems} empty="Actor 执行完成后，完整数据集将在此显示。" />
-            <details className="mt-json-details"><summary><Code size={15} /> 查看完整 数据集 JSON ({rawItems.length} 条记录)</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
-            <details className="mt-json-details"><summary><Code size={15} /> 查看 Key-Value Store 输出 ({(activeTask.kv_records || []).length} 条记录)</summary><pre>{JSON.stringify(activeTask.kv_records || [], null, 2)}</pre></details>
-            <details className="mt-json-details"><summary><Information size={15} /> 查看完整 Actor 运行元数据</summary><pre>{JSON.stringify(activeTask.actor_meta || {}, null, 2)}</pre></details>
+            <Accordion align="start">
+              <AccordionItem title={`查看完整数据集 JSON（${rawItems.length} 条记录）`}><pre>{JSON.stringify(rawItems, null, 2)}</pre></AccordionItem>
+              <AccordionItem title={`查看 Key-Value Store 输出（${(activeTask.kv_records || []).length} 条记录）`}><pre>{JSON.stringify(activeTask.kv_records || [], null, 2)}</pre></AccordionItem>
+              <AccordionItem title="查看完整 Actor 运行元数据"><pre>{JSON.stringify(activeTask.actor_meta || {}, null, 2)}</pre></AccordionItem>
+            </Accordion>
           </div>}
         </>}
       </section>
