@@ -32,7 +32,7 @@ function actorInput(body: any) {
     geo: body.geo || "",
     timeRange: body.timeRange || "today 12-m",
     category: Number.isInteger(body.category) ? body.category : 0,
-    property: body.property || "web",
+    property: ["", "images", "news", "youtube", "froogle"].includes(body.property) ? body.property : "",
     maxItems: Math.min(5000, Math.max(1, Number(body.maxItems) || 1000))
   };
 }
