@@ -6,7 +6,7 @@ import {
 } from "@carbon/icons-react";
 import {
   Button, Checkbox, InlineLoading, InlineNotification,
-  NumberInput, Select, SelectItem, Tag, TextInput, Toggle
+  NumberInput, Select, SelectItem, Tag, TextArea, TextInput, Toggle
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
@@ -51,6 +51,7 @@ const statusLabel: Record<TaskStatus, string> = {
 };
 function pickNumber(value: any): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (Array.isArray(value) && value.length) return pickNumber(value[0]);
   if (typeof value === "string") {
     const parsed = Number(value.replace(/,/g, "").replace(/%/g, ""));
     return Number.isFinite(parsed) ? parsed : null;
@@ -78,6 +79,26 @@ function rowValue(row: any): number | null {
 }
 function rowLabel(row: any): string {
   return String(row?.query || row?.title || row?.geoName || row?.region || row?.formattedTime || row?.date || row?.keyword || row?.searchTerm || "—");
+}
+function extractRows(items: any[], kind: string, fieldNames: string[]): any[] {
+  const direct = items.filter((row) => rowKind(row) === kind);
+  if (direct.length) return direct;
+  const extracted: any[] = [];
+  for (const item of items) {
+    for (const field of fieldNames) {
+      const value = item?.[field];
+      const add = (entry: any, variant?: string) => {
+        if (entry && typeof entry === "object") extracted.push({ ...entry, type: kind, sourceSearchTerm: item.searchTerm || item.keyword || item.searchTerms || "", ...(variant ? { variant } : {}) });
+      };
+      if (Array.isArray(value)) value.forEach((entry) => add(entry));
+      else if (value && typeof value === "object") {
+        if (Array.isArray(value.top)) value.top.forEach((entry: any) => add(entry, "top"));
+        if (Array.isArray(value.rising)) value.rising.forEach((entry: any) => add(entry, "rising"));
+        if (!Array.isArray(value.top) && !Array.isArray(value.rising)) add(value);
+      }
+    }
+  }
+  return extracted;
 }
 function exportFile(name: string, content: string, mime: string) {
   const blob = new Blob([content], { type: mime });
@@ -143,11 +164,11 @@ export function MarketTrendsPage() {
 
   const keywords = useMemo(() => keywordsText.split(/[\n,;]+/).map((term) => term.trim()).filter(Boolean), [keywordsText]);
   const rawItems = activeTask?.raw_items || [];
-  const timelineRows = rawItems.filter((row) => rowKind(row) === "time");
-  const regionRows = rawItems.filter((row) => rowKind(row) === "region");
-  const queryRows = rawItems.filter((row) => rowKind(row) === "query");
-  const topicRows = rawItems.filter((row) => rowKind(row) === "topic");
-  const trendingRows = rawItems.filter((row) => rowKind(row) === "trending");
+  const timelineRows = extractRows(rawItems, "time", ["interestOverTime_timelineData", "interestOverTime", "timelineData", "timeline"]);
+  const regionRows = extractRows(rawItems, "region", ["interestByRegion", "interestBySubregion", "interestByCity", "regions"]);
+  const queryRows = extractRows(rawItems, "query", ["relatedQueries_top", "relatedQueries_rising", "relatedQueries", "topQueries", "risingQueries"]);
+  const topicRows = extractRows(rawItems, "topic", ["relatedTopics_top", "relatedTopics_rising", "relatedTopics", "topTopics", "risingTopics"]);
+  const trendingRows = extractRows(rawItems, "trending", ["trendingSearches", "trendingNow", "trending"]);
   const otherRows = rawItems.filter((row) => rowKind(row) === "other");
 
   const loadHistory = async () => {
@@ -248,7 +269,7 @@ export function MarketTrendsPage() {
       <aside className="mt-config-panel">
         <div className="mt-panel-heading"><div><span className="mt-step">01</span><div><h2>Research configuration</h2><p>Define the market signals to collect.</p></div></div><Tag type="blue">Apify Actor</Tag></div>
         <div className="mt-form-field">
-          <TextInput id="mt-keywords" labelText="Research keywords" placeholder={"e.g. industrial automation\nAI agents, smart factory"} helperText="Separate keywords with commas or line breaks. Up to five can be compared together." value={keywordsText} onChange={(event) => setKeywordsText(event.target.value)} disabled={trendingMode} />
+          <TextArea id="mt-keywords" labelText="Research keywords" placeholder={"e.g. industrial automation\nAI agents, smart factory"} helperText="Separate keywords with commas or line breaks. Up to five can be compared together." rows={3} value={keywordsText} onChange={(event) => setKeywordsText(event.target.value)} disabled={trendingMode} />
           {keywords.length > 0 && <div className="mt-keyword-tags">{keywords.map((keyword, index) => <Tag key={keyword + index} type="blue">{keyword}</Tag>)}</div>}
         </div>
         <div className="mt-form-grid">
