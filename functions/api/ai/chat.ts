@@ -8,7 +8,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: A
   if (!prompt || prompt.length > 30000) return Response.json({ error: "请输入 1–30000 字符的分析内容。" }, { status: 400 });
   if (id === "cloudflare") {
     if (!env.AI) return Response.json({ error: "Workers AI 绑定未配置。" }, { status: 503 });
-    try { const result = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", { messages: [{ role: "system", content: "你是 Kosmoevretis 企业经营分析助手。使用简体中文，区分事实、推断和建议，不得编造数据。" }, { role: "user", content: prompt }], max_tokens: 1800 }); return Response.json({ ok: true, provider: "Cloudflare Workers AI", result }); }
+    try { const result = await env.AI.run("@cf/zai-org/glm-4.7-flash", { messages: [{ role: "system", content: "你是 Kosmoevretis 企业经营分析助手。使用简体中文，区分事实、推断和建议，不得编造数据。" }, { role: "user", content: prompt }], max_tokens: 1800 }); return Response.json({ ok: true, provider: "Cloudflare Workers AI", result }); }
     catch (e) { return Response.json({ error: e instanceof Error ? e.message : "模型调用失败" }, { status: 502 }); }
   }
   const raw = await env.AI_CONFIG_KV.get(`provider:${id}`);
