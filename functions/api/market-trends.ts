@@ -2,6 +2,7 @@ type Env = { SUPABASE_URL: string; SUPABASE_ANON_KEY: string; APIFY_API_TOKEN?: 
 const json = (data: unknown, status = 200) => Response.json(data, { status });
 const safeJson = async (response: Response) => response.json().catch(() => ({})) as Promise<any>;
 const actorDefault = "surefetch/google-trends";
+const apifyToken = (request: Request, env: Env) => request.headers.get("X-Apify-Token")?.trim() || env.APIFY_API_TOKEN || "";
 
 async function authenticate(request: Request, env: Env) {
   const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
@@ -36,16 +37,18 @@ async function supabasePatch(base: string, headers: Record<string, string>, id: 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
   const auth = await authenticate(request, env);
   if ("error" in auth) return auth.error;
-  if (!env.APIFY_API_TOKEN) return json({ error: "Apify is not connected in this Preview environment. Add APIFY_API_TOKEN as a Cloudflare Pages Preview secret to enable Actor runs." }, 503);
+  const token = apifyToken(request, env);
+  if (!token) return json({ error: "请先前往「设置 → Apify 数据服务」填写 Apify API Token。" }, 503);
   let body: any;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON request." }, 400); }
   const organizationId = typeof body?.organizationId === "string" ? body.organizationId : "";
   const keywords = Array.isArray(body?.keywords) ? body.keywords.map((v: unknown) => String(v).trim()).filter(Boolean).slice(0, 100) : [];
   const isTrending = body?.mode === "trendingNow";
-  if (!organizationId || (!isTrending && !keywords.length)) return json({ error: "A workspace and at least one keyword are required." }, 400);
+  const customInput = body?.actorInput && typeof body.actorInput === "object" && !Array.isArray(body.actorInput);
+  if (!organizationId || (!isTrending && !keywords.length && !customInput)) return json({ error: "A workspace and at least one keyword or a complete Actor input JSON object are required." }, 400);
   if (body?.compareTerms && keywords.length > 5) return json({ error: "A comparison group can contain at most five keywords." }, 400);
   const actorId = (env.APIFY_ACTOR_ID || actorDefault).replace("/", "~");
-  const input = actorInput({ ...body, keywords });
+  const input = customInput ? body.actorInput : actorInput({ ...body, keywords });
   const taskInsert = await fetch(auth.base + "/rest/v1/market_trend_tasks", {
     method: "POST",
     headers: { ...auth.headers, Prefer: "return=representation" },
@@ -61,7 +64,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
 
   const runResponse = await fetch("https://api.apify.com/v2/acts/" + actorId + "/runs", {
     method: "POST",
-    headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN, "Content-Type": "application/json" },
+    headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
     body: JSON.stringify(input)
   });
   const runPayload = await safeJson(runResponse);
@@ -90,10 +93,10 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   const task = rows?.[0];
   if (!task) return json({ error: "Research task not found." }, 404);
   if (!task.actor_run_id || !["queued", "running"].includes(task.status)) return json({ task });
-
-  if (!env.APIFY_API_TOKEN) return json({ error: "Apify API token is not configured." }, 503);
+  const token = apifyToken(request, env);
+  if (!token) return json({ error: "请在「设置 → Apify 数据服务」填写 Apify API Token 后刷新任务。" }, 503);
   const runResponse = await fetch("https://api.apify.com/v2/actor-runs/" + encodeURIComponent(task.actor_run_id), {
-    headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN }
+    headers: { Authorization: "Bearer " + token }
   });
   const runPayload = await safeJson(runResponse);
   if (!runResponse.ok || !runPayload?.data) return json({ task, error: "Unable to read Apify run status." }, 502);
@@ -115,7 +118,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
       for (let offset = 0; offset < maxItems; offset += 1000) {
         const limit = Math.min(1000, maxItems - offset);
         const url = "https://api.apify.com/v2/datasets/" + encodeURIComponent(datasetId) + "/items?format=json&clean=true&offset=" + offset + "&limit=" + limit;
-        const dataResponse = await fetch(url, { headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN } });
+        const dataResponse = await fetch(url, { headers: { Authorization: "Bearer " + token } });
         if (!dataResponse.ok) throw new Error("Dataset download failed with HTTP " + dataResponse.status);
         const page = await safeJson(dataResponse);
         if (!Array.isArray(page)) throw new Error("Apify returned an unexpected dataset format.");
@@ -130,7 +133,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
       let keys: any[] = [];
       for (let offset = 0; offset < 5000; offset += 1000) {
         const keyUrl = "https://api.apify.com/v2/key-value-stores/" + encodeURIComponent(keyValueStoreId) + "/keys?limit=1000&offset=" + offset;
-        const keyResponse = await fetch(keyUrl, { headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN } });
+        const keyResponse = await fetch(keyUrl, { headers: { Authorization: "Bearer " + token } });
         if (!keyResponse.ok) throw new Error("Key-value store listing failed with HTTP " + keyResponse.status);
         const keyPayload = await safeJson(keyResponse);
         const page = keyPayload?.data?.items || keyPayload?.items || [];
@@ -142,7 +145,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
         const key = String(keyInfo.key || "");
         if (!key) continue;
         const recordUrl = "https://api.apify.com/v2/key-value-stores/" + encodeURIComponent(keyValueStoreId) + "/records/" + encodeURIComponent(key);
-        const recordResponse = await fetch(recordUrl, { headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN } });
+        const recordResponse = await fetch(recordUrl, { headers: { Authorization: "Bearer " + token } });
         if (!recordResponse.ok) {
           kvRecords.push({ key, error: "Record download failed with HTTP " + recordResponse.status, metadata: keyInfo });
           continue;
