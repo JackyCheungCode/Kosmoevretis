@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Add, CheckmarkFilled, ChevronDown, ChevronRight, Cloud, Connect, Locked, Search, SettingsAdjust, WarningAlt } from "@carbon/icons-react";
+import { CheckmarkFilled, ChevronDown, ChevronRight, Cloud, Connect, Locked, Search } from "@carbon/icons-react";
 
 type Provider = { id: string; name: string; region: "国内" | "国际" | "聚合与基础设施"; category: string; description: string; logo: string; models: string[]; featured?: boolean };
 const providers: Provider[] = [
