@@ -311,7 +311,7 @@ export function EnterpriseProfilePage({
                 {!history.length && <p className="ep-muted">保存档案后，数据库版本记录会显示在这里。</p>}
               </div>
             </AccordionItem>
-          </Accordion>   </Tabs>
+          </Accordion>
 
           <div className="profile-actions">
             <Button type="submit" disabled={busy || !name.trim()}>{busy ? "保存中…" : "保存档案"}</Button>
