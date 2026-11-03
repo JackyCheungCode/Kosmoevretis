@@ -6,7 +6,7 @@ import {
 } from "@carbon/icons-react";
 import {
   Button, InlineLoading, InlineNotification,
-  NumberInput, Select, SelectItem, Tag, TextArea, Toggle
+  Dropdown, NumberInput, Tag, TextArea, Toggle
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
@@ -139,10 +139,10 @@ export function MarketTrendsPage() {
   const [geo, setGeo] = useState("");
   const [timeRange, setTimeRange] = useState("today 12-m");
   const [property, setProperty] = useState("web");
-  const [category, set类别] = useState("0");
+  const [category, setCategory] = useState("0");
   const [maxItems, setMaxItems] = useState(1000);
   const [compareTerms, setCompareTerms] = useState(false);
-  const [trendingMode, set实时趋势Mode] = useState(false);
+  const [trendingMode, setTrendingMode] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [tasks, setTasks] = useState<TrendTask[]>([]);
   const [activeTask, setActiveTask] = useState<TrendTask | null>(null);
@@ -212,7 +212,7 @@ export function MarketTrendsPage() {
       const task = await fetchTask(payload.taskId);
       setNotice("研究任务已提交，结果将自动更新。");
       setActiveTab("overview");
-      if (task.status === "succeeded" || task.status === "partial") setNotice("研究已完成，收到 " + task.result_count + " 条记录 received.");
+      if (task.status === "succeeded" || task.status === "partial") setNotice("研究已完成，收到 " + task.result_count + " 条记录。");
       await loadHistory();
     } catch (e) {
       setError(e instanceof Error ? e.message : "研究请求失败。");
@@ -260,18 +260,10 @@ export function MarketTrendsPage() {
           {keywords.length > 0 && <div className="mt-keyword-tags">{keywords.map((keyword, index) => <Tag key={keyword + index} type="blue">{keyword}</Tag>)}</div>}
         </div>
         <div className="mt-form-grid">
-          <Select id="mt-geo" labelText="目标地区" value={geo} onChange={(event) => setGeo(event.target.value)}>
-            {geoItems.map((item) => <SelectItem key={item.id || "world"} value={item.id} text={item.text} />)}
-          </Select>
-          <Select id="mt-time" labelText="时间范围" value={timeRange} onChange={(event) => setTimeRange(event.target.value)}>
-            {timeItems.map((item) => <SelectItem key={item.id} value={item.id} text={item.text} />)}
-          </Select>
-          <Select id="mt-property" labelText="搜索类型" value={property} onChange={(event) => setProperty(event.target.value)}>
-            {propertyItems.map((item) => <SelectItem key={item.id} value={item.id} text={item.text} />)}
-          </Select>
-          <Select id="mt-category" labelText="类别" value={category} onChange={(event) => set类别(event.target.value)}>
-            {categories.map((item) => <SelectItem key={item.id} value={item.id} text={item.text} />)}
-          </Select>
+          <Dropdown id="mt-geo" titleText="目标地区" label="请选择地区" items={geoItems} itemToString={(item) => item?.text || ""} selectedItem={geoItems.find((item) => item.id === geo) || geoItems[0]} onChange={({ selectedItem }) => setGeo(selectedItem?.id ?? "")} />
+          <Dropdown id="mt-time" titleText="时间范围" label="请选择时间范围" items={timeItems} itemToString={(item) => item?.text || ""} selectedItem={timeItems.find((item) => item.id === timeRange) || timeItems[2]} onChange={({ selectedItem }) => selectedItem && setTimeRange(selectedItem.id)} />
+          <Dropdown id="mt-property" titleText="搜索类型" label="请选择搜索类型" items={propertyItems} itemToString={(item) => item?.text || ""} selectedItem={propertyItems.find((item) => item.id === property) || propertyItems[0]} onChange={({ selectedItem }) => selectedItem && setProperty(selectedItem.id)} />
+          <Dropdown id="mt-category" titleText="类别" label="请选择类别" items={categories} itemToString={(item) => item?.text || ""} selectedItem={categories.find((item) => item.id === category) || categories[0]} onChange={({ selectedItem }) => selectedItem && setCategory(selectedItem.id)} />
         </div>
 
         <div className="mt-output-picker">
@@ -288,9 +280,9 @@ export function MarketTrendsPage() {
         <div className="mt-advanced-toggle"><button type="button" onClick={() => setAdvancedOpen(!advancedOpen)}><Filter size={16} /> 高级设置 <ChevronDown size={16} className={advancedOpen ? "is-open" : ""} /></button></div>
         {advancedOpen && <div className="mt-advanced-content">
           <Toggle id="mt-compare" labelText="在同一尺度对比关键词" labelA="关闭" labelB="开启" toggled={compareTerms} onToggle={setCompareTerms} />
-          <div className="mt-max-items"><NumberInput id="mt-max-items" label="最大数据集条数" min={1} max={5000} value={maxItems} onChange={(_event, state) => setMaxItems(Number(state.value) || 1)} helperText="Cost control · 1–5,000 条记录" /></div>
-          <Toggle id="mt-trending-mode" labelText="改为采集实时趋势" labelA="关闭" labelB="开启" toggled={trendingMode} onToggle={set实时趋势Mode} />
-          {trendingMode && <div className="mt-config-note"><Information size={16} /><span>实时趋势 Now uses the selected 目标地区. Choose a country instead 条，共 全球.</span></div>}
+          <div className="mt-max-items"><NumberInput id="mt-max-items" label="最大数据集条数" min={1} max={5000} value={maxItems} onChange={(_event, state) => setMaxItems(Number(state.value) || 1)} helperText="成本控制 · 1–5,000 条" /></div>
+          <Toggle id="mt-trending-mode" labelText="改为采集实时趋势" labelA="关闭" labelB="开启" toggled={trendingMode} onToggle={setTrendingMode} />
+          {trendingMode && <div className="mt-config-note"><Information size={16} /><span>实时趋势使用所选目标地区。请指定国家/地区，不要选择全球。</span></div>}
           <div className="mt-config-note"><Information size={16} /><span>Actor 专属字段由服务端适配器映射。即使更换数据提供方，研究表单也保持稳定。</span></div>
         </div>}
         <div className="mt-run-footer">
@@ -314,7 +306,7 @@ export function MarketTrendsPage() {
             <div><small>键值存储输出</small><b>{(activeTask.kv_records || []).length}</b></div>
             <div><small>Actor 用量</small><b>{activeTask.actor_meta?.usageTotalUsd == null ? "—" : "$" + Number(activeTask.actor_meta.usageTotalUsd).toFixed(4)}</b></div>
           </div>
-          {(activeTask.status === "queued" || activeTask.status === "running") && <div className="mt-running-state"><InlineLoading description="Apify 数据采集器 is running. Results refresh automatically." /><span>{activeTask.actor_run_id || "等待 Actor 运行 ID"}</span></div>}
+          {(activeTask.status === "queued" || activeTask.status === "running") && <div className="mt-running-state"><InlineLoading description="Apify Actor 正在运行，结果将自动刷新。" /><span>{activeTask.actor_run_id || "等待 Actor 运行 ID"}</span></div>}
           {activeTask.error_message && <InlineNotification kind="warning" title="Actor 执行提示" subtitle={activeTask.error_message} lowContrast />}
           <div className="mt-result-tabs">
             {[
