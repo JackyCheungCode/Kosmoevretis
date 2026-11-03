@@ -4,14 +4,18 @@ import { ArrowRight, ChartLine, Locked } from "@carbon/icons-react";
 type View = "overview" | "dimensions" | "history";
 
 const dimensions = [
-  { id: "strategy", name: "企业战略与经营诊断", detail: "商业模式、核心能力、经营目标与战略一致性" },
-  { id: "market", name: "市场与行业机会", detail: "市场规模、趋势、区域机会与进入壁垒" },
-  { id: "competitor", name: "竞争格局与对标分析", detail: "竞争者、替代方案、差异化和竞争优势" },
-  { id: "product", name: "产品与服务组合", detail: "产品竞争力、价值主张、定价与产品路线" },
-  { id: "growth", name: "销售增长与客户策略", detail: "客户细分、获客渠道、销售漏斗与增长路径" },
-  { id: "operation", name: "组织与运营效率", detail: "组织能力、流程、供应链与资源配置" },
-  { id: "finance", name: "财务与资源规划", detail: "预算、成本结构、投入优先级与情景推演" },
-  { id: "risk", name: "风险与合规识别", detail: "经营风险、外部依赖、合规与应急预案" },
+  { id: "foundation", name: "企业基础认知", detail: "企业定位、发展阶段、核心业务与关键背景" },
+  { id: "business-model", name: "商业模式分析", detail: "价值创造、收入来源、成本结构与盈利逻辑" },
+  { id: "product", name: "产品与服务能力", detail: "产品组合、服务交付、差异化能力与价值主张" },
+  { id: "market", name: "市场环境分析", detail: "行业趋势、市场规模、区域环境与外部驱动因素" },
+  { id: "customer", name: "客户与需求分析", detail: "客户细分、购买动机、痛点需求与客户价值" },
+  { id: "competitor", name: "竞争格局分析", detail: "竞争者、替代方案、市场定位与竞争优势" },
+  { id: "organization", name: "组织与人才分析", detail: "组织架构、关键岗位、人才能力与治理机制" },
+  { id: "operations", name: "运营与资源分析", detail: "运营流程、供应链、技术设施与资源配置效率" },
+  { id: "finance", name: "财务与经营健康度", detail: "收入成本、现金流、盈利能力与经营韧性" },
+  { id: "risk", name: "风险分析", detail: "战略、市场、运营、财务、合规及外部依赖风险" },
+  { id: "swot", name: "SWOT 与战略分析", detail: "优势、劣势、机会、威胁及战略匹配" },
+  { id: "planning", name: "发展目标与规划分析", detail: "阶段目标、战略路径、关键举措与资源需求" },
 ];
 
 export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { companyName: string; onConfigureAnalysis: () => void }) {
@@ -24,7 +28,7 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { comp
 
     <nav className="ar-tabs" aria-label="分析结果分区">
       <button type="button" className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}>报告总览</button>
-      <button type="button" className={view === "dimensions" ? "active" : ""} onClick={() => setView("dimensions")}>维度报告 <span>8</span></button>
+      <button type="button" className={view === "dimensions" ? "active" : ""} onClick={() => setView("dimensions")}>维度报告 <span>12</span></button>
       <button type="button" className={view === "history" ? "active" : ""} onClick={() => setView("history")}>历史版本</button>
     </nav>
 
@@ -36,7 +40,7 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { comp
       </div>
       <div className="ar-metrics">
         <article><span>综合经营评分</span><strong>—<small>/ 100</small></strong><small>等待真实分析数据</small></article>
-        <article><span>已完成分析维度</span><strong>0<small>/ 8</small></strong><small>尚无已完成任务</small></article>
+        <article><span>已完成分析维度</span><strong>0<small>/ 12</small></strong><small>尚无已完成任务</small></article>
         <article><span>关键发现</span><strong>—</strong><small>由分析结果自动归纳</small></article>
         <article><span>高优先级风险</span><strong>—</strong><small>等待风险识别结果</small></article>
       </div>
@@ -62,7 +66,7 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { comp
     </>}
 
     {view === "dimensions" && <div className="ar-section-card">
-      <div className="ar-section-title"><div><b>八大分析维度</b><small>每个维度将独立保存结论、证据、评分及建议。</small></div><span>0 / 8 已完成</span></div>
+      <div className="ar-section-title"><div><b>十二大分析维度</b><small>每个维度将独立保存结论、证据、评分及建议。</small></div><span>0 / 12 已完成</span></div>
       <div className="ar-dimension-list">{dimensions.map((item,index) => <article key={item.id}><span className="ar-dimension-no">{String(index+1).padStart(2,"0")}</span><div><b>{item.name}</b><small>{item.detail}</small></div><span className="ar-waiting">待分析</span><span className="ar-dash">—</span></article>)}</div>
       <div className="ar-footnote">维度内容将在真实 AI 任务完成后写入；当前不展示模拟评分或虚构结论。</div>
     </div>}
