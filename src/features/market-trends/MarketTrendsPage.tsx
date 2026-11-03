@@ -6,7 +6,7 @@ import {
 } from "@carbon/icons-react";
 import {
   Accordion, AccordionItem, Button, InlineLoading, InlineNotification,
-  Dropdown, NumberInput, Tag, TextArea, Toggle
+  Dropdown, NumberInput, Tag, TextArea, Toggle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
@@ -18,6 +18,7 @@ type TrendTask = {
   input_snapshot: Record<string, any>; raw_items?: any[]; error_message?: string | null;
   actor_run_id?: string | null; completed_at?: string | null; actor_meta?: Record<string, any>; kv_records?: any[]; key_value_store_id?: string | null;
 };
+const countryFlag = (code: string) => { const value = String(code || "").toUpperCase(); return /^[A-Z]{2}$/.test(value) ? String.fromCodePoint(...[...value].map((c) => 127397 + c.charCodeAt(0))) : "🌐"; };
 const geoItems = [
   { id: "", text: "全球" }, { id: "US", text: "美国" }, { id: "GB", text: "英国" },
   { id: "DE", text: "德国" }, { id: "JP", text: "日本" }, { id: "KR", text: "韩国" },
@@ -179,9 +180,9 @@ function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))), [rows]);
   if (!rows.length) return <div className="mt-empty-inline"><Search size={22} /><span>{empty}</span></div>;
   const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-  return <div className="mt-table-scroll"><table className="mt-data-table"><thead><tr>{columns.map((key) => <th key={key}>{key}</th>)}</tr></thead><tbody>
-    {visibleRows.map((row, index) => <tr key={currentPage * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
-  </tbody></table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><Button kind="ghost" size="sm" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</Button><span>第 {currentPage + 1} / {pageCount}</span><Button kind="ghost" size="sm" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</Button></div></div></div>;
+  return <div className="mt-table-scroll"><Table size="lg" useZebraStyles><TableHead><TableRow>{columns.map((key) => <TableHeader key={key}>{key}</TableHeader>)}</TableRow></TableHead><TableBody>
+    {visibleRows.map((row, index) => <TableRow key={currentPage * pageSize + index}>{columns.map((key) => { const raw = row[key]; const value = typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw ?? "—"); const isGeo = /^(geoName|region|country|name|location|geo)$/i.test(key); const code = row.countryCode || row.geoCode || row.code || (/^[A-Z]{2}$/i.test(String(raw || "")) ? String(raw) : ""); return <TableCell key={key}>{isGeo ? <span className="mt-country-cell"><span className="mt-country-flag" aria-hidden="true">{countryFlag(code)}</span>{value}</span> : value}</TableCell>; })}</TableRow>)}
+  </TableBody></Table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><Button kind="ghost" size="sm" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</Button><span>第 {currentPage + 1} / {pageCount}</span><Button kind="ghost" size="sm" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</Button></div></div></div>;
 }
 export function MarketTrendsPage() {
   const { session, workspace } = useAuth();
@@ -321,7 +322,7 @@ export function MarketTrendsPage() {
           {keywords.length > 0 && <div className="mt-keyword-tags">{keywords.map((keyword, index) => <Tag key={keyword + index} type="blue">{keyword}</Tag>)}</div>}
         </div>
         <div className="mt-form-grid">
-          <Dropdown id="mt-geo" titleText="目标地区" label="请选择地区" items={geoItems} itemToString={(item) => item?.text || ""} selectedItem={geoItems.find((item) => item.id === geo) || geoItems[0]} onChange={({ selectedItem }) => setGeo(selectedItem?.id ?? "")} />
+          <Dropdown id="mt-geo" titleText="目标地区" label="请选择地区" items={geoItems} itemToString={(item) => item ? countryFlag(item.id) + "  " + item.text : ""} selectedItem={geoItems.find((item) => item.id === geo) || geoItems[0]} onChange={({ selectedItem }) => setGeo(selectedItem?.id ?? "")} />
           <Dropdown id="mt-time" titleText="时间范围" label="请选择时间范围" items={timeItems} itemToString={(item) => item?.text || ""} selectedItem={timeItems.find((item) => item.id === timeRange) || timeItems[2]} onChange={({ selectedItem }) => selectedItem && setTimeRange(selectedItem.id)} />
           <Dropdown id="mt-property" titleText="搜索类型" label="请选择搜索类型" items={propertyItems} itemToString={(item) => item?.text || ""} selectedItem={propertyItems.find((item) => item.id === property) || propertyItems[0]} onChange={({ selectedItem }) => selectedItem && setProperty(selectedItem.id)} />
           <Dropdown id="mt-category" titleText="类别" label="请选择类别" items={categories} itemToString={(item) => item?.text || ""} selectedItem={categories.find((item) => item.id === category) || categories[0]} onChange={({ selectedItem }) => selectedItem && setCategory(selectedItem.id)} />
