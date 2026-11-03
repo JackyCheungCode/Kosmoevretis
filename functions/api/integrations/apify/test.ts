@@ -86,23 +86,17 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const actor = resolvedActorId === actorSlug && directActor?.data?.id
     ? directActor
     : await safe(actorResponse);
-
-  const actorResponse = await fetch(
-    "https://api.apify.com/v2/actors/" + encodeURIComponent(listedActor.id),
-    { headers }
-  );
-  const actor = await safe(actorResponse);
   if (!actorResponse.ok || !actor?.data?.id) {
     return json({
       ok: false,
-      stage: "actor_by_store_id",
+      stage: "actor_detail",
       account: { username: account.data.username || null, id: account.data.id },
       actorSlug,
       resolvedActorId,
       storeLookup: storeDiagnostics,
       httpStatus: actorResponse.status,
       apifyType: actor?.error?.type || null,
-      error: "Store 已找到该 Actor，但通过其固定 Actor ID 读取详情失败（HTTP " + actorResponse.status + "）：" + (actor?.error?.message || "未知错误。")
+      error: "已解析 Actor 标识，但读取 Actor 详情失败（HTTP " + actorResponse.status + "）：" + (actor?.error?.message || "未知错误。")
     }, 502);
   }
 
