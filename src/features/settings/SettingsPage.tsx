@@ -33,7 +33,11 @@ export function SettingsPage() {
   const [filter,setFilter]=useState<(typeof filters)[number]>("全部");
   const [query,setQuery]=useState("");
   const [expanded,setExpanded]=useState<string|null>("openrouter");
-  const [showUsage,setShowUsage]=useState(false);\n  const [workersAiTesting,setWorkersAiTesting]=useState(false);\n  const [workersAiStatus,setWorkersAiStatus]=useState("");\n  const [workersAiOutput,setWorkersAiOutput]=useState("");\n  const testWorkersAI=async()=>{setWorkersAiTesting(true);setWorkersAiStatus("");setWorkersAiOutput("");try{const response=await fetch("/api/ai/test",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"@cf/meta/llama-3.1-8b-instruct",prompt:"请用简体中文回复：Kosmoevretis 设置页面的 Workers AI 连接测试成功。"})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 请求失败");setWorkersAiStatus("连接成功 · 已收到真实模型响应");setWorkersAiOutput(typeof payload.result==="string"?payload.result:JSON.stringify(payload.result,null,2));}catch(error){setWorkersAiStatus(error instanceof Error?error.message:"Workers AI 调用失败");}finally{setWorkersAiTesting(false);}};
+  const [showUsage,setShowUsage]=useState(false);
+  const [workersAiTesting,setWorkersAiTesting]=useState(false);
+  const [workersAiStatus,setWorkersAiStatus]=useState("");
+  const [workersAiOutput,setWorkersAiOutput]=useState("");
+  const testWorkersAI=async()=>{setWorkersAiTesting(true);setWorkersAiStatus("");setWorkersAiOutput("");try{const response=await fetch("/api/ai/test",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"@cf/meta/llama-3.1-8b-instruct",prompt:"请用简体中文回复：Kosmoevretis 设置页面的 Workers AI 连接测试成功。"})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 请求失败");setWorkersAiStatus("连接成功 · 已收到真实模型响应");setWorkersAiOutput(typeof payload.result==="string"?payload.result:JSON.stringify(payload.result,null,2));}catch(error){setWorkersAiStatus(error instanceof Error?error.message:"Workers AI 调用失败");}finally{setWorkersAiTesting(false);}};
   const visible=useMemo(()=>providers.filter(p=>(filter==="全部"||p.region===filter)&& (p.name.toLowerCase().includes(query.toLowerCase())||p.description.toLowerCase().includes(query.toLowerCase()))),[filter,query]);
   const groups=["国内","国际","聚合与基础设施"] as const;
   return <div className="settings-page">
