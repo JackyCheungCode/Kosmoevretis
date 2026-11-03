@@ -101,8 +101,22 @@ export function EnterpriseProfilePage() {
   const [profileDistrict, setProfileDistrict] = useState("");
   const [profileAddressDetail, setProfileAddressDetail] = useState("");
   const [identitySource, setIdentitySource] = useState("用户手动创建");
+  const [enterpriseAnalysis, setEnterpriseAnalysis] = useState("");
+  const [analysisBusy, setAnalysisBusy] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
 
   const displayName = profile.brandName || profile.legalName || profile.companyName || candidate || "本企业";
+  const runEnterpriseAnalysis = async () => {
+    setAnalysisBusy(true); setAnalysisError(""); setEnterpriseAnalysis("");
+    const prompt = "请为企业制定可执行的经营方案，并完成综合经营诊断。企业名称：" + displayName + "。企业档案：" + JSON.stringify(profile) + "。请输出企业理解摘要、核心能力、产品与服务、目标市场与客户、市场机会、主要风险、未来12个月优先行动计划、关键指标及待补充数据。区分事实、推断和建议，不得编造企业数据。";
+    try {
+      const response = await fetch("/api/ai/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider: "cloudflare", prompt }) });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "AI 方案生成失败");
+      setEnterpriseAnalysis(typeof data.result === "string" ? data.result : JSON.stringify(data.result, null, 2));
+    } catch (error) { setAnalysisError(error instanceof Error ? error.message : "AI 调用失败"); }
+    finally { setAnalysisBusy(false); }
+  };
   const filledCount = useMemo(() => Object.values(profile).filter((v) => v.trim()).length, [profile]);
   const totalFields = fieldGroups.reduce((n, group) => n + group.fields.length, 0);
   const completion = Math.round((filledCount / totalFields) * 100);
@@ -204,7 +218,7 @@ export function EnterpriseProfilePage() {
             {activeTab === "sources" && <div className="ep-panel ep-detail-panel"><div className="ep-panel-toolbar"><div><b>企业资料来源与修改记录</b><small>正式版本应为每个字段记录来源 URL、采集时间、确认人和修改前后值。</small></div><span className="ep-status pending">审计服务待接入</span></div><button className="ep-source-row" type="button" onClick={() => setExpandedSource(expandedSource === "identity" ? "" : "identity")}><span><b>企业身份登记</b><small>{identitySource} · 当前会话</small></span><span className="ep-status confirmed">用户确认</span><span>{expandedSource === "identity" ? "−" : "+"}</span></button>{expandedSource === "identity" && <div className="ep-source-detail"><p>企业名称：{displayName}</p><p>身份：当前系统使用方 / 本企业。</p><p>说明：用户确认不等同于官方注册信息独立核验。</p></div>}<div className="ep-source-row static"><span><b>官网资料采集</b><small>官网页面、产品资料、公司介绍及公开信息</small></span><span className="ep-status pending">待接入</span></div><div className="ep-source-row static"><span><b>用户资料修改历史</b><small>字段级版本、修改人、修改时间和原始值</small></span><span className="ep-status pending">待接入</span></div><div className="ep-source-row static"><span><b>AI 分析与推断</b><small>AI 生成结论应与用户提供事实明确区分并附依据</small></span><span className="ep-status pending">待接入</span></div></div>}
           </section></>}
           {workflowStep === 2 && <AIAnalysisPage embedded onContinue={() => setWorkflowStep(3)} />}
-          {workflowStep === 3 && <section className="ep-tab-content ep-execution-step"><div className="ep-tab-heading"><div><div className="ep-section-kicker">03 / AI ANALYSIS EXECUTION</div><h2>AI 分析任务</h2><p>确认企业方案与模型配置后，在此启动并监控分析任务。</p></div><span className="ep-status pending">等待服务接入</span></div><div className="ep-execution-card"><div className="ep-execution-icon"><ChartLine size={26}/></div><h3>分析配置已准备就绪</h3><p>当前平台尚未接入真实 AI 调用凭证与任务执行网关，因此不会伪造运行进度或分析结果。完成服务接入后，此处将显示各维度任务状态、执行进度和异常信息。</p><div className="ep-execution-list"><span>企业方案 <b>已确认</b></span><span>模型配置 <b>本次会话已选择</b></span><span>AI 执行服务 <b>尚未连接</b></span></div><div className="ep-actions"><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep(2)}>返回模型选择</button><button type="button" className="ep-button-primary" onClick={() => setWorkflowStep(4)}>前往分析结果 <ArrowRight size={16}/></button></div></div></section>}{workflowStep === 4 && <AnalysisResultsPage companyName={displayName} onConfigureAnalysis={() => setWorkflowStep(2)} /> }
+          {workflowStep === 3 && <section className="ep-tab-content ep-execution-step"><div className="ep-tab-heading"><div><div className="ep-section-kicker">03 / AI ANALYSIS EXECUTION</div><h2>AI 分析任务</h2><p>使用平台已配置的 Workers AI 生成企业经营诊断与行动方案。</p></div><span className="ep-status pending">{enterpriseAnalysis ? "分析已完成" : analysisBusy ? "正在执行" : "等待启动"}</span></div><div className="ep-execution-card"><div className="ep-execution-icon"><ChartLine size={26}/></div><h3>企业经营方案生成</h3><p>将当前企业档案提交至平台 AI 网关。输出会区分事实、推断和待验证事项。</p><div className="ep-execution-list"><span>企业方案 <b>已确认</b></span><span>模型服务 <b>Workers AI（平台配置）</b></span><span>档案完整度 <b>{completion}%</b></span></div><div className="ep-actions"><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep(2)}>返回模型选择</button><button type="button" className="ep-button-primary" disabled={analysisBusy} onClick={runEnterpriseAnalysis}>{analysisBusy ? "AI 正在生成…" : "执行 AI 企业分析"} <ArrowRight size={16}/></button></div>{analysisError && <p role="alert">{analysisError}</p>}{enterpriseAnalysis && <div className="ep-ai-result"><h3>AI 企业经营分析结果</h3><pre style={{ whiteSpace: "pre-wrap", font: "inherit" }}>{enterpriseAnalysis}</pre><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep(4)}>查看分析结果中心 <ArrowRight size={16}/></button></div>}</div></section>}{workflowStep === 4 && <AnalysisResultsPage companyName={displayName} onConfigureAnalysis={() => setWorkflowStep(2)} /> }
         </>
       )}
       {confirmed && <div className="ep-workflow-controls"><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep((s) => Math.max(1,s-1) as 1 | 2 | 3 | 4)} disabled={workflowStep === 1}>上一步</button><span>步骤 {workflowStep} / 4 · {["企业方案","AI 模型选择","AI 分析","分析结果"][workflowStep-1]}</span><button type="button" className="ep-button-primary" onClick={() => setWorkflowStep((s) => Math.min(4,s+1) as 1 | 2 | 3 | 4)} disabled={workflowStep === 4 || (workflowStep === 1 && !confirmed)}>下一步 <ArrowRight size={16}/></button></div>}<div className="ep-page-footer"><span>KOSMOEVRETIS · ENTERPRISE PROFILE</span><span>本企业经营认知 · AI 规划基础</span></div>
