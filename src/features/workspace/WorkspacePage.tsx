@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextInput, InlineNotification } from "@carbon/react";
 import { requireSupabase } from "../../lib/supabase";
@@ -8,7 +8,7 @@ export function WorkspacePage() {
   const { session, workspace, refresh } = useAuth();
   const [name,setName]=useState(""); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
   const navigate=useNavigate();
-  const create=async(e:React.FormEvent)=>{e.preventDefault();if(!session)return;setBusy(true);setError("");
+  const create=async(e:FormEvent)=>{e.preventDefault();if(!session)return;setBusy(true);setError("");
     try { const client=requireSupabase(); const slug=name.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48);
       const {error:insertError}=await client.from("organizations").insert({name:name.trim(),slug:slug||null,created_by:session.user.id}); if(insertError)throw insertError;
       await refresh(); navigate("/dashboard");
