@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button, Dropdown, PasswordInput, Tabs, TabList, Tab, TextInput, Toggle, InlineNotification } from "@carbon/react";
+import { Button, Dropdown, PasswordInput, Tabs, TabList, Tab, TextInput, Toggle } from "@carbon/react";
 import { CheckmarkFilled, ChevronDown, Connect, Locked } from "@carbon/icons-react";
 import { ApifySettingsPanel } from "./ApifySettingsPanel";
 
