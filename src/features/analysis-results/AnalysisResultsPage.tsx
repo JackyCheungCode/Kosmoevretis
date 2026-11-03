@@ -45,8 +45,9 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { comp
     if (!workspace?.id) return;
     let active = true;
     setLoading(true);
-    void requireSupabase().from("ai_analysis_runs").select("*").eq("organization_id", workspace.id).order("created_at", { ascending: false }).limit(50)
-      .then(({ data, error: queryError }) => {
+    void (async () => {
+      try {
+        const { data, error: queryError } = await requireSupabase().from("ai_analysis_runs").select("*").eq("organization_id", workspace.id).order("created_at", { ascending: false }).limit(50);
         if (!active) return;
         if (queryError) setError(queryError.message);
         else {
@@ -54,7 +55,12 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { comp
           setRuns(rows);
           setSelectedRunId(rows[0]?.id || "");
         }
-      }).finally(() => { if (active) setLoading(false); });
+      } catch (queryError) {
+        if (active) setError(queryError instanceof Error ? queryError.message : "分析记录读取失败。");
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
     return () => { active = false; };
   }, [workspace?.id]);
   const latest = runs.find((run) => run.id === selectedRunId) || runs[0];

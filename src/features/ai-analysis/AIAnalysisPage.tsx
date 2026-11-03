@@ -50,8 +50,9 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
     if (!workspace?.id) return;
     let active = true;
     setProfileLoading(true);
-    void requireSupabase().from("enterprise_profiles").select("*").eq("organization_id", workspace.id).order("updated_at", { ascending: false })
-      .then(({ data, error }) => {
+    void (async () => {
+      try {
+        const { data, error } = await requireSupabase().from("enterprise_profiles").select("*").eq("organization_id", workspace.id).order("updated_at", { ascending: false });
         if (!active) return;
         if (error) setNotice(error.message);
         else {
@@ -59,7 +60,12 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
           setProfileOptions(rows);
           setSelectedProfileId((current) => current && rows.some((row) => row.id === current) ? current : rows[0]?.id || "");
         }
-      }).finally(() => { if (active) setProfileLoading(false); });
+      } catch (error) {
+        if (active) setNotice(error instanceof Error ? error.message : "企业档案读取失败。");
+      } finally {
+        if (active) setProfileLoading(false);
+      }
+    })();
     return () => { active = false; };
   }, [workspace?.id]);
   const activeProfile = profileOptions.find((item) => item.id === selectedProfileId);
