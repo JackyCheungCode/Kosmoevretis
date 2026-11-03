@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Button, TextInput, TextArea, InlineNotification, Tag,
-  Tabs, TabList, Tab, TabPanels, TabPanel, Dropdown, Modal
+  Accordion, AccordionItem, Dropdown, Modal
 } from "@carbon/react";
 import { requireSupabase } from "../../lib/supabase";
 import { useAuth } from "../../app/AuthProvider";
@@ -120,7 +120,7 @@ export function EnterpriseProfilePage({
   const clear = () => {
     setSelected(null); setName(""); setLegal(""); setWebsite(""); setCountry(""); setIndustry("");
     setSummary(""); setDetails({}); setFieldSources({}); setFieldVerification({});
-    setHistory([]); setTabIndex(0); setNotice(""); setError("");
+    setHistory([]); setNotice(""); setError("");
   };
 
   const edit = (profile: Profile) => {
@@ -134,7 +134,7 @@ export function EnterpriseProfilePage({
     setDetails(Object.fromEntries(profileFields.map(([key]) => [key, String(profile.profile?.[key] ?? "")])));
     setFieldSources(profile.profile?._fieldSources || {});
     setFieldVerification(profile.profile?._fieldVerification || {});
-    setTabIndex(0); setNotice(""); setError(""); setExpandedRevision(null);
+    setNotice(""); setError(""); setExpandedRevision(null);
     void loadHistory(profile.id).catch((loadError) => setError(loadError.message));
   };
 
@@ -243,90 +243,75 @@ export function EnterpriseProfilePage({
         {notice && <InlineNotification kind="success" title="已完成" subtitle={notice} />}
 
         <form className="profile-form" onSubmit={save}>
-          <Tabs selectedIndex={tabIndex} onChange={({ selectedIndex }) => setTabIndex(selectedIndex)}>
-            <TabList aria-label="企业档案信息分区" contained>
-              <Tab>Overview</Tab>
-              <Tab>Company Information</Tab>
-              <Tab>Products &amp; Services</Tab>
-              <Tab>Global Presence</Tab>
-              <Tab>Relationships</Tab>
-              <Tab>AI Intelligence</Tab>
-              <Tab>Sources &amp; Verification</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>企业概览</h3><p>确认企业主体信息与 AI 分析所需的核心背景。</p></div>
-                <TextInput id="profile-name" labelText="企业名称 *" value={name} onChange={(event) => setName(event.target.value)} required />
-                <div className="profile-two">
-                  <TextInput id="profile-legal" labelText="法定名称" value={legal} onChange={(event) => setLegal(event.target.value)} />
-                  <TextInput id="profile-short" labelText="企业简称" value={details.shortName || ""} onChange={(event) => updateDetail("shortName", event.target.value)} />
-                </div>
-                <div className="profile-two">
-                  <TextInput id="profile-website" labelText="官方网站" value={website} onChange={(event) => setWebsite(event.target.value)} />
-                  <TextInput id="profile-country" labelText="注册国家 / 地区" value={country} onChange={(event) => setCountry(event.target.value)} />
-                </div>
-                <TextInput id="profile-industry" labelText="所属行业" value={industry} onChange={(event) => setIndustry(event.target.value)} />
-                <TextArea id="profile-summary" labelText="企业简介 / AI 分析上下文" value={summary} onChange={(event) => setSummary(event.target.value)} rows={5} />
-                <div className="profile-overview-meta"><span>档案版本 <b>{selected ? "v" + selected.version : "尚未保存"}</b></span><span>身份核验 <b>{selected?.identity_status === "externally_verified" ? "外部核实" : selected?.identity_status === "user_confirmed" ? "用户确认" : "待核实"}</b></span></div>
-              </TabPanel>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>Company Information · 企业基本信息</h3><p>{profileSections[0].description}</p></div>
-                <FieldGroup fields={companyFields.filter(([key]) => key !== "shortName")} details={details} onChange={updateDetail} />
-              </TabPanel>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>Products &amp; Services · 产品与服务</h3><p>{profileSections[1].description}</p></div>
-                <FieldGroup fields={productFields} details={details} onChange={updateDetail} />
-              </TabPanel>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>Global Presence · 全球市场布局</h3><p>{profileSections[2].description}</p></div>
-                <FieldGroup fields={globalFields} details={details} onChange={updateDetail} />
-              </TabPanel>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>Relationships · 规模与商业关系</h3><p>{profileSections[3].description}</p></div>
-                <FieldGroup fields={relationshipFields} details={details} onChange={updateDetail} />
-              </TabPanel>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>AI Intelligence · AI 分析准备度</h3><p>企业档案将作为后续 12 维度分析的事实基础。每次分析会保存本次档案快照，不会因后续资料修改而改变历史报告。</p></div>
-                <div className="profile-ai-readiness">
-                  <div><b>{selected ? "v" + selected.version : "未保存"}</b><span>当前企业档案版本</span></div>
-                  <div><b>{Object.values(details).filter((value) => value.trim()).length + [name, legal, website, country, industry, summary].filter(Boolean).length}</b><span>已填写资料字段</span></div>
-                  <div><b>12</b><span>可执行 AI 分析维度</span></div>
-                </div>
-                <p className="ep-muted">完成保存后，使用流程底部的“下一步：AI 分析”进入模型配置与任务执行。</p>
-              </TabPanel>
-              <TabPanel>
-                <div className="profile-tab-intro"><h3>Sources &amp; Verification · 来源与核验</h3><p>为重要企业资料记录来源，并标注核验状态。来源信息随企业档案快照一同保存。</p></div>
-                <div className="profile-source-list">
-                  {sourceFields.map(([key, label]) => <div className="profile-source-row" key={key}>
-                    <b>{label}</b>
-                    <TextInput id={"source-" + key} labelText="信息来源 / URL / 文件" hideLabel value={fieldSources[key] || ""} placeholder="填写来源链接或资料名称" onChange={(event) => setFieldSources((current) => ({ ...current, [key]: event.target.value }))} />
-                    <Dropdown id={"verification-" + key} titleText="核验状态" label="核验状态" items={verificationOptions} selectedItem={fieldVerification[key] || verificationOptions[0]} onChange={({ selectedItem }) => setFieldVerification((current) => ({ ...current, [key]: selectedItem || verificationOptions[0] }))} />
-                  </div>)}
-                </div>
-                <div className="revision-panel profile-history-panel">
-                  <h3>修改历史与版本追溯</h3>
-                  {history.map((revision) => {
-                    const changed = sourceFields.filter(([key]) => String(getSnapshotField(revision.snapshot, key) ?? "") !== String(getSnapshotField(selected as unknown as Record<string, any>, key) ?? ""));
-                    const expanded = expandedRevision === revision.id;
-                    return <article className="profile-revision-entry" key={revision.id}>
-                      <div className="revision-row">
-                        <div><b>版本 {revision.version}</b><small>{new Date(revision.created_at).toLocaleString()} · 操作人 {revision.changed_by}</small></div>
-                        <div className="profile-revision-actions">
-                          <Button size="sm" kind="ghost" onClick={() => setExpandedRevision(expanded ? null : revision.id)}>{expanded ? "收起变更" : "查看变更"}</Button>
-                          <Button size="sm" kind="tertiary" disabled={busy || revision.version === selected?.version} onClick={() => setRestoreTarget(revision)}>恢复此版本</Button>
-                        </div>
+          <Accordion className="profile-accordion" align="start">
+            <AccordionItem title="企业信息 · Company Information" open>
+              <div className="profile-tab-intro"><h3>企业身份与注册信息</h3><p>确认企业主体、法定信息、注册地、总部与基本经营背景。</p></div>
+              <TextInput id="profile-name" labelText="企业名称 *" value={name} onChange={(event) => setName(event.target.value)} required />
+              <div className="profile-two">
+                <TextInput id="profile-legal" labelText="法定名称" value={legal} onChange={(event) => setLegal(event.target.value)} />
+                <TextInput id="profile-short" labelText="企业简称" value={details.shortName || ""} onChange={(event) => updateDetail("shortName", event.target.value)} />
+              </div>
+              <div className="profile-two">
+                <TextInput id="profile-website" labelText="官方网站" value={website} onChange={(event) => setWebsite(event.target.value)} />
+                <TextInput id="profile-country" labelText="注册国家 / 地区" value={country} onChange={(event) => setCountry(event.target.value)} />
+              </div>
+              <TextInput id="profile-industry" labelText="所属行业" value={industry} onChange={(event) => setIndustry(event.target.value)} />
+              <TextArea id="profile-summary" labelText="企业简介 / AI 分析上下文" value={summary} onChange={(event) => setSummary(event.target.value)} rows={5} />
+              <FieldGroup fields={companyFields.filter(([key]) => key !== "shortName")} details={details} onChange={updateDetail} />
+              <div className="profile-overview-meta"><span>档案版本 <b>{selected ? "v" + selected.version : "尚未保存"}</b></span><span>身份核验 <b>{selected?.identity_status === "externally_verified" ? "外部核实" : selected?.identity_status === "user_confirmed" ? "用户确认" : "待核实"}</b></span></div>
+            </AccordionItem>
+            <AccordionItem title="产品与服务 · Products & Services">
+              <div className="profile-tab-intro"><h3>产品与服务能力</h3><p>{profileSections[1].description}</p></div>
+              <FieldGroup fields={productFields} details={details} onChange={updateDetail} />
+            </AccordionItem>
+            <AccordionItem title="全球市场布局 · Global Market Presence">
+              <div className="profile-tab-intro"><h3>全球市场布局</h3><p>{profileSections[2].description}</p></div>
+              <FieldGroup fields={globalFields} details={details} onChange={updateDetail} />
+            </AccordionItem>
+            <AccordionItem title="企业规模与商业关系 · Scale & Relationships">
+              <div className="profile-tab-intro"><h3>规模、运营与商业关系</h3><p>{profileSections[3].description}</p></div>
+              <FieldGroup fields={relationshipFields} details={details} onChange={updateDetail} />
+            </AccordionItem>
+            <AccordionItem title="AI 分析准备度 · AI Intelligence">
+              <div className="profile-tab-intro"><h3>AI 分析准备度</h3><p>企业档案将作为后续 12 维度分析的事实基础。每次分析会保存本次档案快照，不会因后续资料修改而改变历史报告。</p></div>
+              <div className="profile-ai-readiness">
+                <div><b>{selected ? "v" + selected.version : "未保存"}</b><span>当前企业档案版本</span></div>
+                <div><b>{Object.values(details).filter((value) => value.trim()).length + [name, legal, website, country, industry, summary].filter(Boolean).length}</b><span>已填写资料字段</span></div>
+                <div><b>12</b><span>可执行 AI 分析维度</span></div>
+              </div>
+            </AccordionItem>
+            <AccordionItem title="来源、核验与历史版本 · Sources & Verification">
+              <div className="profile-tab-intro"><h3>来源与核验</h3><p>为重要企业资料记录来源，并标注核验状态。来源信息随企业档案快照一同保存。</p></div>
+              <div className="profile-source-list">
+                {sourceFields.map(([key, label]) => <div className="profile-source-row" key={key}>
+                  <b>{label}</b>
+                  <TextInput id={"source-" + key} labelText="信息来源 / URL / 文件" hideLabel value={fieldSources[key] || ""} placeholder="填写来源链接或资料名称" onChange={(event) => setFieldSources((current) => ({ ...current, [key]: event.target.value }))} />
+                  <Dropdown id={"verification-" + key} titleText="核验状态" label="核验状态" items={verificationOptions} selectedItem={fieldVerification[key] || verificationOptions[0]} onChange={({ selectedItem }) => setFieldVerification((current) => ({ ...current, [key]: selectedItem || verificationOptions[0] }))} />
+                </div>)}
+              </div>
+              <div className="revision-panel profile-history-panel">
+                <h3>修改历史与版本追溯</h3>
+                {history.map((revision) => {
+                  const changed = sourceFields.filter(([key]) => String(getSnapshotField(revision.snapshot, key) ?? "") !== String(getSnapshotField(selected as unknown as Record<string, any>, key) ?? ""));
+                  const expanded = expandedRevision === revision.id;
+                  return <article className="profile-revision-entry" key={revision.id}>
+                    <div className="revision-row">
+                      <div><b>版本 {revision.version}</b><small>{new Date(revision.created_at).toLocaleString()} · 操作人 {revision.changed_by}</small></div>
+                      <div className="profile-revision-actions">
+                        <Button size="sm" kind="ghost" onClick={() => setExpandedRevision(expanded ? null : revision.id)}>{expanded ? "收起变更" : "查看变更"}</Button>
+                        <Button size="sm" kind="tertiary" disabled={busy || revision.version === selected?.version} onClick={() => setRestoreTarget(revision)}>恢复此版本</Button>
                       </div>
-                      {expanded && <div className="profile-revision-diff">
-                        {!changed.length && <p className="ep-muted">此版本与当前档案在扩展字段上没有差异。</p>}
-                        {changed.map(([key, label]) => <div key={key}><b>{label}</b><span>历史值：{String(getSnapshotField(revision.snapshot, key) ?? "未填写")}</span><span>当前值：{String(getSnapshotField(selected as unknown as Record<string, any>, key) ?? "未填写")}</span></div>)}
-                      </div>}
-                    </article>;
-                  })}
-                  {!history.length && <p className="ep-muted">保存档案后，数据库版本记录会显示在这里。</p>}
-                </div>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+                    </div>
+                    {expanded && <div className="profile-revision-diff">
+                      {!changed.length && <p className="ep-muted">此版本与当前档案在扩展字段上没有差异。</p>}
+                      {changed.map(([key, label]) => <div key={key}><b>{label}</b><span>历史值：{String(getSnapshotField(revision.snapshot, key) ?? "未填写")}</span><span>当前值：{String(getSnapshotField(selected as unknown as Record<string, any>, key) ?? "未填写")}</span></div>)}
+                    </div>}
+                  </article>;
+                })}
+                {!history.length && <p className="ep-muted">保存档案后，数据库版本记录会显示在这里。</p>}
+              </div>
+            </AccordionItem>
+          </Accordion>   </Tabs>
 
           <div className="profile-actions">
             <Button type="submit" disabled={busy || !name.trim()}>{busy ? "保存中…" : "保存档案"}</Button>
