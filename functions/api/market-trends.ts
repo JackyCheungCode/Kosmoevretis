@@ -26,7 +26,6 @@ async function authenticate(request: Request, env: Env) {
 function actorInput(body: any) {
   const isTrending = body.mode === "trendingNow";
   const keywords = Array.isArray(body.keywords) ? body.keywords : [];
-  const compareTerms = !!body.compareTerms;
   return {
     operation: isTrending ? "trending" : "keywords",
     keywords: isTrending ? [] : keywords,
@@ -123,7 +122,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   let fetchError = "";
   if (datasetId && !items.length) {
     try {
-      const maxItems = Math.min(5000, Math.max(1, Number(task.input_snapshot?.maxItems) || 1000));
+      const maxItems = Math.min(5000, Math.max(1, Number(task.input_snapshot?.actorInput?.maxItems ?? task.input_snapshot?.maxItems) || 1000));
       for (let offset = 0; offset < maxItems; offset += 1000) {
         const limit = Math.min(1000, maxItems - offset);
         const url = "https://api.apify.com/v2/datasets/" + encodeURIComponent(datasetId) + "/items?format=json&clean=true&offset=" + offset + "&limit=" + limit;
