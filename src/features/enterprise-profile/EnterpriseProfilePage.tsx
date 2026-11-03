@@ -95,7 +95,7 @@ export function EnterpriseProfilePage({
   const [details, setDetails] = useState<Record<string, string>>({});
   const [fieldSources, setFieldSources] = useState<Record<string, string>>({});
   const [fieldVerification, setFieldVerification] = useState<Record<string, string>>({});
-  const [tabIndex, setTabIndex] = useState(0);
+
   const [restoreTarget, setRestoreTarget] = useState<Revision | null>(null);
   const [expandedRevision, setExpandedRevision] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
