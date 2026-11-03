@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextInput, InlineNotification } from "@carbon/react";
 import { requireSupabase } from "../../lib/supabase";
@@ -12,7 +12,7 @@ export function AuthPage() {
   const [error, setError] = useState("");
   const { refresh } = useAuth();
   const navigate = useNavigate();
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault(); setBusy(true); setError("");
     try {
       const client = requireSupabase();
