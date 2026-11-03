@@ -168,7 +168,7 @@ export function EnterpriseProfilePage() {
                 <div className="ep-form-block"><label>企业法定名称 *</label><input value={manualName} onChange={(e) => setManualName(e.target.value)} placeholder="营业执照或注册文件上的企业名称" /></div>
                 <div className="ep-form-block"><label>品牌 / 商业名称</label><input value={manualProfile.brandName || ""} onChange={(e) => updateManual("brandName", e.target.value)} placeholder="市场使用的品牌名称" /></div>
                 <div className="ep-form-block"><label>官方网站</label><input value={manualWebsite} onChange={(e) => setManualWebsite(e.target.value)} placeholder="https://" /></div>
-                <div className="ep-form-block"><label>注册国家 / 地区</label><Dropdown id="manual-registration-country" label="请选择国家 / 地区" items={countryOptions} itemToString={(item) => item || ""} selectedItem={manualCountry || null} onChange={({ selectedItem }) => setManualCountry(selectedItem || "")} /></div>
+                <div className="ep-form-block"><label>注册国家 / 地区</label><Dropdown id="manual-registration-country" titleText="注册国家 / 地区" label="请选择国家 / 地区" items={countryOptions} itemToString={(item) => item || ""} selectedItem={manualCountry || null} onChange={({ selectedItem }) => setManualCountry(selectedItem || "")} /></div>
               </div>
               <div className="ep-manual-sections">
                 <div className="ep-manual-section-list">{fieldGroups.map((group) => <button type="button" key={group.id} className={manualSection === group.id ? "active" : ""} onClick={() => setManualSection(group.id)}>{group.title}<span>{group.fields.filter((f) => (manualProfile[f.key] || "").trim()).length}/{group.fields.length}</span></button>)}</div>
