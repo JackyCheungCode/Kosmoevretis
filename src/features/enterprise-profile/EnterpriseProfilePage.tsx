@@ -74,7 +74,8 @@ const tabCopy: Record<TabId, { title: string; description: string }> = {
   sources: { title: "来源与修改记录", description: "区分官网识别、用户填写和 AI 推断，保留信息来源及修改轨迹。" },
 };
 
-export function EnterpriseProfilePage() {\n  const navigate = useNavigate();
+export function EnterpriseProfilePage() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<CreateMode>("website");
   const [query, setQuery] = useState("");
   const [website, setWebsite] = useState("");
