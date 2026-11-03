@@ -45,7 +45,7 @@ export function ApifySettingsPanel({ adminToken }: Props) {
     finally { setBusy(false); }
   };
   return <section className="ai-admin-panel apify-settings-panel">
-    <div className="ai-section-head"><div><div className="ep-section-kicker">DATA PROVIDER</div><h2>Apify 数据采集服务</h2><p>统一管理 Actor API 凭证。Token 仅在服务端加密保存，市场趋势页面无需重复填写。</p></div><Tag type={hasToken ? "green" : "gray"}>{hasToken ? "已配置" : "未配置"}</Tag></div>
+    <div className="ai-section-head"><div><div className="ep-section-kicker">数据服务接入</div><h2>Apify 数据采集服务</h2><p>统一管理 Actor API 凭证。Token 仅在服务端加密保存，市场趋势页面无需重复填写。</p></div><Tag type={hasToken ? "green" : "gray"}>{hasToken ? "已配置" : "未配置"}</Tag></div>
     <div className="apify-settings-content">
       <div className="apify-settings-icon"><Locked size={20} /></div>
       <div className="apify-settings-fields">
