@@ -206,11 +206,11 @@ export function MarketTrendsPage() {
 
   const keywords = useMemo(() => keywordsText.split(/[\n,;]+/).map((term) => term.trim()).filter(Boolean), [keywordsText]);
   const rawItems = activeTask?.raw_items || [];
-  const timelineRows = extractRows(rawItems, "time", ["interestOverTime_timelineData", "interestOverTime", "timelineData", "timeline"]);
-  const regionRows = extractRows(rawItems, "region", ["interestByRegion", "interestBySubregion", "interestByCity", "regions"]);
-  const queryRows = extractRows(rawItems, "query", ["relatedQueries_top", "relatedQueries_rising", "relatedQueries", "topQueries", "risingQueries"]);
-  const topicRows = extractRows(rawItems, "topic", ["relatedTopics_top", "relatedTopics_rising", "relatedTopics", "topTopics", "risingTopics"]);
-  const trendingRows = extractRows(rawItems, "trending", ["trendingSearches", "trendingNow", "trending"]);
+  const timelineRows = useMemo(() => extractRows(rawItems, "time", ["interestOverTime_timelineData", "interestOverTime", "timelineData", "timeline"]), [rawItems]);
+  const regionRows = useMemo(() => extractRows(rawItems, "region", ["interestByRegion", "interestBySubregion", "interestByCity", "regions"]), [rawItems]);
+  const queryRows = useMemo(() => extractRows(rawItems, "query", ["relatedQueries_top", "relatedQueries_rising", "relatedQueries", "topQueries", "risingQueries"]), [rawItems]);
+  const topicRows = useMemo(() => extractRows(rawItems, "topic", ["relatedTopics_top", "relatedTopics_rising", "relatedTopics", "topTopics", "risingTopics"]), [rawItems]);
+  const trendingRows = useMemo(() => extractRows(rawItems, "trending", ["trendingSearches", "trendingNow", "trending"]), [rawItems]);
 
   const loadHistory = async () => {
     if (!workspace?.id) return;
@@ -408,11 +408,11 @@ export function MarketTrendsPage() {
       <div className="mt-history-heading"><div><div className="ep-section-kicker">研究历史</div><h2>最近的研究任务</h2></div><Button kind="ghost" size="sm" renderIcon={ArrowRight} onClick={loadHistory}>刷新历史</Button></div>
       <div className="mt-history-list">
         {loadingHistory ? <div className="mt-history-empty"><InlineLoading description="正在加载任务历史…" /></div> :
-          tasks.map((task) => <button type="button" className={"mt-history-row" + (activeTask?.id === task.id ? " selected" : "")} key={task.id} onClick={() => void openTask(task)}>
+          tasks.map((task) => <Button kind="ghost" size="sm" className={"mt-history-row" + (activeTask?.id === task.id ? " selected" : "")} key={task.id} onClick={() => void openTask(task)}>
             <span className="mt-history-icon"><Time size={17} /></span>
             <span className="mt-history-copy"><b>{(task.input_snapshot?.keywords || []).join(", ") || "即时趋势 research"}</b><small>{new Date(task.created_at).toLocaleString()} · {task.result_count} 条记录</small></span>
             <Tag type={task.status === "succeeded" ? "green" : task.status === "failed" ? "red" : "blue"}>{statusLabel[task.status]}</Tag><ArrowRight size={16} />
-          </button>)}
+          </Button>)}
         {!loadingHistory && !tasks.length && <div className="mt-history-empty"><DataTableIcon size={22} /><span>暂无研究历史记录。</span></div>}
       </div>
     </section>
