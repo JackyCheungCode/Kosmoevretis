@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabList, Tab } from "@carbon/react";
-import { CheckmarkFilled, ChevronDown, ChevronRight, Cloud, Connect, Locked, Search } from "@carbon/icons-react";
+import { CheckmarkFilled, ChevronDown, Connect, Locked, Search } from "@carbon/icons-react";
 
 type Provider = { id: string; name: string; region: "国内" | "国际" | "聚合与基础设施"; category: string; description: string; logo: string; models: string[]; featured?: boolean };
 const providers: Provider[] = [
@@ -35,7 +35,6 @@ export function SettingsPage() {
   const authHeaders={"Content-Type":"application/json","X-Kosmo-Admin-Token":adminToken};
   const [query,setQuery]=useState("");
   const [expanded,setExpanded]=useState<string|null>("openrouter");
-  const [showUsage,setShowUsage]=useState(false);
   const [workersAiTesting,setWorkersAiTesting]=useState(false);
   const [workersAiStatus,setWorkersAiStatus]=useState("");
   const [workersAiOutput,setWorkersAiOutput]=useState("");
