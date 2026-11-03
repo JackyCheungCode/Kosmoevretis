@@ -34,7 +34,7 @@ const dimensions = [
 
 const statusText = (status?: string) => status === "succeeded" ? "已完成" : status === "partial" ? "部分完成" : status === "failed" ? "失败" : status === "running" ? "执行中" : status === "queued" ? "排队中" : status || "待分析";
 
-export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { companyName: string; onConfigureAnalysis: () => void }) {
+export function AnalysisResultsPage({ companyName, onConfigureAnalysis, embedded = false }: { companyName: string; onConfigureAnalysis: () => void; embedded?: boolean }) {
   const { workspace } = useAuth();
   const [view, setView] = useState<View>("overview");
   const [runs, setRuns] = useState<AnalysisRun[]>([]);
@@ -70,10 +70,10 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis }: { comp
   const profileVersion = latest?.input_snapshot?.profile_version ?? latest?.input_snapshot?.profile?.version ?? "—";
 
   return <section className="ep-tab-content ar-page">
-    <div className="ep-tab-heading ar-heading">
+    {!embedded && <div className="ep-tab-heading ar-heading">
       <div><div className="ep-section-kicker">BUSINESS INTELLIGENCE / REPORT CENTER</div><h2>分析结果</h2><p>查看 {companyName} 的经营诊断、维度分析、行动建议与历史报告版本。</p></div>
       <div className="ar-secure"><Locked size={15}/> 企业私有分析档案</div>
-    </div>
+    </div>}
     <nav className="ar-tabs" aria-label="分析结果分区">
       <button type="button" className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}>报告总览</button>
       <button type="button" className={view === "dimensions" ? "active" : ""} onClick={() => setView("dimensions")}>维度报告 <span>12</span></button>

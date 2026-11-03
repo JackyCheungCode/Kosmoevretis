@@ -39,12 +39,12 @@ const initialAssignments: Record<string, Assignment> = Object.fromEntries(dimens
   const provider = providerById(d.models[0]);
   return [d.id, { provider: provider.id, model: provider.models[0] }];
 }));
-export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onContinue }: { embedded?: boolean; enterpriseName?: string; profile?: Record<string, string>; onContinue?: () => void } = {}) {
+export function AIAnalysisPage({ embedded = false, enterpriseName, profile, initialProfileId, onContinue }: { embedded?: boolean; enterpriseName?: string; profile?: Record<string, string>; initialProfileId?: string; onContinue?: () => void } = {}) {
   const location = useLocation();
   const routeEnterprise = (location.state as { enterpriseName?: string; profile?: Record<string, string>; completion?: number; profileId?: string } | null) || {};
   const { session, workspace } = useAuth();
   const [profileOptions, setProfileOptions] = useState<any[]>([]);
-  const [selectedProfileId, setSelectedProfileId] = useState(routeEnterprise.profileId || "");
+  const [selectedProfileId, setSelectedProfileId] = useState(initialProfileId || routeEnterprise.profileId || "");
   const [profileLoading, setProfileLoading] = useState(false);
   useEffect(() => {
     if (!workspace?.id) return;
@@ -58,7 +58,7 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
         else {
           const rows = data || [];
           setProfileOptions(rows);
-          setSelectedProfileId((current) => current && rows.some((row) => row.id === current) ? current : rows[0]?.id || "");
+          setSelectedProfileId((current) => initialProfileId && rows.some((row) => row.id === initialProfileId) ? initialProfileId : current && rows.some((row) => row.id === current) ? current : rows[0]?.id || "");
         }
       } catch (error) {
         if (active) setNotice(error instanceof Error ? error.message : "企业档案读取失败。");
@@ -67,7 +67,7 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
       }
     })();
     return () => { active = false; };
-  }, [workspace?.id]);
+  }, [workspace?.id, initialProfileId]);
   const activeProfile = profileOptions.find((item) => item.id === selectedProfileId);
   const enterprise = {
     ...routeEnterprise,
@@ -99,7 +99,7 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
     });
     setNotice("已将统一模型应用到当前勾选的分析维度。你仍可逐项修改。");
   };
-  const startAnalysis = async () => {
+  const startAnalysis = async (): Promise<boolean> => {
     if (!selected.length) return;
     if (!session || !workspace?.id) { setNotice("请先登录并进入工作空间。"); return; }
     if (!selectedProfileId) { setNotice("请先创建或选择一份企业档案。"); return; }
@@ -120,12 +120,13 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
       if (!response.ok) throw new Error(data.error || "AI 分析调用失败");
       setAnalysisResult(JSON.stringify(data.dimensions || data, null, 2));
       setNotice(data.status === "succeeded" ? "12 维度分析任务已完成，结果已保存到分析结果中心。" : "分析任务已结束，部分维度可能失败；请前往结果中心查看详情。");
-    } catch (error) { setNotice(error instanceof Error ? error.message : "AI 分析失败，请检查服务配置。"); }
+      return true;
+    } catch (error) { setNotice(error instanceof Error ? error.message : "AI 分析失败，请检查服务配置。"); return false; }
     finally { setRunning(false); }
   };
   return <div className="analysis-page">
     <header className="analysis-heading"><div><div className="ep-eyebrow"><i/> BUSINESS INTELLIGENCE / AI ANALYSIS</div><h1>AI 企业分析</h1><p>基于本企业档案，按分析维度分配最合适的 AI 模型，形成可追溯的经营洞察。</p></div><span className="analysis-secure"><Locked size={15}/> 平台统一调用凭证</span></header>
-    {!embedded && <section className="analysis-enterprise"><div className="analysis-enterprise-mark">{(enterprise.enterpriseName || "企").slice(0,1)}</div><div><small>ANALYSIS SUBJECT</small><b>{enterprise.enterpriseName || "当前企业档案"}</b><span>{profileLoading ? "正在读取企业档案…" : typeof enterprise.completion === "number" ? "档案完整度 " + enterprise.completion + "%" : "请选择本次分析所使用的企业档案"}</span><select aria-label="选择分析企业档案" value={selectedProfileId} onChange={(event) => setSelectedProfileId(event.target.value)} disabled={profileLoading || !profileOptions.length}><option value="">{profileLoading ? "正在加载…" : "选择企业档案"}</option>{profileOptions.map((item) => <option key={item.id} value={item.id}>{item.display_name} · v{item.version}</option>)}</select></div><Link to="/enterprise-profile"><span>管理企业档案</span><ArrowRight size={15}/></Link></section>}
+    {!embedded && <section className="analysis-enterprise"><div className="analysis-enterprise-mark">{(enterprise.enterpriseName || "企").slice(0,1)}</div><div><small>ANALYSIS SUBJECT</small><b>{enterprise.enterpriseName || "当前企业档案"}</b><span>{profileLoading ? "正在读取企业档案…" : typeof enterprise.completion === "number" ? "档案完整度 " + enterprise.completion + "%" : "请选择本次分析所使用的企业档案"}</span><Dropdown id="analysis-enterprise-profile" titleText="分析企业档案" label={profileLoading ? "正在加载…" : "选择企业档案"} items={profileOptions} itemToString={(item: any) => item ? item.display_name + " · v" + item.version : ""} selectedItem={activeProfile || null} disabled={profileLoading || !profileOptions.length} onChange={({ selectedItem }: any) => setSelectedProfileId(selectedItem?.id || "")} /></div><Link to="/enterprise-profile"><span>管理企业档案</span><ArrowRight size={15}/></Link></section>}
     <section className="analysis-intro"><div className="analysis-intro-icon"><ChartLine size={22}/></div><div><small>ANALYSIS WORKSPACE</small><h2>为每个分析维度选择 AI 能力</h2><p>模型选择属于本次分析任务。默认模型由设置中的 AI 服务中心管理；请先在那里完成服务连接测试。</p></div><Link to="/settings"><span>前往 AI 服务中心配置与测试</span><ArrowRight size={15}/></Link></section>
     <section className="analysis-selection">
       <div className="analysis-section-head"><div><div className="ep-section-kicker">01 / MODEL ALLOCATION</div><h2>模型分配</h2><p>选择本次需要执行的分析维度，并为每个维度指定服务商和模型。</p></div><span>{selected.length} / {dimensions.length} 个维度已选择</span></div>
@@ -138,7 +139,7 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, onCo
       })}</div>
     </section>
     <section className="analysis-options"><button type="button" onClick={() => setAdvanced((v) => !v)}>{advanced ? "收起" : "展开"} 分析执行设置 <span>{advanced ? "−" : "+"}</span></button>{advanced && <div className="analysis-options-grid"><div><b>分析深度</b><span>标准诊断（后续可扩展深度研究）</span></div><div><b>结果语言</b><span>中文（简体）</span></div><div><b>输出原则</b><span>事实、推断、建议分开呈现，并标注依据与不确定性</span></div><div><b>数据使用</b><span>仅使用本企业档案及后续明确授权的数据源</span></div></div>}</section>
-    <section className="analysis-bottom"><div><b>分析任务摘要</b><p>已选择 {selectedDimensions.length} 个维度 · {new Set(selectedDimensions.map((d) => assignments[d.id].provider)).size} 家 AI 服务商 · {allocationMode === "uniform" ? "所有选中维度统一使用同一模型。" : "每个维度独立保留模型配置。"}</p></div><button type="button" className="ep-button-primary" disabled={!selected.length || running} onClick={onContinue || startAnalysis}>{running ? "正在分析…" : onContinue ? "确认模型，下一步" : "开始 AI 分析"} <ArrowRight size={16}/></button></section>
+    <section className="analysis-bottom"><div><b>分析任务摘要</b><p>已选择 {selectedDimensions.length} 个维度 · {new Set(selectedDimensions.map((d) => assignments[d.id].provider)).size} 家 AI 服务商 · {allocationMode === "uniform" ? "所有选中维度统一使用同一模型。" : "每个维度独立保留模型配置。"}</p></div><button type="button" className="ep-button-primary" disabled={!selected.length || running} onClick={onContinue ? async () => { const succeeded = await startAnalysis(); if (succeeded) onContinue(); } : startAnalysis}>{running ? "正在分析…" : onContinue ? "开始分析并查看结果" : "开始 AI 分析"} <ArrowRight size={16}/></button></section>
     {notice && <div className="analysis-notice" role="status">{notice}</div>}{analysisResult && <section className="analysis-result"><h2>本次分析任务结果摘要</h2><pre style={{ whiteSpace: "pre-wrap", font: "inherit" }}>{analysisResult}</pre><Link to="/analysis-results">打开独立分析结果中心 <ArrowRight size={15}/></Link></section>}
     <footer className="ep-page-footer"><span>KOSMOEVRETIS · AI ANALYSIS WORKSPACE</span><span>逐维度模型分配 · 任务级配置</span></footer>
   </div>;
