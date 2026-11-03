@@ -70,3 +70,6 @@
 .mt-advanced-toggle .cds--btn{font-size:14px;min-height:44px}
 .mt-raw-toolbar .cds--btn{font-size:13px}
 @media(max-width:720px){.mt-heading{padding:22px 0}.mt-heading h1{font-size:28px;line-height:36px}.mt-panel-heading h2,.mt-results-head h2{font-size:18px}.mt-data-table{font-size:12px}.mt-data-table th,.mt-data-table td{padding:10px 12px}}
+
+.mt-region-value-label{border:1px solid #0f62fe;border-radius:0;box-shadow:0 2px 6px #0002;color:#161616;font-family:"IBM Plex Sans",Arial,sans-serif;font-size:11px;line-height:15px;padding:4px 7px}
+.mt-region-value-label:before{display:none}
