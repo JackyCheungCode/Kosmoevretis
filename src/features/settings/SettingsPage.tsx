@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button, PasswordInput, Select, SelectItem, Tabs, TabList, Tab, TextInput, Toggle } from "@carbon/react";
+import { Button, PasswordInput, Select, SelectItem, Tabs, TabList, Tab, TextInput, Toggle, InlineNotification } from "@carbon/react";
 import { CheckmarkFilled, ChevronDown, Connect, Locked } from "@carbon/icons-react";
 
 type Provider = { id: string; name: string; region: "国内" | "国际" | "聚合与基础设施"; category: string; description: string; logo: string; models: string[]; featured?: boolean };
@@ -45,6 +45,9 @@ function ProviderLogo({provider}:{provider:Provider}) {
 }
 export function SettingsPage() {
   const [filter,setFilter]=useState<(typeof filters)[number]>("全部");
+  const [apifyToken,setApifyToken]=useState(()=>sessionStorage.getItem("kosmoevretis.apify.token")||"");
+  const [apifySaved,setApifySaved]=useState(()=>Boolean(sessionStorage.getItem("kosmoevretis.apify.token")));
+  const [apifyMessage,setApifyMessage]=useState("");
   const [adminToken,setAdminToken]=useState("");
   const authHeaders={"Content-Type":"application/json","X-Kosmo-Admin-Token":adminToken};
   const validAdminToken=()=>{if(!adminToken.trim()){setDirectoryError("请先输入管理员令牌。");return false;}if(!/^[\x21-\x7E]+$/.test(adminToken)){setDirectoryError("管理员令牌只能包含可打印 ASCII 字符（不含空格、换行或中文）。请清空后重新粘贴。");return false;}return true;};
@@ -77,6 +80,16 @@ export function SettingsPage() {
   return <div className="settings-page">
     <header className="settings-heading"><div><div className="ep-eyebrow"><i/> PLATFORM CONFIGURATION</div><h1>AI 服务中心</h1><p>统一管理 Kosmoevretis 平台使用的 AI 服务商、模型目录与调用能力。</p></div><span className="settings-admin"><Locked size={15}/> 平台管理员</span></header>
     <section className="ai-platform-notice"><div className="ai-notice-icon"><Locked size={20}/></div><div><b>平台统一管理 API 凭证</b><p>所有 API Key 由 Kosmoevretis 平台统一申请、保管和调用。管理员令牌仅保留在当前页面内存，不写入本地存储。</p><PasswordInput id="ai-admin-token" labelText="平台管理员令牌" autoComplete="off" value={adminToken} onChange={e=>{setAdminToken(e.target.value);setDirectoryError("");}} placeholder="输入 Preview 管理员令牌"/><div className="ai-admin-actions"><Button type="button" kind="primary" onClick={loadProviders} disabled={!adminToken||directoryLoading}>{directoryLoading?"正在读取…":"验证并加载配置"}</Button><span>{lastRefresh?`最近同步：${lastRefresh}`:"输入令牌后加载服务端配置"}</span></div>{directoryError&&<p className="ai-error" role="alert">{directoryError}</p>}</div><span className="ai-notice-state">仅 Preview 管理</span></section>
+    <section className="ai-admin-panel apify-settings-panel">
+      <div className="ai-section-head"><div><div className="ep-section-kicker">DATA PROVIDER</div><h2>Apify 数据服务</h2><p>为市场趋势情报配置 Apify API Token。Token 仅保存在当前浏览器标签页会话中，通过 HTTPS 请求发送至服务端，不写入数据库。</p></div><span className="ai-directory-count">{apifySaved?"已配置":"待配置"}</span></div>
+      <PasswordInput id="apify-api-token" labelText="Apify API Token" autoComplete="new-password" value={apifyToken} onChange={e=>{setApifyToken(e.target.value);setApifySaved(false);setApifyMessage("");}} placeholder="apify_api_xxxxxxxxxxxxxxxxxxxxxxxx"/>
+      <div className="ai-provider-actions">
+        <Button type="button" kind="primary" onClick={()=>{if(!apifyToken.trim()){setApifyMessage("请输入有效的 Apify API Token。");return;}sessionStorage.setItem("kosmoevretis.apify.token",apifyToken.trim());setApifyToken(apifyToken.trim());setApifySaved(true);setApifyMessage("Token 已保存到当前浏览器会话。");}}>保存 Token</Button>
+        <Button type="button" kind="danger--tertiary" onClick={()=>{sessionStorage.removeItem("kosmoevretis.apify.token");setApifyToken("");setApifySaved(false);setApifyMessage("当前浏览器会话中的 Token 已清除。");}}>清除 Token</Button>
+      </div>
+      {apifyMessage&&<InlineNotification kind={apifySaved?"success":"info"} title="Apify 配置" subtitle={apifyMessage} lowContrast />}
+      <p className="ai-usage-note">Actor ID 默认使用 <code>surefetch/google-trends</code>。如需其他 Actor，请由部署环境设置 APIFY_ACTOR_ID。Actor 输入参数支持英文 key/value；市场趋势页面的自定义 JSON 会完整、原样提交。</p>
+    </section>
     <section className="ai-overview">
       <article><span>已登记服务商</span><b>{providers.length}</b><small>国内、国际及聚合平台</small></article>
       <article><span>已连接服务商</span><b>{Object.values(savedProviders).filter(x=>x.enabled&&x.hasKey).length} <em>/ {providers.length}</em></b><small>已保存且启用的服务商</small></article>
