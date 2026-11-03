@@ -29,3 +29,44 @@
 .mt-history-row.cds--btn>svg:last-child{margin-left:0}
 .mt-subsection-head>.cds--btn{min-height:30px}
 @media(max-width:720px){.mt-region-map{height:300px}.mt-chart-dates{font-size:10px;padding-inline:20px}.mt-result-tabs .cds--btn{padding-inline:8px}.mt-history-row.cds--btn{gap:8px;padding:11px 7px}}
+
+/* IBM Carbon type scale and spacing pass */
+.market-trends-page{color:#161616;font-family:"IBM Plex Sans",Arial,sans-serif}
+.mt-heading{padding:32px 0 28px}
+.mt-heading h1{font-size:32px;line-height:40px;letter-spacing:0;font-weight:400;margin:12px 0 8px}
+.mt-heading p{font-size:14px;line-height:20px}
+.mt-heading-mark{font-size:12px;letter-spacing:0;padding:12px 16px}
+.mt-panel-heading h2,.mt-results-head h2{font-size:20px;line-height:28px;font-weight:600}
+.mt-panel-heading p,.mt-results-head p{font-size:13px;line-height:18px}
+.mt-step{width:32px;height:32px;font-size:12px}
+.mt-form-field .cds--label,.mt-form-grid .cds--label{font-size:14px;line-height:18px}
+.mt-form-field .cds--form__helper-text,.mt-actor-json .cds--form__helper-text{font-size:12px;line-height:16px}
+.mt-form-field .cds--text-input,.mt-form-grid .cds--list-box__field,.mt-advanced-content .cds--toggle__label{font-size:14px}
+.mt-output-heading b{font-size:14px}
+.mt-output-options span b{font-size:13px}
+.mt-output-options small{font-size:11px}
+.mt-config-note{font-size:12px;line-height:17px}
+.mt-run-footer>div span{font-size:11px;letter-spacing:0}
+.mt-run-footer>div b{font-size:20px}
+.mt-run-footer .cds--btn{font-size:14px}
+.mt-task-summary small,.mt-overview-cards span{font-size:12px;letter-spacing:0}
+.mt-task-summary b{font-size:16px}
+.mt-overview-cards b{font-size:24px}
+.mt-subsection-head h3,.mt-raw-toolbar h3{font-size:16px;line-height:22px}
+.mt-subsection-head p,.mt-raw-toolbar p{font-size:12px;line-height:16px}
+.mt-result-tabs .cds--btn{font-size:13px}
+.mt-data-table{font-size:13px}
+.mt-data-table th,.mt-data-table td{padding:12px 14px}
+.mt-table-foot{font-size:12px}
+.mt-history-heading h2{font-size:24px;line-height:30px}
+.mt-history-copy b{font-size:14px}
+.mt-history-copy small{font-size:12px}
+.mt-history-row.cds--btn{font-size:14px}
+.mt-results-empty h3{font-size:20px}
+.mt-results-empty p{font-size:14px;line-height:21px}
+.mt-empty-features span{font-size:12px}
+.mt-chart-scale{font-size:11px}
+.mt-chart-dates,.mt-chart-footnote,.mt-map-attribution,.mt-region-note{font-size:12px}
+.mt-advanced-toggle .cds--btn{font-size:14px;min-height:44px}
+.mt-raw-toolbar .cds--btn{font-size:13px}
+@media(max-width:720px){.mt-heading{padding:22px 0}.mt-heading h1{font-size:28px;line-height:36px}.mt-panel-heading h2,.mt-results-head h2{font-size:18px}.mt-data-table{font-size:12px}.mt-data-table th,.mt-data-table td{padding:10px 12px}}
