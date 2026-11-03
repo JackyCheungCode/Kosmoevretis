@@ -1,79 +1,21 @@
-import { ArrowRight, Calendar, ChartLine, Globe, Search, Security } from "@carbon/icons-react";
-
-const steps = [
-  { n: "01", title: "完善企业身份", desc: "建立经过验证的企业档案，为后续情报工作提供可信基础。", status: "下一步", icon: Globe },
-  { n: "02", title: "定义目标市场", desc: "选择重点关注的地区、国家和行业。", status: "即将开始", icon: ChartLine },
-  { n: "03", title: "启动首次全球发现", desc: "通过可解释的 AI 信号，发现值得关注的企业。", status: "即将开始", icon: Search },
-];
-
-export function DashboardPage() {
-  return (
-    <div className="dashboard">
-      <section className="welcome">
-        <div>
-          <div className="eyebrow"><i /> 全球商业情报</div>
-          <h1>早上好。<br /><span>从这里掌握全球商业动态。</span></h1>
-          <p>清晰了解企业关系网络、市场机会与下一步行动。</p>
-        </div>
-        <div className="stamp"><Calendar size={16} /> 平台概览</div>
-      </section>
-
-      <section className="metrics">
-        <article className="metric featured">
-          <div className="metric-label">工作空间就绪度 <Security size={18} /></div>
-          <strong>01<span> / 05</span></strong>
-          <div className="metric-note"><i /> 基础建设进行中</div>
-        </article>
-        <article className="metric">
-          <div className="metric-label">企业档案 <Globe size={18} /></div>
-          <strong className="word">尚未设置</strong>
-          <div className="metric-note">尚未配置您的企业身份信息</div>
-        </article>
-        <article className="metric">
-          <div className="metric-label">全球发现活动 <Search size={18} /></div>
-          <strong className="word">尚未开始</strong>
-          <div className="metric-note">尚未启动任何企业发现任务</div>
-        </article>
-      </section>
-
-      <section className="section-head">
-        <div><div className="eyebrow">接下来要做什么</div><h2>建立您的商业情报基础</h2></div>
-        <span>01 — 03</span>
-      </section>
-      <section className="steps">
-        {steps.map(({ n, title, desc, status, icon: Icon }, i) => (
-          <article className={"step" + (i === 0 ? " current" : "")} key={n}>
-            <span className="step-no">{n}</span>
-            <span className="step-icon"><Icon size={20} /></span>
-            <div className="step-copy"><b>{title}</b><p>{desc}</p></div>
-            <span className="step-status">{status}</span>
-            <ArrowRight size={18} />
-          </article>
-        ))}
-      </section>
-
-      <section className="lower">
-        <article className="principle">
-          <div className="panel-label">情报原则 <span>01 / 04</span></div>
-          <h3>证据先于假设。</h3>
-          <p>每一条企业洞察都将关联信息来源、时间戳、置信度与审核状态。不提供不透明评分，不编造企业动态。</p>
-          <div className="panel-line" />
-          <small>KOSMOEVRETIS 产品准则</small>
-        </article>
-        <article className="status-panel">
-          <div className="panel-label">系统状态 <b><i /> 运行正常</b></div>
-          <div className="status-row"><span>应用框架</span><strong>就绪</strong></div>
-          <div className="status-row"><span>独立路由</span><strong>已启用</strong></div>
-          <div className="status-row"><span>数据集成</span><em>尚未连接</em></div>
-          <div className="status-row"><span>AI 全球发现</span><em>尚未启用</em></div>
-          <div className="status-link">平台基础版本 <ArrowRight size={14} /></div>
-        </article>
-      </section>
-
-      <footer className="footer">
-        <span>KOSMOEVRETIS · 全球商业情报平台</span>
-        <span>清晰决策 · 以证据为基础</span>
-      </footer>
-    </div>
-  );
+import { useEffect,useState } from "react";
+import { ArrowRight,Globe,Search,Security,Activity } from "@carbon/icons-react";
+import { Link } from "react-router-dom";
+import { requireSupabase } from "../../lib/supabase";
+import { useAuth } from "../../app/AuthProvider";
+type Profile={id:string;display_name:string;industry:string|null;version:number;updated_at:string};
+type Run={id:string;status:string;model_id:string|null;created_at:string;result:Record<string,unknown>|null};
+export function DashboardPage(){
+ const {workspace}=useAuth();const [profiles,setProfiles]=useState<Profile[]>([]);const [runs,setRuns]=useState<Run[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
+ useEffect(()=>{let active=true;const load=async()=>{if(!workspace)return;try{const c=requireSupabase();const [p,a]=await Promise.all([c.from("enterprise_profiles").select("id,display_name,industry,version,updated_at").eq("organization_id",workspace.id).order("updated_at",{ascending:false}),c.from("ai_analysis_runs").select("id,status,model_id,created_at,result").eq("organization_id",workspace.id).order("created_at",{ascending:false}).limit(8)]);if(p.error)throw p.error;if(a.error)throw a.error;if(active){setProfiles((p.data||[]) as Profile[]);setRuns((a.data||[]) as Run[]);}}catch(e){if(active)setError(e instanceof Error?e.message:"数据加载失败");}finally{if(active)setLoading(false);}};void load();return()=>{active=false;};},[workspace?.id]);
+ const completed=runs.filter(r=>r.status==="completed").length;const running=runs.filter(r=>r.status==="running"||r.status==="pending").length;
+ return <div className="dashboard"><section className="welcome"><div><div className="eyebrow"><i/> GLOBAL BUSINESS INTELLIGENCE</div><h1>工作空间总览。<br/><span>以真实企业数据驱动决策。</span></h1><p>{workspace?.name} · 企业档案、AI 分析与业务活动。</p></div><div className="stamp"><Activity size={16}/> 实时数据</div></section>
+ {error&&<div className="data-error">{error}</div>}
+ <section className="metrics"><article className="metric featured"><div className="metric-label">企业档案 <Security size={18}/></div><strong>{loading?"—":profiles.length}<span> 份</span></strong><div className="metric-note">当前工作空间可访问档案</div></article><article className="metric"><div className="metric-label">分析任务 <Activity size={18}/></div><strong>{loading?"—":runs.length}<span> 个</span></strong><div className="metric-note">{running} 个进行中 · {completed} 个已完成</div></article><article className="metric"><div className="metric-label">工作空间 <Globe size={18}/></div><strong className="word">{workspace?.name||"—"}</strong><div className="metric-note">组织级数据隔离已启用</div></article></section>
+ <section className="section-head"><div><div className="eyebrow">ENTERPRISE CONTEXT</div><h2>企业档案</h2></div><Link to="/enterprise-profile">管理档案 <ArrowRight size={14}/></Link></section>
+ <section className="dashboard-data-list">{profiles.map(p=><Link to="/enterprise-profile" className="dashboard-data-row" key={p.id}><div><b>{p.display_name}</b><small>{p.industry||"行业未填写"} · 更新于 {new Date(p.updated_at).toLocaleDateString()}</small></div><TagText>v{p.version}</TagText><ArrowRight size={16}/></Link>)}{!loading&&!profiles.length&&<div className="empty-data"><Globe size={24}/><b>尚无企业档案</b><p>创建企业档案，作为后续 AI 分析的真实业务上下文。</p><Link to="/enterprise-profile">创建第一份档案 <ArrowRight size={14}/></Link></div>}</section>
+ <section className="section-head"><div><div className="eyebrow">AI ANALYSIS ACTIVITY</div><h2>最近分析任务</h2></div><span>{runs.length} 条记录</span></section>
+ <section className="dashboard-data-list">{runs.map(r=><div className="dashboard-data-row" key={r.id}><div><b>AI 企业分析</b><small>{r.model_id||"模型信息待记录"} · {new Date(r.created_at).toLocaleString()}</small></div><TagText>{r.status}</TagText></div>)}{!loading&&!runs.length&&<div className="empty-data"><Search size={24}/><b>尚无分析任务</b><p>在企业档案页面启动分析后，任务状态与结果会显示在这里。</p></div>}</section>
+ </div>;
 }
+function TagText({children}:{children:React.ReactNode}){return <span className="dashboard-tag">{children}</span>;}
