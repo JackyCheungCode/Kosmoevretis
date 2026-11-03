@@ -149,10 +149,11 @@ export function EnterpriseProfilePage() {
   return (
     <div className="enterprise-page">
       <div className="ep-page-heading">
-        <div><div className="ep-eyebrow"><i /> 企业基础信息 / AI 经营认知</div><h1>Enterprise Profile</h1><p>登记本企业真实经营情况，为 AI 建立全面、持续更新的企业认知基础。</p></div>
+        <div><div className="ep-eyebrow"><i /> 企业工作区 / AI 经营认知流程</div><h1>企业方案</h1><p>从企业资料建立、模型配置到 AI 分析与结果查看，按步骤完成企业经营认知流程。</p></div>
         <div className="ep-heading-note"><Security size={16} /> 企业自有档案 · 来源可追溯</div>
       </div>
 
+      <nav className="ep-stepper" aria-label="企业 AI 分析流程">{[{step:1,label:"企业方案",hint:"建立企业档案"},{step:2,label:"AI 模型选择",hint:"配置分析模型"},{step:3,label:"AI 分析",hint:"执行分析任务"},{step:4,label:"分析结果",hint:"查看分析报告"}].map((item) => <button type="button" key={item.step} className={workflowStep === item.step ? "active" : workflowStep > item.step ? "complete" : ""} onClick={() => { if (item.step === 1 || confirmed) setWorkflowStep(item.step as 1 | 2 | 3 | 4); }}><span className="ep-step-number">{workflowStep > item.step ? "✓" : String(item.step).padStart(2,"0")}</span><span className="ep-step-copy"><b>{item.label}</b><small>{item.hint}</small></span></button>)}</nav>
       {!confirmed ? (
         <section className="ep-create-layout">
           <div className="ep-create-main">
@@ -186,7 +187,7 @@ export function EnterpriseProfilePage() {
       ) : (
         <>
           <section className="ep-company-header"><div className="ep-company-mark">{displayName.slice(0, 1).toUpperCase()}</div><div className="ep-company-title"><div className="ep-company-title-line"><h2>{displayName}</h2><span className="ep-status confirmed">本企业档案已建立</span></div><div className="ep-company-meta"><span>{profile.country || "注册地待补充"}</span><i /><span>{profile.industry || "行业待补充"}</span>{profile.website && <><i /><a href={profile.website.startsWith("http") ? profile.website : "https://" + profile.website} target="_blank" rel="noreferrer">{profile.website}</a></>}</div></div><div className="ep-company-actions"><button type="button" className="ep-button-secondary" onClick={() => { setActiveTab("identity"); setEditing(true); }}>编辑档案</button><button type="button" className="ep-button-primary" onClick={() => setWorkflowStep(2)}><ChartLine size={16} /> 开始 AI 分析</button></div></section>
-          <nav className="ep-stepper" aria-label="企业 AI 分析流程">{[{step:1,label:"企业方案",hint:"建立企业档案"},{step:2,label:"AI 模型选择",hint:"配置分析模型"},{step:3,label:"AI 分析",hint:"执行分析任务"},{step:4,label:"分析结果",hint:"查看分析报告"}].map((item) => <button type="button" key={item.step} className={workflowStep === item.step ? "active" : workflowStep > item.step ? "complete" : ""} onClick={() => { if (item.step === 1 || confirmed) setWorkflowStep(item.step as 1 | 2 | 3 | 4); }}><span className="ep-step-number">{workflowStep > item.step ? "✓" : String(item.step).padStart(2,"0")}</span><span className="ep-step-copy"><b>{item.label}</b><small>{item.hint}</small></span></button>)}</nav>
+          
           {workflowStep === 1 && <>
           <nav className="ep-tabs" aria-label="本企业档案分区">{tabs.map((tab) => <button key={tab.id} type="button" className={activeTab === tab.id ? "active" : ""} onClick={() => { setActiveTab(tab.id); setEditing(false); }}>{tab.label}</button>)}</nav>
           {savedNotice && <div className="ep-save-notice">修改已保存在当前页面状态。正式持久化和修改审计服务尚未连接。</div>}
@@ -204,7 +205,7 @@ export function EnterpriseProfilePage() {
           {workflowStep === 3 && <section className="ep-tab-content ep-execution-step"><div className="ep-tab-heading"><div><div className="ep-section-kicker">03 / AI ANALYSIS EXECUTION</div><h2>AI 分析任务</h2><p>确认企业方案与模型配置后，在此启动并监控分析任务。</p></div><span className="ep-status pending">等待服务接入</span></div><div className="ep-execution-card"><div className="ep-execution-icon"><ChartLine size={26}/></div><h3>分析配置已准备就绪</h3><p>当前平台尚未接入真实 AI 调用凭证与任务执行网关，因此不会伪造运行进度或分析结果。完成服务接入后，此处将显示各维度任务状态、执行进度和异常信息。</p><div className="ep-execution-list"><span>企业方案 <b>已确认</b></span><span>模型配置 <b>本次会话已选择</b></span><span>AI 执行服务 <b>尚未连接</b></span></div><div className="ep-actions"><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep(2)}>返回模型选择</button><button type="button" className="ep-button-primary" onClick={() => setWorkflowStep(4)}>前往分析结果 <ArrowRight size={16}/></button></div></div></section>}{workflowStep === 4 && <AnalysisResultsPage companyName={displayName} onConfigureAnalysis={() => setWorkflowStep(2)} /> }
         </>
       )}
-      <div className="ep-workflow-controls"><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep((s) => Math.max(1,s-1) as 1 | 2 | 3 | 4)} disabled={workflowStep === 1}>上一步</button><span>步骤 {workflowStep} / 4 · {["企业方案","AI 模型选择","AI 分析","分析结果"][workflowStep-1]}</span><button type="button" className="ep-button-primary" onClick={() => setWorkflowStep((s) => Math.min(4,s+1) as 1 | 2 | 3 | 4)} disabled={workflowStep === 4 || (workflowStep === 1 && !confirmed)}>下一步 <ArrowRight size={16}/></button></div><div className="ep-page-footer"><span>KOSMOEVRETIS · ENTERPRISE PROFILE</span><span>本企业经营认知 · AI 规划基础</span></div>
+      {confirmed && <div className="ep-workflow-controls"><button type="button" className="ep-button-secondary" onClick={() => setWorkflowStep((s) => Math.max(1,s-1) as 1 | 2 | 3 | 4)} disabled={workflowStep === 1}>上一步</button><span>步骤 {workflowStep} / 4 · {["企业方案","AI 模型选择","AI 分析","分析结果"][workflowStep-1]}</span><button type="button" className="ep-button-primary" onClick={() => setWorkflowStep((s) => Math.min(4,s+1) as 1 | 2 | 3 | 4)} disabled={workflowStep === 4 || (workflowStep === 1 && !confirmed)}>下一步 <ArrowRight size={16}/></button></div>}<div className="ep-page-footer"><span>KOSMOEVRETIS · ENTERPRISE PROFILE</span><span>本企业经营认知 · AI 规划基础</span></div>
     </div>
   );
 }
