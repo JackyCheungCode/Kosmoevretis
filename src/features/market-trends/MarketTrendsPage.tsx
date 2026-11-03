@@ -12,19 +12,12 @@ import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
 import "./market-trends.scss";
 
-type OutputKey = "interestOverTime" | "interestByRegion" | "relatedQueries" | "relatedTopics";
 type TaskStatus = "queued" | "running" | "succeeded" | "partial" | "failed";
 type TrendTask = {
   id: string; status: TaskStatus; result_count: number; created_at: string;
   input_snapshot: Record<string, any>; raw_items?: any[]; error_message?: string | null;
   actor_run_id?: string | null; completed_at?: string | null; actor_meta?: Record<string, any>; kv_records?: any[]; key_value_store_id?: string | null;
 };
-const outputOptions: { id: OutputKey; label: string; description: string }[] = [
-  { id: "interestOverTime", label: "Interest over time", description: "时间序列热度" },
-  { id: "interestByRegion", label: "Interest by region", description: "国家与地区分布" },
-  { id: "relatedQueries", label: "Related queries", description: "相关搜索词" },
-  { id: "relatedTopics", label: "Related topics", description: "相关主题" }
-];
 const geoItems = [
   { id: "", text: "Worldwide" }, { id: "US", text: "United States" }, { id: "GB", text: "United Kingdom" },
   { id: "DE", text: "Germany" }, { id: "JP", text: "Japan" }, { id: "KR", text: "South Korea" },
@@ -70,6 +63,8 @@ function rowKind(row: any): string {
 function rowValue(row: any): number | null {
   const direct = pickNumber(row?.value ?? row?.interest ?? row?.score ?? row?.searchInterest);
   if (direct !== null) return direct;
+  const fallback = Object.entries(row || {}).filter(([key]) => !["date", "time", "formattedTime", "geoName", "region", "query", "title", "type"].includes(key)).map(([, value]) => pickNumber(value)).find((value) => value !== null);
+  if (fallback !== undefined) return fallback;
   const values = row?.values;
   if (values && typeof values === "object") {
     const first = Object.values(values).map(pickNumber).find((n) => n !== null);
@@ -145,11 +140,9 @@ export function MarketTrendsPage() {
   const [timeRange, setTimeRange] = useState("today 12-m");
   const [property, setProperty] = useState("web");
   const [category, setCategory] = useState("0");
-  const [outputs, setOutputs] = useState<OutputKey[]>(["interestOverTime", "interestByRegion", "relatedQueries", "relatedTopics"]);
   const [maxItems, setMaxItems] = useState(1000);
   const [compareTerms, setCompareTerms] = useState(false);
   const [trendingMode, setTrendingMode] = useState(false);
-  const [trendingGeos, setTrendingGeos] = useState("US,GB,DE,JP");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [tasks, setTasks] = useState<TrendTask[]>([]);
   const [activeTask, setActiveTask] = useState<TrendTask | null>(null);
@@ -202,9 +195,9 @@ export function MarketTrendsPage() {
   const runResearch = async () => {
     if (!session?.access_token || !workspace?.id) { setError("A signed-in workspace is required."); return; }
     if (!trendingMode && !keywords.length) { setError("Enter at least one research keyword."); return; }
-    if (compareTerms && keywords.length > 5) { setError("Google Trends comparison supports up to five terms in one comparison group."); return; }
+    if (compareTerms && (keywords.length < 2 || keywords.length > 5)) { setError("Comparison requires two to five keywords."); return; }
+    if (trendingMode && !geo) { setError("Choose a country before collecting Trending Now. Worldwide is not supported for country-level trending searches."); return; }
     if (maxItems < 1 || maxItems > 5000) { setError("Maximum results must be between 1 and 5,000."); return; }
-    if (!trendingMode && !outputs.length) { setError("Select at least one data family."); return; }
     setBusy(true); setError(""); setNotice(""); setActiveTask(null);
     try {
       const response = await fetch("/api/market-trends", {
@@ -284,8 +277,14 @@ export function MarketTrendsPage() {
         </div>
 
         <div className="mt-output-picker">
-          <div className="mt-output-heading"><b>Data to collect</b><span>{outputs.length} selected</span></div>
-          <div className="mt-output-options">{outputOptions.map((item) => <Checkbox key={item.id} id={"output-" + item.id} labelText={<span><b>{item.label}</b><small>{item.description}</small></span>} checked={outputs.includes(item.id)} onChange={(checked) => setOutputs((current) => checked ? [...current, item.id] : current.filter((value) => value !== item.id))} />)}</div>
+          <div className="mt-output-heading"><b>Complete Actor response</b><Tag type="green">All data retained</Tag></div>
+          <div className="mt-output-options mt-output-static">
+            <span><b>Interest over time</b><small>Historical search interest</small></span>
+            <span><b>Interest by region</b><small>Geographic distribution</small></span>
+            <span><b>Related queries</b><small>Top and rising searches</small></span>
+            <span><b>Related topics</b><small>Top and rising topics</small></span>
+            <span><b>Trending searches</b><small>Current searches by country</small></span>
+          </div>
         </div>
 
         <div className="mt-advanced-toggle"><button type="button" onClick={() => setAdvancedOpen(!advancedOpen)}><Filter size={16} /> Advanced settings <ChevronDown size={16} className={advancedOpen ? "is-open" : ""} /></button></div>
@@ -293,12 +292,12 @@ export function MarketTrendsPage() {
           <Toggle id="mt-compare" labelText="Compare keywords on one scale" labelA="Off" labelB="On" toggled={compareTerms} onToggle={setCompareTerms} />
           <div className="mt-max-items"><NumberInput id="mt-max-items" label="Maximum dataset items" min={1} max={5000} value={maxItems} onChange={(_event, state) => setMaxItems(Number(state.value) || 1)} helperText="Cost control · 1–5,000 records" /></div>
           <Toggle id="mt-trending-mode" labelText="Collect Trending Now instead" labelA="Off" labelB="On" toggled={trendingMode} onToggle={setTrendingMode} />
-          {trendingMode && <TextInput id="mt-trending-geos" labelText="Trending countries" value={trendingGeos} onChange={(event) => setTrendingGeos(event.target.value)} helperText="Comma-separated country codes, e.g. US,GB,DE,JP." />}
+          {trendingMode && <div className="mt-config-note"><Information size={16} /><span>Trending Now uses the selected Target geography. Choose a country instead of Worldwide.</span></div>}
           <div className="mt-config-note"><Information size={16} /><span>Actor-specific fields are mapped by the server adapter. Your research form remains stable if the data provider changes.</span></div>
         </div>}
         <div className="mt-run-footer">
           <div><span>MAX DATASET ITEMS</span><b>{maxItems.toLocaleString()}</b></div>
-          <Button kind="primary" renderIcon={Play} onClick={runResearch} disabled={busy || (!trendingMode && keywords.length === 0)}>{busy ? "Submitting…" : "Run market research"}</Button>
+          <Button kind="primary" renderIcon={Play} onClick={runResearch} disabled={busy || (!trendingMode && keywords.length === 0) || (trendingMode && !geo)}>{busy ? "Submitting…" : "Run market research"}</Button>
         </div>
         {busy && <InlineLoading description="Submitting research task to Apify…" />}
       </aside>

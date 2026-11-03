@@ -15,18 +15,16 @@ async function authenticate(request: Request, env: Env) {
 }
 function actorInput(body: any) {
   const isTrending = body.mode === "trendingNow";
-  const outputs = Array.isArray(body.outputs) ? body.outputs : ["interestOverTime", "interestByRegion", "relatedQueries", "relatedTopics"];
+  const keywords = Array.isArray(body.keywords) ? body.keywords : [];
+  const compareTerms = !!body.compareTerms;
   return {
-    mode: isTrending ? "trendingNow" : "explore",
-    searchTerms: isTrending ? [] : body.keywords,
+    operation: isTrending ? "trending" : "keywords",
+    keywords: isTrending ? [] : compareTerms ? [keywords.join(", ")] : keywords,
     geo: body.geo || "",
     timeRange: body.timeRange || "today 12-m",
     category: Number.isInteger(body.category) ? body.category : 0,
     property: body.property || "web",
-    outputs: outputs,
-    maxItems: Math.min(5000, Math.max(1, Number(body.maxItems) || 1000)),
-    isMultiple: !!body.compareTerms,
-    trendingGeos: Array.isArray(body.trendingGeos) ? body.trendingGeos : ["US"]
+    maxItems: Math.min(5000, Math.max(1, Number(body.maxItems) || 1000))
   };
 }
 async function supabasePatch(base: string, headers: Record<string, string>, id: string, patch: Record<string, unknown>) {
