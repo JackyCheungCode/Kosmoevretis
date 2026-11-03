@@ -15,11 +15,11 @@ async function getApifyToken(env: Env): Promise<string> {
 
 async function authenticate(request: Request, env: Env) {
   const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-  if (!token) return { error: json({ error: "Sign in to use Market Trends." }, 401) };
+  if (!token) return { error: json({ error: "请登录后使用市场趋势情报。" }, 401) };
   const base = env.SUPABASE_URL?.replace(/\/$/, "");
-  if (!base || !env.SUPABASE_ANON_KEY) return { error: json({ error: "Supabase server configuration is unavailable." }, 503) };
+  if (!base || !env.SUPABASE_ANON_KEY) return { error: json({ error: "Supabase 服务端配置不可用。" }, 503) };
   const response = await fetch(base + "/auth/v1/user", { headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: "Bearer " + token } });
-  if (!response.ok) return { error: json({ error: "Your session is invalid or has expired." }, 401) };
+  if (!response.ok) return { error: json({ error: "登录状态无效或已过期。" }, 401) };
   const user = await safeJson(response);
   return { token, user, base, headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: "Bearer " + token, "Content-Type": "application/json" } };
 }
@@ -41,7 +41,7 @@ async function supabasePatch(base: string, headers: Record<string, string>, id: 
   const response = await fetch(base + "/rest/v1/market_trend_tasks?id=eq." + encodeURIComponent(id), {
     method: "PATCH", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify(patch)
   });
-  if (!response.ok) throw new Error("Unable to update research task in Supabase: " + (await response.text()).slice(0, 400));
+  if (!response.ok) throw new Error("无法更新 Supabase 研究任务：" + (await response.text()).slice(0, 400));
 }
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
   const auth = await authenticate(request, env);
@@ -49,13 +49,13 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const token = await getApifyToken(env);
   if (!token) return json({ error: "请先前往「设置 → Apify 数据服务」填写 Apify API Token。" }, 503);
   let body: any;
-  try { body = await request.json(); } catch { return json({ error: "Invalid JSON request." }, 400); }
+  try { body = await request.json(); } catch { return json({ error: "请求 JSON 格式无效。" }, 400); }
   const organizationId = typeof body?.organizationId === "string" ? body.organizationId : "";
   const keywords = Array.isArray(body?.keywords) ? body.keywords.map((v: unknown) => String(v)).filter((v: string) => v.trim().length > 0) : [];
   const isTrending = body?.mode === "trendingNow";
   const customInput = body?.actorInput && typeof body.actorInput === "object" && !Array.isArray(body.actorInput);
-  if (!organizationId || (!isTrending && !keywords.length && !customInput)) return json({ error: "A workspace and at least one keyword or a complete Actor input JSON object are required." }, 400);
-  if (body?.compareTerms && keywords.length > 5) return json({ error: "A comparison group can contain at most five keywords." }, 400);
+  if (!organizationId || (!isTrending && !keywords.length && !customInput)) return json({ error: "请提供工作空间，以及至少一个关键词或完整的 Actor 输入 JSON 对象。" }, 400);
+  if (body?.compareTerms && keywords.length > 5) return json({ error: "关键词对比最多支持 5 个关键词。" }, 400);
   const actorId = (env.APIFY_ACTOR_ID || actorDefault).replace("/", "~");
   const input = customInput ? body.actorInput : actorInput({ ...body, keywords });
   const taskInsert = await fetch(auth.base + "/rest/v1/market_trend_tasks", {
@@ -66,10 +66,10 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
       status: "queued", input_snapshot: { ...body, keywords, actorInput: input }, raw_items: []
     }])
   });
-  if (!taskInsert.ok) return json({ error: "Could not create the research task. Check workspace permissions." }, 403);
+  if (!taskInsert.ok) return json({ error: "无法创建研究任务，请检查工作空间权限。" }, 403);
   const inserted = await safeJson(taskInsert);
   const task = inserted?.[0];
-  if (!task?.id) return json({ error: "Research task was created without an ID." }, 500);
+  if (!task?.id) return json({ error: "研究任务创建成功，但未返回任务 ID。" }, 500);
 
   const runResponse = await fetch("https://api.apify.com/v2/acts/" + actorId + "/runs", {
     method: "POST",
@@ -95,20 +95,20 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   const auth = await authenticate(request, env);
   if (auth.error) return auth.error;
   const taskId = new URL(request.url).searchParams.get("taskId") || "";
-  if (!taskId) return json({ error: "taskId is required." }, 400);
+  if (!taskId) return json({ error: "缺少 taskId 参数。" }, 400);
   const taskResponse = await fetch(auth.base + "/rest/v1/market_trend_tasks?id=eq." + encodeURIComponent(taskId) + "&select=*", { headers: auth.headers });
-  if (!taskResponse.ok) return json({ error: "Unable to read research task." }, 403);
+  if (!taskResponse.ok) return json({ error: "无法读取研究任务。" }, 403);
   const rows = await safeJson(taskResponse);
   const task = rows?.[0];
-  if (!task) return json({ error: "Research task not found." }, 404);
+  if (!task) return json({ error: "未找到研究任务。" }, 404);
   if (!task.actor_run_id || !["queued", "running"].includes(task.status)) return json({ task });
-  const token = apifyToken(request, env);
+  const token = await getApifyToken(env);
   if (!token) return json({ error: "请在「设置 → Apify 数据服务」填写 Apify API Token 后刷新任务。" }, 503);
   const runResponse = await fetch("https://api.apify.com/v2/actor-runs/" + encodeURIComponent(task.actor_run_id), {
     headers: { Authorization: "Bearer " + token }
   });
   const runPayload = await safeJson(runResponse);
-  if (!runResponse.ok || !runPayload?.data) return json({ task, error: "Unable to read Apify run status." }, 502);
+  if (!runResponse.ok || !runPayload?.data) return json({ task, error: "无法读取 Apify 运行状态。" }, 502);
   const run = runPayload.data;
   const state = String(run.status || "RUNNING");
   if (["READY", "RUNNING"].includes(state)) {
