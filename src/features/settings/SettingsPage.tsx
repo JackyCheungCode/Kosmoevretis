@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, PasswordInput, Select, SelectItem, Tabs, TabList, Tab, TextInput, Toggle } from "@carbon/react";
-import { CheckmarkFilled, ChevronDown, Connect, Locked, Search } from "@carbon/icons-react";
+import { CheckmarkFilled, ChevronDown, Connect, Locked } from "@carbon/icons-react";
 
 type Provider = { id: string; name: string; region: "国内" | "国际" | "聚合与基础设施"; category: string; description: string; logo: string; models: string[]; featured?: boolean };
 const providers: Provider[] = [
