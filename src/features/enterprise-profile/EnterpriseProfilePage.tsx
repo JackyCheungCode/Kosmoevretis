@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ArrowRight, ChartLine, Globe, Search, Security } from "@carbon/icons-react";
 import { Dropdown, MultiSelect } from "@carbon/react";
 import { AIAnalysisPage } from "../ai-analysis/AIAnalysisPage";
@@ -76,7 +75,6 @@ const tabCopy: Record<TabId, { title: string; description: string }> = {
 };
 
 export function EnterpriseProfilePage() {
-  const navigate = useNavigate();
   const [mode, setMode] = useState<CreateMode>("website");
   const [query, setQuery] = useState("");
   const [website, setWebsite] = useState("");
