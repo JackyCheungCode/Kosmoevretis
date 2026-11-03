@@ -30,7 +30,7 @@ const timeItems = [
   { id: "today 12-m", text: "过去 12 个月" }, { id: "today 5-y", text: "过去 5 年" }, { id: "all", text: "2004 年至今" }
 ];
 const propertyItems = [
-  { id: "web", text: "网页搜索" }, { id: "youtube", text: "YouTube" },
+  { id: "", text: "网页搜索（默认）" }, { id: "youtube", text: "YouTube" },
   { id: "news", text: "Google 新闻" }, { id: "images", text: "Google 图片" }, { id: "froogle", text: "Google 购物" }
 ];
 const categories = [
@@ -138,7 +138,7 @@ export function MarketTrendsPage() {
   const [keywordsText, setKeywordsText] = useState("");
   const [geo, setGeo] = useState("");
   const [timeRange, setTimeRange] = useState("today 12-m");
-  const [property, setProperty] = useState("web");
+  const [property, setProperty] = useState("");
   const [category, setCategory] = useState("0");
   const [maxItems, setMaxItems] = useState(1000);
   const [compareTerms, setCompareTerms] = useState(false);
