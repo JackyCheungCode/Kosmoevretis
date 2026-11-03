@@ -1,5 +1,5 @@
 export interface AIEnv {
-  AI_CONFIG_KV: KVNamespace;
+  AI_CONFIG_KV: { get(key: string): Promise<string | null>; put(key: string, value: string): Promise<void>; delete(key: string): Promise<void>; list(options?: { prefix?: string }): Promise<{ keys: Array<{ name: string }> }> };
   AI_ENCRYPTION_KEY: string;
   CF_ACCESS_TEAM_DOMAIN: string;
   CF_ACCESS_AUD: string;
