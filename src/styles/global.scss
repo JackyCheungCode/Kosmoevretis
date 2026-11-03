@@ -470,3 +470,42 @@
 .ep-execution-list b{color:#161616;font-size:10px}
 .ep-execution-card .ep-actions{justify-content:center}
 @media(max-width:720px){.ep-carbon-stepper{padding:16px 10px;overflow-x:auto}.ep-carbon-stepper .cds--progress{min-width:620px}.ep-workflow-controls{gap:7px}.ep-workflow-controls>span{font-size:9px;text-align:center}.ep-workflow-controls button{padding:9px 12px}.ep-execution-card{padding:22px 15px}.ep-execution-list{grid-template-columns:1fr}}
+
+
+/* IBM Carbon aligned AI administration controls */
+.ai-config-field{display:flex;flex-direction:column;gap:6px;min-width:0;margin:12px 0;color:#525252;font-size:12px;font-weight:600;line-height:1.35}
+.ai-config-field input:not([type=checkbox]),.ai-config-field select{box-sizing:border-box;width:100%;min-width:0;min-height:40px;padding:0 12px;border:1px solid #8d8d8d;border-bottom:2px solid #8d8d8d;border-radius:0;background:#fff;color:#161616;font:inherit;font-weight:400;font-size:14px}
+.ai-config-field input:focus,.ai-config-field select:focus{outline:2px solid #0f62fe;outline-offset:-2px;border-bottom-color:#0f62fe}
+.ai-admin-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+.ai-admin-actions button,.ai-provider-actions button:not(:disabled),.ai-diagnostic button{min-height:36px;padding:0 14px;border:0;border-radius:0;background:#0f62fe;color:#fff;font-size:12px;cursor:pointer}
+.ai-admin-actions button:disabled,.ai-provider-actions button:disabled{opacity:.45;cursor:not-allowed}
+.ai-admin-actions span{font-size:11px;color:#6f6f6f}
+.ai-error{color:#da1e28!important;font-size:12px!important}
+.ai-connected{padding:4px 7px;background:#defbe6;color:#0e6027;font-size:10px;white-space:nowrap}
+.ai-panel-nav{display:flex;gap:0;overflow-x:auto;margin:30px 0 18px;border-bottom:1px solid #c6c6c6}
+.ai-panel-nav button{flex:none;min-height:44px;padding:0 18px;border:0;border-bottom:3px solid transparent;background:transparent;color:#525252;font-size:12px;cursor:pointer}
+.ai-panel-nav button.active{border-bottom-color:#0f62fe;color:#161616;font-weight:600}
+.ai-admin-panel{padding:20px;background:#fff;border:1px solid #e0e0e0;margin:15px 0 25px}
+.ai-admin-panel h2{font-size:20px;font-weight:400;margin:0 0 8px}
+.ai-admin-panel>p{font-size:12px;line-height:1.65;color:#6f6f6f}
+.ai-model-table{margin-top:18px;border:1px solid #e0e0e0}
+.ai-model-row{display:grid;grid-template-columns:1.1fr 1.5fr 1fr .8fr;gap:12px;padding:12px;border-top:1px solid #e0e0e0;font-size:11px;overflow-wrap:anywhere}
+.ai-model-row.head{border-top:0;background:#f4f4f4;color:#525252;font-weight:600}
+.ai-diagnostic{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:18px;margin:16px 0;border-left:3px solid #0f62fe;background:#f4f4f4}
+.ai-diagnostic b{font-size:14px}.ai-diagnostic span{font-size:12px;color:#525252}.ai-diagnostic strong{font-size:12px;color:#0e6027}
+.ai-diagnostic pre{box-sizing:border-box;width:100%;max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:#fff;border:1px solid #e0e0e0;font-size:11px}
+.ai-security-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.ai-security-grid article{display:flex;flex-direction:column;gap:8px;padding:15px;background:#f4f4f4}
+.ai-security-grid b{font-size:13px}.ai-security-grid span{font-size:11px;color:#525252;line-height:1.6}
+.ai-toggle-field{flex-direction:row;align-items:center;justify-content:space-between}.ai-toggle-field input{width:18px;height:18px;accent-color:#0f62fe}
+.ai-provider-actions{flex-wrap:wrap}
+.ai-provider-actions button:not(:disabled){min-height:34px;padding:0 10px;font-size:11px}
+.ai-provider-actions button:nth-child(3):not(:disabled){background:#da1e28}
+@media(max-width:720px){
+ .ai-platform-notice{flex-wrap:wrap}.ai-platform-notice>div:nth-child(2){width:100%;min-width:0}
+ .ai-panel-nav{margin-top:22px}.ai-panel-nav button{padding:0 13px;font-size:11px}
+ .ai-admin-panel{padding:14px}.ai-model-row{grid-template-columns:1fr 1fr;gap:7px;padding:10px;font-size:10px}
+ .ai-model-row.head{display:none}.ai-security-grid{grid-template-columns:1fr}
+ .ai-admin-actions{align-items:flex-start;flex-direction:column}
+ .ai-provider-actions button{flex:1 1 auto}
+}
