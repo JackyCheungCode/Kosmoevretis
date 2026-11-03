@@ -242,7 +242,7 @@ export function MarketTrendsPage() {
     } catch (e) { setError(e instanceof Error ? e.message : "Unable to load task."); }
   };
 
-  const downloadJson = () => exportFile("google-trends-" + (activeTask?.id || "results") + ".json", JSON.stringify(rawItems, null, 2), "application/json");
+  const downloadJson = () => exportFile("google-trends-" + (activeTask?.id || "results") + ".json", JSON.stringify({ dataset: rawItems, keyValueStore: activeTask?.kv_records || [], actorRun: activeTask?.actor_meta || {} }, null, 2), "application/json");
   const downloadCsv = () => {
     if (!rawItems.length) return;
     const columns = Array.from(new Set(rawItems.flatMap((row) => Object.keys(row || {}))));
@@ -314,6 +314,8 @@ export function MarketTrendsPage() {
             <div><small>GEOGRAPHY</small><b>{geoItems.find((item) => item.id === summary.geo)?.text || summary.geo || "Worldwide"}</b></div>
             <div><small>TIME RANGE</small><b>{summary.timeRange || "—"}</b></div>
             <div><small>KEYWORDS</small><b>{(summary.keywords || []).length || "—"}</b></div>
+            <div><small>KEY-VALUE OUTPUTS</small><b>{(activeTask.kv_records || []).length}</b></div>
+            <div><small>ACTOR USAGE</small><b>{activeTask.actor_meta?.usageTotalUsd == null ? "—" : "$" + Number(activeTask.actor_meta.usageTotalUsd).toFixed(4)}</b></div>
           </div>
           {(activeTask.status === "queued" || activeTask.status === "running") && <div className="mt-running-state"><InlineLoading description="Apify Actor is running. Results refresh automatically." /><span>{activeTask.actor_run_id || "Waiting for Actor run ID"}</span></div>}
           {activeTask.error_message && <InlineNotification kind="warning" title="Actor execution notice" subtitle={activeTask.error_message} lowContrast />}
