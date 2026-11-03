@@ -67,7 +67,7 @@ export function EnterpriseWorkflowPage() {
         </Button>
         <span>{currentStep === 1 ? "完成配置后进入第三步，分析任务将在第三步启动。" : "分析执行结束后进入第四步查看结果。"}</span>
       </div>
-    </section>}
+    </section>
 
     {currentStep === 3 && <section className="workflow-step-content">
       <AnalysisResultsPage embedded companyName={companyName} profileId={profile?.id} onConfigureAnalysis={() => setCurrentStep(1)} />
