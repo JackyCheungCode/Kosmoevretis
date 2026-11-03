@@ -63,3 +63,5 @@
 
 
 .kr-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#f4f4f4;border:1px solid #e0e0e0;border-top:0;color:#525252;font-size:12px}.kr-pagination>div{display:flex;align-items:center;gap:10px;white-space:nowrap}.kr-pagination .cds--btn{min-height:32px;padding-inline:10px;font-size:12px}@media(max-width:600px){.kr-pagination{align-items:flex-start;flex-direction:column}.kr-pagination>div{width:100%;justify-content:space-between}}
+
+.kr-pagination>div>.cds--select{width:104px;min-width:104px}.kr-pagination>div>.cds--select .cds--label{font-size:11px;margin-bottom:2px}.kr-no-results{padding:22px 12px;text-align:center;color:#6f6f6f;font-size:13px}
