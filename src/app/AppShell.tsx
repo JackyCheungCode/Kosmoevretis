@@ -1,12 +1,14 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Activity, ChevronDown, DataBase, Earth, Home, Menu, Search, Settings, UserAvatar, Close } from "@carbon/icons-react";
+import { Activity, ChartLine, ChevronDown, DataBase, Earth, Home, Menu, Search, Settings, UserAvatar, Close } from "@carbon/icons-react";
 import { requireSupabase } from "../lib/supabase";
 import { useAuth } from "./AuthProvider";
 
 const items = [
   { label: "总览", to: "/dashboard", icon: Home },
-  { label: "企业档案与 AI 分析", to: "/enterprise-profile", icon: UserAvatar },
+  { label: "企业档案", to: "/enterprise-profile", icon: UserAvatar },
+  { label: "AI 分析", to: "/ai-analysis", icon: Activity },
+  { label: "分析结果", to: "/analysis-results", icon: ChartLine },
   { label: "市场情报", to: "/market-intelligence", icon: Earth, soon: true },
   { label: "全球发现", to: "/discovery", icon: Search, soon: true },
   { label: "商业关系网络", to: "/network", icon: DataBase, soon: true },
@@ -26,7 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [sidebarOpen]);
 
-  const pageLabel = location.pathname === "/dashboard" ? "总览" : location.pathname.startsWith("/enterprise-profile") || location.pathname === "/ai-analysis" ? "企业档案与 AI 分析" : location.pathname === "/settings" ? "设置" : "模块";
+  const pageLabel = location.pathname === "/dashboard" ? "总览" : location.pathname.startsWith("/enterprise-profile") ? "企业档案" : location.pathname === "/ai-analysis" ? "AI 分析" : location.pathname === "/analysis-results" ? "分析结果" : location.pathname === "/settings" ? "设置" : "模块";
 
   return (
     <div className="app-frame">
