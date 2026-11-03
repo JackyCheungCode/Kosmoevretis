@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await client.from("organization_members").select("role, organizations(id,name)").eq("user_id", current.user.id).limit(1).maybeSingle();
     if (error) throw error;
     const org = data?.organizations as unknown as { id: string; name: string } | null;
-    setWorkspace(org ? { ...org, role: data.role } : null);
+    setWorkspace(org && data ? { ...org, role: data.role } : null);
     setLoading(false);
   };
   useEffect(() => {
