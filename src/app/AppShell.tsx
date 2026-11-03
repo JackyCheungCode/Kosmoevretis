@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Activity, ChevronDown, DataBase, Earth, Home, Menu, Search, Settings, UserAvatar, Close } from "@carbon/icons-react";
+import { requireSupabase } from "../lib/supabase";
+import { useAuth } from "./AuthProvider";
 
 const items = [
   { label: "总览", to: "/dashboard", icon: Home },
@@ -13,6 +15,7 @@ const items = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const { workspace } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
@@ -35,13 +38,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="brand"><b>kosmoevretis</b></div>
         </div>
         <div className="top-actions">
-          <span className="workspace-indicator"><i /> 工作空间</span>
-          <button className="profile-btn" type="button"><span className="avatar">J</span><span>工作空间</span><ChevronDown size={14} /></button>
+          <span className="workspace-indicator"><i /> {workspace?.name || "工作空间"}</span>
+          <button className="profile-btn" type="button" onClick={() => void requireSupabase().auth.signOut()} title="退出登录"><span className="avatar">↗</span><span>退出登录</span><ChevronDown size={14} /></button>
         </div>
       </header>
       {sidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="关闭侧边栏" onClick={() => setSidebarOpen(false)} />}
       <aside className={"sidebar" + (sidebarOpen ? " sidebar-open" : "")} aria-hidden={!sidebarOpen}>
-        <div className="workspace"><span className="workspace-mark">K</span><span><b>全球工作空间</b><small>免费工作空间</small></span><ChevronDown size={14} /></div>
+        <div className="workspace"><span className="workspace-mark">K</span><span><b>{workspace?.name || "工作空间"}</b><small>组织工作空间</small></span><ChevronDown size={14} /></div>
         <div className="nav-caption">工作空间</div>
         <nav>
           {items.map(({ label, to, icon: Icon, soon }) => soon
