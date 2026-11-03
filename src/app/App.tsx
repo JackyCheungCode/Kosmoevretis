@@ -8,6 +8,7 @@ import { EnterpriseProfilePage } from "../features/enterprise-profile/Enterprise
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { AIAnalysisPage } from "../features/ai-analysis/AIAnalysisPage";
 import { AnalysisResultsPage } from "../features/analysis-results/AnalysisResultsPage";
+import { EnterpriseWorkflowPage } from "../features/enterprise-workflow/EnterpriseWorkflowPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { session, workspace, loading } = useAuth();
@@ -29,11 +30,12 @@ export function App() {
       <Route path="/workspace" element={<WorkspaceOnly />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/dashboard" element={<Protected><DashboardPage /></Protected>} />
-      <Route path="/enterprise-profile" element={<Protected><EnterpriseProfilePage /></Protected>} />
-      <Route path="/enterprise-profile/:enterpriseId" element={<Protected><EnterpriseProfilePage /></Protected>} />
+      <Route path="/enterprise-workflow" element={<Protected><EnterpriseWorkflowPage /></Protected>} />
+      <Route path="/enterprise-profile" element={<Navigate to="/enterprise-workflow" replace />} />
+      <Route path="/enterprise-profile/:enterpriseId" element={<Navigate to="/enterprise-workflow" replace />} />
       <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
-      <Route path="/ai-analysis" element={<Protected><AIAnalysisPage /></Protected>} />
-      <Route path="/analysis-results" element={<Protected><AnalysisResultsPage companyName="当前企业" onConfigureAnalysis={() => { window.location.href = "/ai-analysis"; }} /></Protected>} />
+      <Route path="/ai-analysis" element={<Navigate to="/enterprise-workflow" replace />} />
+      <Route path="/analysis-results" element={<Navigate to="/enterprise-workflow" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   </BrowserRouter></AuthProvider>;
