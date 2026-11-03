@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect,useState,type ReactNode } from "react";
 import { ArrowRight,Globe,Search,Security,Activity } from "@carbon/icons-react";
 import { Link } from "react-router-dom";
 import { requireSupabase } from "../../lib/supabase";
@@ -18,4 +18,4 @@ export function DashboardPage(){
  <section className="dashboard-data-list">{runs.map(r=><div className="dashboard-data-row" key={r.id}><div><b>AI 企业分析</b><small>{r.model_id||"模型信息待记录"} · {new Date(r.created_at).toLocaleString()}</small></div><TagText>{r.status}</TagText></div>)}{!loading&&!runs.length&&<div className="empty-data"><Search size={24}/><b>尚无分析任务</b><p>在企业档案页面启动分析后，任务状态与结果会显示在这里。</p></div>}</section>
  </div>;
 }
-function TagText({children}:{children:React.ReactNode}){return <span className="dashboard-tag">{children}</span>;}
+function TagText({children}:{children:ReactNode}){return <span className="dashboard-tag">{children}</span>;}
