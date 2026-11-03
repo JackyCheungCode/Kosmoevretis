@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Tabs, TabList, Tab } from "@carbon/react";
 import { CheckmarkFilled, ChevronDown, ChevronRight, Cloud, Connect, Locked, Search } from "@carbon/icons-react";
 
 type Provider = { id: string; name: string; region: "国内" | "国际" | "聚合与基础设施"; category: string; description: string; logo: string; models: string[]; featured?: boolean };
@@ -46,7 +47,7 @@ export function SettingsPage() {
     </section>
     <section className="ai-section">
       <div className="ai-section-head"><div><div className="ep-section-kicker">PROVIDER DIRECTORY</div><h2>AI 服务商目录</h2><p>每家 AI 服务均展示独立品牌 Logo；接入后可同步模型、检测连接和查看服务状态。</p></div><span className="ai-directory-count">{visible.length} PROVIDERS</span></div>
-      <div className="ai-directory-tools"><div className="ai-filter-tabs">{filters.map(f=><button key={f} className={filter===f?"active":""} onClick={()=>setFilter(f)}>{f}</button>)}</div><label className="ai-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索服务商或能力"/></label></div>
+      <div className="ai-directory-tools"><Tabs className="ai-carbon-tabs" selectedIndex={filters.indexOf(filter)} onChange={({ selectedIndex })=>setFilter(filters[selectedIndex] ?? "全部")}><TabList aria-label="AI 服务商地区筛选">{filters.map(f=><Tab key={f}>{f}</Tab>)}</TabList></Tabs><label className="ai-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索服务商或能力"/></label></div>
       {groups.filter(g=>filter==="全部"||filter===g).map(group=><div className="ai-provider-group" key={group}><div className="ai-group-title">{group}<span>{visible.filter(p=>p.region===group).length} 家</span></div><div className="ai-provider-grid">{visible.filter(p=>p.region===group).map(p=><article className="ai-provider-card" key={p.id}><div className="ai-provider-top"><ProviderLogo provider={p}/><div className="ai-provider-title"><b>{p.name}</b><small>{p.category}</small></div><span className="ai-disconnected">未配置</span></div><p>{p.description}</p><div className="ai-provider-meta"><span>{p.models.length} 个模型系列预设</span><span>待连接</span></div><button className="ai-provider-expand" onClick={()=>setExpanded(expanded===p.id?null:p.id)}>{expanded===p.id?"收起详情":"查看接入详情"}<ChevronDown size={15}/></button>{expanded===p.id&&<div className="ai-provider-detail"><b>模型目录预览</b><div className="ai-model-chips">{p.models.map(m=><span key={m}>{m}</span>)}</div><small>以上为目录占位/系列预览，不代表已从服务商 API 验证可用。连接后将以真实 API 返回结果替换。</small><div className="ai-provider-actions"><button type="button" disabled><Connect size={14}/> 配置凭证（待开放）</button><button type="button" disabled><CheckmarkFilled size={14}/> 测试连接</button></div></div>}</article>)}</div></div>)}
       {visible.length===0&&<div className="ai-empty">没有找到匹配的 AI 服务商。</div>}
     </section>
