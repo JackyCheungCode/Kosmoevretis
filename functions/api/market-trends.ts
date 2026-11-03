@@ -1,7 +1,16 @@
-type Env = { SUPABASE_URL: string; SUPABASE_ANON_KEY: string; APIFY_API_TOKEN?: string; APIFY_ACTOR_ID?: string };
+import { decrypt, type AIEnv } from "../lib/ai";
+type Env = AIEnv & { SUPABASE_URL: string; SUPABASE_ANON_KEY: string; APIFY_API_TOKEN?: string; APIFY_ACTOR_ID?: string };
 const json = (data: unknown, status = 200) => Response.json(data, { status });
 const safeJson = async (response: Response) => response.json().catch(() => ({})) as Promise<any>;
 const actorDefault = "surefetch/google-trends";
+async function getApifyToken(env: Env): Promise<string> {
+  const saved = await env.AI_CONFIG_KV?.get("integration:apify");
+  if (saved) {
+    const config = JSON.parse(await decrypt(saved, env));
+    if (typeof config.apiToken === "string" && config.apiToken) return config.apiToken;
+  }
+  return env.APIFY_API_TOKEN || "";
+}
 const apifyToken = (request: Request, env: Env) => request.headers.get("X-Apify-Token")?.trim() || env.APIFY_API_TOKEN || "";
 
 async function authenticate(request: Request, env: Env) {
@@ -20,7 +29,7 @@ function actorInput(body: any) {
   const compareTerms = !!body.compareTerms;
   return {
     operation: isTrending ? "trending" : "keywords",
-    keywords: isTrending ? [] : compareTerms ? [keywords.join(", ")] : keywords,
+    keywords: isTrending ? [] : keywords,
     geo: body.geo || "",
     timeRange: body.timeRange || "today 12-m",
     category: Number.isInteger(body.category) ? body.category : 0,
@@ -42,7 +51,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   let body: any;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON request." }, 400); }
   const organizationId = typeof body?.organizationId === "string" ? body.organizationId : "";
-  const keywords = Array.isArray(body?.keywords) ? body.keywords.map((v: unknown) => String(v).trim()).filter(Boolean).slice(0, 100) : [];
+  const keywords = Array.isArray(body?.keywords) ? body.keywords.map((v: unknown) => String(v)).filter((v: string) => v.trim().length > 0) : [];
   const isTrending = body?.mode === "trendingNow";
   const customInput = body?.actorInput && typeof body.actorInput === "object" && !Array.isArray(body.actorInput);
   if (!organizationId || (!isTrending && !keywords.length && !customInput)) return json({ error: "A workspace and at least one keyword or a complete Actor input JSON object are required." }, 400);
