@@ -198,3 +198,13 @@
 .ep-planning-note{display:block;margin-top:12px;color:#8d8d8d;font-size:9px}
 @media(max-width:900px){.ep-capability-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-planning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.ep-manual-core{grid-template-columns:1fr}.ep-manual-sections{grid-template-columns:1fr}.ep-manual-section-list{border-right:0;border-bottom:1px solid #e0e0e0;display:grid;grid-template-columns:1fr 1fr}.ep-manual-section-list button{font-size:9px;padding:9px 6px}.ep-manual-fields{padding:13px}.ep-capability-grid{grid-template-columns:1fr}.ep-planning-grid{grid-template-columns:1fr 1fr}.ep-manual-hint{width:100%;margin-bottom:8px}}
+
+
+/* Enterprise Profile responsive form spacing and Carbon dropdowns */
+.ep-field-grid{column-gap:18px;row-gap:18px;align-items:start}
+.ep-manual-fields .ep-form-block,.ep-edit-form .ep-form-block{min-width:0;gap:8px}
+.ep-manual-fields .ep-form-block label,.ep-edit-form .ep-form-block label{display:block;line-height:1.45;min-height:1.45em}
+.ep-manual-fields .ep-form-block textarea,.ep-edit-form .ep-form-block textarea{box-sizing:border-box;display:block;width:100%;min-height:96px;line-height:1.5;resize:vertical}
+.ep-manual-fields .bx--dropdown,.ep-edit-form .bx--dropdown{width:100%;max-width:100%}
+.ep-manual-fields .cds--dropdown,.ep-edit-form .cds--dropdown{width:100%;max-width:100%}
+@media(max-width:720px){.ep-field-grid{grid-template-columns:minmax(0,1fr);row-gap:16px}.ep-manual-fields{min-width:0}.ep-manual-fields .ep-form-block textarea,.ep-edit-form .ep-form-block textarea{min-height:104px}.ep-manual-sections{min-width:0}.ep-manual-section-list button{min-width:0;overflow-wrap:anywhere}}
