@@ -8,6 +8,9 @@
   },
   "env": {
     "preview": {
+      "ai": {
+        "binding": "AI"
+      },
       "kv_namespaces": [
         {
           "binding": "AI_CONFIG_KV",
