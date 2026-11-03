@@ -297,15 +297,14 @@ export function MarketTrendsPage() {
           <div className="mt-config-note"><Information size={16} /><span>Actor 专属字段由服务端适配器映射。即使更换数据提供方，研究表单也保持稳定。</span></div>
           <div className="mt-actor-json">
             <TextArea id="mt-actor-input" labelText="Actor 原始输入 JSON（可选）" helperText="填写 Actor 文档要求的完整输入对象。JSON key/value 将保持原样提交；英文参数不会被页面翻译或转换。留空时使用上方表单生成默认输入。" placeholder={'{
-  "searchTerms": ["industrial automation"],
-  "geo": "US"
+  "actorParameter": "value"
 }'} rows={7} value={actorInputText} onChange={(event) => { setActorInputText(event.target.value); setActorInputError(""); }} />
             {actorInputError && <InlineNotification kind="error" title="Actor JSON 格式错误" subtitle={actorInputError} lowContrast />}
           </div>
         </div>}
         <div className="mt-run-footer">
           <div><span>最大数据集条数</span><b>{maxItems.toLocaleString()}</b></div>
-          <Button kind="primary" renderIcon={Play} onClick={runResearch} disabled={busy || (!trendingMode && keywords.length === 0) || (trendingMode && !geo)}>{busy ? "提交中…" : "开始市场研究"}</Button>
+          <Button kind="primary" renderIcon={Play} onClick={runResearch} disabled={busy || (!actorInputText.trim() && !trendingMode && keywords.length === 0) || (!actorInputText.trim() && trendingMode && !geo)}>{busy ? "提交中…" : "开始市场研究"}</Button>
         </div>
         {busy && <InlineLoading description="正在向 Apify 提交研究任务…" />}
       </aside>
