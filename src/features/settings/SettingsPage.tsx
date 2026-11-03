@@ -78,6 +78,7 @@ export function SettingsPage() {
   return <div className="settings-page">
     <header className="settings-heading"><div><div className="ep-eyebrow"><i/> 平台配置</div><h1>AI 服务中心</h1><p>统一管理 Kosmoevretis 平台使用的 AI 服务商、模型目录与调用能力。</p></div><span className="settings-admin"><Locked size={15}/> 平台管理员</span></header>
     <section className="ai-platform-notice"><div className="ai-notice-icon"><Locked size={20}/></div><div><b>平台统一管理 API 凭证</b><p>所有 API Key 由 Kosmoevretis 平台统一申请、保管和调用。管理员令牌仅保留在当前页面内存，不写入本地存储。</p><PasswordInput id="ai-admin-token" labelText="平台管理员令牌" autoComplete="off" value={adminToken} onChange={e=>{setAdminToken(e.target.value);setDirectoryError("");}} placeholder="输入预览环境管理员令牌"/><div className="ai-admin-actions"><Button type="button" kind="primary" onClick={loadProviders} disabled={!adminToken||directoryLoading}>{directoryLoading?"正在读取…":"验证并加载配置"}</Button><span>{lastRefresh?`最近同步：${lastRefresh}`:"输入令牌后加载服务端配置"}</span></div>{directoryError&&<p className="ai-error" role="alert">{directoryError}</p>}</div><span className="ai-notice-state">仅限预览环境管理</span></section>
+    <ApifySettingsPanel adminToken={adminToken} />
     <section className="ai-overview">
       <article><span>已登记服务商</span><b>{providers.length}</b><small>国内、国际及聚合平台</small></article>
       <article><span>已连接服务商</span><b>{Object.values(savedProviders).filter(x=>x.enabled&&x.hasKey).length} <em>/ {providers.length}</em></b><small>已保存且启用的服务商</small></article>
