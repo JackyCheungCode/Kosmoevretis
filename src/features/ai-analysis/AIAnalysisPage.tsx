@@ -18,14 +18,18 @@ const providers: Provider[] = [
   { id: "cloudflare", name: "Cloudflare Workers AI", models: ["@cf/zai-org/glm-4.7-flash"] },
 ];
 const dimensions = [
-  { id: "strategy", title: "企业战略与经营诊断", desc: "商业模式、核心能力、经营目标与战略一致性", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
-  { id: "market", title: "市场与行业机会", desc: "市场规模、趋势、区域机会与进入壁垒", models: ["cloudflare", "qwen", "google", "openai"] },
-  { id: "competitor", title: "竞争格局与对标分析", desc: "竞争者、替代方案、差异化和竞争优势", models: ["cloudflare", "deepseek", "openai", "kimi"] },
-  { id: "product", title: "产品与服务组合", desc: "产品竞争力、价值主张、定价与产品路线", models: ["cloudflare", "qwen", "anthropic", "deepseek"] },
-  { id: "growth", title: "销售增长与客户策略", desc: "客户细分、获客渠道、销售漏斗与增长路径", models: ["cloudflare", "openai", "qwen", "google"] },
-  { id: "operation", title: "组织与运营效率", desc: "组织能力、流程、供应链与资源配置", models: ["cloudflare", "deepseek", "qwen", "openai"] },
-  { id: "finance", title: "财务与资源规划", desc: "预算、成本结构、投入优先级与情景推演", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
-  { id: "risk", title: "风险与合规识别", desc: "经营风险、外部依赖、合规与应急预案", models: ["cloudflare", "anthropic", "deepseek", "google"] },
+  { id: "foundation", title: "企业基础认知", desc: "企业定位、发展阶段、核心业务、经营范围与关键背景", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "business-model", title: "商业模式分析", desc: "价值创造、收入来源、成本结构、渠道与盈利逻辑", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "product", title: "产品与服务能力", desc: "产品组合、服务交付、差异化能力与价值主张", models: ["cloudflare", "qwen", "anthropic", "deepseek"] },
+  { id: "market", title: "市场环境分析", desc: "行业趋势、市场规模、区域环境与外部驱动因素", models: ["cloudflare", "qwen", "google", "openai"] },
+  { id: "customer", title: "客户与需求分析", desc: "客户细分、购买动机、痛点需求与客户价值", models: ["cloudflare", "openai", "qwen", "google"] },
+  { id: "competitor", title: "竞争格局分析", desc: "竞争者、替代方案、市场定位与竞争优势", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "organization", title: "组织与人才分析", desc: "组织架构、关键岗位、人才能力与治理机制", models: ["cloudflare", "deepseek", "qwen", "openai"] },
+  { id: "operations", title: "运营与资源分析", desc: "运营流程、供应链、技术设施与资源配置效率", models: ["cloudflare", "deepseek", "qwen", "openai"] },
+  { id: "finance", title: "财务与经营健康度", desc: "收入成本、现金流、盈利能力、财务韧性与经营指标", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "risk", title: "风险分析", desc: "战略、市场、运营、财务、合规及外部依赖风险", models: ["cloudflare", "anthropic", "deepseek", "google"] },
+  { id: "swot", title: "SWOT 与战略分析", desc: "优势、劣势、机会、威胁及战略匹配", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "planning", title: "发展目标与规划分析", desc: "阶段目标、战略路径、关键举措、里程碑与资源需求", models: ["cloudflare", "openai", "qwen", "google"] },
 ];
 type Assignment = { provider: string; model: string };
 const providerById = (id: string) => providers.find((p) => p.id === id) || providers[0];
