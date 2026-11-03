@@ -76,8 +76,8 @@ function extractRows(items: any[], kind: string, fieldNames: string[]): any[] {
   const direct = items.filter((row) => rowKind(row) === kind);
   if (direct.length) return direct;
   const extracted: any[] = [];
-  for (const item 条，共 items) {
-    for (const field 条，共 fieldNames) {
+  for (const item of items) {
+    for (const field of fieldNames) {
       const value = item?.[field];
       const add = (entry: any, variant?: string) => {
         if (entry && typeof entry === "object") extracted.push({ ...entry, type: kind, sourceSearchTerm: item.searchTerm || item.keyword || item.searchTerms || "", ...(variant ? { variant } : {}) });
@@ -296,9 +296,7 @@ export function MarketTrendsPage() {
           {trendingMode && <div className="mt-config-note"><Information size={16} /><span>实时趋势使用所选目标地区。请指定国家/地区，不要选择全球。</span></div>}
           <div className="mt-config-note"><Information size={16} /><span>可直接填写 Actor 原始输入 JSON。参数名称与英文值将原样提交，不会被页面翻译或改写。</span></div>
           <div className="mt-actor-json">
-            <TextArea id="mt-actor-input" labelText="Actor 原始输入 JSON（可选）" helperText="填写 Actor 文档要求的完整输入对象。JSON key/value 将保持原样提交；英文参数不会被页面翻译或转换。留空时使用上方表单生成默认输入。" placeholder={'{
-  "actorParameter": "value"
-}'} rows={7} value={actorInputText} onChange={(event) => { setActorInputText(event.target.value); setActorInputError(""); }} />
+            <TextArea id="mt-actor-input" labelText="Actor 原始输入 JSON（可选）" helperText="填写 Actor 文档要求的完整输入对象。JSON key/value 将保持原样提交；英文参数不会被页面翻译或转换。留空时使用上方表单生成默认输入。" placeholder={'{\n  "actorParameter": "value"\n}'} rows={7} value={actorInputText} onChange={(event) => { setActorInputText(event.target.value); setActorInputError(""); }} />
             {actorInputError && <InlineNotification kind="error" title="Actor JSON 格式错误" subtitle={actorInputError} lowContrast />}
           </div>
         </div>}
