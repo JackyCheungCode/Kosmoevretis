@@ -110,7 +110,7 @@ function TrendLine({ rows }: { rows: any[] }) {
   }).join(" ");
   return <div className="mt-chart-wrap">
     <div className="mt-chart-scale"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-    <svg viewBox="0 0 700 170" role="img" aria-label="Google Trends interest over time chart" className="mt-line-chart">
+    <svg viewBox="0 0 700 170" role="img" aria-label="Google Trends 搜索热度趋势图" className="mt-line-chart">
       {[22, 55, 88, 121, 154].map((y) => <line key={y} x1="12" y1={y} x2="688" y2={y} className="mt-grid-line" />)}
       <polyline points={coords} className="mt-line" />
       {points.map((value, index) => {
@@ -125,13 +125,13 @@ function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const [page, setPage] = useState(0);
   const pageSize = 50;
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
-  const currentPage = Math.min(page, pageCount - 1);
+  const current第 = Math.min(page, pageCount - 1);
   const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))), [rows]);
   if (!rows.length) return <div className="mt-empty-inline"><Search size={22} /><span>{empty}</span></div>;
-  const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const visibleRows = rows.slice(current第 * pageSize, (current第 + 1) * pageSize);
   return <div className="mt-table-scroll"><table className="mt-data-table"><thead><tr>{columns.map((key) => <th key={key}>{key}</th>)}</tr></thead><tbody>
-    {visibleRows.map((row, index) => <tr key={currentPage * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
-  </tbody></table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</button><span>第 {currentPage + 1} / {pageCount}</span><button type="button" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</button></div></div></div>;
+    {visibleRows.map((row, index) => <tr key={current第 * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
+  </tbody></table><div className="mt-table-foot"><span>显示第 {current第 * pageSize + 1}–{Math.min((current第 + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={current第 === 0} onClick={() => setPage(current第 - 1)}>上一页</button><span>第 {current第 + 1} / {pageCount}</span><button type="button" disabled={current第 >= pageCount - 1} onClick={() => setPage(current第 + 1)}>下一页</button></div></div></div>;
 }
 export function MarketTrendsPage() {
   const { session, workspace } = useAuth();
@@ -338,15 +338,15 @@ export function MarketTrendsPage() {
             </div>
             <div className="mt-subsection-head"><div><h3>搜索热度变化趋势</h3><p>Google Trends 标准化热度指数（0–100）。</p></div><Tag type="blue">时间趋势</Tag></div>
             <TrendLine rows={timelineRows} />
-            <div className="mt-subsection-head"><div><h3>Latest dataset 条记录</h3><p>Actor 返回的原始记录。</p></div><button type="button" onClick={() => setActiveTab("raw")}>查看全部数据 <ArrowRight size={14} /></button></div>
-            <DataTable rows={rawItems.slice(0, 8)} empty="No dataset 条记录 have been returned yet." />
+            <div className="mt-subsection-head"><div><h3>最新 Dataset 记录</h3><p>Actor 返回的原始记录。</p></div><button type="button" onClick={() => setActiveTab("raw")}>查看全部数据 <ArrowRight size={14} /></button></div>
+            <DataTable rows={rawItems.slice(0, 8)} empty="暂未收到 Dataset 记录。" />
           </div>}
-          {activeTab === "timeline" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>时间趋势</h3><p>{timelineRows.length} time-series 条记录 · values are relative, not absolute search volume.</p></div></div><TrendLine rows={timelineRows} /><DataTable rows={timelineRows} empty="No timeline 条记录 in this Actor response." /></div>}
-          {activeTab === "regions" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>Regional interest</h3><p>{regionRows.length} regional 条记录 returned. The region granularity depends on the requested geography.</p></div></div><DataTable rows={regionRows} empty="No regional 条记录 in this Actor response." /></div>}
-          {activeTab === "queries" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>相关搜索</h3><p>热门与上升搜索 associated with the research keywords.</p></div></div><DataTable rows={queryRows} empty="No related-query 条记录 in this Actor response." /></div>}
-          {activeTab === "topics" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>相关主题</h3><p>Google Trends 返回的相关实体与主题。</p></div></div><DataTable rows={topicRows} empty="No related-topic 条记录 in this Actor response." /></div>}
+          {activeTab === "timeline" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>时间趋势</h3><p>{timelineRows.length} 条时间序列记录 · 数值为相对热度，并非绝对搜索量。</p></div></div><TrendLine rows={timelineRows} /><DataTable rows={timelineRows} empty="Actor 响应中暂无时间序列记录。" /></div>}
+          {activeTab === "regions" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>地区热度</h3><p>{regionRows.length} 条地区记录。地区粒度取决于所选目标地区。</p></div></div><DataTable rows={regionRows} empty="Actor 响应中暂无地区记录。" /></div>}
+          {activeTab === "queries" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>相关搜索</h3><p>与研究关键词相关的热门及上升搜索。</p></div></div><DataTable rows={queryRows} empty="Actor 响应中暂无相关搜索记录。" /></div>}
+          {activeTab === "topics" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>相关主题</h3><p>Google Trends 返回的相关实体与主题。</p></div></div><DataTable rows={topicRows} empty="Actor 响应中暂无相关主题记录。" /></div>}
           {activeTab === "raw" && <div className="mt-result-content">
-            <div className="mt-raw-toolbar"><div><h3>Actor 完整数据集</h3><p>{rawItems.length.toLocaleString()} 条记录 · all returned fields retained.</p></div><div><Button kind="tertiary" size="sm" renderIcon={Download} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={Download} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
+            <div className="mt-raw-toolbar"><div><h3>Actor 完整数据集</h3><p>{rawItems.length.toLocaleString()} 条记录 · 完整保留 Actor 返回的全部字段。</p></div><div><Button kind="tertiary" size="sm" renderIcon={Download} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={Download} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
             <DataTable rows={rawItems} empty="Actor 执行完成后，完整数据集将在此显示。" />
             <details className="mt-json-details"><summary><Code size={15} /> 查看完整 Dataset JSON ({rawItems.length} 条记录)</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
             <details className="mt-json-details"><summary><Code size={15} /> 查看 Key-Value Store 输出 ({(activeTask.kv_records || []).length} 条记录)</summary><pre>{JSON.stringify(activeTask.kv_records || [], null, 2)}</pre></details>
