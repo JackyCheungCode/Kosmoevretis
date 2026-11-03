@@ -1,4 +1,4 @@
-import { decrypt, requireAdmin, type AIEnv } from "../../_lib/ai";
+import { decrypt, requireAdmin, type AIEnv } from "../../../lib/ai";
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: AIEnv }) => {
   const denied = await requireAdmin(request, env); if (denied) return denied;
