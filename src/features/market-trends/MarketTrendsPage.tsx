@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity, Download, ArrowRight, ChartLine, CheckmarkFilled, ChevronDown,
-  Earth, Filter, Flash, Globe, Information, Play, Search, Time, WarningAlt,
+  Activity, Download, ArrowRight, ChartLine, ChevronDown,
+  Earth, Filter, Flash, Globe, Information, Play, Search, Time,
   DataTable as DataTableIcon, Code
 } from "@carbon/icons-react";
 import {
@@ -76,9 +76,6 @@ function rowValue(row: any): number | null {
     return first ?? null;
   }
   return null;
-}
-function rowLabel(row: any): string {
-  return String(row?.query || row?.title || row?.geoName || row?.region || row?.formattedTime || row?.date || row?.keyword || row?.searchTerm || "—");
 }
 function extractRows(items: any[], kind: string, fieldNames: string[]): any[] {
   const direct = items.filter((row) => rowKind(row) === kind);
@@ -169,7 +166,6 @@ export function MarketTrendsPage() {
   const queryRows = extractRows(rawItems, "query", ["relatedQueries_top", "relatedQueries_rising", "relatedQueries", "topQueries", "risingQueries"]);
   const topicRows = extractRows(rawItems, "topic", ["relatedTopics_top", "relatedTopics_rising", "relatedTopics", "topTopics", "risingTopics"]);
   const trendingRows = extractRows(rawItems, "trending", ["trendingSearches", "trendingNow", "trending"]);
-  const otherRows = rawItems.filter((row) => rowKind(row) === "other");
 
   const loadHistory = async () => {
     if (!workspace?.id) return;
