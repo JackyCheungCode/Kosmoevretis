@@ -1,6 +1,6 @@
 import {useEffect,useState,type ReactNode} from "react";
 import {NavLink,useLocation} from "react-router-dom";
-import {Activity,ChevronDown,DataBase,Earth,Home,Menu,Search,Settings,Close,ChartLine} from "@carbon/icons-react";
+import {Activity,ChevronDown,Home,Menu,Search,Settings,Close,ChartLine} from "@carbon/icons-react";
 import {requireSupabase} from "../lib/supabase";
 import {useAuth} from "./AuthProvider";
 
