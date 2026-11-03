@@ -22,7 +22,7 @@ const dimensions = [
   { id: "market", title: "市场与行业机会", desc: "市场规模、趋势、区域机会与进入壁垒", models: ["cloudflare", "qwen", "google", "openai"] },
   { id: "competitor", title: "竞争格局与对标分析", desc: "竞争者、替代方案、差异化和竞争优势", models: ["cloudflare", "deepseek", "openai", "kimi"] },
   { id: "product", title: "产品与服务组合", desc: "产品竞争力、价值主张、定价与产品路线", models: ["cloudflare", "qwen", "anthropic", "deepseek"] },
-  { id: "growth", title: "销售增长与客户策略", desc: "客户细分、获客渠道、销售漏斗与增长路径", models: ["openai", "qwen", "google"] },
+  { id: "growth", title: "销售增长与客户策略", desc: "客户细分、获客渠道、销售漏斗与增长路径", models: ["cloudflare", "openai", "qwen", "google"] },
   { id: "operation", title: "组织与运营效率", desc: "组织能力、流程、供应链与资源配置", models: ["cloudflare", "deepseek", "qwen", "openai"] },
   { id: "finance", title: "财务与资源规划", desc: "预算、成本结构、投入优先级与情景推演", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
   { id: "risk", title: "风险与合规识别", desc: "经营风险、外部依赖、合规与应急预案", models: ["cloudflare", "anthropic", "deepseek", "google"] },
@@ -57,7 +57,8 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
     });
     setNotice("已将统一模型应用到当前勾选的分析维度。你仍可逐项修改。");
   };
-  const startAnalysis = () => setNotice("请先在设置 → AI 服务中心配置并测试 Workers AI 服务。");rt { useMemo, useState } from "react";
+  const startAnalysis = () => setNotice("请先在设置 → AI 服务中心配置并测试 Workers AI 服务。");
+  return <div className="analysis-page">
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, ChartLine, Locked, SettingsAdjust } from "@carbon/icons-react";
 import { Dropdown } from "@carbon/react";
