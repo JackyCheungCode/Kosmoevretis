@@ -1,4 +1,4 @@
-import { decrypt, encrypt, requireAdmin, safeConfig, type AIEnv } from "../_lib/ai";
+import { decrypt, encrypt, requireAdmin, safeConfig, type AIEnv } from "../../lib/ai";
 
 const validId = /^[a-z0-9-]{2,40}$/;
 export const onRequestGet = async ({ request, env }: { request: Request; env: AIEnv }) => {
