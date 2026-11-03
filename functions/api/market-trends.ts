@@ -11,7 +11,7 @@ async function getApifyToken(env: Env): Promise<string> {
   }
   return env.APIFY_API_TOKEN || "";
 }
-const apifyToken = (request: Request, env: Env) => request.headers.get("X-Apify-Token")?.trim() || env.APIFY_API_TOKEN || "";
+
 
 async function authenticate(request: Request, env: Env) {
   const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
@@ -46,7 +46,7 @@ async function supabasePatch(base: string, headers: Record<string, string>, id: 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
   const auth = await authenticate(request, env);
   if ("error" in auth) return auth.error;
-  const token = apifyToken(request, env);
+  const token = await getApifyToken(env);
   if (!token) return json({ error: "请先前往「设置 → Apify 数据服务」填写 Apify API Token。" }, 503);
   let body: any;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON request." }, 400); }
