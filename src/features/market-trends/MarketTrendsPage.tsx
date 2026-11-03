@@ -160,7 +160,7 @@ function RegionMap({ rows }: { rows: any[] }) {
         const center = countryCenters[key] || countryCenters[key.replace(/\\s*\\([^)]*\\)$/, "")];
         if (!center || value === null) return;
         L.circleMarker(center, { radius: 5 + Math.min(13, Math.max(0, value) / maximum * 13), color: "#0f62fe", weight: 1.5, fillColor: "#4589ff", fillOpacity: .72 })
-          .bindTooltip("<strong>" + name.replace(/[&<>"]/g, "") + "</strong><br/>趋势指数：" + value, { direction: "top" }).addTo(map);
+          .bindTooltip("<strong>" + name.replace(/[&<>"]/g, "") + "</strong><br/>趋势指数：" + value, { direction: "top", permanent: valid.length <= 35, className: "mt-region-value-label" }).addTo(map);
       });
       window.setTimeout(() => map?.invalidateSize(), 150);
     }).catch((error) => { if (!cancelled) setMapError(error instanceof Error ? error.message : "地图加载失败"); });
