@@ -15,16 +15,17 @@ const providers: Provider[] = [
   { id: "google", name: "Google · Gemini", models: ["Gemini Pro", "Gemini Flash"] },
   { id: "openrouter", name: "OpenRouter", models: ["连接后同步模型目录"] },
   { id: "siliconflow", name: "SiliconFlow", models: ["连接后同步模型目录"] },
+  { id: "cloudflare", name: "Cloudflare Workers AI", models: ["@cf/meta/llama-3.1-8b-instruct"] },
 ];
 const dimensions = [
-  { id: "strategy", title: "企业战略与经营诊断", desc: "商业模式、核心能力、经营目标与战略一致性", models: ["deepseek", "openai", "anthropic"] },
-  { id: "market", title: "市场与行业机会", desc: "市场规模、趋势、区域机会与进入壁垒", models: ["qwen", "google", "openai"] },
-  { id: "competitor", title: "竞争格局与对标分析", desc: "竞争者、替代方案、差异化和竞争优势", models: ["deepseek", "openai", "kimi"] },
-  { id: "product", title: "产品与服务组合", desc: "产品竞争力、价值主张、定价与产品路线", models: ["qwen", "anthropic", "deepseek"] },
+  { id: "strategy", title: "企业战略与经营诊断", desc: "商业模式、核心能力、经营目标与战略一致性", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "market", title: "市场与行业机会", desc: "市场规模、趋势、区域机会与进入壁垒", models: ["cloudflare", "qwen", "google", "openai"] },
+  { id: "competitor", title: "竞争格局与对标分析", desc: "竞争者、替代方案、差异化和竞争优势", models: ["cloudflare", "deepseek", "openai", "kimi"] },
+  { id: "product", title: "产品与服务组合", desc: "产品竞争力、价值主张、定价与产品路线", models: ["cloudflare", "qwen", "anthropic", "deepseek"] },
   { id: "growth", title: "销售增长与客户策略", desc: "客户细分、获客渠道、销售漏斗与增长路径", models: ["openai", "qwen", "google"] },
-  { id: "operation", title: "组织与运营效率", desc: "组织能力、流程、供应链与资源配置", models: ["deepseek", "qwen", "openai"] },
-  { id: "finance", title: "财务与资源规划", desc: "预算、成本结构、投入优先级与情景推演", models: ["deepseek", "openai", "anthropic"] },
-  { id: "risk", title: "风险与合规识别", desc: "经营风险、外部依赖、合规与应急预案", models: ["anthropic", "deepseek", "google"] },
+  { id: "operation", title: "组织与运营效率", desc: "组织能力、流程、供应链与资源配置", models: ["cloudflare", "deepseek", "qwen", "openai"] },
+  { id: "finance", title: "财务与资源规划", desc: "预算、成本结构、投入优先级与情景推演", models: ["cloudflare", "deepseek", "openai", "anthropic"] },
+  { id: "risk", title: "风险与合规识别", desc: "经营风险、外部依赖、合规与应急预案", models: ["cloudflare", "anthropic", "deepseek", "google"] },
 ];
 type Assignment = { provider: string; model: string };
 const providerById = (id: string) => providers.find((p) => p.id === id) || providers[0];
@@ -37,11 +38,11 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
   const enterprise = (location.state as { enterpriseName?: string; profile?: Record<string, string>; completion?: number } | null) || {};
   const [assignments, setAssignments] = useState(initialAssignments);
   const [selected, setSelected] = useState<string[]>(dimensions.map((d) => d.id));
-  const [globalProvider, setGlobalProvider] = useState(providers[0].id);
-  const [globalModel, setGlobalModel] = useState(providers[0].models[0]);
+  const [globalProvider, setGlobalProvider] = useState("cloudflare");
+  const [globalModel, setGlobalModel] = useState("@cf/meta/llama-3.1-8b-instruct");
   const [allocationMode, setAllocationMode] = useState<"uniform" | "independent">("independent");
   const [notice, setNotice] = useState("");
-  const [advanced, setAdvanced] = useState(false);
+  const [advanced, setAdvanced] = useState(false);\n  const [testing, setTesting] = useState(false);\n  const [testOutput, setTestOutput] = useState("");
   const selectedProvider = providerById(globalProvider);
   const selectedDimensions = useMemo(() => dimensions.filter((d) => selected.includes(d.id)), [selected]);
   const updateProvider = (dimensionId: string, providerId: string) => {
@@ -56,11 +57,35 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
     });
     setNotice("已将统一模型应用到当前勾选的分析维度。你仍可逐项修改。");
   };
-  const startAnalysis = () => setNotice("当前所有服务商均尚未配置真实 API 凭证。模型分配已保留在本页面状态；接入平台调用网关后即可启动真实分析。");
+  const startAnalysis = async () => {
+    setTesting(true);
+    setNotice("");
+    setTestOutput("");
+    try {
+      const response = await fetch("/api/ai/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: globalProvider === "cloudflare" ? globalModel : "@cf/meta/llama-3.1-8b-instruct",
+          prompt: "请用简体中文回复：Kosmoevretis Workers AI 真实调用测试成功。并用一句话说明企业经营分析可以帮助企业做什么。"
+        })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "AI 请求失败");
+      const result = payload.result;
+      const output = typeof result === "string" ? result : JSON.stringify(result, null, 2);
+      setTestOutput(output);
+      setNotice("Workers AI 已成功返回真实模型响应。");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Workers AI 调用失败，请检查 Preview 环境绑定。");
+    } finally {
+      setTesting(false);
+    }
+  };
   return <div className="analysis-page">
     <header className="analysis-heading"><div><div className="ep-eyebrow"><i/> BUSINESS INTELLIGENCE / AI ANALYSIS</div><h1>AI 企业分析</h1><p>基于本企业档案，按分析维度分配最合适的 AI 模型，形成可追溯的经营洞察。</p></div><span className="analysis-secure"><Locked size={15}/> 平台统一调用凭证</span></header>
     {!embedded && <section className="analysis-enterprise"><div className="analysis-enterprise-mark">{(enterprise.enterpriseName || "企").slice(0,1)}</div><div><small>ANALYSIS SUBJECT</small><b>{enterprise.enterpriseName || "当前企业档案"}</b><span>{typeof enterprise.completion === "number" ? "档案完整度 " + enterprise.completion + "%" : "分析将使用已确认的企业档案信息"}</span></div><Link to="/enterprise-profile"><span>查看企业档案</span><ArrowRight size={15}/></Link></section>}
-    <section className="analysis-intro"><div className="analysis-intro-icon"><ChartLine size={22}/></div><div><small>ANALYSIS WORKSPACE</small><h2>为每个分析维度选择 AI 能力</h2><p>模型选择属于本次分析任务，不会被 Settings 中的服务商配置强制覆盖。你可以逐项指定，也可以将同一模型批量应用到勾选的维度。</p></div></section>
+    <section className="analysis-intro"><div className="analysis-intro-icon"><ChartLine size={22}/></div><div><small>ANALYSIS WORKSPACE</small><h2>为每个分析维度选择 AI 能力</h2><p>模型选择属于本次分析任务。当前默认使用 Cloudflare Workers AI；请求通过 Pages Functions 在服务端执行，API 凭证不会进入浏览器。</p></div><button type="button" className="ep-button-secondary" onClick={startAnalysis} disabled={testing}>{testing ? "正在测试…" : "测试 Workers AI 连接"}</button></section>
     <section className="analysis-selection">
       <div className="analysis-section-head"><div><div className="ep-section-kicker">01 / MODEL ALLOCATION</div><h2>模型分配</h2><p>选择本次需要执行的分析维度，并为每个维度指定服务商和模型。</p></div><span>{selected.length} / {dimensions.length} 个维度已选择</span></div>
       <div className="analysis-global"><div className="analysis-allocation-modes"><button type="button" className={allocationMode === "uniform" ? "active" : ""} onClick={() => { setAllocationMode("uniform"); applyGlobal(); }}>统一使用一个 AI 模型</button><button type="button" className={allocationMode === "independent" ? "active" : ""} onClick={() => setAllocationMode("independent")}>各分析阶段独立选择模型</button></div><div className="analysis-global-head"><div><b><SettingsAdjust size={16}/> 统一应用模型</b><small>将同一服务商与模型应用到所有已勾选维度</small></div><button type="button" onClick={applyGlobal} disabled={!selected.length}>应用到已选维度 <ArrowRight size={14}/></button></div><div className="analysis-global-fields"><Dropdown id="analysis-global-provider" titleText="统一服务商" label="选择服务商" items={providers} itemToString={(item) => item?.name || ""} selectedItem={selectedProvider} onChange={({ selectedItem }) => { if (selectedItem) { setGlobalProvider(selectedItem.id); setGlobalModel(selectedItem.models[0]); } }}/><Dropdown id="analysis-global-model" titleText="统一模型" label="选择模型" items={selectedProvider.models} itemToString={(item) => item || ""} selectedItem={globalModel} onChange={({ selectedItem }) => setGlobalModel(selectedItem || selectedProvider.models[0])}/></div></div>
@@ -73,7 +98,7 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
     </section>
     <section className="analysis-options"><button type="button" onClick={() => setAdvanced((v) => !v)}>{advanced ? "收起" : "展开"} 分析执行设置 <span>{advanced ? "−" : "+"}</span></button>{advanced && <div className="analysis-options-grid"><div><b>分析深度</b><span>标准诊断（后续可扩展深度研究）</span></div><div><b>结果语言</b><span>中文（简体）</span></div><div><b>输出原则</b><span>事实、推断、建议分开呈现，并标注依据与不确定性</span></div><div><b>数据使用</b><span>仅使用本企业档案及后续明确授权的数据源</span></div></div>}</section>
     <section className="analysis-bottom"><div><b>分析任务摘要</b><p>已选择 {selectedDimensions.length} 个维度 · {new Set(selectedDimensions.map((d) => assignments[d.id].provider)).size} 家 AI 服务商 · {allocationMode === "uniform" ? "所有选中维度统一使用同一模型。" : "每个维度独立保留模型配置。"}</p></div><button type="button" className="ep-button-primary" disabled={!selected.length} onClick={onContinue || startAnalysis}>{onContinue ? "确认模型，下一步" : "开始 AI 分析"} <ArrowRight size={16}/></button></section>
-    {notice && <div className="analysis-notice" role="status">{notice}{notice.includes("API 凭证") && <> <Link to="/settings">前往 AI 服务中心配置 <ArrowRight size={13}/></Link></>}</div>}
+    {notice && <div className="analysis-notice" role="status">{notice}</div>}{testOutput && <pre className="analysis-notice" style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{testOutput}</pre>}
     <footer className="ep-page-footer"><span>KOSMOEVRETIS · AI ANALYSIS WORKSPACE</span><span>逐维度模型分配 · 任务级配置</span></footer>
   </div>;
 }
