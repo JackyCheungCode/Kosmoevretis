@@ -316,7 +316,7 @@ export function EnterpriseProfilePage({
           <div className="profile-actions">
             <Button type="submit" disabled={busy || !name.trim()}>{busy ? "保存中…" : "保存档案"}</Button>
             {selected && <Button type="button" kind="tertiary" onClick={clear}>新建另一份</Button>}
-            {onContinue && <Button type="button" kind="primary" disabled={!selected || busy} onClick={() => { if (selected) onContinue(selected); }}>下一步：AI 分析</Button>}
+            {onContinue && <Button type="button" kind="primary" disabled={!selected || busy} onClick={() => { if (selected) onContinue(selected); }}>下一步：AI 配置</Button>}
           </div>
         </form>
       </section>
