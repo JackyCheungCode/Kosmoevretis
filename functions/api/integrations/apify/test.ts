@@ -1,7 +1,7 @@
 import { decrypt, requireAdmin, type AIEnv } from "../../../lib/ai";
 
 type Env = AIEnv;
-const actorId = "habit.zhou~keyword-suggest-multi";
+const actorSlug = "habit.zhou~keyword-suggest-multi";
 const json = (data: unknown, status = 200) => Response.json(data, { status });
 const safe = async (r: Response) => r.json().catch(() => ({})) as Promise<any>;
 
@@ -34,25 +34,66 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
     }, 502);
   }
 
-  const actorResponse = await fetch("https://api.apify.com/v2/actors/" + actorId, { headers });
+  // Resolve the public Store listing first. Its immutable Actor ID avoids ambiguity
+  // between the Store slug and API resource identifier.
+  const storeUrl = new URL("https://api.apify.com/v2/store");
+  storeUrl.searchParams.set("search", "keyword-suggest-multi");
+  storeUrl.searchParams.set("username", "habit.zhou");
+  storeUrl.searchParams.set("limit", "20");
+  const storeResponse = await fetch(storeUrl.toString(), { headers });
+  const store = await safe(storeResponse);
+  const storeItems = Array.isArray(store?.data?.items) ? store.data.items : [];
+  const listedActor = storeItems.find((item: any) =>
+    String(item?.username || "").toLowerCase() === "habit.zhou" &&
+    String(item?.name || "").toLowerCase() === "keyword-suggest-multi"
+  );
+
+  if (!storeResponse.ok || !listedActor?.id) {
+    return json({
+      ok: false,
+      stage: "store_lookup",
+      account: { username: account.data.username || null, id: account.data.id },
+      actorSlug,
+      httpStatus: storeResponse.status,
+      storeMatches: storeItems.slice(0, 5).map((item: any) => ({
+        id: item.id || null, username: item.username || null, name: item.name || null, isPublic: item.isPublic ?? null
+      })),
+      error: "Apify 账号验证成功，但 Store 公开目录未能解析到指定 Actor（" + actorSlug + "）。Store API HTTP " + storeResponse.status + "。请核对 Actor 是否仍公开发布、是否改名或已下架。"
+    }, 502);
+  }
+
+  const actorResponse = await fetch(
+    "https://api.apify.com/v2/actors/" + encodeURIComponent(listedActor.id),
+    { headers }
+  );
   const actor = await safe(actorResponse);
   if (!actorResponse.ok || !actor?.data?.id) {
     return json({
       ok: false,
-      stage: "actor",
+      stage: "actor_by_store_id",
       account: { username: account.data.username || null, id: account.data.id },
-      actorId,
+      actorSlug,
+      storeActor: {
+        id: listedActor.id,
+        username: listedActor.username || null,
+        name: listedActor.name || null,
+        isPublic: listedActor.isPublic ?? null
+      },
       httpStatus: actorResponse.status,
       apifyType: actor?.error?.type || null,
-      error: actorResponse.status === 404
-        ? "Apify 账号验证成功（" + (account.data.username || "账号已识别") + "），但该账号无法通过 API 读取 Actor " + actorId + "（HTTP 404）。这不是 Token 保存失败；需要确认 Actor 的准确标识、公开状态或该账号是否被授权。"
-        : "Apify 账号验证成功，但读取 Actor 失败（HTTP " + actorResponse.status + "）：" + (actor?.error?.message || "未知错误。")
+      error: "Store 已找到该 Actor，但通过其固定 Actor ID 读取详情失败（HTTP " + actorResponse.status + "）：" + (actor?.error?.message || "未知错误。")
     }, 502);
   }
 
   return json({
     ok: true,
     account: { username: account.data.username || null, id: account.data.id },
-    actor: { id: actor.data.id, name: actor.data.name || null, username: actor.data.username || null }
+    actor: {
+      id: actor.data.id,
+      name: actor.data.name || null,
+      username: actor.data.username || null,
+      isPublic: actor.data.isPublic ?? null
+    },
+    resolution: "store_immutable_id"
   });
 };
