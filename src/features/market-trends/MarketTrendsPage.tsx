@@ -204,9 +204,7 @@ export function MarketTrendsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
         body: JSON.stringify({
-          organizationId: workspace.id, keywords, geo, timeRange, property, category: Number(category),
-          outputs, maxItems, compareTerms, mode: trendingMode ? "trendingNow" : "explore",
-          trendingGeos: trendingGeos.split(/[,\s]+/).map((item) => item.trim().toUpperCase()).filter(Boolean)
+          organizationId: workspace.id, keywords, geo, timeRange, property, category: Number(category), maxItems, compareTerms, mode: trendingMode ? "trendingNow" : "explore"
         })
       });
       const payload = await response.json().catch(() => ({}));
