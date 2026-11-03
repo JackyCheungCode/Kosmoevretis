@@ -108,6 +108,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   const datasetId = run.defaultDatasetId || task.dataset_id;
   const terminalSuccess = state === "SUCCEEDED";
   let items: any[] = Array.isArray(task.raw_items) ? task.raw_items : [];
+  let kvRecords: any[] = Array.isArray(task.kv_records) ? task.kv_records : [];
   let fetchError = "";
   if (datasetId && !items.length) {
     try {
@@ -124,9 +125,52 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
       }
     } catch (error) { fetchError = error instanceof Error ? error.message : "Dataset download failed."; }
   }
+  const keyValueStoreId = run.defaultKeyValueStoreId || task.key_value_store_id;
+  if (keyValueStoreId && !kvRecords.length) {
+    try {
+      let keys: any[] = [];
+      for (let offset = 0; offset < 5000; offset += 1000) {
+        const keyUrl = "https://api.apify.com/v2/key-value-stores/" + encodeURIComponent(keyValueStoreId) + "/keys?limit=1000&offset=" + offset;
+        const keyResponse = await fetch(keyUrl, { headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN } });
+        if (!keyResponse.ok) throw new Error("Key-value store listing failed with HTTP " + keyResponse.status);
+        const keyPayload = await safeJson(keyResponse);
+        const page = keyPayload?.data?.items || keyPayload?.items || [];
+        if (!Array.isArray(page)) throw new Error("Apify returned an unexpected key list.");
+        keys = keys.concat(page);
+        if (page.length < 1000) break;
+      }
+      for (const keyInfo of keys) {
+        const key = String(keyInfo.key || "");
+        if (!key) continue;
+        const recordUrl = "https://api.apify.com/v2/key-value-stores/" + encodeURIComponent(keyValueStoreId) + "/records/" + encodeURIComponent(key);
+        const recordResponse = await fetch(recordUrl, { headers: { Authorization: "Bearer " + env.APIFY_API_TOKEN } });
+        if (!recordResponse.ok) {
+          kvRecords.push({ key, error: "Record download failed with HTTP " + recordResponse.status, metadata: keyInfo });
+          continue;
+        }
+        const contentType = recordResponse.headers.get("content-type") || "application/octet-stream";
+        const buffer = await recordResponse.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        if (contentType.includes("json") || contentType.startsWith("text/")) {
+          const text = new TextDecoder().decode(bytes);
+          let value: any = text;
+          if (contentType.includes("json")) { try { value = JSON.parse(text); } catch { value = text; } }
+          kvRecords.push({ key, contentType, size: bytes.length, value });
+        } else if (bytes.length <= 512000) {
+          let binary = "";
+          for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+          kvRecords.push({ key, contentType, size: bytes.length, base64: btoa(binary) });
+        } else {
+          kvRecords.push({ key, contentType, size: bytes.length, contentOmitted: true, recordUrl });
+        }
+      }
+    } catch (error) {
+      fetchError = (fetchError ? fetchError + "; " : "") + (error instanceof Error ? error.message : "Key-value store download failed.");
+    }
+  }
   const finalStatus = terminalSuccess ? (fetchError ? "partial" : "succeeded") : (items.length ? "partial" : "failed");
   const patch = {
-    dataset_id: datasetId || null, status: finalStatus, raw_items: items,
+    dataset_id: datasetId || null, key_value_store_id: keyValueStoreId || null, status: finalStatus, raw_items: items, kv_records: kvRecords,
     result_count: items.length, error_message: fetchError || (!terminalSuccess ? String(run.statusMessage || "Actor ended with status " + state).slice(0, 1200) : null),
     actor_meta: { ...(task.actor_meta || {}), runStatus: state, usageTotalUsd: run.usageTotalUsd ?? null, stats: run.stats || {}, finishedAt: run.finishedAt || null },
     completed_at: run.finishedAt || new Date().toISOString()

@@ -17,7 +17,7 @@ type TaskStatus = "queued" | "running" | "succeeded" | "partial" | "failed";
 type TrendTask = {
   id: string; status: TaskStatus; result_count: number; created_at: string;
   input_snapshot: Record<string, any>; raw_items?: any[]; error_message?: string | null;
-  actor_run_id?: string | null; completed_at?: string | null; actor_meta?: Record<string, any>;
+  actor_run_id?: string | null; completed_at?: string | null; actor_meta?: Record<string, any>; kv_records?: any[]; key_value_store_id?: string | null;
 };
 const outputOptions: { id: OutputKey; label: string; description: string }[] = [
   { id: "interestOverTime", label: "Interest over time", description: "时间序列热度" },
@@ -109,11 +109,16 @@ function TrendLine({ rows }: { rows: any[] }) {
   </div>;
 }
 function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
-  const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))).slice(0, 12), [rows]);
+  const [page, setPage] = useState(0);
+  const pageSize = 50;
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+  const currentPage = Math.min(page, pageCount - 1);
+  const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))), [rows]);
   if (!rows.length) return <div className="mt-empty-inline"><Search size={22} /><span>{empty}</span></div>;
+  const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   return <div className="mt-table-scroll"><table className="mt-data-table"><thead><tr>{columns.map((key) => <th key={key}>{key}</th>)}</tr></thead><tbody>
-    {rows.slice(0, 250).map((row, index) => <tr key={index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
-  </tbody></table>{rows.length > 250 && <div className="mt-table-foot">Showing first 250 rows in the table. Full dataset remains available in Raw data and JSON export.</div>}</div>;
+    {visibleRows.map((row, index) => <tr key={currentPage * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
+  </tbody></table><div className="mt-table-foot"><span>Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} of {rows.length.toLocaleString()} records</span><div><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button><span>Page {currentPage + 1} / {pageCount}</span><button type="button" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>Next</button></div></div></div>;
 }
 export function MarketTrendsPage() {
   const { session, workspace } = useAuth();
@@ -318,7 +323,9 @@ export function MarketTrendsPage() {
           {activeTab === "raw" && <div className="mt-result-content">
             <div className="mt-raw-toolbar"><div><h3>Complete Actor dataset</h3><p>{rawItems.length.toLocaleString()} records · all returned fields retained.</p></div><div><Button kind="tertiary" size="sm" renderIcon={Download} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={Download} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
             <DataTable rows={rawItems} empty="The complete dataset will appear here after the Actor finishes." />
-            <details className="mt-json-details"><summary><Code size={15} /> View full JSON payload</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
+            <details className="mt-json-details"><summary><Code size={15} /> View full Dataset JSON ({rawItems.length} records)</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
+            <details className="mt-json-details"><summary><Code size={15} /> View Key-Value Store outputs ({(activeTask.kv_records || []).length} records)</summary><pre>{JSON.stringify(activeTask.kv_records || [], null, 2)}</pre></details>
+            <details className="mt-json-details"><summary><Information size={15} /> View complete Actor run metadata</summary><pre>{JSON.stringify(activeTask.actor_meta || {}, null, 2)}</pre></details>
           </div>}
         </>}
       </section>
