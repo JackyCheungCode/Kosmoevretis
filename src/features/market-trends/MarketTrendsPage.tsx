@@ -125,13 +125,13 @@ function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const [page, setPage] = useState(0);
   const pageSize = 50;
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
-  const current第 = Math.min(page, pageCount - 1);
+  const currentPage = Math.min(page, pageCount - 1);
   const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))), [rows]);
   if (!rows.length) return <div className="mt-empty-inline"><Search size={22} /><span>{empty}</span></div>;
-  const visibleRows = rows.slice(current第 * pageSize, (current第 + 1) * pageSize);
+  const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   return <div className="mt-table-scroll"><table className="mt-data-table"><thead><tr>{columns.map((key) => <th key={key}>{key}</th>)}</tr></thead><tbody>
-    {visibleRows.map((row, index) => <tr key={current第 * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
-  </tbody></table><div className="mt-table-foot"><span>显示第 {current第 * pageSize + 1}–{Math.min((current第 + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={current第 === 0} onClick={() => setPage(current第 - 1)}>上一页</button><span>第 {current第 + 1} / {pageCount}</span><button type="button" disabled={current第 >= pageCount - 1} onClick={() => setPage(current第 + 1)}>下一页</button></div></div></div>;
+    {visibleRows.map((row, index) => <tr key={currentPage * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
+  </tbody></table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</button><span>第 {currentPage + 1} / {pageCount}</span><button type="button" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</button></div></div></div>;
 }
 export function MarketTrendsPage() {
   const { session, workspace } = useAuth();
@@ -139,7 +139,7 @@ export function MarketTrendsPage() {
   const [geo, setGeo] = useState("");
   const [timeRange, setTimeRange] = useState("today 12-m");
   const [property, setProperty] = useState("web");
-  const [category, set类别] = useState("0");
+  const [category, setCategory] = useState("0");
   const [maxItems, setMaxItems] = useState(1000);
   const [compareTerms, setCompareTerms] = useState(false);
   const [trendingMode, setTrendingMode] = useState(false);
@@ -158,8 +158,8 @@ export function MarketTrendsPage() {
   const rawItems = activeTask?.raw_items || [];
   const timelineRows = extractRows(rawItems, "time", ["interestOverTime_timelineData", "interestOverTime", "timelineData", "timeline"]);
   const regionRows = extractRows(rawItems, "region", ["interestByRegion", "interestBySubregion", "interestByCity", "regions"]);
-  const queryRows = extractRows(rawItems, "query", ["related相关搜索_top", "related相关搜索_rising", "related相关搜索", "top相关搜索", "rising相关搜索"]);
-  const topicRows = extractRows(rawItems, "topic", ["related相关主题_top", "related相关主题_rising", "related相关主题", "top相关主题", "rising相关主题"]);
+  const queryRows = extractRows(rawItems, "query", ["relatedQueries_top", "relatedQueries_rising", "relatedQueries", "topQueries", "risingQueries"]);
+  const topicRows = extractRows(rawItems, "topic", ["relatedTopics_top", "relatedTopics_rising", "relatedTopics", "topTopics", "risingTopics"]);
   const trendingRows = extractRows(rawItems, "trending", ["trendingSearches", "trendingNow", "trending"]);
 
   const loadHistory = async () => {
@@ -274,7 +274,7 @@ export function MarketTrendsPage() {
           <Dropdown id="mt-geo" titleText="目标地区" label="请选择地区" items={geoItems} itemToString={(item) => item?.text || ""} selectedItem={geoItems.find((item) => item.id === geo) || geoItems[0]} onChange={({ selectedItem }) => setGeo(selectedItem?.id ?? "")} />
           <Dropdown id="mt-time" titleText="时间范围" label="请选择时间范围" items={timeItems} itemToString={(item) => item?.text || ""} selectedItem={timeItems.find((item) => item.id === timeRange) || timeItems[2]} onChange={({ selectedItem }) => selectedItem && setTimeRange(selectedItem.id)} />
           <Dropdown id="mt-property" titleText="搜索类型" label="请选择搜索类型" items={propertyItems} itemToString={(item) => item?.text || ""} selectedItem={propertyItems.find((item) => item.id === property) || propertyItems[0]} onChange={({ selectedItem }) => selectedItem && setProperty(selectedItem.id)} />
-          <Dropdown id="mt-category" titleText="类别" label="请选择类别" items={categories} itemToString={(item) => item?.text || ""} selectedItem={categories.find((item) => item.id === category) || categories[0]} onChange={({ selectedItem }) => selectedItem && set类别(selectedItem.id)} />
+          <Dropdown id="mt-category" titleText="类别" label="请选择类别" items={categories} itemToString={(item) => item?.text || ""} selectedItem={categories.find((item) => item.id === category) || categories[0]} onChange={({ selectedItem }) => selectedItem && setCategory(selectedItem.id)} />
         </div>
 
         <div className="mt-output-picker">
