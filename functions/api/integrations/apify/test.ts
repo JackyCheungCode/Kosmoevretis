@@ -34,33 +34,58 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
     }, 502);
   }
 
-  // Resolve the public Store listing first. Its immutable Actor ID avoids ambiguity
-  // between the Store slug and API resource identifier.
-  const storeUrl = new URL("https://api.apify.com/v2/store");
-  storeUrl.searchParams.set("search", "keyword-suggest-multi");
-  storeUrl.searchParams.set("username", "habit.zhou");
-  storeUrl.searchParams.set("limit", "20");
-  const storeResponse = await fetch(storeUrl.toString(), { headers });
-  const store = await safe(storeResponse);
-  const storeItems = Array.isArray(store?.data?.items) ? store.data.items : [];
-  const listedActor = storeItems.find((item: any) =>
-    String(item?.username || "").toLowerCase() === "habit.zhou" &&
-    String(item?.name || "").toLowerCase() === "keyword-suggest-multi"
+  // Public Actors can be resolved directly by their canonical slug. Do not
+  // depend on Store search ranking or authenticated/personalized search results.
+  const directResponse = await fetch(
+    "https://api.apify.com/v2/actors/" + encodeURIComponent(actorSlug),
+    { headers: { Accept: "application/json" } }
   );
+  const directActor = await safe(directResponse);
+  let resolvedActorId = actorSlug;
+  let storeDiagnostics: any = null;
 
-  if (!storeResponse.ok || !listedActor?.id) {
-    return json({
-      ok: false,
-      stage: "store_lookup",
-      account: { username: account.data.username || null, id: account.data.id },
-      actorSlug,
+  if (!directResponse.ok || !directActor?.data?.id) {
+    // Store listing is public and does not require authentication. Filter only
+    // by owner, then match the Actor name locally to avoid search-index misses.
+    const storeUrl = new URL("https://api.apify.com/v2/store");
+    storeUrl.searchParams.set("username", "habit.zhou");
+    storeUrl.searchParams.set("limit", "1000");
+    const storeResponse = await fetch(storeUrl.toString(), { headers: { Accept: "application/json" } });
+    const store = await safe(storeResponse);
+    const storeItems = Array.isArray(store?.data?.items) ? store.data.items : [];
+    const listedActor = storeItems.find((item: any) =>
+      String(item?.username || "").toLowerCase() === "habit.zhou" &&
+      String(item?.name || "").toLowerCase() === "keyword-suggest-multi"
+    );
+    storeDiagnostics = {
       httpStatus: storeResponse.status,
-      storeMatches: storeItems.slice(0, 5).map((item: any) => ({
-        id: item.id || null, username: item.username || null, name: item.name || null, isPublic: item.isPublic ?? null
-      })),
-      error: "Apify 账号验证成功，但 Store 公开目录未能解析到指定 Actor（" + actorSlug + "）。Store API HTTP " + storeResponse.status + "。请核对 Actor 是否仍公开发布、是否改名或已下架。"
-    }, 502);
+      total: store?.data?.total ?? null,
+      returned: storeItems.length,
+      matched: Boolean(listedActor?.id)
+    };
+    if (listedActor?.id) resolvedActorId = String(listedActor.id);
+    else {
+      return json({
+        ok: false,
+        stage: "actor_resolution",
+        account: { username: account.data.username || null, id: account.data.id },
+        actorSlug,
+        directLookup: { httpStatus: directResponse.status, apifyType: directActor?.error?.type || null },
+        storeLookup: storeDiagnostics,
+        error: "Apify 账号验证成功，但直接读取 Actor 和按开发者筛选 Store 目录均未解析到该 Actor。请确认 Actor 的实际 API 归属或 Apify 平台侧访问状态。"
+      }, 502);
+    }
   }
+
+  const actorResponse = resolvedActorId === actorSlug && directActor?.data?.id
+    ? directResponse
+    : await fetch(
+        "https://api.apify.com/v2/actors/" + encodeURIComponent(resolvedActorId),
+        { headers }
+      );
+  const actor = resolvedActorId === actorSlug && directActor?.data?.id
+    ? directActor
+    : await safe(actorResponse);
 
   const actorResponse = await fetch(
     "https://api.apify.com/v2/actors/" + encodeURIComponent(listedActor.id),
@@ -73,12 +98,8 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
       stage: "actor_by_store_id",
       account: { username: account.data.username || null, id: account.data.id },
       actorSlug,
-      storeActor: {
-        id: listedActor.id,
-        username: listedActor.username || null,
-        name: listedActor.name || null,
-        isPublic: listedActor.isPublic ?? null
-      },
+      resolvedActorId,
+      storeLookup: storeDiagnostics,
       httpStatus: actorResponse.status,
       apifyType: actor?.error?.type || null,
       error: "Store 已找到该 Actor，但通过其固定 Actor ID 读取详情失败（HTTP " + actorResponse.status + "）：" + (actor?.error?.message || "未知错误。")
