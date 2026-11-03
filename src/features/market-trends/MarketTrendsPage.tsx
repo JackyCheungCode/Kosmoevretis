@@ -125,13 +125,13 @@ function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const [page, setPage] = useState(0);
   const pageSize = 50;
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
-  const current第 = Math.min(page, pageCount - 1);
+  const currentPage = Math.min(page, pageCount - 1);
   const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))), [rows]);
   if (!rows.length) return <div className="mt-empty-inline"><Search size={22} /><span>{empty}</span></div>;
-  const visibleRows = rows.slice(current第 * pageSize, (current第 + 1) * pageSize);
+  const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   return <div className="mt-table-scroll"><table className="mt-data-table"><thead><tr>{columns.map((key) => <th key={key}>{key}</th>)}</tr></thead><tbody>
-    {visibleRows.map((row, index) => <tr key={current第 * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
-  </tbody></table><div className="mt-table-foot"><span>显示第 {current第 * pageSize + 1}–{Math.min((current第 + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={current第 === 0} onClick={() => setPage(current第 - 1)}>上一页</button><span>第 {current第 + 1} / {pageCount}</span><button type="button" disabled={current第 >= pageCount - 1} onClick={() => setPage(current第 + 1)}>下一页</button></div></div></div>;
+    {visibleRows.map((row, index) => <tr key={currentPage * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
+  </tbody></table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</button><span>第 {currentPage + 1} / {pageCount}</span><button type="button" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</button></div></div></div>;
 }
 export function MarketTrendsPage() {
   const { session, workspace } = useAuth();
@@ -177,7 +177,7 @@ export function MarketTrendsPage() {
   const fetchTask = async (taskId: string) => {
     const token = session?.access_token;
     if (!token) throw new Error("登录状态已过期，请重新登录。");
-    const response = await fetch("/api/market-trends?taskId=" + encodeURIComponent(taskId), { headers: { Authorization: "Bearer " + token, "X-Apify-Token": sessionStorage.getItem("kosmoevretis.apify.token") || "" } });
+    const response = await fetch("/api/market-trends?taskId=" + encodeURIComponent(taskId), { headers: { Authorization: "Bearer " + token } });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "无法刷新任务。");
     const next = payload.task as TrendTask;
@@ -213,7 +213,7 @@ export function MarketTrendsPage() {
     try {
       const response = await fetch("/api/market-trends", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token, "X-Apify-Token": sessionStorage.getItem("kosmoevretis.apify.token") || "" },
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
         body: JSON.stringify({
           organizationId: workspace.id, keywords, geo, timeRange, property, category: Number(category), maxItems, compareTerms, mode: trendingMode ? "trendingNow" : "explore", ...(customActorInput ? { actorInput: customActorInput } : {})
         })
