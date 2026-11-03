@@ -5,8 +5,8 @@ import {
   DataTable as DataTableIcon, Code
 } from "@carbon/icons-react";
 import {
-  Button, Checkbox, Dropdown, DropdownItem, InlineLoading, InlineNotification,
-  NumberInput, Tag, TextInput, Toggle
+  Button, Checkbox, InlineLoading, InlineNotification,
+  NumberInput, Select, SelectItem, Tag, TextInput, Toggle
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
@@ -247,10 +247,18 @@ export function MarketTrendsPage() {
           {keywords.length > 0 && <div className="mt-keyword-tags">{keywords.map((keyword, index) => <Tag key={keyword + index} type="blue">{keyword}</Tag>)}</div>}
         </div>
         <div className="mt-form-grid">
-          <div className="mt-form-field"><label>Target geography</label><Dropdown id="mt-geo" titleText="" label="Select country or region" selectedItem={geoItems.find((item) => item.id === geo) || geoItems[0]} itemToString={(item) => item?.text || ""} onChange={({ selectedItem }) => setGeo(selectedItem?.id || "")}>{geoItems.map((item) => <DropdownItem key={item.id || "world"} item={item} value={item.id} /></Dropdown>}</div>
-          <div className="mt-form-field"><label>Time range</label><Dropdown id="mt-time" titleText="" label="Select time range" selectedItem={timeItems.find((item) => item.id === timeRange) || timeItems[2]} itemToString={(item) => item?.text || ""} onChange={({ selectedItem }) => setTimeRange(selectedItem?.id || "today 12-m")}>{timeItems.map((item) => <DropdownItem key={item.id} item={item} value={item.id} />)}</Dropdown></div>
-          <div className="mt-form-field"><label>Search property</label><Dropdown id="mt-property" titleText="" label="Search property" selectedItem={propertyItems.find((item) => item.id === property) || propertyItems[0]} itemToString={(item) => item?.text || ""} onChange={({ selectedItem }) => setProperty(selectedItem?.id || "web")}>{propertyItems.map((item) => <DropdownItem key={item.id} item={item} value={item.id} />)}</Dropdown></div>
-          <div className="mt-form-field"><label>Category</label><Dropdown id="mt-category" titleText="" label="All categories" selectedItem={categories.find((item) => item.id === category) || categories[0]} itemToString={(item) => item?.text || ""} onChange={({ selectedItem }) => setCategory(selectedItem?.id || "0")}>{categories.map((item) => <DropdownItem key={item.id} item={item} value={item.id} />)}</Dropdown></div>
+          <Select id="mt-geo" labelText="Target geography" value={geo} onChange={(event) => setGeo(event.target.value)}>
+            {geoItems.map((item) => <SelectItem key={item.id || "world"} value={item.id} text={item.text} />)}
+          </Select>
+          <Select id="mt-time" labelText="Time range" value={timeRange} onChange={(event) => setTimeRange(event.target.value)}>
+            {timeItems.map((item) => <SelectItem key={item.id} value={item.id} text={item.text} />)}
+          </Select>
+          <Select id="mt-property" labelText="Search property" value={property} onChange={(event) => setProperty(event.target.value)}>
+            {propertyItems.map((item) => <SelectItem key={item.id} value={item.id} text={item.text} />)}
+          </Select>
+          <Select id="mt-category" labelText="Category" value={category} onChange={(event) => setCategory(event.target.value)}>
+            {categories.map((item) => <SelectItem key={item.id} value={item.id} text={item.text} />)}
+          </Select>
         </div>
 
         <div className="mt-output-picker">
