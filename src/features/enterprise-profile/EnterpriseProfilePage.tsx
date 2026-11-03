@@ -58,6 +58,8 @@ const profileSections: { title: string; description: string; fields: ProfileFiel
   }
 ];
 const profileFields: ProfileField[] = profileSections.flatMap((section) => section.fields);
+const sourceFields: ProfileField[] = [["display_name", "企业名称"], ["legal_name", "法定名称"], ["website", "官方网站"], ["country", "国家 / 地区"], ["industry", "所属行业"], ...profileFields];
+const getSnapshotField = (snapshot: Record<string, any>, key: string) => ["display_name", "legal_name", "website", "country", "industry"].includes(key) ? snapshot?.[key] : snapshot?.profile?.[key];
 const verificationOptions = ["待核实", "用户确认", "外部核实"];
 
 function FieldGroup({
@@ -295,7 +297,7 @@ export function EnterpriseProfilePage({
               <TabPanel>
                 <div className="profile-tab-intro"><h3>Sources &amp; Verification · 来源与核验</h3><p>为重要企业资料记录来源，并标注核验状态。来源信息随企业档案快照一同保存。</p></div>
                 <div className="profile-source-list">
-                  {profileFields.map(([key, label]) => <div className="profile-source-row" key={key}>
+                  {sourceFields.map(([key, label]) => <div className="profile-source-row" key={key}>
                     <b>{label}</b>
                     <TextInput id={"source-" + key} labelText="信息来源 / URL / 文件" hideLabel value={fieldSources[key] || ""} placeholder="填写来源链接或资料名称" onChange={(event) => setFieldSources((current) => ({ ...current, [key]: event.target.value }))} />
                     <Dropdown id={"verification-" + key} titleText="核验状态" label="核验状态" items={verificationOptions} selectedItem={fieldVerification[key] || verificationOptions[0]} onChange={({ selectedItem }) => setFieldVerification((current) => ({ ...current, [key]: selectedItem || verificationOptions[0] }))} />
@@ -304,7 +306,7 @@ export function EnterpriseProfilePage({
                 <div className="revision-panel profile-history-panel">
                   <h3>修改历史与版本追溯</h3>
                   {history.map((revision) => {
-                    const changed = profileFields.filter(([key]) => String(revision.snapshot?.profile?.[key] ?? "") !== String(selected?.profile?.[key] ?? ""));
+                    const changed = sourceFields.filter(([key]) => String(getSnapshotField(revision.snapshot, key) ?? "") !== String(getSnapshotField(selected as unknown as Record<string, any>, key) ?? ""));
                     const expanded = expandedRevision === revision.id;
                     return <article className="profile-revision-entry" key={revision.id}>
                       <div className="revision-row">
@@ -316,7 +318,7 @@ export function EnterpriseProfilePage({
                       </div>
                       {expanded && <div className="profile-revision-diff">
                         {!changed.length && <p className="ep-muted">此版本与当前档案在扩展字段上没有差异。</p>}
-                        {changed.map(([key, label]) => <div key={key}><b>{label}</b><span>历史值：{String(revision.snapshot?.profile?.[key] ?? "未填写")}</span><span>当前值：{String(selected?.profile?.[key] ?? "未填写")}</span></div>)}
+                        {changed.map(([key, label]) => <div key={key}><b>{label}</b><span>历史值：{String(getSnapshotField(revision.snapshot, key) ?? "未填写")}</span><span>当前值：{String(getSnapshotField(selected as unknown as Record<string, any>, key) ?? "未填写")}</span></div>)}
                       </div>}
                     </article>;
                   })}
