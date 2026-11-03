@@ -1,4 +1,4 @@
-import { decrypt, type AIEnv } from "../../../lib/ai";
+import { decrypt, requireAdmin, type AIEnv } from "../../../lib/ai";
 
 type Env = AIEnv;
 const actorId = "habit.zhou~keyword-suggest-multi";
@@ -6,9 +6,8 @@ const json = (data: unknown, status = 200) => Response.json(data, { status });
 const safe = async (r: Response) => r.json().catch(() => ({})) as Promise<any>;
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
-  const expected = env.AI_ADMIN_TOKEN || "";
-  const supplied = request.headers.get("X-Kosmo-Admin-Token") || "";
-  if (!expected || supplied !== expected) return json({ error: "管理员令牌无效或未配置。" }, 401);
+  const denied = await requireAdmin(request, env);
+  if (denied) return denied;
 
   const saved = await env.AI_CONFIG_KV.get("integration:apify");
   if (!saved) return json({ error: "尚未保存 Apify API Token。" }, 400);
