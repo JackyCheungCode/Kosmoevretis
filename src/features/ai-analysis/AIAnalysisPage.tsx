@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, ChartLine, CheckmarkFilled, Locked, SettingsAdjust } from "@carbon/icons-react";
+import { ArrowRight, ChartLine, Locked, SettingsAdjust } from "@carbon/icons-react";
 import { Dropdown } from "@carbon/react";
 
 type Provider = { id: string; name: string; models: string[] };
