@@ -15,7 +15,7 @@ export async function requireAdmin(request: Request, env: AIEnv): Promise<Respon
     const [head, body, signature] = token.split(".");
     const header = JSON.parse(new TextDecoder().decode(b64url(head)));
     const claims = JSON.parse(new TextDecoder().decode(b64url(body)));
-    const issuer = `https://${env.CF_ACCESS_TEAM_DOMAIN.replace(/^https?:\\/\\//, "").replace(/\\/$/, "")}`;
+    const issuer = "https://" + env.CF_ACCESS_TEAM_DOMAIN.replace("https://", "").replace("http://", "").replace(/\/$/, "");
     if (header.alg !== "RS256" || claims.iss !== issuer || !(claims.aud || []).includes(env.CF_ACCESS_AUD) || claims.exp * 1000 < Date.now()) throw new Error("invalid claims");
     const jwks = await fetch(`${issuer}/cdn-cgi/access/certs`).then(r => r.json()) as { keys: JsonWebKey[] };
     const jwk = jwks.keys.find(k => k.kid === header.kid);
