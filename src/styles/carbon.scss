@@ -1,0 +1,35 @@
+// Keep Carbon's design tokens and foundations, but emit only components used by the app.
+// This replaces the all-components stylesheet imported by the previous entrypoint.
+@use "@carbon/styles/scss/config";
+@use "@carbon/styles/scss/reset";
+@use "@carbon/styles/scss/grid";
+@use "@carbon/styles/scss/layer";
+@use "@carbon/styles/scss/themes";
+@use "@carbon/styles/scss/theme";
+@use "@carbon/styles/scss/font-face";
+@use "@carbon/styles/scss/type";
+
+// Authentication, settings, enterprise profile and workflow.
+@use "@carbon/styles/scss/components/button";
+@use "@carbon/styles/scss/components/text-input";
+@use "@carbon/styles/scss/components/text-area";
+@use "@carbon/styles/scss/components/notification";
+@use "@carbon/styles/scss/components/password-input";
+@use "@carbon/styles/scss/components/tabs";
+@use "@carbon/styles/scss/components/toggle";
+@use "@carbon/styles/scss/components/dropdown";
+@use "@carbon/styles/scss/components/modal";
+@use "@carbon/styles/scss/components/progress-indicator";
+
+// Keyword research and market intelligence.
+@use "@carbon/styles/scss/components/accordion";
+@use "@carbon/styles/scss/components/checkbox";
+@use "@carbon/styles/scss/components/inline-loading";
+@use "@carbon/styles/scss/components/number-input";
+@use "@carbon/styles/scss/components/search";
+@use "@carbon/styles/scss/components/select";
+@use "@carbon/styles/scss/components/stack";
+@use "@carbon/styles/scss/components/tag";
+@use "@carbon/styles/scss/components/tile";
+@use "@carbon/styles/scss/components/data-table";
+@use "@carbon/styles/scss/components/form";
