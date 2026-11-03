@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight, ChartLine, Globe, Search, Security } from "@carbon/icons-react";
 import { Dropdown, MultiSelect } from "@carbon/react";
 
@@ -73,7 +74,7 @@ const tabCopy: Record<TabId, { title: string; description: string }> = {
   sources: { title: "来源与修改记录", description: "区分官网识别、用户填写和 AI 推断，保留信息来源及修改轨迹。" },
 };
 
-export function EnterpriseProfilePage() {
+export function EnterpriseProfilePage() {\n  const navigate = useNavigate();
   const [mode, setMode] = useState<CreateMode>("website");
   const [query, setQuery] = useState("");
   const [website, setWebsite] = useState("");
@@ -182,7 +183,7 @@ export function EnterpriseProfilePage() {
         </section>
       ) : (
         <>
-          <section className="ep-company-header"><div className="ep-company-mark">{displayName.slice(0, 1).toUpperCase()}</div><div className="ep-company-title"><div className="ep-company-title-line"><h2>{displayName}</h2><span className="ep-status confirmed">本企业档案已建立</span></div><div className="ep-company-meta"><span>{profile.country || "注册地待补充"}</span><i /><span>{profile.industry || "行业待补充"}</span>{profile.website && <><i /><a href={profile.website.startsWith("http") ? profile.website : "https://" + profile.website} target="_blank" rel="noreferrer">{profile.website}</a></>}</div></div><div className="ep-company-actions"><button type="button" className="ep-button-secondary" onClick={() => { setActiveTab("identity"); setEditing(true); }}>编辑档案</button><button type="button" className="ep-button-primary" onClick={() => setActiveTab("strategy")}><ChartLine size={16} /> AI 经营规划</button></div></section>
+          <section className="ep-company-header"><div className="ep-company-mark">{displayName.slice(0, 1).toUpperCase()}</div><div className="ep-company-title"><div className="ep-company-title-line"><h2>{displayName}</h2><span className="ep-status confirmed">本企业档案已建立</span></div><div className="ep-company-meta"><span>{profile.country || "注册地待补充"}</span><i /><span>{profile.industry || "行业待补充"}</span>{profile.website && <><i /><a href={profile.website.startsWith("http") ? profile.website : "https://" + profile.website} target="_blank" rel="noreferrer">{profile.website}</a></>}</div></div><div className="ep-company-actions"><button type="button" className="ep-button-secondary" onClick={() => { setActiveTab("identity"); setEditing(true); }}>编辑档案</button><button type="button" className="ep-button-primary" onClick={() => navigate("/ai-analysis", { state: { enterpriseName: displayName, profile, completion } })}><ChartLine size={16} /> 开始 AI 分析</button></div></section>
           <nav className="ep-tabs" aria-label="本企业档案分区">{tabs.map((tab) => <button key={tab.id} type="button" className={activeTab === tab.id ? "active" : ""} onClick={() => { setActiveTab(tab.id); setEditing(false); }}>{tab.label}</button>)}</nav>
           {savedNotice && <div className="ep-save-notice">修改已保存在当前页面状态。正式持久化和修改审计服务尚未连接。</div>}
           <section className="ep-tab-content"><div className="ep-tab-heading"><div><div className="ep-section-kicker">YOUR COMPANY INTELLIGENCE</div><h2>{tabCopy[activeTab].title}</h2><p>{tabCopy[activeTab].description}</p></div><span className="ep-live-label"><i /> 企业工作区</span></div>
