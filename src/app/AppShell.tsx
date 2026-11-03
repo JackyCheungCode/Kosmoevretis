@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       {sidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="关闭侧边栏" onClick={() => setSidebarOpen(false)} />}
-      <aside className={"sidebar" + (sidebarOpen ? " sidebar-open" : "")} aria-hidden={!sidebarOpen}>
+      <aside className={"sidebar" + (sidebarOpen ? " sidebar-open" : "")}>
         <div className="workspace"><span className="workspace-mark">K</span><span><b>{workspace?.name || "工作空间"}</b><small>组织工作空间</small></span><ChevronDown size={14} /></div>
         <div className="nav-caption">工作空间</div>
         <nav>
