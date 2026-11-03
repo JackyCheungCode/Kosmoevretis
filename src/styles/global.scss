@@ -454,3 +454,26 @@
 .ar-integrity-note b{color:#393939;margin-right:5px}
 @media(max-width:900px){.ar-empty-layout{grid-template-columns:1fr}.ar-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.ar-heading{align-items:flex-start;gap:12px;flex-direction:column}.ar-secure{padding:0}.ar-report-status{align-items:flex-start;flex-wrap:wrap}.ar-status-pill{margin-left:56px}.ar-empty-card{padding:20px;min-height:0}.ar-dimension-list article{grid-template-columns:25px minmax(0,1fr) 55px 20px;gap:7px}.ar-dimension-list article>div>small{line-height:1.45}.ar-section-card{padding:14px}.ar-tabs{gap:17px}.ar-metrics article{padding:12px;min-height:104px}}
+
+
+/* Four-stage enterprise analysis wizard */
+.ep-stepper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:20px 0 0;padding:12px;background:#fff;border:1px solid #e0e0e0}
+.ep-stepper button{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid transparent;background:#f4f4f4;text-align:left;cursor:pointer;color:#525252}
+.ep-stepper button.active{border-color:#0f62fe;background:#edf5ff;color:#0043ce}
+.ep-stepper button.complete .ep-step-number{background:#24a148;color:#fff}
+.ep-step-number{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:#e0e0e0;color:#525252;font-size:10px;font-weight:600}
+.ep-step-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ep-step-copy b{font-size:11px}
+.ep-step-copy small{font-size:9px;color:#8d8d8d;white-space:nowrap}
+.ep-workflow-controls{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 0;padding:12px 0;background:rgba(255,255,255,.96);border-top:1px solid #e0e0e0}
+.ep-workflow-controls>span{font-size:10px;color:#6f6f6f}
+.ep-workflow-controls button:disabled{opacity:.4;cursor:not-allowed}
+.ep-execution-card{max-width:760px;margin:18px auto;padding:32px;border:1px solid #e0e0e0;background:#fff;text-align:center}
+.ep-execution-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 14px;border-radius:50%;background:#edf5ff;color:#0f62fe}
+.ep-execution-card h3{font-size:20px;font-weight:500;margin:0 0 10px}
+.ep-execution-card>p{max-width:600px;margin:0 auto;color:#6f6f6f;font-size:11px;line-height:1.8}
+.ep-execution-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:24px 0;padding:14px;background:#f4f4f4;text-align:left}
+.ep-execution-list span{display:flex;flex-direction:column;gap:7px;color:#6f6f6f;font-size:9px}
+.ep-execution-list b{color:#161616;font-size:10px}
+.ep-execution-card .ep-actions{justify-content:center}
+@media(max-width:720px){.ep-stepper{grid-template-columns:repeat(2,minmax(0,1fr));padding:8px;gap:6px}.ep-stepper button{padding:9px;gap:7px}.ep-step-copy small{white-space:normal}.ep-workflow-controls{gap:7px}.ep-workflow-controls>span{font-size:9px;text-align:center}.ep-workflow-controls button{padding:9px 12px}.ep-execution-card{padding:22px 15px}.ep-execution-list{grid-template-columns:1fr}}
