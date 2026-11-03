@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity, Download, ArrowRight, ChartLine, ChevronDown,
   Earth, Filter, Flash, Globe, Information, Play, Search, Time,
@@ -61,16 +61,25 @@ function rowKind(row: any): string {
   return "other";
 }
 function rowValue(row: any): number | null {
-  const direct = pickNumber(row?.value ?? row?.interest ?? row?.score ?? row?.searchInterest);
+  const direct = pickNumber(row?.value ?? row?.interest ?? row?.score ?? row?.searchInterest ?? row?.searchVolume);
   if (direct !== null) return direct;
-  const fallback = Object.entries(row || {}).filter(([key]) => !["date", "time", "formattedTime", "geoName", "region", "query", "title", "type"].includes(key)).map(([, value]) => pickNumber(value)).find((value) => value !== null);
-  if (fallback !== undefined) return fallback;
-  const values = row?.values;
-  if (values && typeof values === "object") {
-    const first = Object.values(values).map(pickNumber).find((n) => n !== null);
-    return first ?? null;
+  const values = row?.values ?? row?.valueByQuery ?? row?.data;
+  if (Array.isArray(values)) {
+    const found = values.map((entry: any) => pickNumber(entry?.value ?? entry?.interest ?? entry?.score ?? entry)).find((value: number | null) => value !== null);
+    if (found !== undefined) return found;
   }
-  return null;
+  if (values && typeof values === "object") {
+    const found = Object.values(values).map((entry: any) => pickNumber(entry?.value ?? entry?.interest ?? entry?.score ?? entry)).find((value) => value !== null);
+    if (found !== undefined) return found;
+  }
+  const excluded = /^(date|time|timestamp|formattedtime|isodate|geo|geoname|region|country|countrycode|code|query|title|type|kind|rank|position|id|key)$/i;
+  return Object.entries(row || {}).filter(([key]) => !excluded.test(key)).map(([, value]) => pickNumber(value)).find((value) => value !== null) ?? null;
+}
+function rowDate(row: any): number {
+  const raw = row?.timestamp ?? row?.date ?? row?.time ?? row?.formattedTime ?? row?.formattedDate ?? row?.period;
+  if (typeof raw === "number") return raw < 1e12 ? raw * 1000 : raw;
+  const parsed = raw ? Date.parse(String(raw)) : NaN;
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 function extractRows(items: any[], kind: string, fieldNames: string[]): any[] {
   const direct = items.filter((row) => rowKind(row) === kind);
@@ -100,26 +109,67 @@ function exportFile(name: string, content: string, mime: string) {
   URL.revokeObjectURL(url);
 }
 function TrendLine({ rows }: { rows: any[] }) {
-  const points = rows.map((row) => rowValue(row)).filter((value): value is number => value !== null);
-  if (points.length < 2) return <div className="mt-chart-empty">Actor 返回时间序列数据后，将在此显示趋势图。</div>;
-  const max = Math.max(100, ...points);
-  const coords = points.map((value, index) => {
-    const x = 12 + (index / (points.length - 1)) * 676;
-    const y = 154 - (value / max) * 132;
-    return x + "," + y;
-  }).join(" ");
-  return <div className="mt-chart-wrap">
-    <div className="mt-chart-scale"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-    <svg viewBox="0 0 700 170" role="img" aria-label="Google Trends 搜索热度趋势图" className="mt-line-chart">
+  const points = rows.map((row, index) => ({ row, value: rowValue(row), index }))
+    .filter((point): point is { row: any; value: number; index: number } => point.value !== null)
+    .sort((a, b) => { const da = rowDate(a.row), db = rowDate(b.row); return da && db ? da - db : a.index - b.index; });
+  if (points.length < 2) return <div className="mt-chart-empty">至少需要两个有效时间点才能绘制趋势；不会用时间戳或默认值伪造热度。</div>;
+  const values = points.map((point) => point.value), max = Math.max(1, ...values), min = Math.min(0, ...values), span = Math.max(1, max - min);
+  const yFor = (value: number) => 154 - ((value - min) / span) * 132, xFor = (index: number) => 12 + (index / (points.length - 1)) * 676;
+  const coords = points.map((point, index) => xFor(index) + "," + yFor(point.value)).join(" ");
+  const dateLabel = (row: any) => { const stamp = rowDate(row); return stamp ? new Date(stamp).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : String(row?.date ?? row?.time ?? row?.formattedTime ?? "时间未提供"); };
+  const ticks = [max, min + span * .75, min + span * .5, min + span * .25, min];
+  return <div className="mt-chart-frame"><div className="mt-chart-wrap"><div className="mt-chart-scale">{ticks.map((tick, index) => <span key={index}>{Number(tick.toFixed(1)).toLocaleString()}</span>)}</div>
+    <svg viewBox="0 0 700 170" role="img" aria-label="基于 Actor 实际时间序列数值的搜索热度趋势图" className="mt-line-chart">
       {[22, 55, 88, 121, 154].map((y) => <line key={y} x1="12" y1={y} x2="688" y2={y} className="mt-grid-line" />)}
       <polyline points={coords} className="mt-line" />
-      {points.map((value, index) => {
-        const x = 12 + (index / (points.length - 1)) * 676;
-        const y = 154 - (value / max) * 132;
-        return <circle key={index} cx={x} cy={y} r="3" className="mt-point"><title>{value}</title></circle>;
-      })}
-    </svg>
-  </div>;
+      {points.map((point, index) => <circle key={index} cx={xFor(index)} cy={yFor(point.value)} r="3.2" className="mt-point"><title>{dateLabel(point.row)} · {point.value}</title></circle>)}
+    </svg></div><div className="mt-chart-dates"><span>{dateLabel(points[0].row)}</span><span>{dateLabel(points[points.length - 1].row)}</span></div>
+    <div className="mt-chart-footnote">有效数据点 {points.length.toLocaleString()} 个 · 实际值范围 {min}–{max} · 缺失值不插值</div></div>;
+}
+declare global { interface Window { L?: any } }
+const countryCenters: Record<string, [number, number]> = {
+  US:[39.8,-98.6],USA:[39.8,-98.6],"UNITED STATES":[39.8,-98.6],"UNITED STATES OF AMERICA":[39.8,-98.6],
+  GB:[54,-2],UK:[54,-2],"UNITED KINGDOM":[54,-2],DE:[51,10],GERMANY:[51,10],JP:[36,138],JAPAN:[36,138],KR:[36,128],"SOUTH KOREA":[36,128],
+  TW:[23.7,121],TAIWAN:[23.7,121],SG:[1.35,103.8],SINGAPORE:[1.35,103.8],IN:[22,79],INDIA:[22,79],FR:[46,2],FRANCE:[46,2],CA:[56,-106],CANADA:[56,-106],
+  AU:[-25,133],AUSTRALIA:[-25,133],BR:[-10,-52],BRAZIL:[-10,-52],AE:[24,54],"UNITED ARAB EMIRATES":[24,54],IT:[42.8,12.8],ITALY:[42.8,12.8],
+  ES:[40,-4],SPAIN:[40,-4],NL:[52.2,5.3],NETHERLANDS:[52.2,5.3],CH:[47,8],SWITZERLAND:[47,8],MX:[23,-102],MEXICO:[23,-102],
+  ID:[-2,118],INDONESIA:[-2,118],TH:[15,101],THAILAND:[15,101],VN:[16,108],VIETNAM:[16,108],MY:[4,102],MALAYSIA:[4,102],PH:[13,122],PHILIPPINES:[13,122],
+  ZA:[-29,24],"SOUTH AFRICA":[-29,24],NZ:[-41,174],"NEW ZEALAND":[-41,174],RU:[60,100],RUSSIA:[60,100],TR:[39,35],TURKEY:[39,35],SA:[24,45],"SAUDI ARABIA":[24,45],
+  SE:[62,15],SWEDEN:[62,15],NO:[62,10],NORWAY:[62,10],PL:[52,19],POLAND:[52,19],IE:[53,-8],IRELAND:[53,-8],AR:[-34,-64],ARGENTINA:[-34,-64],
+  CL:[-30,-71],CHILE:[-30,-71],CO:[4,-72],COLOMBIA:[4,-72],NG:[9,8],NIGERIA:[9,8],EG:[26,30],EGYPT:[26,30],PK:[30,70],PAKISTAN:[30,70]
+};
+function RegionMap({ rows }: { rows: any[] }) {
+  const mapElement = useRef<HTMLDivElement | null>(null); const [mapError, setMapError] = useState("");
+  useEffect(() => {
+    let cancelled = false, map: any;
+    const load = () => new Promise<void>((resolve, reject) => {
+      if (window.L) return resolve();
+      const existing = document.querySelector<HTMLScriptElement>('script[data-leaflet="true"]');
+      if (existing) { existing.addEventListener("load", () => resolve(), { once: true }); existing.addEventListener("error", () => reject(new Error("地图脚本加载失败")), { once: true }); return; }
+      const script = document.createElement("script"); script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"; script.async = true; script.dataset.leaflet = "true";
+      script.onload = () => resolve(); script.onerror = () => reject(new Error("Leaflet 地图组件无法加载")); document.head.appendChild(script);
+    });
+    if (!document.querySelector('link[data-leaflet="true"]')) { const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"; link.dataset.leaflet = "true"; document.head.appendChild(link); }
+    void load().then(() => {
+      if (cancelled || !mapElement.current || !window.L) return;
+      const L = window.L; map = L.map(mapElement.current, { worldCopyJump: true, scrollWheelZoom: false }).setView([22, 12], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
+      const valid = rows.map((row) => ({ row, value: rowValue(row) })).filter((entry) => entry.value !== null), maximum = Math.max(1, ...valid.map((entry) => entry.value || 0));
+      valid.forEach(({ row, value }) => {
+        const name = String(row?.geoName ?? row?.region ?? row?.country ?? row?.name ?? row?.location ?? row?.geo ?? "").trim(), key = name.toUpperCase();
+        const center = countryCenters[key] || countryCenters[key.replace(/\\s*\\([^)]*\\)$/, "")];
+        if (!center || value === null) return;
+        L.circleMarker(center, { radius: 5 + Math.min(13, Math.max(0, value) / maximum * 13), color: "#0f62fe", weight: 1.5, fillColor: "#4589ff", fillOpacity: .72 })
+          .bindTooltip("<strong>" + name.replace(/[&<>"]/g, "") + "</strong><br/>趋势指数：" + value, { direction: "top" }).addTo(map);
+      });
+      window.setTimeout(() => map?.invalidateSize(), 150);
+    }).catch((error) => { if (!cancelled) setMapError(error instanceof Error ? error.message : "地图加载失败"); });
+    return () => { cancelled = true; if (map) map.remove(); };
+  }, [rows]);
+  return <div className="mt-region-map-shell"><div ref={mapElement} className="mt-region-map" role="img" aria-label="OpenStreetMap 国家地区趋势地图" />
+    <div className="mt-map-attribution">© OpenStreetMap contributors · 圆点大小与位置来自 Actor 实际地区热度</div>
+    {mapError && <div className="mt-chart-empty">{mapError}，请检查网络后重试。</div>}
+    <div className="mt-region-note">地图仅标注可识别国家/地区；未匹配地区仍保留在下方完整数据表中。</div></div>;
 }
 function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const [page, setPage] = useState(0);
@@ -131,7 +181,7 @@ function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   return <div className="mt-table-scroll"><table className="mt-data-table"><thead><tr>{columns.map((key) => <th key={key}>{key}</th>)}</tr></thead><tbody>
     {visibleRows.map((row, index) => <tr key={currentPage * pageSize + index}>{columns.map((key) => <td key={key}>{typeof row[key] === "object" && row[key] !== null ? JSON.stringify(row[key]) : String(row[key] ?? "—")}</td>)}</tr>)}
-  </tbody></table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</button><span>第 {currentPage + 1} / {pageCount}</span><button type="button" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</button></div></div></div>;
+  </tbody></table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><Button kind="ghost" size="sm" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</Button><span>第 {currentPage + 1} / {pageCount}</span><Button kind="ghost" size="sm" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</Button></div></div></div>;
 }
 export function MarketTrendsPage() {
   const { session, workspace } = useAuth();
@@ -288,7 +338,7 @@ export function MarketTrendsPage() {
           </div>
         </div>
 
-        <div className="mt-advanced-toggle"><button type="button" onClick={() => setAdvancedOpen(!advancedOpen)}><Filter size={16} /> 高级设置 <ChevronDown size={16} className={advancedOpen ? "is-open" : ""} /></button></div>
+        <div className="mt-advanced-toggle"><Button kind="ghost" size="sm" onClick={() => setAdvancedOpen(!advancedOpen)} renderIcon={Filter}>高级设置 <ChevronDown size={16} className={advancedOpen ? "is-open" : ""} /></Button></div>
         {advancedOpen && <div className="mt-advanced-content">
           <Toggle id="mt-compare" labelText="在同一尺度对比关键词" labelA="关闭" labelB="开启" toggled={compareTerms} onToggle={setCompareTerms} />
           <div className="mt-max-items"><NumberInput id="mt-max-items" label="最大数据集条数" min={1} max={5000} value={maxItems} onChange={(_event, state) => setMaxItems(Number(state.value) || 1)} helperText="成本控制 · 1–5,000 条" /></div>
@@ -323,24 +373,24 @@ export function MarketTrendsPage() {
           </div>
           {(activeTask.status === "queued" || activeTask.status === "running") && <div className="mt-running-state"><InlineLoading description="Apify Actor 正在运行，结果将自动刷新。" /><span>{activeTask.actor_run_id || "等待 Actor 运行 ID"}</span></div>}
           {activeTask.error_message && <InlineNotification kind="warning" title="Actor 执行提示" subtitle={activeTask.error_message} lowContrast />}
-          <div className="mt-result-tabs">
+          <div className="mt-result-tabs" role="tablist" aria-label="研究结果分类">
             {[
               ["overview", "概览", Activity], ["timeline", "时间趋势", ChartLine],
               ["regions", "地区", Earth], ["queries", "相关搜索", Search],
               ["topics", "相关主题", Flash], ["raw", "原始数据", Code]
-            ].map(([id, label, Icon]: any) => <button type="button" key={id} className={activeTab === id ? "active" : ""} onClick={() => setActiveTab(id)}><Icon size={15} />{label}</button>)}
+            ].map(([id, label, Icon]: any) => <Button kind={activeTab === id ? "primary" : "ghost"} size="sm" key={id} role="tab" aria-selected={activeTab === id} className={activeTab === id ? "active" : ""} onClick={() => setActiveTab(id)} renderIcon={Icon}>{label}</Button>)}
           </div>
           {activeTab === "overview" && <div className="mt-result-content">
             <div className="mt-overview-cards">
               {[["时间趋势", timelineRows.length], ["地区", regionRows.length], ["相关搜索", queryRows.length], ["相关主题", topicRows.length], ["实时趋势", trendingRows.length]].map(([label, count]) => <div key={String(label)}><span>{label}</span><b>{Number(count).toLocaleString()}</b></div>)}
             </div>
-            <div className="mt-subsection-head"><div><h3>搜索热度变化趋势</h3><p>Google Trends 标准化热度指数（0–100）。</p></div><Tag type="blue">时间趋势</Tag></div>
+            <div className="mt-subsection-head"><div><h3>搜索热度变化趋势</h3><p>使用 Actor 实际时间戳与热度值；缺失值不插值、不伪造。</p></div><Tag type="blue">时间趋势</Tag></div>
             <TrendLine rows={timelineRows} />
-            <div className="mt-subsection-head"><div><h3>最新数据集记录</h3><p>Actor 返回的原始记录。</p></div><button type="button" onClick={() => setActiveTab("raw")}>查看全部数据 <ArrowRight size={14} /></button></div>
+            <div className="mt-subsection-head"><div><h3>最新数据集记录</h3><p>Actor 返回的原始记录。</p></div><Button kind="ghost" size="sm" onClick={() => setActiveTab("raw")}>查看全部数据 <ArrowRight size={14} /></Button></div>
             <DataTable rows={rawItems.slice(0, 8)} empty="暂未收到 数据集记录。" />
           </div>}
-          {activeTab === "timeline" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>时间趋势</h3><p>{timelineRows.length} 条时间序列记录 · 数值为相对热度，并非绝对搜索量。</p></div></div><TrendLine rows={timelineRows} /><DataTable rows={timelineRows} empty="Actor 响应中暂无时间序列记录。" /></div>}
-          {activeTab === "regions" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>地区热度</h3><p>{regionRows.length} 条地区记录。地区粒度取决于所选目标地区。</p></div></div><DataTable rows={regionRows} empty="Actor 响应中暂无地区记录。" /></div>}
+          {activeTab === "timeline" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>时间趋势</h3><p>{timelineRows.length} 条记录 · 仅绘制可解析的实际热度值。</p></div></div><TrendLine rows={timelineRows} /><DataTable rows={timelineRows} empty="Actor 响应中暂无时间序列记录。" /></div>}
+          {activeTab === "regions" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>地区热度分布</h3><p>{regionRows.length} 条地区记录。地图标记和数值来自 Actor 实际响应。</p></div><Tag type="blue">OpenStreetMap</Tag></div><RegionMap rows={regionRows} /><div className="mt-subsection-head"><div><h3>地区数据明细</h3><p>未能定位到地图的记录仍完整保留。</p></div></div><DataTable rows={regionRows} empty="Actor 响应中暂无地区记录。" /></div>}
           {activeTab === "queries" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>相关搜索</h3><p>与研究关键词相关的热门及上升搜索。</p></div></div><DataTable rows={queryRows} empty="Actor 响应中暂无相关搜索记录。" /></div>}
           {activeTab === "topics" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>相关主题</h3><p>Google Trends 返回的相关实体与主题。</p></div></div><DataTable rows={topicRows} empty="Actor 响应中暂无相关主题记录。" /></div>}
           {activeTab === "raw" && <div className="mt-result-content">
