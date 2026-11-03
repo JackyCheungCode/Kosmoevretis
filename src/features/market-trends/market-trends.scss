@@ -4,3 +4,28 @@
 .mt-task-summary{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:720px){.mt-task-summary{grid-template-columns:1fr 1fr}}
 
 .mt-actor-json{display:flex;flex-direction:column;gap:8px}.mt-actor-json .cds--text-area{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5}.mt-actor-json .cds--form__helper-text{font-size:10px;line-height:1.55}.mt-actor-json .cds--inline-notification{margin-top:4px}
+
+/* Carbon-aligned market intelligence visualization */
+.mt-chart-frame{background:#f4f4f4;padding:14px 14px 10px}
+.mt-chart-wrap{background:#fff;min-width:0}
+.mt-chart-dates{display:flex;justify-content:space-between;color:#525252;font-size:11px;padding:8px 32px 0}
+.mt-chart-footnote{color:#6f6f6f;font-size:11px;padding:9px 0 0}
+.mt-chart-scale{padding:4px 0 13px}
+.mt-region-map-shell{border:1px solid #e0e0e0;background:#f4f4f4;padding:12px}
+.mt-region-map{height:420px;width:100%;background:#e5e5e5;z-index:0}
+.mt-map-attribution{font-size:10px;color:#6f6f6f;padding:7px 0 0}
+.mt-region-note{font-size:11px;color:#525252;padding-top:8px}
+.mt-region-map .leaflet-tooltip{font-family:IBM Plex Sans,Arial,sans-serif;border:1px solid #8d8d8d;border-radius:0;box-shadow:0 2px 8px #0002;font-size:12px}
+.mt-result-tabs{align-items:center;gap:4px;padding:4px 0}
+.mt-result-tabs .cds--btn{min-height:36px;padding-inline:12px}
+.mt-result-tabs .cds--btn.active{box-shadow:inset 0 -2px 0 #0f62fe}
+.mt-advanced-toggle .cds--btn{width:100%;justify-content:flex-start;text-align:left;padding-inline:0}
+.mt-advanced-toggle .cds--btn svg:last-child{margin-left:auto}
+.mt-table-foot .cds--btn{min-height:30px;padding-inline:8px;font-size:11px}
+.mt-history-row.cds--btn{display:flex;width:100%;max-width:none;height:auto;min-height:60px;justify-content:flex-start;gap:12px;padding:13px 12px;text-align:left;border-bottom:1px solid #e0e0e0;color:#161616}
+.mt-history-row.cds--btn:hover,.mt-history-row.cds--btn.selected{background:#edf5ff;color:#161616}
+.mt-history-row.cds--btn .mt-history-copy{flex:1;min-width:0}
+.mt-history-row.cds--btn .cds--tag{margin-left:auto}
+.mt-history-row.cds--btn>svg:last-child{margin-left:0}
+.mt-subsection-head>.cds--btn{min-height:30px}
+@media(max-width:720px){.mt-region-map{height:300px}.mt-chart-dates{font-size:10px;padding-inline:20px}.mt-result-tabs .cds--btn{padding-inline:8px}.mt-history-row.cds--btn{gap:8px;padding:11px 7px}}
