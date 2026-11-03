@@ -229,7 +229,6 @@ export function MarketTrendsPage() {
     exportFile("google-trends-" + activeTask?.id + ".csv", "\uFEFF" + csv, "text/csv;charset=utf-8");
   };
   const summary = activeTask?.input_snapshot || {};
-  const geoLabel = geoItems.find((item) => item.id === summary.geo)?.text || summary.geo || "Worldwide";
 
   return <div className="market-trends-page">
     <header className="mt-heading">
