@@ -338,8 +338,8 @@ export function MarketTrendsPage() {
             </div>
             <div className="mt-subsection-head"><div><h3>搜索热度变化趋势</h3><p>Google Trends 标准化热度指数（0–100）。</p></div><Tag type="blue">时间趋势</Tag></div>
             <TrendLine rows={timelineRows} />
-            <div className="mt-subsection-head"><div><h3>最新 Dataset 记录</h3><p>Actor 返回的原始记录。</p></div><button type="button" onClick={() => setActiveTab("raw")}>查看全部数据 <ArrowRight size={14} /></button></div>
-            <DataTable rows={rawItems.slice(0, 8)} empty="暂未收到 Dataset 记录。" />
+            <div className="mt-subsection-head"><div><h3>最新数据集记录</h3><p>Actor 返回的原始记录。</p></div><button type="button" onClick={() => setActiveTab("raw")}>查看全部数据 <ArrowRight size={14} /></button></div>
+            <DataTable rows={rawItems.slice(0, 8)} empty="暂未收到 数据集记录。" />
           </div>}
           {activeTab === "timeline" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>时间趋势</h3><p>{timelineRows.length} 条时间序列记录 · 数值为相对热度，并非绝对搜索量。</p></div></div><TrendLine rows={timelineRows} /><DataTable rows={timelineRows} empty="Actor 响应中暂无时间序列记录。" /></div>}
           {activeTab === "regions" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>地区热度</h3><p>{regionRows.length} 条地区记录。地区粒度取决于所选目标地区。</p></div></div><DataTable rows={regionRows} empty="Actor 响应中暂无地区记录。" /></div>}
@@ -348,7 +348,7 @@ export function MarketTrendsPage() {
           {activeTab === "raw" && <div className="mt-result-content">
             <div className="mt-raw-toolbar"><div><h3>Actor 完整数据集</h3><p>{rawItems.length.toLocaleString()} 条记录 · 完整保留 Actor 返回的全部字段。</p></div><div><Button kind="tertiary" size="sm" renderIcon={Download} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={Download} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
             <DataTable rows={rawItems} empty="Actor 执行完成后，完整数据集将在此显示。" />
-            <details className="mt-json-details"><summary><Code size={15} /> 查看完整 Dataset JSON ({rawItems.length} 条记录)</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
+            <details className="mt-json-details"><summary><Code size={15} /> 查看完整 数据集 JSON ({rawItems.length} 条记录)</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
             <details className="mt-json-details"><summary><Code size={15} /> 查看 Key-Value Store 输出 ({(activeTask.kv_records || []).length} 条记录)</summary><pre>{JSON.stringify(activeTask.kv_records || [], null, 2)}</pre></details>
             <details className="mt-json-details"><summary><Information size={15} /> 查看完整 Actor 运行元数据</summary><pre>{JSON.stringify(activeTask.actor_meta || {}, null, 2)}</pre></details>
           </div>}
