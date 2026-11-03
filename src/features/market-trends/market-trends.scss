@@ -2,3 +2,5 @@
 .mt-table-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 10px;background:#f4f4f4;color:#6f6f6f;font-size:9px}.mt-table-foot>div{display:flex;align-items:center;gap:10px}.mt-table-foot button{border:1px solid #c6c6c6;background:#fff;padding:5px 9px;color:#0f62fe;font-size:9px;cursor:pointer}.mt-table-foot button:disabled{color:#a8a8a8;cursor:not-allowed}.mt-form-grid .cds--dropdown{min-width:0}.mt-form-grid .cds--dropdown{font-size:11px}@media(max-width:720px){.mt-table-foot{align-items:flex-start;flex-direction:column}.mt-table-foot>div{width:100%;justify-content:space-between}}
 
 .mt-task-summary{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:720px){.mt-task-summary{grid-template-columns:1fr 1fr}}
+
+.mt-actor-json{display:flex;flex-direction:column;gap:8px}.mt-actor-json .cds--text-area{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5}.mt-actor-json .cds--form__helper-text{font-size:10px;line-height:1.55}.mt-actor-json .cds--inline-notification{margin-top:4px}
