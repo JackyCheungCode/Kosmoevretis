@@ -47,7 +47,7 @@ export function SettingsPage() {
   const [filter,setFilter]=useState<(typeof filters)[number]>("全部");
   const [adminToken,setAdminToken]=useState("");
   const authHeaders={"Content-Type":"application/json","X-Kosmo-Admin-Token":adminToken};
-  const validAdminToken=()=>{if(!adminToken.trim()){setDirectoryError("请先输入管理员令牌。");return false;}if(!/^[\\x00-\\xFF]+$/.test(adminToken)){setDirectoryError("管理员令牌只能包含 Latin-1/ASCII 字符。请检查是否粘贴了中文或其他特殊字符。");return false;}return true;};
+  const validAdminToken=()=>{if(!adminToken.trim()){setDirectoryError("请先输入管理员令牌。");return false;}if(!/^[\x21-\x7E]+$/.test(adminToken)){setDirectoryError("管理员令牌只能包含可打印 ASCII 字符（不含空格、换行或中文）。请清空后重新粘贴。");return false;}return true;};
   const [query,setQuery]=useState("");
   const [expanded,setExpanded]=useState<string|null>("openrouter");
   const [workersAiTesting,setWorkersAiTesting]=useState(false);
