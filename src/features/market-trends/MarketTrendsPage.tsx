@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity, ArrowDownToLine, ArrowRight, ChartLine, CheckmarkFilled, ChevronDown,
+  Activity, Download, ArrowRight, ChartLine, CheckmarkFilled, ChevronDown,
   Earth, Filter, Flash, Globe, Information, Play, Search, Time, WarningAlt,
   DataTable as DataTableIcon, Code
 } from "@carbon/icons-react";
@@ -309,7 +309,7 @@ export function MarketTrendsPage() {
           {activeTab === "queries" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>Related queries</h3><p>Top and rising searches associated with the research keywords.</p></div></div><DataTable rows={queryRows} empty="No related-query records in this Actor response." /></div>}
           {activeTab === "topics" && <div className="mt-result-content"><div className="mt-subsection-head"><div><h3>Related topics</h3><p>Related entities and topics returned by Google Trends.</p></div></div><DataTable rows={topicRows} empty="No related-topic records in this Actor response." /></div>}
           {activeTab === "raw" && <div className="mt-result-content">
-            <div className="mt-raw-toolbar"><div><h3>Complete Actor dataset</h3><p>{rawItems.length.toLocaleString()} records · all returned fields retained.</p></div><div><Button kind="tertiary" size="sm" renderIcon={ArrowDownToLine} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={ArrowDownToLine} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
+            <div className="mt-raw-toolbar"><div><h3>Complete Actor dataset</h3><p>{rawItems.length.toLocaleString()} records · all returned fields retained.</p></div><div><Button kind="tertiary" size="sm" renderIcon={Download} onClick={downloadCsv} disabled={!rawItems.length}>CSV</Button><Button kind="primary" size="sm" renderIcon={Download} onClick={downloadJson} disabled={!rawItems.length}>JSON</Button></div></div>
             <DataTable rows={rawItems} empty="The complete dataset will appear here after the Actor finishes." />
             <details className="mt-json-details"><summary><Code size={15} /> View full JSON payload</summary><pre>{JSON.stringify(rawItems, null, 2)}</pre></details>
           </div>}

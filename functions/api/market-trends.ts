@@ -36,7 +36,7 @@ async function supabasePatch(base: string, headers: Record<string, string>, id: 
 }
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
   const auth = await authenticate(request, env);
-  if (auth.error) return auth.error;
+  if ("error" in auth) return auth.error;
   if (!env.APIFY_API_TOKEN) return json({ error: "Apify is not connected in this Preview environment. Add APIFY_API_TOKEN as a Cloudflare Pages Preview secret to enable Actor runs." }, 503);
   let body: any;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON request." }, 400); }
