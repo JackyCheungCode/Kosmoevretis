@@ -139,7 +139,7 @@ export function MarketTrendsPage() {
   const [geo, setGeo] = useState("");
   const [timeRange, setTimeRange] = useState("today 12-m");
   const [property, setProperty] = useState("web");
-  const [category, setCategory] = useState("0");
+  const [category, set类别] = useState("0");
   const [maxItems, setMaxItems] = useState(1000);
   const [compareTerms, setCompareTerms] = useState(false);
   const [trendingMode, setTrendingMode] = useState(false);
@@ -151,6 +151,8 @@ export function MarketTrendsPage() {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [actorInputText, setActorInputText] = useState("");
+  const [actorInputError, setActorInputError] = useState("");
 
   const keywords = useMemo(() => keywordsText.split(/[\n,;]+/).map((term) => term.trim()).filter(Boolean), [keywordsText]);
   const rawItems = activeTask?.raw_items || [];
@@ -175,7 +177,7 @@ export function MarketTrendsPage() {
   const fetchTask = async (taskId: string) => {
     const token = session?.access_token;
     if (!token) throw new Error("登录状态已过期，请重新登录。");
-    const response = await fetch("/api/market-trends?taskId=" + encodeURIComponent(taskId), { headers: { Authorization: "Bearer " + token } });
+    const response = await fetch("/api/market-trends?taskId=" + encodeURIComponent(taskId), { headers: { Authorization: "Bearer " + token, "X-Apify-Token": sessionStorage.getItem("kosmoevretis.apify.token") || "" } });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "无法刷新任务。");
     const next = payload.task as TrendTask;
@@ -196,15 +198,24 @@ export function MarketTrendsPage() {
     if (!session?.access_token || !workspace?.id) { setError("请先登录并选择工作空间。"); return; }
     if (!trendingMode && !keywords.length) { setError("请输入至少一个研究关键词。"); return; }
     if (compareTerms && (keywords.length < 2 || keywords.length > 5)) { setError("关键词对比需要输入 2 至 5 个关键词。"); return; }
-    if (trendingMode && !geo) { setError("Choose a country before collecting 实时趋势 Now. 全球 is not supported for country-level trending searches."); return; }
+    if (trendingMode && !geo) { setError("收集即时趋势前，请选择具体国家或地区；该模式不支持全球范围。"); return; }
+    let customActorInput: Record<string, any> | undefined;
+    if (actorInputText.trim()) {
+      try {
+        const parsed = JSON.parse(actorInputText);
+        if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") throw new Error("Actor 输入必须是 JSON 对象。");
+        customActorInput = parsed;
+      } catch (e) { setActorInputError(e instanceof Error ? e.message : "Actor JSON 格式无效。"); return; }
+    }
+    setActorInputError("");
     if (maxItems < 1 || maxItems > 5000) { setError("最大数据量必须在 1 至 5,000 条之间。"); return; }
     setBusy(true); setError(""); setNotice(""); setActiveTask(null);
     try {
       const response = await fetch("/api/market-trends", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token, "X-Apify-Token": sessionStorage.getItem("kosmoevretis.apify.token") || "" },
         body: JSON.stringify({
-          organizationId: workspace.id, keywords, geo, timeRange, property, category: Number(category), maxItems, compareTerms, mode: trendingMode ? "trendingNow" : "explore"
+          organizationId: workspace.id, keywords, geo, timeRange, property, category: Number(category), maxItems, compareTerms, mode: trendingMode ? "trendingNow" : "explore", ...(customActorInput ? { actorInput: customActorInput } : {})
         })
       });
       const payload = await response.json().catch(() => ({}));
@@ -263,7 +274,7 @@ export function MarketTrendsPage() {
           <Dropdown id="mt-geo" titleText="目标地区" label="请选择地区" items={geoItems} itemToString={(item) => item?.text || ""} selectedItem={geoItems.find((item) => item.id === geo) || geoItems[0]} onChange={({ selectedItem }) => setGeo(selectedItem?.id ?? "")} />
           <Dropdown id="mt-time" titleText="时间范围" label="请选择时间范围" items={timeItems} itemToString={(item) => item?.text || ""} selectedItem={timeItems.find((item) => item.id === timeRange) || timeItems[2]} onChange={({ selectedItem }) => selectedItem && setTimeRange(selectedItem.id)} />
           <Dropdown id="mt-property" titleText="搜索类型" label="请选择搜索类型" items={propertyItems} itemToString={(item) => item?.text || ""} selectedItem={propertyItems.find((item) => item.id === property) || propertyItems[0]} onChange={({ selectedItem }) => selectedItem && setProperty(selectedItem.id)} />
-          <Dropdown id="mt-category" titleText="类别" label="请选择类别" items={categories} itemToString={(item) => item?.text || ""} selectedItem={categories.find((item) => item.id === category) || categories[0]} onChange={({ selectedItem }) => selectedItem && setCategory(selectedItem.id)} />
+          <Dropdown id="mt-category" titleText="类别" label="请选择类别" items={categories} itemToString={(item) => item?.text || ""} selectedItem={categories.find((item) => item.id === category) || categories[0]} onChange={({ selectedItem }) => selectedItem && set类别(selectedItem.id)} />
         </div>
 
         <div className="mt-output-picker">
@@ -284,6 +295,13 @@ export function MarketTrendsPage() {
           <Toggle id="mt-trending-mode" labelText="改为采集实时趋势" labelA="关闭" labelB="开启" toggled={trendingMode} onToggle={setTrendingMode} />
           {trendingMode && <div className="mt-config-note"><Information size={16} /><span>实时趋势使用所选目标地区。请指定国家/地区，不要选择全球。</span></div>}
           <div className="mt-config-note"><Information size={16} /><span>Actor 专属字段由服务端适配器映射。即使更换数据提供方，研究表单也保持稳定。</span></div>
+          <div className="mt-actor-json">
+            <TextArea id="mt-actor-input" labelText="Actor 原始输入 JSON（可选）" helperText="填写 Actor 文档要求的完整输入对象。JSON key/value 将保持原样提交；英文参数不会被页面翻译或转换。留空时使用上方表单生成默认输入。" placeholder={'{
+  "searchTerms": ["industrial automation"],
+  "geo": "US"
+}'} rows={7} value={actorInputText} onChange={(event) => { setActorInputText(event.target.value); setActorInputError(""); }} />
+            {actorInputError && <InlineNotification kind="error" title="Actor JSON 格式错误" subtitle={actorInputError} lowContrast />}
+          </div>
         </div>}
         <div className="mt-run-footer">
           <div><span>最大数据集条数</span><b>{maxItems.toLocaleString()}</b></div>
@@ -345,7 +363,7 @@ export function MarketTrendsPage() {
         {loadingHistory ? <div className="mt-history-empty"><InlineLoading description="正在加载任务历史…" /></div> :
           tasks.map((task) => <button type="button" className={"mt-history-row" + (activeTask?.id === task.id ? " selected" : "")} key={task.id} onClick={() => void openTask(task)}>
             <span className="mt-history-icon"><Time size={17} /></span>
-            <span className="mt-history-copy"><b>{(task.input_snapshot?.keywords || []).join(", ") || "实时趋势 Now research"}</b><small>{new Date(task.created_at).toLocaleString()} · {task.result_count} 条记录</small></span>
+            <span className="mt-history-copy"><b>{(task.input_snapshot?.keywords || []).join(", ") || "即时趋势 research"}</b><small>{new Date(task.created_at).toLocaleString()} · {task.result_count} 条记录</small></span>
             <Tag type={task.status === "succeeded" ? "green" : task.status === "failed" ? "red" : "blue"}>{statusLabel[task.status]}</Tag><ArrowRight size={16} />
           </button>)}
         {!loadingHistory && !tasks.length && <div className="mt-history-empty"><DataTableIcon size={22} /><span>暂无研究历史记录。</span></div>}
