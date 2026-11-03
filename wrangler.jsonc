@@ -3,11 +3,19 @@
   "name": "kosmoevretis-platform",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-10-01",
+  "vars": {
+    "SUPABASE_URL": "https://npkesfmszokmlgnzqelb.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_fcYJkZcL3uueN8-Fkz1Qdw_J4YWJwo8"
+  },
   "ai": {
     "binding": "AI"
   },
   "env": {
     "preview": {
+      "vars": {
+        "SUPABASE_URL": "https://npkesfmszokmlgnzqelb.supabase.co",
+        "SUPABASE_ANON_KEY": "sb_publishable_fcYJkZcL3uueN8-Fkz1Qdw_J4YWJwo8"
+      },
       "ai": {
         "binding": "AI"
       },
