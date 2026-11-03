@@ -43,6 +43,8 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
   const [allocationMode, setAllocationMode] = useState<"uniform" | "independent">("independent");
   const [notice, setNotice] = useState("");
   const [advanced, setAdvanced] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState("");
   const selectedProvider = providerById(globalProvider);
   const selectedDimensions = useMemo(() => dimensions.filter((d) => selected.includes(d.id)), [selected]);
   const updateProvider = (dimensionId: string, providerId: string) => {
@@ -57,7 +59,19 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
     });
     setNotice("已将统一模型应用到当前勾选的分析维度。你仍可逐项修改。");
   };
-  const startAnalysis = () => setNotice("请先在设置 → AI 服务中心配置并测试 Workers AI 服务。");
+  const startAnalysis = async () => {
+    if (!selected.length) return;
+    setRunning(true); setNotice(""); setAnalysisResult("");
+    const prompt = "请对以下企业进行经营分析。企业名称：" + (enterprise.enterpriseName || "当前企业") + "。企业档案：" + JSON.stringify(enterprise.profile || {}) + "。请围绕所选维度（" + selectedDimensions.map((d) => d.title).join("、") + "）输出结构化分析，明确区分已知事实、合理推断、待验证问题和可执行建议；没有数据的地方明确说明，不得编造。";
+    try {
+      const response = await fetch("/api/ai/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider: "cloudflare", prompt }) });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "AI 分析调用失败");
+      setAnalysisResult(typeof data.result === "string" ? data.result : JSON.stringify(data.result, null, 2));
+      setNotice("AI 分析已完成。本次调用使用平台 Workers AI 服务。");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "AI 分析失败，请检查服务配置。"); }
+    finally { setRunning(false); }
+  };
   return <div className="analysis-page">
     <header className="analysis-heading"><div><div className="ep-eyebrow"><i/> BUSINESS INTELLIGENCE / AI ANALYSIS</div><h1>AI 企业分析</h1><p>基于本企业档案，按分析维度分配最合适的 AI 模型，形成可追溯的经营洞察。</p></div><span className="analysis-secure"><Locked size={15}/> 平台统一调用凭证</span></header>
     {!embedded && <section className="analysis-enterprise"><div className="analysis-enterprise-mark">{(enterprise.enterpriseName || "企").slice(0,1)}</div><div><small>ANALYSIS SUBJECT</small><b>{enterprise.enterpriseName || "当前企业档案"}</b><span>{typeof enterprise.completion === "number" ? "档案完整度 " + enterprise.completion + "%" : "分析将使用已确认的企业档案信息"}</span></div><Link to="/enterprise-profile"><span>查看企业档案</span><ArrowRight size={15}/></Link></section>}
@@ -73,8 +87,8 @@ export function AIAnalysisPage({ embedded = false, onContinue }: { embedded?: bo
       })}</div>
     </section>
     <section className="analysis-options"><button type="button" onClick={() => setAdvanced((v) => !v)}>{advanced ? "收起" : "展开"} 分析执行设置 <span>{advanced ? "−" : "+"}</span></button>{advanced && <div className="analysis-options-grid"><div><b>分析深度</b><span>标准诊断（后续可扩展深度研究）</span></div><div><b>结果语言</b><span>中文（简体）</span></div><div><b>输出原则</b><span>事实、推断、建议分开呈现，并标注依据与不确定性</span></div><div><b>数据使用</b><span>仅使用本企业档案及后续明确授权的数据源</span></div></div>}</section>
-    <section className="analysis-bottom"><div><b>分析任务摘要</b><p>已选择 {selectedDimensions.length} 个维度 · {new Set(selectedDimensions.map((d) => assignments[d.id].provider)).size} 家 AI 服务商 · {allocationMode === "uniform" ? "所有选中维度统一使用同一模型。" : "每个维度独立保留模型配置。"}</p></div><button type="button" className="ep-button-primary" disabled={!selected.length} onClick={onContinue || startAnalysis}>{onContinue ? "确认模型，下一步" : "开始 AI 分析"} <ArrowRight size={16}/></button></section>
-    {notice && <div className="analysis-notice" role="status">{notice}</div>}
+    <section className="analysis-bottom"><div><b>分析任务摘要</b><p>已选择 {selectedDimensions.length} 个维度 · {new Set(selectedDimensions.map((d) => assignments[d.id].provider)).size} 家 AI 服务商 · {allocationMode === "uniform" ? "所有选中维度统一使用同一模型。" : "每个维度独立保留模型配置。"}</p></div><button type="button" className="ep-button-primary" disabled={!selected.length || running} onClick={onContinue || startAnalysis}>{running ? "正在分析…" : onContinue ? "确认模型，下一步" : "开始 AI 分析"} <ArrowRight size={16}/></button></section>
+    {notice && <div className="analysis-notice" role="status">{notice}</div>}{analysisResult && <section className="analysis-result"><h2>AI 分析结果</h2><pre style={{ whiteSpace: "pre-wrap", font: "inherit" }}>{analysisResult}</pre></section>}
     <footer className="ep-page-footer"><span>KOSMOEVRETIS · AI ANALYSIS WORKSPACE</span><span>逐维度模型分配 · 任务级配置</span></footer>
   </div>;
 }
