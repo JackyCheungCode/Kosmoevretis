@@ -1,12 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Activity, ChevronDown, DataBase, Earth, Home, Menu, Search, Settings, Close, Workflow } from "@carbon/icons-react";
+import { Activity, ChevronDown, DataBase, Earth, Home, Menu, Search, Settings, Close } from "@carbon/icons-react";
 import { requireSupabase } from "../lib/supabase";
 import { useAuth } from "./AuthProvider";
 
 const items = [
   { label: "总览", to: "/dashboard", icon: Home },
-  { label: "企业档案与AI分析", to: "/enterprise-workflow", icon: Workflow },
+  { label: "企业档案与AI分析", to: "/enterprise-workflow", icon: Activity },
   { label: "市场情报", to: "/market-intelligence", icon: Earth, soon: true },
   { label: "全球发现", to: "/discovery", icon: Search, soon: true },
   { label: "商业关系网络", to: "/network", icon: DataBase, soon: true },

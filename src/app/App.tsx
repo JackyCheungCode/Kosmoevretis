@@ -4,10 +4,7 @@ import { AuthProvider, useAuth } from "./AuthProvider";
 import { AuthPage } from "../features/auth/AuthPage";
 import { WorkspacePage } from "../features/workspace/WorkspacePage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
-import { EnterpriseProfilePage } from "../features/enterprise-profile/EnterpriseProfilePage";
 import { SettingsPage } from "../features/settings/SettingsPage";
-import { AIAnalysisPage } from "../features/ai-analysis/AIAnalysisPage";
-import { AnalysisResultsPage } from "../features/analysis-results/AnalysisResultsPage";
 import { EnterpriseWorkflowPage } from "../features/enterprise-workflow/EnterpriseWorkflowPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
