@@ -37,7 +37,17 @@ export function ApifySettingsPanel({ adminToken }: Props) {
     } catch (e) { setError(e instanceof Error ? e.message : "保存 Apify 配置失败。"); }
     finally { setBusy(false); }
   };
-  const testConnection = async () => {\n    if (!adminToken) { setError("请先输入并验证平台管理员令牌。"); return; }\n    setBusy(true); setError(""); setMessage(""); setVerified(false);\n    try {\n      const result = await readResponse(await fetch("/api/integrations/apify/test", { method: "POST", headers }));\n      setVerified(true);\n      setMessage("验证成功：Apify 账号 " + (result.account?.username || result.account?.id) + " 可读取关键词研究 Actor（" + result.actor?.id + "）。");\n    } catch (e) { setError(e instanceof Error ? e.message : "Apify 连接验证失败。"); }\n    finally { setBusy(false); }\n  };\n  const remove = async () => {
+  const testConnection = async () => {
+    if (!adminToken) { setError("请先输入并验证平台管理员令牌。"); return; }
+    setBusy(true); setError(""); setMessage(""); setVerified(false);
+    try {
+      const result = await readResponse(await fetch("/api/integrations/apify/test", { method: "POST", headers }));
+      setVerified(true);
+      setMessage("验证成功：Apify 账号 " + (result.account?.username || result.account?.id) + " 可读取关键词研究 Actor（" + result.actor?.id + "）。");
+    } catch (e) { setError(e instanceof Error ? e.message : "Apify 连接验证失败。"); }
+    finally { setBusy(false); }
+  };
+  const remove = async () => {
     if (!adminToken) { setError("请先输入并验证平台管理员令牌。"); return; }
     setBusy(true); setError(""); setMessage("");
     try {
@@ -54,7 +64,8 @@ export function ApifySettingsPanel({ adminToken }: Props) {
         <PasswordInput id="apify-api-token" labelText="Apify API Token" autoComplete="new-password" value={apiToken} onChange={event => setApiToken(event.target.value)} placeholder={hasToken ? "已保存 Token；输入新值可轮换密钥" : "粘贴 Apify Console 中的 API Token"} helperText="建议使用专用 API Token。输入内容仅发送至本平台服务端，不会写入前端存储或代码仓库。" />
         <div className="apify-settings-actions">
           <Button kind="primary" onClick={save} disabled={busy || !apiToken.trim()}>加密保存</Button>
-          <Button kind="tertiary" onClick={load} disabled={busy}>检查保存状态</Button>\n          <Button kind="secondary" onClick={testConnection} disabled={busy || !hasToken}>验证账号与 Actor 权限</Button>
+          <Button kind="tertiary" onClick={load} disabled={busy}>检查保存状态</Button>
+          <Button kind="secondary" onClick={testConnection} disabled={busy || !hasToken}>验证账号与 Actor 权限</Button>
           {hasToken && <Button kind="danger--tertiary" onClick={remove} disabled={busy}>删除 Token</Button>}
         </div>
         {busy && <p className="ai-usage-note">正在处理 Apify 配置…</p>}
