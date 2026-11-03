@@ -208,3 +208,12 @@
 .ep-manual-fields .bx--dropdown,.ep-edit-form .bx--dropdown{width:100%;max-width:100%}
 .ep-manual-fields .cds--dropdown,.ep-edit-form .cds--dropdown{width:100%;max-width:100%}
 @media(max-width:720px){.ep-field-grid{grid-template-columns:minmax(0,1fr);row-gap:16px}.ep-manual-fields{min-width:0}.ep-manual-fields .ep-form-block textarea,.ep-edit-form .ep-form-block textarea{min-height:104px}.ep-manual-sections{min-width:0}.ep-manual-section-list button{min-width:0;overflow-wrap:anywhere}}
+
+
+/* Enterprise Profile region selector layout */
+.ep-region-heading{font-size:10px;color:#393939;font-weight:600;line-height:1.45}
+.ep-region-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;min-width:0}
+.ep-region-grid .cds--dropdown,.ep-region-grid .bx--dropdown{width:100%;max-width:100%}
+.ep-region-grid .cds--dropdown__wrapper,.ep-region-grid .bx--dropdown__wrapper{min-width:0}
+.ep-form-block>.cds--multi-select,.ep-form-block>.bx--multi-select{width:100%;max-width:100%}
+@media(max-width:720px){.ep-region-grid{grid-template-columns:minmax(0,1fr);gap:14px}}
