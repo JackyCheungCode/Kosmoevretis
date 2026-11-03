@@ -162,3 +162,39 @@
 .ep-page-footer{display:flex;justify-content:space-between;gap:12px;margin-top:30px;padding-top:13px;border-top:1px solid #e0e0e0;color:#8d8d8d;font-size:8px;letter-spacing:.8px}
 @media(max-width:1050px){.ep-create-layout{grid-template-columns:1fr}.ep-create-aside{display:none}.ep-company-header{flex-wrap:wrap}.ep-company-actions{margin-left:auto}.ep-intelligence-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.ep-page-heading{padding:24px 0 19px}.ep-page-heading h1{font-size:25px}.ep-heading-note{display:none}.ep-create-main{padding:17px}.ep-mode-switch{overflow-x:auto}.ep-mode-switch button{padding:0 9px;white-space:nowrap;font-size:10px}.ep-input-with-action{flex-direction:column}.ep-input-with-action button{min-height:40px}.ep-manual-grid{grid-template-columns:1fr}.ep-company-header{align-items:flex-start;gap:10px}.ep-company-mark{width:40px;height:40px}.ep-company-title{width:calc(100% - 52px)}.ep-company-title h2{font-size:16px}.ep-company-actions{width:100%;margin:7px 0 0}.ep-company-actions button{flex:1}.ep-tabs button{padding:0 11px}.ep-tab-heading{align-items:flex-start;gap:10px}.ep-live-label{display:none}.ep-overview-grid{grid-template-columns:1fr}.ep-wide-panel{grid-column:auto}.ep-workflow{grid-template-columns:1fr 14px 1fr;row-gap:17px}.ep-workflow>div:nth-of-type(3){grid-column:1}.ep-workflow>svg:nth-of-type(2){display:none}.ep-intelligence-cards{grid-template-columns:1fr 1fr}.ep-next-step{align-items:flex-start;flex-direction:column}.ep-field-grid{grid-template-columns:1fr}.ep-info-field.wide,.ep-edit-form .ep-wide-input{grid-column:auto}.ep-panel-toolbar{align-items:flex-start;flex-wrap:wrap}.ep-page-footer{flex-direction:column}.ep-source-row{padding:13px 12px}.ep-source-row .ep-status{font-size:8px}}
+
+
+/* Enterprise Profile v0.3 — tenant-owned business profile */
+.ep-manual-builder{margin-top:20px}
+.ep-manual-intro{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.ep-manual-intro b{font-size:13px;font-weight:600}
+.ep-manual-intro span{font-size:10px;color:#6f6f6f;line-height:1.6}
+.ep-manual-core{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:15px;background:#f4f4f4;margin-bottom:17px}
+.ep-manual-sections{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(0,1.7fr);border:1px solid #e0e0e0;min-height:300px}
+.ep-manual-section-list{display:flex;flex-direction:column;background:#f4f4f4;border-right:1px solid #e0e0e0;padding:8px}
+.ep-manual-section-list button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:11px 9px;border:0;border-left:3px solid transparent;background:transparent;color:#525252;font-size:10px;cursor:pointer}
+.ep-manual-section-list button.active{border-left-color:#0f62fe;background:#fff;color:#0043ce;font-weight:600}
+.ep-manual-section-list button span{font-size:9px;color:#8d8d8d;white-space:nowrap}
+.ep-manual-fields{padding:17px;min-width:0}
+.ep-manual-group-head{display:flex;flex-direction:column;gap:5px;margin-bottom:15px}
+.ep-manual-group-head b{font-size:12px;font-weight:600}
+.ep-manual-group-head small{font-size:9px;color:#6f6f6f;line-height:1.5}
+.ep-manual-hint{margin-right:auto;font-size:9px;color:#6f6f6f}
+.ep-completion{padding:18px 0 8px}
+.ep-completion>strong{font-size:34px;font-weight:300;letter-spacing:-1px}
+.ep-completion>div{height:6px;background:#e0e0e0;margin:10px 0}
+.ep-completion>div i{display:block;height:100%;background:#0f62fe;max-width:100%}
+.ep-completion>small{font-size:9px;color:#6f6f6f}
+.ep-capability-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#e0e0e0;margin-top:17px;border:1px solid #e0e0e0}
+.ep-capability-grid button{display:flex;align-items:center;gap:10px;text-align:left;min-width:0;padding:14px;background:#fff;border:0;cursor:pointer}
+.ep-capability-grid button:hover{background:#f4f8ff}
+.ep-capability-grid button b{font-size:10px;font-weight:500;flex:1}
+.ep-capability-grid button span{font-size:8px;color:#8d8d8d;white-space:nowrap}
+.ep-capability-grid button svg{color:#0f62fe;flex:none}
+.ep-planning-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#e0e0e0;border:1px solid #e0e0e0;margin-top:17px}
+.ep-planning-grid>div{display:flex;flex-direction:column;gap:11px;padding:14px;background:#fff;min-height:72px}
+.ep-planning-grid b{font-size:9px;color:#0f62fe;letter-spacing:1px}
+.ep-planning-grid span{font-size:10px;color:#393939}
+.ep-planning-note{display:block;margin-top:12px;color:#8d8d8d;font-size:9px}
+@media(max-width:900px){.ep-capability-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-planning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.ep-manual-core{grid-template-columns:1fr}.ep-manual-sections{grid-template-columns:1fr}.ep-manual-section-list{border-right:0;border-bottom:1px solid #e0e0e0;display:grid;grid-template-columns:1fr 1fr}.ep-manual-section-list button{font-size:9px;padding:9px 6px}.ep-manual-fields{padding:13px}.ep-capability-grid{grid-template-columns:1fr}.ep-planning-grid{grid-template-columns:1fr 1fr}.ep-manual-hint{width:100%;margin-bottom:8px}}
