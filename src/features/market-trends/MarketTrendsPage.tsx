@@ -5,7 +5,7 @@ import {
   DataTable as DataTableIcon, Code
 } from "@carbon/icons-react";
 import {
-  Button, Checkbox, InlineLoading, InlineNotification,
+  Button, InlineLoading, InlineNotification,
   NumberInput, Select, SelectItem, Tag, TextArea, TextInput, Toggle
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
