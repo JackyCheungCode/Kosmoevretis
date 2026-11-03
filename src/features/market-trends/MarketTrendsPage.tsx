@@ -196,9 +196,9 @@ export function MarketTrendsPage() {
 
   const runResearch = async () => {
     if (!session?.access_token || !workspace?.id) { setError("请先登录并选择工作空间。"); return; }
-    if (!trendingMode && !keywords.length) { setError("请输入至少一个研究关键词。"); return; }
-    if (compareTerms && (keywords.length < 2 || keywords.length > 5)) { setError("关键词对比需要输入 2 至 5 个关键词。"); return; }
-    if (trendingMode && !geo) { setError("收集即时趋势前，请选择具体国家或地区；该模式不支持全球范围。"); return; }
+    if (!actorInputText.trim() && !trendingMode && !keywords.length) { setError("请输入至少一个研究关键词。"); return; }
+    if (!actorInputText.trim() && compareTerms && (keywords.length < 2 || keywords.length > 5)) { setError("关键词对比需要输入 2 至 5 个关键词。"); return; }
+    if (!actorInputText.trim() && trendingMode && !geo) { setError("收集即时趋势前，请选择具体国家或地区；该模式不支持全球范围。"); return; }
     let customActorInput: Record<string, any> | undefined;
     if (actorInputText.trim()) {
       try {
