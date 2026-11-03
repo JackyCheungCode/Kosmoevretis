@@ -42,7 +42,7 @@ export function EnterpriseWorkflowPage() {
       </ProgressIndicator>
     </div>
 
-    {currentStep === 0 && <EnterpriseProfilePage embedded onContinue={(saved) => { setProfile(saved); setCurrentStep(1); }} />}
+    {currentStep === 0 && <EnterpriseProfilePage embedded initialProfileId={profile?.id} onContinue={(saved) => { setProfile(saved); setCurrentStep(1); }} />}
     {currentStep === 1 && <section className="workflow-step-content">
       {profile && <div className="analysis-enterprise workflow-enterprise"><div className="analysis-enterprise-mark">{companyName.slice(0,1)}</div><div><small>ANALYSIS SUBJECT</small><b>{companyName}</b><span>企业档案 v{profile.version} · 已保存并锁定本次分析上下文</span></div></div>}
       <AIAnalysisPage embedded enterpriseName={companyName} profile={profile?.profile as Record<string,string>} initialProfileId={profile?.id} onContinue={() => setCurrentStep(2)} />

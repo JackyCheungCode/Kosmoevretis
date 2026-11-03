@@ -117,9 +117,9 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, init
         })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "AI 分析调用失败");
+      if (!response.ok && !data.runId) throw new Error(data.error || "AI 分析调用失败");
       setAnalysisResult(JSON.stringify(data.dimensions || data, null, 2));
-      setNotice(data.status === "succeeded" ? "12 维度分析任务已完成，结果已保存到分析结果中心。" : "分析任务已结束，部分维度可能失败；请前往结果中心查看详情。");
+      setNotice(data.status === "succeeded" ? "12 维度分析任务已完成，结果已保存到分析结果中心。" : data.status === "failed" ? "本次分析未成功，但失败任务与错误信息已保存，可在分析结果中查看。" : "分析任务已结束，部分维度可能失败；请前往结果中心查看详情。");
       return true;
     } catch (error) { setNotice(error instanceof Error ? error.message : "AI 分析失败，请检查服务配置。"); return false; }
     finally { setRunning(false); }

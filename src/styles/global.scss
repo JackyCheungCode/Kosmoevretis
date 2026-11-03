@@ -543,3 +543,10 @@
 .workflow-step-content .analysis-page{padding-top:0}
 .workflow-step-content .ar-page{padding-top:0}
 @media(max-width:720px){.profile-extra-fields{grid-template-columns:1fr;padding:13px}.profile-extra-fields h3,.profile-extra-fields p{grid-column:1}}
+
+.profile-extra-fields{display:flex;flex-direction:column;gap:18px}
+.profile-field-section{padding-top:14px;border-top:1px solid #e0e0e0}
+.profile-field-section>div:first-child h4{font-size:12px;font-weight:600;margin:0 0 5px}
+.profile-field-section>div:first-child p{font-size:9px;color:#6f6f6f;margin:0 0 12px;line-height:1.5}
+.profile-section-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:720px){.profile-section-grid{grid-template-columns:1fr}}
