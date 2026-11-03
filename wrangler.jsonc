@@ -5,5 +5,15 @@
   "compatibility_date": "2026-10-01",
   "ai": {
     "binding": "AI"
+  },
+  "env": {
+    "preview": {
+      "kv_namespaces": [
+        {
+          "binding": "AI_CONFIG_KV",
+          "id": "92604f3b97db4af7b7b7bed349419279"
+        }
+      ]
+    }
   }
 }
