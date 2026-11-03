@@ -27,7 +27,7 @@ export const onRequestPost=async({request,env}:{request:Request;env:Env})=>{
   const response=await fetch(provider.baseUrl+"/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+provider.apiKey,"Content-Type":"application/json"},body:JSON.stringify({model:provider.model,temperature:0.2,max_tokens:3000,messages:[{role:"system",content:"你是严谨的全球商业情报分析师。仅依据输入企业档案进行分析；明确区分已知事实、推断和信息缺口；不得编造外部数据、客户、财务或市场份额。输出中文，结构化覆盖企业概况、核心优势、风险、市场机会、待验证问题和可执行建议。"},{"role":"user",content:JSON.stringify({objective:objective||"综合企业分析",enterprise:profile})}]})});
   const result=await response.json() as any;if(!response.ok)throw new Error(result?.error?.message||"模型服务调用失败");
   const output=result?.choices?.[0]?.message?.content;if(typeof output!=="string"||!output.trim())throw new Error("模型未返回有效分析内容");
-  const saved=await fetch(base+"/rest/v1/ai_analysis_runs?id=eq."+encodeURIComponent(run.id),{method:"PATCH",headers:{...headers,Prefer:"return=minimal"},body:JSON.stringify({status:"completed",result:{text:output,usage:result.usage||null,profile_version:profile.version},completed_at:new Date().toISOString()})});
+  const saved=await fetch(base+"/rest/v1/ai_analysis_runs?id=eq."+encodeURIComponent(run.id),{method:"PATCH",headers:{...headers,Prefer:"return=minimal"},body:JSON.stringify({status:"succeeded",result:{text:output,usage:result.usage||null,profile_version:profile.version},completed_at:new Date().toISOString()})});
   if(!saved.ok)throw new Error("分析成功，但保存结果失败");
   return json({runId:run.id,status:"completed",model:provider.model,result:output});
  }catch(error){
