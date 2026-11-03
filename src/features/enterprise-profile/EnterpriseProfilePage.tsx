@@ -120,7 +120,10 @@ export function EnterpriseProfilePage() {
       setIdentitySource(mode === "website" ? "官网识别待确认" : "企业检索待确认");
     }
   }
-  function updateHeadquarters(province: string, city: string, district: string, detail: string) {\n    updateManual("address", [province, city, district, detail].filter(Boolean).join(" "));\n  }\n  function createManual() {
+  function updateHeadquarters(province: string, city: string, district: string, detail: string) {
+    updateManual("address", [province, city, district, detail].filter(Boolean).join(" "));
+  }
+  function createManual() {
     const name = manualName.trim();
     if (!name) return;
     setProfile({ ...manualProfile, legalName: name, brandName: manualProfile.brandName || name, website: manualWebsite.trim(), country: manualCountry.trim(), address: [manualProvince, manualCity, manualDistrict, manualAddressDetail].filter(Boolean).join(" ") });
