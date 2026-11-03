@@ -6,7 +6,7 @@ interface Env {
 
 const ALLOWED_MODELS = new Set(["@cf/meta/llama-3.1-8b-instruct"]);
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
   if (!env.AI) {
     return Response.json({ error: "Workers AI binding is not configured for this Pages environment." }, { status: 503 });
   }
