@@ -17,6 +17,7 @@ function actorInput(body: any) {
   const isTrending = body.mode === "trendingNow";
   const outputs = Array.isArray(body.outputs) ? body.outputs : ["interestOverTime", "interestByRegion", "relatedQueries", "relatedTopics"];
   return {
+    mode: isTrending ? "trendingNow" : "explore",
     searchTerms: isTrending ? [] : body.keywords,
     geo: body.geo || "",
     timeRange: body.timeRange || "today 12-m",
