@@ -217,3 +217,28 @@
 .ep-region-grid .cds--dropdown__wrapper,.ep-region-grid .bx--dropdown__wrapper{min-width:0}
 .ep-form-block>.cds--multi-select,.ep-form-block>.bx--multi-select{width:100%;max-width:100%}
 @media(max-width:720px){.ep-region-grid{grid-template-columns:minmax(0,1fr);gap:14px}}
+
+
+/* Enterprise profile Carbon selector label and checkbox alignment fixes */
+.ep-manual-core .cds--dropdown__wrapper,
+.ep-manual-core .bx--dropdown__wrapper{min-width:0}
+.ep-manual-fields .cds--multi-select,
+.ep-edit-form .cds--multi-select,
+.ep-manual-fields .bx--multi-select,
+.ep-edit-form .bx--multi-select{width:100%;max-width:100%;overflow:visible}
+.ep-manual-fields .cds--multi-select .cds--list-box__menu,
+.ep-edit-form .cds--multi-select .cds--list-box__menu,
+.ep-manual-fields .bx--multi-select .bx--list-box__menu,
+.ep-edit-form .bx--multi-select .bx--list-box__menu{overflow-y:auto;max-height:16rem}
+.ep-manual-fields .cds--multi-select .cds--list-box__menu-item,
+.ep-edit-form .cds--multi-select .cds--list-box__menu-item,
+.ep-manual-fields .bx--multi-select .bx--list-box__menu-item,
+.ep-edit-form .bx--multi-select .bx--list-box__menu-item{min-height:2.5rem;height:auto;overflow:visible}
+.ep-manual-fields .cds--multi-select .cds--checkbox-label,
+.ep-edit-form .cds--multi-select .cds--checkbox-label,
+.ep-manual-fields .bx--multi-select .bx--checkbox-label,
+.ep-edit-form .bx--multi-select .bx--checkbox-label{min-height:1.25rem;line-height:1.25rem;display:flex;align-items:center}
+.ep-manual-fields .cds--multi-select .cds--checkbox,
+.ep-edit-form .cds--multi-select .cds--checkbox,
+.ep-manual-fields .bx--multi-select .bx--checkbox,
+.ep-edit-form .bx--multi-select .bx--checkbox{flex:none}
