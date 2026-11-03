@@ -34,7 +34,7 @@ const dimensions = [
 
 const statusText = (status?: string) => status === "succeeded" ? "已完成" : status === "partial" ? "部分完成" : status === "failed" ? "失败" : status === "running" ? "执行中" : status === "queued" ? "排队中" : status || "待分析";
 
-export function AnalysisResultsPage({ companyName, onConfigureAnalysis, embedded = false }: { companyName: string; onConfigureAnalysis: () => void; embedded?: boolean }) {
+export function AnalysisResultsPage({ companyName, onConfigureAnalysis, embedded = false, profileId }: { companyName: string; onConfigureAnalysis: () => void; embedded?: boolean; profileId?: string }) {
   const { workspace } = useAuth();
   const [view, setView] = useState<View>("overview");
   const [runs, setRuns] = useState<AnalysisRun[]>([]);
@@ -47,7 +47,9 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis, embedded
     setLoading(true);
     void (async () => {
       try {
-        const { data, error: queryError } = await requireSupabase().from("ai_analysis_runs").select("*").eq("organization_id", workspace.id).order("created_at", { ascending: false }).limit(50);
+        let query = requireSupabase().from("ai_analysis_runs").select("*").eq("organization_id", workspace.id).order("created_at", { ascending: false }).limit(50);
+        if (profileId) query = query.eq("profile_id", profileId) as typeof query;
+        const { data, error: queryError } = await query;
         if (!active) return;
         if (queryError) setError(queryError.message);
         else {
@@ -62,7 +64,7 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis, embedded
       }
     })();
     return () => { active = false; };
-  }, [workspace?.id]);
+  }, [workspace?.id, profileId]);
   const latest = runs.find((run) => run.id === selectedRunId) || runs[0];
   const dimensionResults = latest?.result?.dimensions || [];
   const resultById = new Map(dimensionResults.map((item) => [item.id, item]));

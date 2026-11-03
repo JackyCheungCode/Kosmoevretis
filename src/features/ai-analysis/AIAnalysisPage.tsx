@@ -100,9 +100,9 @@ export function AIAnalysisPage({ embedded = false, enterpriseName, profile, init
     setNotice("已将统一模型应用到当前勾选的分析维度。你仍可逐项修改。");
   };
   const startAnalysis = async (): Promise<boolean> => {
-    if (!selected.length) return;
-    if (!session || !workspace?.id) { setNotice("请先登录并进入工作空间。"); return; }
-    if (!selectedProfileId) { setNotice("请先创建或选择一份企业档案。"); return; }
+    if (!selected.length) return false;
+    if (!session || !workspace?.id) { setNotice("请先登录并进入工作空间。"); return false; }
+    if (!selectedProfileId) { setNotice("请先创建或选择一份企业档案。"); return false; }
     setRunning(true); setNotice(""); setAnalysisResult("");
     try {
       const response = await fetch("/api/ai/analyze", {

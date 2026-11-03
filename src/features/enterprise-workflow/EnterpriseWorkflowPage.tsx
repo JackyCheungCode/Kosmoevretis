@@ -49,7 +49,7 @@ export function EnterpriseWorkflowPage() {
       <div className="ep-workflow-controls"><button type="button" className="ep-button-secondary" onClick={() => setCurrentStep(0)}><ArrowLeft size={15}/> 返回企业方案</button><span>模型配置完成后，启动分析将自动进入下一步</span></div>
     </section>}
     {currentStep === 2 && <section className="workflow-step-content">
-      <AnalysisResultsPage embedded companyName={companyName} onConfigureAnalysis={() => setCurrentStep(1)} />
+      <AnalysisResultsPage embedded companyName={companyName} profileId={profile?.id} onConfigureAnalysis={() => setCurrentStep(1)} />
       <div className="ep-workflow-controls"><button type="button" className="ep-button-secondary" onClick={() => setCurrentStep(1)}><ArrowLeft size={15}/> 返回 AI 分析</button><button type="button" className="ep-button-primary" onClick={() => setCurrentStep(0)}>完成并返回企业档案 <ArrowRight size={15}/></button></div>
     </section>}
   </div>;
