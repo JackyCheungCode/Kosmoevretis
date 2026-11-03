@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Button, PasswordInput, Select, SelectItem, Tabs, TabList, Tab, TextInput, Toggle, InlineNotification } from "@carbon/react";
+import { Button, Dropdown, PasswordInput, Tabs, TabList, Tab, TextInput, Toggle, InlineNotification } from "@carbon/react";
 import { CheckmarkFilled, ChevronDown, Connect, Locked } from "@carbon/icons-react";
+import { ApifySettingsPanel } from "./ApifySettingsPanel";
 
 type Provider = { id: string; name: string; region: "国内" | "国际" | "聚合与基础设施"; category: string; description: string; logo: string; models: string[]; featured?: boolean };
 const providers: Provider[] = [
@@ -90,6 +91,7 @@ export function SettingsPage() {
       {apifyMessage&&<InlineNotification kind={apifySaved?"success":"info"} title="Apify 配置" subtitle={apifyMessage} lowContrast />}
       <p className="ai-usage-note">Actor ID 默认使用 <code>surefetch/google-trends</code>。如需其他 Actor，请由部署环境设置 APIFY_ACTOR_ID。Actor 输入参数支持英文 key/value；市场趋势页面的自定义 JSON 会完整、原样提交。</p>
     </section>
+    <ApifySettingsPanel adminToken={adminToken} />
     <section className="ai-overview">
       <article><span>已登记服务商</span><b>{providers.length}</b><small>国内、国际及聚合平台</small></article>
       <article><span>已连接服务商</span><b>{Object.values(savedProviders).filter(x=>x.enabled&&x.hasKey).length} <em>/ {providers.length}</em></b><small>已保存且启用的服务商</small></article>
@@ -103,7 +105,7 @@ export function SettingsPage() {
       {visible.length===0&&<div className="ai-empty">没有找到匹配的 AI 服务商。</div>}</>}
     </section>
 
-    {activePanel==="models"&&<section className="ai-admin-panel"><h2>模型与默认策略</h2><p>默认服务商仅作为新任务初始值；具体分析阶段仍可独立选择模型。</p><Select id="ai-default-provider" labelText="平台默认推理服务" value={defaultProvider} onChange={e=>setDefaultProvider(e.target.value)}><SelectItem value="cloudflare" text="Cloudflare Workers AI（原生绑定）"/>{providers.filter(p=>savedProviders[p.id]?.enabled).map(p=><SelectItem key={p.id} value={p.id} text={p.name}/>)}</Select><div className="ai-model-table"><div className="ai-model-row head"><span>服务商</span><span>模型标识</span><span>凭证状态</span><span>启用状态</span></div>{providers.filter(p=>p.id==="cloudflare"||savedProviders[p.id]).map(p=><div className="ai-model-row" key={p.id}><span>{p.name}</span><span>{p.id==="cloudflare"?"@cf/zai-org/glm-4.7-flash":savedProviders[p.id]?.model||"—"}</span><span>{p.id==="cloudflare"?"平台 AI 绑定":savedProviders[p.id]?.hasKey?"已加密保存":"缺少凭证"}</span><span>{p.id==="cloudflare"?"待测试":savedProviders[p.id]?.enabled?"启用":"停用"}</span></div>)}</div><p className="ai-usage-note">当前显示已配置的模型标识，不将静态系列预设冒充实时模型目录。默认选择暂存于当前页面，尚未持久化。</p></section>}
+    {activePanel==="models"&&<section className="ai-admin-panel"><h2>模型与默认策略</h2><p>默认服务商仅作为新任务初始值；具体分析阶段仍可独立选择模型。</p><Dropdown id="ai-default-provider" titleText="平台默认推理服务" label="请选择服务商" items={[{id:"cloudflare",name:"Cloudflare Workers AI（原生绑定）"},...providers.filter(p=>savedProviders[p.id]?.enabled).map(p=>({id:p.id,name:p.name}))]} itemToString={item=>item?.name||""} selectedItem={[{id:"cloudflare",name:"Cloudflare Workers AI（原生绑定）"},...providers.filter(p=>savedProviders[p.id]?.enabled).map(p=>({id:p.id,name:p.name}))].find(item=>item.id===defaultProvider)} onChange={({selectedItem})=>selectedItem&&setDefaultProvider(selectedItem.id)} /><div className="ai-model-table"><div className="ai-model-row head"><span>服务商</span><span>模型标识</span><span>凭证状态</span><span>启用状态</span></div>{providers.filter(p=>p.id==="cloudflare"||savedProviders[p.id]).map(p=><div className="ai-model-row" key={p.id}><span>{p.name}</span><span>{p.id==="cloudflare"?"@cf/zai-org/glm-4.7-flash":savedProviders[p.id]?.model||"—"}</span><span>{p.id==="cloudflare"?"平台 AI 绑定":savedProviders[p.id]?.hasKey?"已加密保存":"缺少凭证"}</span><span>{p.id==="cloudflare"?"待测试":savedProviders[p.id]?.enabled?"启用":"停用"}</span></div>)}</div><p className="ai-usage-note">当前显示已配置的模型标识，不将静态系列预设冒充实时模型目录。默认选择暂存于当前页面，尚未持久化。</p></section>}
     {activePanel==="operations"&&<section className="ai-admin-panel"><h2>连接诊断与运行</h2><p>Workers AI 使用 Cloudflare Pages 原生 AI Binding，无需 API Key、付款信息或 Cloudflare Access。</p><div className="ai-diagnostic"><b>Cloudflare Workers AI</b><span>模型：@cf/zai-org/glm-4.7-flash</span><Button type="button" kind="primary" onClick={testWorkersAI} disabled={workersAiTesting||!adminToken}>{workersAiTesting?"正在执行真实推理…":"执行真实连接测试"}</Button>{workersAiStatus&&<strong role="status">{workersAiStatus}</strong>}{workersAiOutput&&<pre>{workersAiOutput}</pre>}</div><p className="ai-usage-note">其他服务商请在服务商与凭证模块保存后执行真实连接测试。调用日志、Token 与成本统计尚未接入持久化审计存储，不展示虚构数据。</p></section>}
     {activePanel==="security"&&<section className="ai-admin-panel"><h2>安全与审计</h2><div className="ai-security-grid"><article><b>密钥存储</b><span>AES-GCM 加密后存入独立 KV 命名空间；前端仅显示脱敏状态。</span></article><article><b>管理鉴权</b><span>管理 API 使用 Preview 环境管理员令牌验证；令牌仅保存在当前页面内存。</span></article><article><b>数据边界</b><span>模型请求会发送到所选服务商；企业敏感字段脱敏与审计策略尚待接入。</span></article></div></section>}
     <footer className="ep-page-footer"><span>KOSMOEVRETIS · AI SERVICE CENTER</span><span>平台统一凭证管理 · 按分析任务选择模型</span></footer>
