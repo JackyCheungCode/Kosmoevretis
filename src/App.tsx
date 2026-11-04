@@ -1,4 +1,5 @@
 import React from "react";
+import { Theme } from "@carbon/react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
@@ -26,4 +27,4 @@ function AppShell() {
  <main className="content"><div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div><div className="page-head"><div><h1>{currentLabel}</h1><p>{active==="intelligence"?"统一配置分析对象，在同一工作台查看全球市场多维情报。":active==="products"?"统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。":active==="trade"?"评估目标市场的关税、贸易条件、产品准入与法规合规要求。":active==="leads"?"通过不同公开渠道发现潜在客户、企业主页、内容与商业机会。":"集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
  {active==="intelligence"&&<GlobalIntelligence/>}{active==="trade"&&<TradeAccessPage/>}{active==="products"&&<ProductCenter/>}{path==="/leads/facebook"&&<FacebookDiscovery/>}{path==="/leads/linkedin"&&<LinkedInDiscovery/>}{path==="/leads/google-maps"&&<GoogleMapsDiscovery/>}{isSettings&&<Settings/>}</main></div>;
 }
-export default function App(){return <BrowserRouter><Routes><Route path="/" element={<Navigate to="/intelligence" replace/>}/><Route path="*" element={<AppShell/>}/></Routes></BrowserRouter>;}
+export default function App(){return <Theme theme="g10"><BrowserRouter><Routes><Route path="/" element={<Navigate to="/intelligence" replace/>}/><Route path="*" element={<AppShell/>}/></Routes></BrowserRouter></Theme>;}
