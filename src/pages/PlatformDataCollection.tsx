@@ -10,7 +10,7 @@ type Platform = "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
 type RowData = Record<string, unknown>;
 type History = {id:string;title:string;status:string;result_count:number;created_at:string;actor_id?:string};
 type Mode = {id:string;label:string;description:string;inputLabel:string;placeholder:string;target:boolean;keyword?:boolean};
-const config:Record<Platform,{name:string;actor:string;backup:string;description:string;modes:Mode[]}> = {
+const config:Record<Platform,{name:string;description:string;modes:Mode[]}> = {
  x:{name:"X",description:"覆盖公开动态检索、账号研究、互动关系、社区与趋势发现。",modes:[
   {id:"search",label:"关键词搜索",description:"高级搜索语法、最新 / 热门 / 媒体结果",inputLabel:"搜索关键词或 X 高级查询",placeholder:'wireless earbuds\\n"smart home" min_faves:100',target:true},
   {id:"profile",label:"账号档案",description:"账号简介、粉丝、关注、链接及公开资料",inputLabel:"用户名或主页 URL",placeholder:"@Sony 或 https://x.com/Sony",target:true},
@@ -64,7 +64,7 @@ const stringify=(v:unknown)=>v==null?"—":typeof v==="object"?JSON.stringify(v)
 function exportRows(rows:RowData[],platform:string){const blob=new Blob([JSON.stringify(rows,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=platform+"-platform-data.json";a.click();URL.revokeObjectURL(url);}
 function ResultRows({rows}:{rows:RowData[]}){if(!rows.length)return <EmptyState title="暂无采集结果" description="任务完成后，公开数据将在此处展示。"/>;const keys=Array.from(new Set(rows.flatMap(r=>Object.keys(r)))).slice(0,10);return <TableContainer title="采集记录"><Table size="lg" useZebraStyles><TableHead><TableRow>{keys.map(k=><TableHeader key={k}>{k}</TableHeader>)}</TableRow></TableHead><TableBody>{rows.slice(0,200).map((r,i)=><TableRow key={String(r.id||r.url||i)}>{keys.map(k=><TableCell key={k}><span title={stringify(r[k])}>{stringify(r[k])}</span></TableCell>)}</TableRow>)}</TableBody></Table></TableContainer>;}
 export default function PlatformDataCollection({platform}:{platform:Platform}){
- const cfg=config[platform], [session,setSession]=useState<any>(null),[org,setOrg]=useState(""),[orgName,setOrgName]=useState("");
+ const cfg=config[platform], [session,setSession]=useState<any>(null),[org,setOrg]=useState("");
  const [mode,setMode]=useState(cfg.modes[0].id),[targets,setTargets]=useState(""),[limit,setLimit]=useState(50),[activeTab,setActiveTab]=useState("overview");
  const [rows,setRows]=useState<RowData[]>([]),[history,setHistory]=useState<History[]>([]),[selectedHistory,setSelectedHistory]=useState("");
  const [loading,setLoading]=useState(false),[historyLoading,setHistoryLoading]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[filter,setFilter]=useState("");
@@ -91,8 +91,7 @@ export default function PlatformDataCollection({platform}:{platform:Platform}){
  <PageSection title="采集结果" description="查看结构化记录、筛选结果，或导出完整原始数据。" actions={<div className="pdc-actions"><Tag type="blue">{rows.length.toLocaleString()} 条记录</Tag><Button kind="ghost" size="sm" onClick={()=>void loadHistory()} disabled={historyLoading}>{historyLoading?"刷新中…":"刷新历史"}</Button><Button kind="ghost" size="sm" renderIcon={Download} onClick={()=>exportRows(rows,platform)} disabled={!rows.length}>导出 JSON</Button></div>}>
   <div className="pdc-history"><Dropdown id={"pdc-history-"+platform} titleText="历史任务" label="选择历史任务" items={history} itemToString={x=>x?x.title+" · "+x.result_count+" 条 · "+new Date(x.created_at).toLocaleString():""} selectedItem={history.find(x=>x.id===selectedHistory)||null} onChange={({selectedItem})=>{if(selectedItem)void openHistory(selectedItem.id);}}/><Search labelText="筛选结果" placeholder="搜索任意字段" value={filter} onChange={e=>setFilter(e.target.value)}/></div>
   {loading&&<LoadingState description="正在采集并整理公开数据…"/>}
-  {meta&&}
-  {activeTab==="raw"?(rows.length?<div className="pdc-raw"><pre>{JSON.stringify(rows,null,2)}</pre><Button kind="secondary" renderIcon={Download} onClick={()=>exportRows(rows,platform)}>导出完整 JSON</Button></div>:<EmptyState title="暂无原始数据" description="执行采集后可查看完整原始字段。"/>):activeTab==="records"?<ResultRows rows={visible}/>:<><div className="pdc-kpis"><div><span>结果总量</span><strong>{rows.length.toLocaleString()}</strong></div><div><span>当前筛选</span><strong>{visible.length.toLocaleString()}</strong></div><div><span>当前任务</span><strong>{selectedHistory?"历史任务":meta?"已完成":"未执行"}</strong></div><div><span>采集平台</span><strong>{cfg.name}</strong></div></div>{rows.length?<ResultRows rows={visible.slice(0,50)}/>:<EmptyState title={"等待 "+cfg.name+" 采集数据"} description="先配置采集源，再开始任务；本页面不会自动触发 Apify 运行。"/>}</>}
+  {activeTab==="raw"?(rows.length?<div className="pdc-raw"><pre>{JSON.stringify(rows,null,2)}</pre><Button kind="secondary" renderIcon={Download} onClick={()=>exportRows(rows,platform)}>导出完整 JSON</Button></div>:<EmptyState title="暂无原始数据" description="执行采集后可查看完整原始字段。"/>):activeTab==="records"?<ResultRows rows={visible}/>:<><div className="pdc-kpis"><div><span>结果总量</span><strong>{rows.length.toLocaleString()}</strong></div><div><span>当前筛选</span><strong>{visible.length.toLocaleString()}</strong></div><div><span>当前任务</span><strong>{selectedHistory?"历史任务":rows.length?"已完成":"未执行"}</strong></div><div><span>采集平台</span><strong>{cfg.name}</strong></div></div>{rows.length?<ResultRows rows={visible.slice(0,50)}/>:<EmptyState title={"等待 "+cfg.name+" 采集数据"} description="先配置采集源，再开始任务；本页面不会自动执行采集任务。"/>}</>}
  </PageSection>
  </IntelligencePageTemplate>;
 }
