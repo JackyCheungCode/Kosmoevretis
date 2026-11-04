@@ -216,7 +216,7 @@ function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTa
  return <section className="gi-live-results">
   <div className="gi-live-status"><span className={"gi-status "+(loading?"limited":meta?.status==="failed"?"error":"ready")}>{loading?"正在采集…":meta?.status==="failed"?"采集失败":meta?"真实数据":"等待采集"}</span></div>
   {loading&&<div className="gi-warning">正在调用 Google Trends Actor，完成后自动保存任务与原始结果。</div>}
-  {meta&&<div className="gi-kpi-grid"><div><small>关键词结果组</small><strong>{results.length||meta.result_count||0}</strong></div><div><small>时间序列样本</small><strong>{series.length}</strong></div><div><small>关联查询</small><strong>{relatedItems.length}</strong></div><div><small>地区样本</small><strong>{regions.length}</strong></div></div>}
+  
   {results.length>1&&<div className="gi-filter-row"><label>关键词结果<select value={selected} onChange={e=>setSelected(Number(e.target.value))}>{results.map((x:any,i:number)=><option key={i} value={i}>{x.keyword||"关键词 "+(i+1)}</option>)}</select></label></div>}
   {result&&<div className="gi-chart-grid">
    {activeTab==="overview"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>搜索兴趣概览 · {result.keyword}</h4><p>当前关键词的真实时间序列</p></div></div><TrendLineChart series={series} keyword={result.keyword}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>重点国家 / 地区</h4><p>按 Google Trends 相对兴趣排序</p></div></div><RankedEvidence items={regionRows}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>上升相关查询</h4><p>消费者关联搜索线索</p></div></div><RankedEvidence items={relatedItems}/></article></>}
