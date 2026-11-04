@@ -47,13 +47,13 @@
 
 ## 5. 自动检查
 
-npm run design-system:check 扫描 src/pages：
+npm run design-system:check 扫描 src/pages，并显式纳入设置中心根目录页面与样式：
 - 每个新页面必须使用 IntelligencePageTemplate、DataListPageTemplate、ConfigurationPageTemplate 或 AnalysisPageTemplate 之一。
 - 禁止浏览器原生 select。
 - 禁止页面 CSS 硬编码 HEX/RGB 颜色。
 - 禁止页面 CSS 覆盖全局元素和 Carbon 内部类。
 
-检查由 GitHub Actions 在构建前执行。新业务页面统一放入 src/pages，以便自动门禁覆盖；尚未迁移的旧页面保持原路径，按页面逐一迁移。后续迁移现有页面时，按页面逐一纳入该目录与检查范围；在迁移完成前不对存量页面进行全仓库强制拦截。
+检查由 GitHub Actions 在构建前执行。新业务页面统一放入 src/pages，以便自动门禁覆盖；设置中心作为既有根目录页面，由脚本显式检查 src/Settings.tsx、src/SettingsBackend.tsx 和 src/settings-center.css。其他尚未迁移的旧页面保持原路径，按页面逐一迁移；在迁移完成前不对存量页面进行全仓库强制拦截。
 
 ## 6. 新页面交付门槛
 
@@ -65,4 +65,11 @@ npm run design-system:check 扫描 src/pages：
 - 完成桌面/移动端与既有页面回归。
 - 在 3c-platform 分支提交并验证 Cloudflare Build / Deploy。
 
-\n## 7. 设置中心专项约束\n\n- 设置中心使用 `ConfigurationPageTemplate`，页面内容标题通过 `PageSection` 表达；不得再创建平行的页面框架或重复标题工具栏。\n- 设置分类导航使用真实路由链接（React Router `NavLink`），当前项必须输出 `aria-current="page"`；不得使用按钮模拟页面导航。\n- 桌面和平板使用配置模板的侧栏布局；手机端改为可访问的覆盖式导航，支持 Escape 关闭、遮罩关闭和焦点恢复。\n- 设置中心样式统一放在 `src/settings-center.css`，使用 Carbon/Kosmo tokens；不得覆盖 Carbon 内部类、使用 `!important` 或重复追加响应式补丁。\n- 自动检查覆盖 `src/Settings.tsx`、`src/SettingsBackend.tsx` 和 `src/settings-center.css`，不再因设置中心位于 `src/` 根目录而漏检。\n
+
+## 7. 设置中心专项约束
+
+- 设置中心使用 `ConfigurationPageTemplate`，页面内容标题通过 `PageSection` 表达；不得再创建平行的页面框架或重复标题工具栏。
+- 设置分类导航使用真实路由链接（React Router `NavLink`），当前项必须输出 `aria-current="page"`；不得使用按钮模拟页面导航。
+- 桌面和平板使用配置模板的侧栏布局；手机端改为可访问的覆盖式导航，支持 Escape 关闭、遮罩关闭和焦点恢复。
+- 设置中心样式统一放在 `src/settings-center.css`，使用 Carbon/Kosmo tokens；不得覆盖 Carbon 内部类、使用 `!important` 或重复追加响应式补丁。
+- 自动检查覆盖 `src/Settings.tsx`、`src/SettingsBackend.tsx` 和 `src/settings-center.css`，不再因设置中心位于 `src/` 根目录而漏检。\n
