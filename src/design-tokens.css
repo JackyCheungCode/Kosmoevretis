@@ -1,0 +1,34 @@
+:root {
+  color-scheme: light;
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --kosmo-color-background: var(--cds-background, #f4f4f4);
+  --kosmo-color-layer: var(--cds-layer-01, #e8e8e8);
+  --kosmo-color-layer-raised: var(--cds-layer-02, #ffffff);
+  --kosmo-color-text: var(--cds-text-primary, #161616);
+  --kosmo-color-text-secondary: var(--cds-text-secondary, #525252);
+  --kosmo-color-border: var(--cds-border-subtle, #c6c6c6);
+  --kosmo-color-interactive: var(--cds-interactive, #0f62fe);
+  --kosmo-color-focus: var(--cds-focus, #0f62fe);
+  --kosmo-space-1: 0.25rem;
+  --kosmo-space-2: 0.5rem;
+  --kosmo-space-3: 0.75rem;
+  --kosmo-space-4: 1rem;
+  --kosmo-space-5: 1.5rem;
+  --kosmo-space-6: 2rem;
+  --kosmo-space-7: 2.5rem;
+  --kosmo-shell-header-height: 3rem;
+  --kosmo-shell-sidebar-width: 16rem;
+  --kosmo-content-max-width: 1680px;
+}
+html, body, #root {
+  min-height: 100%;
+}
+body {
+  color: var(--kosmo-color-text);
+  background: var(--kosmo-color-background);
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+}
+:focus-visible {
+  outline: 2px solid var(--kosmo-color-focus);
+  outline-offset: 2px;
+}
