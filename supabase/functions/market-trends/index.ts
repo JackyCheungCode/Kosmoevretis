@@ -117,7 +117,7 @@ Deno.serve(async (req: Request) => {
       title,
       status: "running",
       input_snapshot: {
-        keywords, geo, period, timeRange: ranges[period], actorInput,
+        keywords, geo, markets: Array.isArray(body.markets) ? body.markets.slice(0, 30) : [], period, timeRange: ranges[period], actorInput,
         source: "Apify / surefetch/google-trends",
         evidence_type: "observed",
       },
