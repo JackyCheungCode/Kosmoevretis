@@ -25,25 +25,34 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
   const iso3 = markets.map(x=>ISO3[x]).filter(Boolean);
   tasks.bready = settled(async()=>{
    const payload=await getJson("https://ddh-openapi.worldbank.org/resources/DR0094718/data?top=1000");
-   const rows=Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:Array.isArray(payload?.value)?payload.value:[];
-   const countryNames:Record<string,string>={US:"United States",CN:"China",JP:"Japan",GB:"United Kingdom",DE:"Germany",FR:"France",CA:"Canada",AU:"Australia",KR:"Korea",IN:"India",IT:"Italy",ES:"Spain",NL:"Netherlands",SG:"Singapore",BR:"Brazil",MX:"Mexico",VN:"Vietnam",TH:"Thailand",ID:"Indonesia",MY:"Malaysia",PH:"Philippines",TW:"Taiwan",HK:"Hong Kong"};
-   const wanted=markets.map(code=>(countryNames[code]||"").toLowerCase()).filter(Boolean);
-   const items=rows.filter((row:any)=>{const key=Object.keys(row||{}).find(k=>/^(economy|economy name|country|country name|economy_name)$/i.test(k));const value=key?String(row[key]).toLowerCase():"";return wanted.some(name=>value===name||value.includes(name));});
+   const rows=Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:Array.isArray(payload?.value)?payload.value:Array.isArray(payload?.results)?payload.results:[];
+   const countryNames:Record<string,string>={US:"United States",CN:"China",JP:"Japan",GB:"United Kingdom",DE:"Germany",FR:"France",CA:"Canada",AU:"Australia",KR:"Korea",IN:"India",IT:"Italy",ES:"Spain",NL:"Netherlands",SG:"Singapore",BR:"Brazil",MX:"Mexico",VN:"Vietnam",TH:"Thailand",ID:"Indonesia",MY:"Malaysia",PH:"Philippines",TW:"Taiwan",HK:"Hong Kong",AE:"United Arab Emirates",CH:"Switzerland",SE:"Sweden",PL:"Poland",TR:"Türkiye",NZ:"New Zealand",ZA:"South Africa"};
+   const wanted=markets.flatMap(code=>[countryNames[code]||"",ISO3[code]||"",M49[code]||"",code]).filter(Boolean).map(value=>value.toLowerCase());
+   const items=rows.filter((row:any)=>{
+    const values=Object.entries(row||{}).filter(([key])=>/economy|country|iso|code|reporter/i.test(key)).map(([,value])=>typeof value==="object"&&value!==null?JSON.stringify(value):String(value??"")).join(" ").toLowerCase();
+    return wanted.some(name=>values===name||values.includes(name));
+   });
    return {items,edition:"B-READY 2024",source:"World Bank Data Catalog · Business Ready (B-READY)",note:"官方公开数据集，当前接入的是 2024 版资源；不是实时数据。若目标市场不在该版已评分经济体中，将显示无匹配记录。",resource_id:"DR0094718",dataset_url:"https://datacatalog.worldbank.org/search/dataset/0066291/business-ready-b-ready"};
   });
   tasks.trade = settled(async()=>{
-   if(!hsCode) return {items:[],note:"输入 HS 编码后可查询 UN Comtrade 商品贸易数据。"};
-   const code=hsCode.replace(/\./g,"").slice(0,6);
-   const year=String(new Date().getUTCFullYear()-2);
+   const code=hsCode.replace(/\./g,"").slice(0,6)||"TOTAL";
    const selected=markets.filter(x=>M49[x]).slice(0,3);
-   const items=[];
-   for(const market of selected){
-    const url=new URL("https://comtradeapi.un.org/public/v1/preview/C/A/HS");
-    url.searchParams.set("reporterCode",M49[market]);url.searchParams.set("partnerCode","0");url.searchParams.set("cmdCode",code);url.searchParams.set("flowCode","M");url.searchParams.set("period",year);
-    const payload=await getJson(url.toString());
-    items.push({market,year,records:payload?.data||[],count:payload?.count??payload?.data?.length??0,source:"UN Comtrade Public Preview"});
-   }
-   return {items,note:"公共预览每次最多 500 条，且只查询最多 3 个目标市场；年度数据可能存在发布滞后。"};
+   const items=await Promise.all(selected.map(async market=>{
+    let lastError="该市场暂未返回贸易记录。";
+    for(const yearOffset of [2,3,4]){
+     const year=String(new Date().getUTCFullYear()-yearOffset);
+     try{
+      const url=new URL("https://comtradeapi.un.org/public/v1/preview/C/A/HS");
+      url.searchParams.set("reporterCode",M49[market]);url.searchParams.set("partnerCode","ALL");url.searchParams.set("cmdCode",code);url.searchParams.set("flowCode","M,X");url.searchParams.set("period",year);url.searchParams.set("maxRecords","500");
+      const payload=await getJson(url.toString());
+      const records=Array.isArray(payload?.data)?payload.data:[];
+      if(records.length)return {market,year,cmdCode:code,records,count:payload?.count??records.length,source:"UN Comtrade Public Preview"};
+      lastError="该年度暂无匹配记录，已检查 "+year+"。";
+     }catch(error){lastError=error instanceof Error?error.message:"UN Comtrade 请求失败。";}
+    }
+    return {market,year:String(new Date().getUTCFullYear()-2),cmdCode:code,records:[],error:lastError};
+   }));
+   return {items,note:hsCode?"按 HS 商品编码查询进出口方向及主要贸易伙伴。":"未提供 HS 编码，当前展示目标市场总体商品贸易流向，不代表当前产品的贸易数据。公共预览每次最多 500 条。"};
   });
   tasks.ports = settled(async()=>{
    const selected=markets.slice(0,3);
