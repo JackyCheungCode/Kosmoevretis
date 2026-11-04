@@ -475,7 +475,7 @@
 .ar-outline-head span { color: var(--app-color-text-helper); font-size: var(--app-type-label-size); letter-spacing: .06em; }
 .ar-outline-row { display: grid; grid-template-columns: 2rem minmax(0, 1fr) auto; align-items: center; gap: var(--app-space-02); padding: var(--app-space-03) 0; border-bottom: 1px solid var(--app-color-border-subtle); }
 .ar-outline-row > b { color: var(--app-color-text-helper); font-size: var(--app-type-label-size); }
-.ar-outline-row > div { display: flex; min-width: 0; flex-direction: column; gap: var(--app-space-01); }
+.ar-outline-row > div { display: flex; min-width: 0; flex-direction: column; gap: var(--app-space-2); }
 .ar-outline-row strong { font-size: var(--app-type-label-size); }
 .ar-outline-row small, .ar-outline-row > span { color: var(--app-color-text-secondary); font-size: var(--app-type-label-size); overflow-wrap: anywhere; }
 .ar-section-card { margin-top: var(--app-space-04); padding: var(--app-space-05); background: var(--app-color-layer-01); }
@@ -514,7 +514,7 @@
   .profile-editor { padding: var(--app-space-04); }
   .profile-two, .profile-ai-readiness { grid-template-columns: minmax(0, 1fr); gap: var(--app-space-02); }
   .profile-source-row { grid-template-columns: minmax(0, 1fr); }
-  .profile-revision-diff > div { grid-template-columns: minmax(0, 1fr); gap: var(--app-space-01); }
+  .profile-revision-diff > div { grid-template-columns: minmax(0, 1fr); gap: var(--app-space-2); }
   .profile-actions { justify-content: stretch; }
   .profile-actions .cds--btn { width: 100%; max-width: none; justify-content: center; }
   .analysis-heading, .analysis-section-head, .ar-heading { align-items: flex-start; flex-direction: column; }
