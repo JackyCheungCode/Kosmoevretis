@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, InlineLoading, InlineNotification, PasswordInput, TextInput, Tile, Tag } from "@carbon/react";
+import { Accordion, AccordionItem, Button, InlineLoading, InlineNotification, PasswordInput, TextInput, Tile, Tag } from "@carbon/react";
 import { supabase } from "./lib/supabase";
 import BrandLogo from "./BrandLogo";
 
@@ -151,34 +151,41 @@ export default function SettingsBackend() {
             <div><h4>{group.name}</h4><p>{group.description}</p></div>
             <Tag type="cool-gray">{definitions.length} 个服务商</Tag>
           </div>
-          <div className="library-list">{definitions.map(definition => {
+          <div className="provider-directory">{definitions.map(definition => {
             const saved = savedProviders.find(item => item.provider_key === definition.key);
             const isApify = definition.key === "apify";
             const status = saved?.status === "verified" ? "已验证" : saved?.status === "error" ? "连接异常" : saved?.credential_hint ? "已保存" : "未配置";
             const tagType = saved?.status === "verified" ? "green" : saved?.status === "error" ? "red" : saved?.credential_hint ? "blue" : "gray";
-            return <Tile key={definition.key} className="library-card provider-card">
-              <div className="library-card-head provider-card-head">
+            return <Accordion key={definition.key} className="provider-directory-item">
+              <AccordionItem title={<div className="provider-directory-row">
                 <div className="provider-identity">
                   <BrandLogo name={definition.name} domain={definition.domain} />
-                  <strong>{definition.name}</strong>
+                  <div className="provider-directory-name"><strong>{definition.name}</strong><span>{definition.description}</span></div>
                 </div>
                 <Tag type={tagType}>{status}</Tag>
-              </div>
-              <p className="provider-description">{saved?.credential_hint ? "已保存凭证 · " + saved.credential_hint : definition.description}</p>
-              <PasswordInput
-                id={"settings-provider-" + definition.key}
-                labelText={definition.credentialLabel}
-                placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
-                value={credentials[definition.key] || ""}
-                onChange={event => setCredentials(current => ({ ...current, [definition.key]: event.target.value }))}
-              />
-              <div className="analysis-submit-row">
-                <span>{isApify && saved?.last_tested_at ? "上次测试：" + new Date(saved.last_tested_at).toLocaleString() : saved?.credential_hint ? "凭证已加密保存" : "尚未配置连接凭证"}</span>
-                <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
-                  {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
-                </Button>
-              </div>
-            </Tile>;
+              </div>}>
+                <div className="provider-detail">
+                  <div className="provider-detail-description">{definition.description}</div>
+                  <PasswordInput
+                    id={"settings-provider-" + definition.key}
+                    labelText={definition.credentialLabel}
+                    placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
+                    value={credentials[definition.key] || ""}
+                    onChange={event => setCredentials(current => ({ ...current, [definition.key]: event.target.value }))}
+                  />
+                  <div className="provider-detail-meta">
+                    <span>{saved?.credential_hint ? "已保存凭证 · " + saved.credential_hint : "尚未配置连接凭证"}</span>
+                    {isApify && saved?.last_tested_at && <span>上次测试：{new Date(saved.last_tested_at).toLocaleString()}</span>}
+                  </div>
+                  <div className="analysis-submit-row">
+                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : "凭证通过服务端加密保存；该服务商实时连通性测试尚未接入。"}</span>
+                    <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
+                      {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
+                    </Button>
+                  </div>
+                </div>
+              </AccordionItem>
+            </Accordion>;
           })}</div>
         </section>;
       })}</div>
