@@ -97,8 +97,10 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   if (search) params.set("title", "ilike.*" + search.replace(/[,*()]/g, " ") + "*");
   const from = url.searchParams.get("from") || "";
   const to = url.searchParams.get("to") || "";
-  if (from && !Number.isNaN(Date.parse(from))) params.set("created_at", "gte." + new Date(from).toISOString());
-  if (to && !Number.isNaN(Date.parse(to))) params.append("created_at", "lte." + new Date(to).toISOString());
+  const dateFilters: string[] = [];
+  if (from && !Number.isNaN(Date.parse(from))) dateFilters.push("created_at.gte." + new Date(from).toISOString());
+  if (to && !Number.isNaN(Date.parse(to))) dateFilters.push("created_at.lte." + new Date(to).toISOString());
+  if (dateFilters.length) params.set("and", "(" + dateFilters.join(",") + ")");
 
   const sort = allowedSorts.has(url.searchParams.get("sort") || "") ? (url.searchParams.get("sort") as string) : "created_at";
   const direction = url.searchParams.get("direction") === "asc" ? "asc" : "desc";
