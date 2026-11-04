@@ -20,7 +20,6 @@ import {
   LogoFacebook,
   LogoLinkedin,
   LogoInstagram,
-  UserMultiple,
   Logout,
   DataBase,
 } from "@carbon/icons-react";
