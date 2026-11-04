@@ -308,10 +308,7 @@ export function MarketTrendsPage() {
   const summary = activeTask?.input_snapshot || {};
 
   return <div className="market-trends-page">
-    <header className="mt-heading">
-      <div><div className="ep-eyebrow"><i /> 市场情报 / GOOGLE TRENDS</div><h1>市场趋势情报</h1><p>通过 Google Trends 数据探索全球搜索需求、地区热度与新兴主题。</p></div>
-      <div className="mt-heading-mark"><Earth size={22} /><span>全球趋势信号</span></div>
-    </header>
+    <PageHeader className="mt-heading" eyebrow={<div className="ep-eyebrow"><i /> 市场情报 / GOOGLE TRENDS</div>} title="市场趋势情报" description="通过 Google Trends 数据探索全球搜索需求、地区热度与新兴主题。" meta={<div className="mt-heading-mark"><Earth size={22} /><span>全球趋势信号</span></div>} />
 
     {error && <InlineNotification kind="error" title="请求异常" subtitle={error} lowContrast onCloseButtonClick={() => setError("")} />}
     {notice && <InlineNotification kind="success" title="研究状态" subtitle={notice} lowContrast onCloseButtonClick={() => setNotice("")} />}
