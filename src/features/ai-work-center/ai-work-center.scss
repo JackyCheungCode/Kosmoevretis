@@ -58,7 +58,7 @@
   justify-content: space-between;
   gap: var(--app-space-03);
   padding: var(--app-space-04);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .awc-summary-card span,
 .awc-detail-metric > span {
@@ -167,7 +167,7 @@
   flex-direction: column;
   gap: var(--app-space-03);
   padding: var(--app-space-04);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .awc-detail-metric strong {
   min-width: 0;
