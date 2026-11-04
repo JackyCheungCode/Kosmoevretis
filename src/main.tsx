@@ -6,6 +6,7 @@ import "./styles.css";
 import "./settings-center.css";
 import "./components/carbon-select.css";
 import "./app-shell.css";
+import "./auth/auth.css";
 import "./design-system/design-system.css";
 import App from "./App";
 ReactDOM.createRoot(document.getElementById("root")!).render(<React.StrictMode><App /></React.StrictMode>);

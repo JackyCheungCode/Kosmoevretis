@@ -10,6 +10,7 @@ import {
   SideNavMenu,
   SideNavMenuItem,
   SkipToContent,
+  Button,
 } from "@carbon/react";
 import {
   Currency,
@@ -20,6 +21,7 @@ import {
   LogoFacebook,
   LogoLinkedin,
   UserMultiple,
+  Logout,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -29,6 +31,9 @@ import SettingsPage from "./Settings";
 import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
+import { AuthProvider, useAuth } from "./auth/AuthProvider";
+import AuthGuard from "./auth/AuthGuard";
+import LoginPage from "./auth/LoginPage";
 
 type Viewport = "desktop" | "tablet" | "mobile";
 
@@ -42,6 +47,7 @@ const validPaths = new Set([
 ]);
 
 function AppShell() {
+  const { session, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
@@ -163,6 +169,8 @@ function AppShell() {
           KOSMOEVRETIS
         </HeaderName>
         <span className="kosmo-header-context">GLOBAL INTELLIGENCE PLATFORM</span>
+        <span className="kosmo-header-user">{session?.user.email}</span>
+        <Button kind="ghost" size="sm" renderIcon={Logout} onClick={() => { void signOut().catch((error) => console.error("Sign out failed:", error)); }}>退出登录</Button>
       </Header>
 
       <SideNav
@@ -229,12 +237,14 @@ function AppShell() {
 export default function App() {
   return (
     <Theme theme="g10">
-      <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/intelligence" replace />} />
-        <Route path="*" element={<AppShell />} />
-      </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<AuthGuard><AppShell /></AuthGuard>} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </Theme>
   );
 }
