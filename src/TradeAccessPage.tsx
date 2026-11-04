@@ -25,8 +25,8 @@ export default function TradeAccessPage(){
    <div className="trade-page-form">
     <label>企业产品档案<CarbonSelect value={productId} onChange={setProductId} placeholder="不选择产品，直接输入关键词"><option value="">不选择产品</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}{p.brand?" · "+p.brand:""}{p.model?" · "+p.model:""}</option>)}</CarbonSelect></label>
     <label>目标市场<CarbonSelect value={market} onChange={setMarket}>{marketOptions.map(m=><option key={m.code} value={m.code}>{String.fromCodePoint(...[...m.code].map(c=>c.charCodeAt(0)+127397))} {m.name} · {m.code}</option>)}</CarbonSelect></label>
-    <label className="trade-page-wide">产品 / 市场关键词<TextArea id="trade-keywords" rows={2} value={keywords} onChange={e=>setKeywords(e.target.value)} placeholder="例如：wireless earbuds, ANC headphones；多个关键词用逗号或换行分隔"/></label>
-    <label>HS / HTS 编码（可选）<TextInput id="trade-hs-code" value={hsCode} onChange={e=>setHsCode(e.target.value)} placeholder="例如：851830"/></label>
+    <label className="trade-page-wide">产品 / 市场关键词<TextArea id="trade-keywords" labelText="产品 / 市场关键词" hideLabel rows={2} value={keywords} onChange={e=>setKeywords(e.target.value)} placeholder="例如：wireless earbuds, ANC headphones；多个关键词用逗号或换行分隔"/></label>
+    <label>HS / HTS 编码（可选）<TextInput id="trade-hs-code" labelText="HS / HTS 编码（可选）" hideLabel value={hsCode} onChange={e=>setHsCode(e.target.value)} placeholder="例如：851830"/></label>
    </div>
    <p className="trade-page-help">{loading?"正在读取企业产品档案…":"产品信息来自产品中心；HS 编码可留空，系统不会将 AI 推测编码当作正式归类结果。"}</p>
   </section>
