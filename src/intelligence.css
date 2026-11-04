@@ -365,3 +365,5 @@
 .gi-history-table-wrap .cds--table-header-label{white-space:nowrap}
 .gi-history-table-wrap .cds--table-cell:first-child{max-width:15rem;overflow-wrap:anywhere}
 .gi-history-table-wrap .cds--tag{white-space:nowrap}
+
+@media(max-width:671px){.analysis-submit-row .cds--btn{width:100%}}
