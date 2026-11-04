@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
+import { Accordion, AccordionItem, Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
+import MarkdownReport from "./components/MarkdownReport";
 import CarbonSelect from "./components/CarbonSelect";
 import "./intelligence.css";
 import { supabase } from "./lib/supabase";
@@ -134,7 +135,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab,liveResults=
    <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</button>
    <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。真实采集数据与模拟数据会在分析结论中区分标注。</small>
   </div>
-  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":liveResults.length?"真实数据待分析":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>{liveResults.length?"本次包含真实 Google Trends 观察数据；AI 对需求和机会的解释属于推断，不能替代真实销量或已验证购买需求。":"当前样本可能包含模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。"}</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
+  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":liveResults.length?"真实数据待分析":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer"><MarkdownReport content={answer||sample||"等待分析数据。"}/></div><div className="gi-ai-evidence"><strong>证据说明</strong><p>{liveResults.length?"本次包含真实 Google Trends 观察数据；AI 对需求和机会的解释属于推断，不能替代真实销量或已验证购买需求。":"当前样本可能包含模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。"}</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
  </section>;
 }
 
@@ -157,10 +158,17 @@ function RankedEvidence({items}:{items:any[]}) {
  if(!rows.length)return <div className="gi-empty-state">当前 Actor 结果没有返回此类数据。</div>;
  return <div className="gi-evidence-list">{rows.map((row:any,i:number)=><div className="gi-evidence-row" key={i}><span className="gi-evidence-rank">{i+1}</span><div className="gi-evidence-main"><strong title={row.label}>{row.label}</strong><div className="gi-evidence-track"><i style={{width:Math.max(0,Math.min(100,row.value/max*100))+"%"}}/></div></div><b>{row.growth|| (row.value||"—")}</b></div>)}</div>;
 }
-function HistoryRecords({history,onSelectHistory}:{history:any[];onSelectHistory:(id:string)=>void}) {
+export function HistoryTasksAccordion({history,onSelectHistory}:{history:any[];onSelectHistory:(id:string)=>void}) {
+ const [open,setOpen]=useState(false);
  if(!history.length)return null;
- return <section className="gi-history-section"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>查看已保存的原始结果，可恢复当次情报。</p></div></div>
- <div className="gi-history-table-wrap"><table className="gi-history-table"><thead><tr><th>采集任务</th><th>数据来源</th><th>市场</th><th>采集时间</th><th>状态</th><th>结果</th><th>操作</th></tr></thead><tbody>{history.map((item:any)=><tr key={item.id}><td><strong>{item.title||"Google Trends 采集"}</strong></td><td>Google Trends</td><td>{item.input_snapshot?.geo||item.input_snapshot?.markets?.join(", ")||"全球"}</td><td>{item.created_at?new Date(item.created_at).toLocaleString():"—"}</td><td><span className={"gi-history-status "+(item.status==="succeeded"?"ok":item.status==="failed"?"bad":"")}>{item.status}</span></td><td>{item.result_count??0}</td><td><button type="button" className="gi-history-open" onClick={()=>onSelectHistory(item.id)}>查看结果</button></td></tr>)}</tbody></table></div></section>;
+ return <section className="gi-history-accordion">
+  <Accordion align="start" size="md">
+   <AccordionItem title={`历史搜索任务 · ${history.length}`} open={open} onHeadingClick={()=>setOpen(value=>!value)}>
+    <p className="gi-history-description">查看并恢复此前保存的 Google Trends 搜索任务。</p>
+    <div className="gi-history-table-wrap"><table className="gi-history-table"><thead><tr><th>采集任务</th><th>数据来源</th><th>市场</th><th>采集时间</th><th>状态</th><th>结果</th><th>操作</th></tr></thead><tbody>{history.map((item:any)=><tr key={item.id}><td><strong>{item.title||"Google Trends 采集"}</strong></td><td>Google Trends</td><td>{item.input_snapshot?.geo||item.input_snapshot?.markets?.join(", ")||"全球"}</td><td>{item.created_at?new Date(item.created_at).toLocaleString():"—"}</td><td><span className={"gi-history-status "+(item.status==="succeeded"?"ok":item.status==="failed"?"bad":"")}>{item.status}</span></td><td>{item.result_count??0}</td><td><button type="button" className="gi-history-open" onClick={()=>onSelectHistory(item.id)}>查看结果</button></td></tr>)}</tbody></table></div>
+   </AccordionItem>
+  </Accordion>
+ </section>;
 }
 function loadLeafletForTrends():Promise<any>{
  const w=window as any;if(w.L)return Promise.resolve(w.L);
