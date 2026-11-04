@@ -3,7 +3,7 @@ const json = (data: unknown, status = 200) => Response.json(data, { status });
 const safeJson = async (response: Response) => response.json().catch(() => ({})) as Promise<any>;
 
 async function authenticate(request: Request, env: Env) {
-  const token = (request.headers.get("Authorization") || "").replace(/^Bearer\\s+/i, "");
+  const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   if (!token) return { error: json({ error: "请登录后管理研究任务。" }, 401) };
   const base = env.SUPABASE_URL?.replace(/\\/$/, "");
   if (!base || !env.SUPABASE_ANON_KEY) return { error: json({ error: "Supabase 服务端配置不可用。" }, 503) };
