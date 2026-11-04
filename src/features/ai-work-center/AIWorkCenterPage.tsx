@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Archive, ArrowRight, Refresh, Search, TrashCan } from "@carbon/icons-react";
+import { Archive, ArrowRight, Renew, Search, TrashCan } from "@carbon/icons-react";
 import { Button, Checkbox, InlineLoading, InlineNotification, Search as CarbonSearch, Select, SelectItem, Tag, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@carbon/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthProvider";
@@ -69,7 +69,7 @@ export function AIWorkCenterPage() {
   const viewLabel = useMemo(() => ({ active: "全部任务", archived: "已归档", trash: "回收站", all: "全部（含归档）" }[view]), [view]);
 
   return <section className="awc-page">
-    <header className="awc-header"><div><div className="awc-eyebrow">AI WORK CENTER</div><h1>AI 工作中心</h1><p>集中管理市场研究、关键词研究及后续 AI 工作流任务。任务删除与外部 Actor 取消相互独立。</p></div><Button kind="tertiary" renderIcon={Refresh} onClick={() => void load()} disabled={loading || busy}>刷新</Button></header>
+    <header className="awc-header"><div><div className="awc-eyebrow">AI WORK CENTER</div><h1>AI 工作中心</h1><p>集中管理市场研究、关键词研究及后续 AI 工作流任务。任务删除与外部 Actor 取消相互独立。</p></div><Button kind="tertiary" renderIcon={Renew} onClick={() => void load()} disabled={loading || busy}>刷新</Button></header>
     <div className="awc-summary" aria-label="任务状态统计">{(["queued", "running", "succeeded", "partial", "failed", "cancelled"] as ResearchTaskStatus[]).map((key) => <div className="awc-summary-card" key={key}><span>{taskStatusLabel[key]}</span><strong>{summary[key] ?? "—"}</strong></div>)}</div>
     {error && <InlineNotification kind="error" lowContrast title="操作失败" subtitle={error} onCloseButtonClick={() => setError("")} />}
     {notice && <InlineNotification kind="success" lowContrast title="操作完成" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}
@@ -83,7 +83,7 @@ export function AIWorkCenterPage() {
     </div>
     <div className="awc-bulkbar">
       <div className="awc-selection"><Checkbox id="awc-select-page" labelText="选择本页" checked={allSelected} onChange={(_, state) => selectPage(state.checked)} /><span>{selectedCount ? "已选择 " + selectedCount + " 项" : "未选择任务"}</span></div>
-      <div className="awc-actions">{view === "trash" ? <Button size="sm" kind="tertiary" renderIcon={Refresh} disabled={!selectedCount || busy} onClick={() => void runAction("restore")}>恢复所选</Button> : <><Button size="sm" kind="ghost" renderIcon={Archive} disabled={!selectedCount || busy || view === "archived"} onClick={() => void runAction("archive")}>批量归档</Button><Button size="sm" kind="danger--tertiary" renderIcon={TrashCan} disabled={!selectedCount || busy || view === "archived"} onClick={() => void runAction("trash")}>移入回收站</Button></>}</div>
+      <div className="awc-actions">{view === "trash" || view === "archived" ? <Button size="sm" kind="tertiary" renderIcon={Renew} disabled={!selectedCount || busy} onClick={() => void runAction("restore")}>{view === "archived" ? "取消归档" : "恢复所选"}</Button> : <><Button size="sm" kind="ghost" renderIcon={Archive} disabled={!selectedCount || busy} onClick={() => void runAction("archive")}>批量归档</Button><Button size="sm" kind="danger--tertiary" renderIcon={TrashCan} disabled={!selectedCount || busy} onClick={() => void runAction("trash")}>移入回收站</Button></>}</div>
     </div>
     <div className="awc-table-wrap">
       {loading ? <div className="awc-loading"><InlineLoading description="正在读取任务…" /></div> : <Table size="lg" useZebraStyles><TableHead><TableRow><TableHeader>选择</TableHeader><TableHeader>任务名称</TableHeader><TableHeader>类型</TableHeader><TableHeader>状态</TableHeader><TableHeader>数据量</TableHeader><TableHeader>创建时间</TableHeader><TableHeader>结果</TableHeader></TableRow></TableHead><TableBody>
