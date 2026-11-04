@@ -36,7 +36,8 @@ async function fetchJson(url: string, timeoutMs = 18000): Promise<any> {
 async function resolveIso3(iso2: string): Promise<string> {
   try {
     const country = await fetchJson(REST_COUNTRY_URL + encodeURIComponent(iso2) + "?fields=cca3", 9000);
-    const code = String(country?.cca3 || "").toUpperCase();
+    const countryRecord = Array.isArray(country) ? country[0] : country;
+    const code = String(countryRecord?.cca3 || "").toUpperCase();
     if (/^[A-Z]{3}$/.test(code)) return code;
   } catch {
     // Fall back to the Natural Earth country file if REST Countries is unavailable.
