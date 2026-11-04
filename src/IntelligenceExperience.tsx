@@ -136,7 +136,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoD
  </section>;
 }
 
-function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any|null;history:any[];loading:boolean}) {
+function LiveGoogleTrends({results,meta,history,loading,onSelectHistory}:{results:any[];meta:any|null;history:any[];loading:boolean;onSelectHistory:(id:string)=>void}) {
  const [selected,setSelected]=useState(0);
  const result=results[selected]||null;
  const series=Array.isArray(result?.interest_over_time)?result.interest_over_time:[];
@@ -160,12 +160,12 @@ function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any
    <details className="gi-raw-evidence"><summary>查看 Actor 原始返回数据（完整 JSON）</summary><pre>{JSON.stringify(result,null,2)}</pre></details>
   </>}
   {!loading&&!results.length&&<div className="gi-warning">{meta?.status==="failed"?meta.error:"尚无本次真实采集结果。请在上方配置关键词、目标市场和时间范围后点击“开始分析”。"}</div>}
-  {history.length>0&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>已保存到组织工作区，可用于后续历史对比。</p></div></div><div className="gi-bars">{history.map((x:any)=><div className="gi-bar-row" key={x.id}><span>{x.title}</span><div><i style={{width:(x.status==="succeeded"?100:0)+"%"}}/></div><b>{x.status} · {x.result_count}</b></div>)}</div></article>}
+  {history.length>0&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>已保存到组织工作区，可用于后续历史对比。</p></div></div><div className="gi-bars">{history.map((x:any)=><div className="gi-bar-row" key={x.id}><button type="button" onClick={()=>onSelectHistory(x.id)}>{x.title}</button><div><i style={{width:(x.status==="succeeded"?100:0)+"%"}}/></div><b>{x.status} · {x.result_count}</b></div>)}</div></article>}
  </section>;
 }
 
-export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean}) {
+export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false,onSelectHistory=()=>{}}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean;onSelectHistory?:(id:string)=>void}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);
- return <>{liveResults.length||collectionLoading||liveMeta?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>}</>;
+ return <>{liveResults.length||collectionLoading||liveMeta||history.length?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading} onSelectHistory={onSelectHistory}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>}</>;
 }
