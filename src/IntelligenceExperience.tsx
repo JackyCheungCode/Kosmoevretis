@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Accordion, AccordionItem, Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
+import { Accordion, AccordionItem, Button, Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
 import MarkdownReport from "./components/MarkdownReport";
 import CarbonSelect from "./components/CarbonSelect";
 import "./intelligence.css";
@@ -132,7 +132,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab,liveResults=
     <div className="gi-ai-step-head"><span className="gi-ai-step-index">03</span><div><strong>补充研究问题</strong><small>可选，描述希望 AI 重点回答的商业问题。</small></div></div>
     <label className="gi-ai-field">研究问题<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></label>
    </section>
-   <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</button>
+   <Button kind="primary" className="gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</Button>
    <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。真实采集数据与模拟数据会在分析结论中区分标注。</small>
   </div>
   <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":liveResults.length?"真实数据待分析":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer"><MarkdownReport content={answer||sample||"等待分析数据。"}/></div><div className="gi-ai-evidence"><strong>证据说明</strong><p>{liveResults.length?"本次包含真实 Google Trends 观察数据；AI 对需求和机会的解释属于推断，不能替代真实销量或已验证购买需求。":"当前样本可能包含模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。"}</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>

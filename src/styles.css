@@ -155,7 +155,7 @@
 .source-options>.field-label,.source-option-foot{grid-column:span 2}.source-option-foot{margin-top:.2rem}
 .analysis-source-heading,.results-heading{flex-direction:column;gap:.5rem}
 .parameter-row{grid-template-columns:1fr auto;gap:.45rem}.parameter-name{grid-column:1/-1}
-.analysis-submit-row{align-items:stretch;flex-direction:column}.analysis-submit-row .primary-button{width:100%}
+.analysis-submit-row{align-items:stretch;flex-direction:column}.analysis-submit-row .cds--btn{width:100%}
 .context-filters{gap:.3rem}.settings-caption{margin-top:1.5rem}
 }
 
