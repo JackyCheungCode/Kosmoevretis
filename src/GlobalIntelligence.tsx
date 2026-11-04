@@ -21,7 +21,8 @@ const tabs:Tab[]=[
 {id:"consumer",label:"消费者洞察"},
 {id:"competitors",label:"品牌与竞品"},
 {id:"categories",label:"品类分析"},
-{id:"markets",label:"国家市场"},\n{id:"trade",label:"贸易与市场准入"}];
+{id:"markets",label:"国家市场"},
+{id:"trade",label:"贸易与市场准入"}];
 const isoCodes="AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ").filter(x=>!["CN","HK","MO","TW"].includes(x));
 const displayNames=new Intl.DisplayNames(["zh-CN"],{type:"region"});
 const flagFor=(code:string)=>String.fromCodePoint(...code.toUpperCase().split("").map(c=>127397+c.charCodeAt(0)));
