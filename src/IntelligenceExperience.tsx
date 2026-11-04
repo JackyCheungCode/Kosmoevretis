@@ -193,7 +193,7 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  window.setTimeout(()=>map.invalidateSize(),120);
  }catch(e){if(!cancelled)setMapError(e instanceof Error?e.message:"地区地图加载失败");}})();
  return()=>{cancelled=true;if(map){map.remove();map=null;}};},[geo,global,keyword,rows.map((x:any)=>x.code+":"+x.value+":"+x.name).join("|")]);
- return <div className="gi-gt-map-shell"><div ref={host} className="gi-gt-map" role="img" aria-label={global?"Google Trends 国家搜索兴趣地图":keyword+" 省州搜索兴趣地图"}/>{mapError&&<div className="gi-map-error">{mapError}</div>}<div className="gi-gt-map-legend"><span>低</span>{["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce"].map((c,i)=><i key={i} style={{background:c}}/>)}<span>高</span><small>相对兴趣指数 0–100</small></div></div>;
+ return <div className="gi-gt-map-shell"><div ref={host} className="gi-gt-map" role="img" aria-label={global?"Google Trends 国家搜索兴趣地图":keyword+" 省州搜索兴趣地图"}/>{mapError&&<div className="gi-map-error">{mapError}</div>}<div className="gi-gt-map-legend"><span>低</span>{["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce"].map((c,i)=><i key={i} style={{background:c}}/>)}<span>高</span><small>相对兴趣指数 0–100 · 边界数据：geoBoundaries</small></div></div>;
 }
 function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTab}:{results:any[];meta:any|null;history:any[];loading:boolean;onSelectHistory:(id:string)=>void;activeTab:string}) {
  const [selected,setSelected]=useState(0);const result=results[selected]||results[0]||null;
