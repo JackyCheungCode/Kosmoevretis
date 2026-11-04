@@ -12,7 +12,7 @@ const enterpriseItems = [["products","产品中心","▣"]] as const;
 const items = [["intelligence","情报总览","◎"],["trade","贸易与市场准入","▤"]] as const;
 const settingsItems = [["sources","设置中心","⌘"]] as const;
 const leadItems = [["facebook","Facebook 发现","f"],["linkedin","LinkedIn 发现","in"],["google-maps","Google Maps 发现","⌖"]] as const;
-const validPaths = new Set(["/intelligence","/trade-access","/leads/facebook","/leads/linkedin","/leads/google-maps","/products","/settings/providers","/settings/actors","/settings/channels","/settings/runs","/settings/ai-providers","/settings/models","/settings/routes","/settings/prompts","/settings/organization","/settings/members","/settings/locale","/settings/notifications","/settings/governance","/settings/audit"]);
+const validPaths = new Set(["/intelligence","/trade-access","/leads/facebook","/leads/linkedin","/leads/google-maps","/products","/settings/providers","/settings/actors","/settings/channels","/settings/runs","/settings/ai-providers","/settings/models","/settings/routes","/settings/prompts","/settings/organization","/settings/members","/settings/locale","/settings/notifications","/settings/governance","/settings/audit","/settings/design-system"]);
 function AppShell() {
  const location=useLocation(),navigate=useNavigate(),path=location.pathname.replace(/\/$/,"")||"/",isSettings=path.startsWith("/settings/");
  const [mobileNavOpen,setMobileNavOpen]=React.useState(false);
