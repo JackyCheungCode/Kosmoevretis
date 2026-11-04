@@ -93,7 +93,7 @@ export default function ProductCenter() {
 
   const filtered = useMemo(()=>products.filter(p=>[p.name,p.brand,p.manufacturer,p.model,p.sku,p.internal_reference,...(p.category_path||[])].join(" ").toLowerCase().includes(query.toLowerCase())),[products,query]);
   const categoryName = (id:string|null) => categories.find(c=>c.id===id)?.name || "未分类";
-  const categoryTree = (parent:string|null=null,depth=0):Category[] => categories.filter(c=>c.parent_id===parent).flatMap(c=>[c,...categoryTree(c.id,depth+1)]);
+  const categoryTree = (parent:string|null=null):Category[] => categories.filter(c=>c.parent_id===parent).flatMap(c=>[c,...categoryTree(c.id)]);
   const categoryOptions = categoryTree().map(c=>({id:c.id,label:`${"　".repeat(categories.filter(x=>x.id===c.parent_id).length)}${c.name}`}));
 
   const startNew = () => {setSelected(null);setForm(emptyProduct());setVariants([]);setEditing(true);setNotice(null);};
