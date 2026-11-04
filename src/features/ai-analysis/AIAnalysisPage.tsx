@@ -4,6 +4,7 @@ import { ArrowRight, ChartLine, Locked, SettingsAdjust } from "@carbon/icons-rea
 import { Dropdown } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
+import { PageHeader } from "../../components/ui/PageHeader";
 
 type Provider = { id: string; name: string; models: string[] };
 const providers: Provider[] = [
@@ -125,7 +126,7 @@ export function AIAnalysisPage({ embedded = false, stage = "configure", enterpri
     finally { setRunning(false); }
   };
   return <div className="analysis-page">
-    <header className="analysis-heading"><div><div className="ep-eyebrow"><i/> BUSINESS INTELLIGENCE / AI ANALYSIS</div><h1>AI 企业分析</h1><p>基于本企业档案，按分析维度分配最合适的 AI 模型，形成可追溯的经营洞察。</p></div><span className="analysis-secure"><Locked size={15}/> 平台统一调用凭证</span></header>
+    <PageHeader className="analysis-heading" eyebrow={<span className="ep-eyebrow"><i/> BUSINESS INTELLIGENCE / AI ANALYSIS</span>} title="AI 企业分析" description="基于本企业档案，按分析维度分配最合适的 AI 模型，形成可追溯的经营洞察。" meta={<span className="analysis-secure"><Locked size={15}/> 平台统一调用凭证</span>} />
     {!embedded && <section className="analysis-enterprise"><div className="analysis-enterprise-mark">{(enterprise.enterpriseName || "企").slice(0,1)}</div><div><small>ANALYSIS SUBJECT</small><b>{enterprise.enterpriseName || "当前企业档案"}</b><span>{profileLoading ? "正在读取企业档案…" : typeof enterprise.completion === "number" ? "档案完整度 " + enterprise.completion + "%" : "请选择本次分析所使用的企业档案"}</span><Dropdown id="analysis-enterprise-profile" titleText="分析企业档案" label={profileLoading ? "正在加载…" : "选择企业档案"} items={profileOptions} itemToString={(item: any) => item ? item.display_name + " · v" + item.version : ""} selectedItem={activeProfile || null} disabled={profileLoading || !profileOptions.length} onChange={({ selectedItem }: any) => setSelectedProfileId(selectedItem?.id || "")} /></div><Link to="/enterprise-profile"><span>管理企业档案</span><ArrowRight size={15}/></Link></section>}
     {stage === "configure" && <><section className="analysis-intro"><div className="analysis-intro-icon"><ChartLine size={22}/></div><div><small>ANALYSIS WORKSPACE</small><h2>为每个分析维度选择 AI 能力</h2><p>模型选择属于本次分析任务。默认模型由设置中的 AI 服务中心管理；请先在那里完成服务连接测试。</p></div><Link to="/settings"><span>前往 AI 服务中心配置与测试</span><ArrowRight size={15}/></Link></section>
     <section className="analysis-selection">
