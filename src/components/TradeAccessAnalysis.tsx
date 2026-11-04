@@ -5,7 +5,7 @@ import { Button, InlineNotification, Tag, TextInput, Dropdown, InlineLoading } f
 
 type Props={productName:string;keywords:string[];markets:string[];hsCode:string};
 type Payload={generated_at:string;results:Record<string,any>;sources:any[]};
-const marketNames:Record<string,string>={US:"美国",CN:"中国大陆",JP:"日本",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",KR:"韩国",IN:"印度",IT:"意大利",ES:"西班牙",NL:"荷兰",SG:"新加坡",BR:"巴西",MX:"墨西哥",VN:"越南",TH:"泰国",ID:"印度尼西亚",MY:"马来西亚",PH:"菲律宾",TW:"中国台湾",HK:"中国香港"};
+const originOptions=[{id:"CN",text:"中国"},{id:"VN",text:"越南"},{id:"IN",text:"印度"},{id:"TW",text:"中国台湾"},{id:"KR",text:"韩国"}];\nconst modeOptions=[{id:"ocean",text:"海运"},{id:"air",text:"空运"}];\nconst marketNames:Record<string,string>={US:"美国",CN:"中国大陆",JP:"日本",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",KR:"韩国",IN:"印度",IT:"意大利",ES:"西班牙",NL:"荷兰",SG:"新加坡",BR:"巴西",MX:"墨西哥",VN:"越南",TH:"泰国",ID:"印度尼西亚",MY:"马来西亚",PH:"菲律宾",TW:"中国台湾",HK:"中国香港"};
 const safeArray=(value:any):any[]=>Array.isArray(value)?value:Array.isArray(value?.data)?value.data:Array.isArray(value?.results)?value.results:value&&typeof value==="object"?Object.entries(value).slice(0,30).map(([key,val])=>({key,...(typeof val==="object"&&val?val as object:{value:val})})):[];
 
 function ResultSection({title,source,status,error,children}:{title:string;source:string;status:string;error?:string|null;children:ReactNode}){
@@ -19,9 +19,9 @@ function DataRows({items,kind}:{items:any[];kind:string}){
  if(kind==="ports")return <div className="trade-port-grid">{items.flatMap((g:any)=>safeArray(g.payload?.data?.results||g.payload?.results||g.payload?.data||g.payload).map((r:any,i:number)=><article className="trade-port-card" key={g.market+"-"+i}><strong>{r.port||r.port_name||"港口"}</strong><Tag type={r.congestion==="high"?"red":r.congestion==="moderate"?"warm-gray":"green"}>{r.congestion||"状态未知"}</Tag><small>{r.country||g.country} · 更新 {r.as_of||"日期未提供"}</small><small>相对基线：{r.metrics?.ratio_vs_baseline??"—"}</small></article>))}</div>;
  return <pre className="trade-json">{JSON.stringify(items,null,2)}</pre>;
 }
-export default function TradeAccessAnalysis({productName,keywords,markets,hsCode,onHsCodeChange}:Props){
+export default function TradeAccessAnalysis({productName,keywords,markets,hsCode}:Props){
  const [origin,setOrigin]=useState("CN"),[originCity,setOriginCity]=useState("Shanghai"),[zip,setZip]=useState(""),[mode,setMode]=useState("ocean"),[payload,setPayload]=useState<Payload|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");
- const marketLabel=markets.map(x=>marketNames[x]||x).join("、");
+ const marketLabel=markets.map(x=>marketNames[x]||x).join("、");\n const cityOptions=(originCities[origin]||[]).map(x=>({id:x,text:x}));
  const originCities:Record<string,string[]>={CN:["Shanghai","Shenzhen (Yantian)","Guangzhou","Qingdao","Xiamen","Tianjin"],VN:["Ho Chi Minh City"],IN:["Mumbai","Chennai"],TW:["Kaohsiung","Taipei"],KR:["Busan","Seoul (Incheon)"]};
  const analyze=async()=>{setBusy(true);setError("");try{const response=await fetch("/api/trade-intelligence",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keywords,hsCode,markets,originCountry:origin,originCity,destinationZip:zip,freightMode:mode})});const data=await response.json();if(!response.ok)throw new Error(data.error||"贸易情报请求失败");setPayload(data);}catch(e){setError(e instanceof Error?e.message:"贸易情报请求失败");}finally{setBusy(false);}};
  const results=payload?.results||{};
@@ -30,10 +30,10 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
   <div className="trade-context"><div><small>分析对象</small><strong>{productName||keywords[0]||"当前分析对象"}</strong></div><div><small>目标市场</small><strong>{marketLabel||"尚未选择"}</strong></div><div><small>分析关键词</small><strong>{keywords.join("、")||"使用产品名称"}</strong></div></div>
   <section className="trade-input-panel"><div className="trade-input-heading"><h3>补充贸易参数</h3><span>仅填写已有分析源未提供的信息</span></div>
    <div className="trade-input-grid"><div className="trade-hs-summary"><span>HS / HTS 编码</span><strong>{hsCode||"未填写"}</strong><small>可在上方「分析对象与关键词」区域编辑</small></div>
-    <Dropdown id="trade-origin-country" titleText="产品原产国 / 起运国" label="选择原产国" items={[{id:"CN",text:"中国"},{id:"VN",text:"越南"},{id:"IN",text:"印度"},{id:"TW",text:"中国台湾"},{id:"KR",text:"韩国"}]} selectedItem={[{id:"CN",text:"中国"},{id:"VN",text:"越南"},{id:"IN",text:"印度"},{id:"TW",text:"中国台湾"},{id:"KR",text:"韩国"}].find(x=>x.id===origin)} onChange={({selectedItem})=>{const next=selectedItem?.id||"CN";setOrigin(next);setOriginCity((originCities[next]||[])[0]||"");}}/>
-    <Dropdown id="trade-origin-city" titleText="起运城市" label="选择起运城市" items={(originCities[origin]||[]).map(x=>({id:x,text:x}))} selectedItem={{id:originCity,text:originCity}} onChange={({selectedItem})=>setOriginCity(selectedItem?.id||(originCities[origin]||[])[0]||"")}/>
+    <Dropdown id="trade-origin-country" titleText="运价起运国家" label="选择起运国家" items={originOptions} selectedItem={originOptions.find(x=>x.id===origin)} onChange={({selectedItem})=>{const next=selectedItem?.id||"CN";setOrigin(next);setOriginCity((originCities[next]||[])[0]||"");}}/>
+    <Dropdown id="trade-origin-city" titleText="起运城市" label="选择起运城市" items={cityOptions} selectedItem={cityOptions.find(x=>x.id===originCity)} onChange={({selectedItem})=>setOriginCity(selectedItem?.id||(originCities[origin]||[])[0]||"")}/>
     <TextInput id="trade-destination-zip" labelText="美国目的邮编（可选）" placeholder="例如：90210" value={zip} onChange={e=>setZip(e.target.value)} helperText="仅在目标市场包含美国时，用于查询支持航线的参考运价。"/>
-    <Dropdown id="trade-freight-mode" titleText="运输方式" label="选择运输方式" items={[{id:"ocean",text:"海运"},{id:"air",text:"空运"}]} selectedItem={{id:mode,text:mode==="air"?"空运":"海运"}} onChange={({selectedItem})=>setMode(selectedItem?.id||"ocean")}/>
+    <Dropdown id="trade-freight-mode" titleText="运输方式" label="选择运输方式" items={modeOptions} selectedItem={modeOptions.find(x=>x.id===mode)} onChange={({selectedItem})=>setMode(selectedItem?.id||"ocean")}/>
    </div>
    <div className="trade-submit-row"><span>目标市场沿用上方已选择的国家 / 地区，无需重复选择。</span><Button kind="primary" onClick={analyze} disabled={busy||!markets.length}>{busy?"正在获取数据…":"开始贸易分析"}</Button></div>
   </section>
@@ -48,7 +48,7 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
     <ResultSection title="港口拥堵与运输环境" source="FreightPulse · IMF PortWatch AIS" status={results.ports?.status||"unavailable"} error={results.ports?.error||results.ports?.data?.note}><DataRows items={results.ports?.data?.items||[]} kind="ports"/></ResultSection>
     <ResultSection title="海运 / 空运参考报价" source="FreightPulse · Warp 参考报价" status={results.freight?.status||"unavailable"} error={results.freight?.error}><DataRows items={results.freight?.data?[results.freight.data]:[]} kind="freight"/>{results.freight?.status==="success"&&<pre className="trade-json">{JSON.stringify(results.freight.data,null,2)}</pre>}</ResultSection>
    </div>
-   <div className="trade-source-foot">数据来源与限制：USITC 为美国 HTS 税则查询，不代表所有国家税率；UN Comtrade 公共预览每次最多 500 条，年度数据有发布滞后；B-READY 反映制度、公共服务与效率，不等于实时运营成本；港口拥堵指标不是船舶等待时间；运价仅为可用航线的参考报价，不是承运人最终合同价格。</div>
+   <div className="trade-source-foot">数据来源与限制：USITC 为美国 HTS 税则查询，目前仅返回美国税则条目，尚未计算按原产国适用的附加税、优惠税率或贸易救济税；UN Comtrade 公共预览每次最多 500 条，年度数据有发布滞后；B-READY 反映制度、公共服务与效率，不等于实时运营成本；港口拥堵指标不是船舶等待时间；运价仅为可用航线的参考报价，不是承运人最终合同价格。</div>
   </>}
  </div>;
 }
