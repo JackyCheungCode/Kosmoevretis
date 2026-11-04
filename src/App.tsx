@@ -23,12 +23,17 @@ export default function App() {
         <span className="top-status">● 平台初始化中</span>
       </header>
       <aside className="sidebar">
-        <div className="nav-caption">工作空间</div>
-        {items.map((item) => (
-          <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => setActive(item[0])}>
-            <span className="nav-icon">{item[2]}</span>{item[1]}
-          </button>
-        ))}
+        <div className="nav-caption">情报平台</div>
+        <div className="nav-group">
+          <div className="nav-group-title"><span className="nav-group-mark">▦</span><span>全球 3C市场情报</span></div>
+          <div className="nav-group-items">
+            {items.map((item) => (
+              <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => setActive(item[0])}>
+                <span className="nav-icon">{item[2]}</span>{item[1]}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="sidebar-foot">P0 · 全球市场情报</div>
       </aside>
       <main className="content">
