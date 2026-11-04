@@ -46,7 +46,7 @@ The shared shell is implemented in `src/app/AppShell.tsx` and styled in the shar
 
 `src/components/ui/PageHeader.tsx` provides the shared page-title pattern. It standardizes eyebrow, title, description, and optional metadata/action placement while allowing feature pages to retain their existing semantic class names during migration. Its layout contract is styled in `src/styles/page-layout.scss` and consumes the shared typography, color, and spacing aliases.
 
-Use this primitive for top-level feature pages instead of re-creating a page header in each feature. Keep page-specific content and task controls within the feature; do not turn the shared header into a page-specific toolbar.
+Use this primitive for top-level feature pages instead of re-creating a page header in each feature. The enterprise profile, AI analysis, AI work center, and research-task detail pages now use it; their existing feature classes are retained only as styling hooks. Keep page-specific content and task controls within the feature; do not turn the shared header into a page-specific toolbar.
 
 
 ## Component primitives
