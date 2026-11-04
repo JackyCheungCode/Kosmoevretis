@@ -42,8 +42,8 @@ const config:Record<Platform,{name:string;actor:string;backup:string;description
   {id:"profiles",label:"创作者档案",description:"账号资料、粉丝数及作品",inputLabel:"用户名或主页 URL",placeholder:"@creator 或 TikTok 主页 URL",target:true},
   {id:"videos",label:"视频详情",description:"视频数据、音乐、标签及媒体",inputLabel:"视频 / 声音 / 主页 URL",placeholder:"https://www.tiktok.com/@user/video/...",target:true},
   {id:"comments",label:"评论洞察",description:"视频评论与公开回复",inputLabel:"视频 URL",placeholder:"每行一个 TikTok 视频链接",target:true},
-  {id:"sounds",label:"声音趋势",description:"音乐 / 声音及关联视频",inputLabel:"声音 URL 或关键词",placeholder:"声音链接或音乐名称",target:true},
-  {id:"live",label:"直播发现",description:"公开直播内容与直播账号",inputLabel:"搜索关键词或账号",placeholder:"关键词或 creator handle",target:false,keyword:true}
+  {id:"sounds",label:"声音趋势",description:"音乐 / 声音及关联视频",inputLabel:"TikTok 声音 URL",placeholder:"https://www.tiktok.com/music/...",target:true},
+  {id:"live",label:"直播发现",description:"通过公开直播间或创作者主页链接发现直播内容",inputLabel:"直播间或创作者主页 URL",placeholder:"TikTok LIVE 或创作者主页 URL",target:true}
  ]},
  youtube:{name:"YouTube",actor:"vortex_data/youtube-scraper",backup:"scrapercompany/youtube-scraper",description:"覆盖视频、频道、播放列表、Shorts、直播、社区、评论、字幕及内容洞察。",modes:[
   {id:"complete",label:"综合采集",description:"自动识别视频、频道、播放列表、搜索和标签",inputLabel:"关键词、频道或视频 URL",placeholder:"wireless earbuds review\\nhttps://www.youtube.com/@Sony",target:true},
