@@ -1,10 +1,10 @@
 /* Kosmoevretis design tokens
- * Carbon is the source of truth. App tokens are aliases, not page-level overrides.
+ * Carbon semantic tokens are the source of truth. App tokens are stable aliases.
  */
 :root {
   color-scheme: light;
 
-  /* Carbon semantic foundation */
+  /* Carbon semantic color and layer system */
   --app-color-background: var(--cds-background, #ffffff);
   --app-color-layer-01: var(--cds-layer-01, #f4f4f4);
   --app-color-layer-02: var(--cds-layer-02, #ffffff);
@@ -19,26 +19,26 @@
   --app-color-interactive: var(--cds-interactive, #0f62fe);
   --app-color-focus: var(--cds-focus, #0f62fe);
 
-  /* Carbon spacing scale */
-  --app-space-2: 2px;
-  --app-space-1: 4px;
-  --app-space-02: 8px;
-  --app-space-03: 12px;
-  --app-space-04: 16px;
-  --app-space-05: 24px;
-  --app-space-06: 32px;
-  --app-space-07: 40px;
-  --app-space-08: 48px;
-  --app-space-09: 64px;
-  --app-space-10: 80px;
-  --app-space-11: 96px;
+  /* Carbon 2x spacing scale: 2 / 4 / 8 / 12 / 16 / 24 / 32 / 40 / 48 / 64 / 80 / 96 */
+  --app-space-2: var(--cds-spacing-01, 2px);
+  --app-space-1: var(--cds-spacing-02, 4px);
+  --app-space-02: var(--cds-spacing-03, 8px);
+  --app-space-03: var(--cds-spacing-04, 12px);
+  --app-space-04: var(--cds-spacing-05, 16px);
+  --app-space-05: var(--cds-spacing-06, 24px);
+  --app-space-06: var(--cds-spacing-07, 32px);
+  --app-space-07: var(--cds-spacing-08, 40px);
+  --app-space-08: var(--cds-spacing-09, 48px);
+  --app-space-09: var(--cds-spacing-10, 64px);
+  --app-space-10: var(--cds-spacing-11, 80px);
+  --app-space-11: var(--cds-spacing-12, 96px);
 
   /* Shared shell geometry */
   --app-header-height: 56px;
   --app-sidebar-width: 256px;
   --app-content-max-width: 1584px;
 
-  /* Shape and motion: deliberately restrained */
+  /* Restrained shape and motion */
   --app-radius-none: 0;
   --app-radius-sm: 2px;
   --app-radius-md: 4px;
@@ -47,7 +47,7 @@
   --app-motion-moderate: 160ms;
 }
 
-/* Breakpoint reference: Carbon 2x grid */
+/* Carbon 2x responsive grid reference points */
 :root {
   --app-breakpoint-sm: 320px;
   --app-breakpoint-md: 672px;
