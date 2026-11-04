@@ -86,7 +86,7 @@ export default function FacebookDiscovery() {
  const loadHistory=async(org:string)=>{const {data,error:invokeError}=await supabase.functions.invoke("facebook-discovery",{body:{action:"list_history",organization_id:org}});if(invokeError)throw invokeError;if(data?.error)throw new Error(data.error);setHistory(data.history||[]);};
  useEffect(()=>{if(organizationId)void loadHistory(organizationId).catch(e=>setError(e instanceof Error?e.message:"无法读取发现记录。"));},[organizationId]);
  const termList=useMemo(()=>terms.split(/[\n,，;；]+/).map(x=>x.trim()).filter(Boolean),[terms]);
- const visibleResults=useMemo(()=>results.filter(row=>{const t=String(row.discovery_type||type);return t==="group_post"||t==="group"?type==="groups":t===type;}),[results,type]);
+ const visibleResults=useMemo(()=>{const selectedType=modes[activeTab]?.id||"people";return results.filter(row=>{const t=String(row.discovery_type||type);return selectedType==="groups"?(t==="group"||t==="group_post"):t===selectedType;});},[results,type,activeTab]);
  const countByType=(id:SearchType)=>results.filter(row=>{const t=String(row.discovery_type||type);return id==="groups"?(t==="group"||t==="group_post"):t===id;}).length;
  const run=async()=>{
   setError("");setNotice("");setHistoryId("");if(!termList.length){setError("请至少输入一个关键词。");return;}if(!organizationId){setError("当前账号没有可用的企业工作区。");return;}
@@ -138,7 +138,7 @@ export default function FacebookDiscovery() {
   <section className="fb-results-section">
    <div className="fb-section-head"><div><span className="eyebrow">03 / DISCOVERY RESULTS</span><h3>发现结果</h3><p>按对象类型分 Tab 展示；各 Tab 已预设对应字段列，实际单元格根据 Actor 返回数据填充。</p></div><strong className="fb-result-count">{results.length.toLocaleString()} 条</strong></div>
    <Tabs selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)} className="fb-result-tabs">
-    {modes.map((mode,index)=>{const Icon=mode.icon;return <Tab key={mode.id} id={"fb-tab-"+mode.id} label={<span className="fb-tab-label"><Icon size={16}/>{mode.label}<span className="fb-tab-count">{countByType(mode.id)}</span></span>} />;})}
+    {modes.map(mode=>{const Icon=mode.icon;return <Tab key={mode.id} id={"fb-tab-"+mode.id} label={<span className="fb-tab-label"><Icon size={16}/>{mode.label}<span className="fb-tab-count">{countByType(mode.id)}</span></span>} />;})}
    </Tabs>
    {busy&&<div className="fb-empty">正在执行 Actor 并读取 Dataset…</div>}
    {!busy&&<ResultTable rows={visibleResults} type={modes[activeTab]?.id||"people"}/>}
