@@ -432,7 +432,7 @@
 
 /* Analysis result center */
 .ar-page { padding-bottom: var(--app-space-06); }
-.ar-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--app-space-04); margin-bottom: var(--app-space-04); }
+.ar-heading { margin-bottom: var(--app-space-04); }
 .ep-tab-heading h2 { margin: var(--app-space-02) 0; font-size: 1.75rem; line-height: 1.25; }
 .ep-tab-heading p { margin: 0; }
 .ar-tabs { display: flex; gap: var(--app-space-02); overflow-x: auto; border-bottom: 1px solid var(--app-color-border-subtle); }
