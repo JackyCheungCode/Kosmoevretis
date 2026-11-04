@@ -143,7 +143,7 @@ export default function FacebookDiscovery() {
   </section>
   <section className="fb-results-section">
    <div className="fb-section-head"><div><span className="eyebrow">03 / DISCOVERY RESULTS</span><h3>发现结果</h3><p>按对象类型分 Tab 展示；各 Tab 已预设对应字段列，实际单元格根据 Actor 返回数据填充。</p></div><strong className="fb-result-count">{results.length.toLocaleString()} 条</strong></div>
-   <div className="fb-result-tabs"><Tabs className="kosmo-results-tabs" selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="发现结果对象类型">{modes.map(mode=>{const Icon=mode.icon;return <Tab key={mode.id} id={"fb-tab-"+mode.id}><span className="fb-tab-label"><Icon size={16}/>{mode.label}<span className="fb-tab-count">{countByType(mode.id)}</span></span></Tab>;})}</TabList>
+   <div className="fb-result-tabs"><Tabs selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="发现结果对象类型">{modes.map(mode=>{const Icon=mode.icon;return <Tab key={mode.id} id={"fb-tab-"+mode.id}><span className="fb-tab-label"><Icon size={16}/>{mode.label}<span className="fb-tab-count">{countByType(mode.id)}</span></span></Tab>;})}</TabList>
     <TabPanels>{modes.map(mode=><TabPanel key={mode.id}>{busy?<div className="fb-empty">正在执行 Actor 并读取 Dataset…</div>:<ResultTable rows={visibleResults} type={mode.id}/>}</TabPanel>)}</TabPanels>
    </Tabs></div>
    {meta?.actors?.length>0&&<div className="fb-actor-meta"><strong>采集执行信息</strong>{meta.actors.map((actor:any)=><div key={actor.run_id}><span>{actor.actor_id}</span><small>Run：{actor.run_id} · Dataset：{actor.dataset_id}</small></div>)}</div>}
