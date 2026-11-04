@@ -19,7 +19,6 @@ import {
   Settings,
   LogoFacebook,
   LogoLinkedin,
-  UserMultiple,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -121,10 +120,9 @@ function AppShell() {
       aria-label={item.label}
       aria-current={item.active ? "page" : undefined}
       isActive={item.active}
-      renderIcon={item.icon}
       onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, item.href)}
     >
-      {item.label}
+      <span className="kosmo-nav-item-content"><item.icon size={16} /><span>{item.label}</span></span>
     </SideNavLink>
   );
 
