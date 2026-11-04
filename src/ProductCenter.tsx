@@ -238,7 +238,15 @@ export default function ProductCenter() {
   if(error)return <div className="pc-empty"><h3>产品工作区不可用</h3><p>{error}</p></div>;
 
   const selectedCategoryRecord=categories.find(c=>c.id===selectedCategoryId);
-  const openProduct = async (p:Product) => { setSelected(p); setEditing(false); setNotice(null); const {data,error}=await supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at"); if(error) throw error; setVariants((data||[]) as Variant[]); };
+  const openProduct = async (p:Product) => {
+    setSelected(p);setEditing(false);setNotice(null);
+    const [variantResult,attributeResult]=await Promise.all([
+      supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at"),
+      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",p.id).order("sort_order")
+    ]);
+    if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;
+    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAxisSelection({});
+  };
   return <section className="pc-workspace">
     <div className="pc-heading"><div><div className="pc-kicker">PRODUCT MASTER / ODOO-STYLE CATALOG</div><h2>产品中心</h2><p>{orgName} · 统一产品主档案，供市场情报、报价与合同流程复用</p></div><div className="pc-heading-actions"><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></div></div>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.kind==="success"?"已保存":notice.kind==="error"?"操作失败":"提示"} subtitle={notice.text} onCloseButtonClick={()=>setNotice(null)}/>}
