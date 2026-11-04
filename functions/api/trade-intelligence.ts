@@ -34,6 +34,29 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
    });
    return {items,edition:"B-READY 2024",source:"World Bank Data Catalog · Business Ready (B-READY)",note:"官方公开数据集，当前接入的是 2024 版资源；不是实时数据。若目标市场不在该版已评分经济体中，将显示无匹配记录。",resource_id:"DR0094718",dataset_url:"https://datacatalog.worldbank.org/search/dataset/0066291/business-ready-b-ready"};
   });
+  tasks.market = settled(async()=>{
+   const selected=markets.map(code=>({code,iso3:ISO3[code]})).filter(item=>item.iso3);
+   if(!selected.length) return {items:[],note:"所选市场暂无可用的 ISO 国家代码映射。"};
+   const indicators=[{key:"gdp",code:"NY.GDP.MKTP.CD"},{key:"gdp_per_capita",code:"NY.GDP.PCAP.CD"},{key:"gdp_growth",code:"NY.GDP.MKTP.KD.ZG"},{key:"inflation",code:"FP.CPI.TOTL.ZG"},{key:"population",code:"SP.POP.TOTL"}];
+   const datasets=await Promise.all(indicators.map(async indicator=>{
+    const countryCodes=selected.map(item=>item.iso3).join(";");
+    const url="https://api.worldbank.org/v2/country/"+countryCodes+"/indicator/"+indicator.code+"?format=json&per_page=1000&date=2020:2025";
+    const payload=await getJson(url);
+    const rows=Array.isArray(payload?.[1])?payload[1]:[];
+    return {indicator,rows};
+   }));
+   const items=selected.map(item=>{
+    const metrics:Record<string,number|null>={};let year="";
+    for(const dataset of datasets){
+     const rows=dataset.rows.filter((row:any)=>row.countryiso3code===item.iso3&&row.value!==null).sort((x:any,y:any)=>Number(y.date)-Number(x.date));
+     const latest=rows[0];
+     metrics[dataset.indicator.key]=latest?.value??null;
+     if(latest&&(!year||Number(latest.date)>Number(year)))year=String(latest.date);
+    }
+    return {market:item.code,country:marketNames[item.code]||item.code,...metrics,year};
+   }).filter(item=>Object.values(item).some(value=>typeof value==="number"));
+   return {items,source:"World Bank World Development Indicators",note:"宏观指标采用世界银行 WDI 最近可用年度值；各指标发布年份可能不同，不能视为实时行情或产品需求数据。"};
+  });
   tasks.trade = settled(async()=>{
    const code=hsCode.replace(/\./g,"").slice(0,6)||"TOTAL";
    const selected=markets.filter(x=>M49[x]).slice(0,3);
