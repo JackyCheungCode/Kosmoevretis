@@ -17,7 +17,6 @@ import {
   Map,
   Product,
   Settings,
-  UserMultiple,
   LogoFacebook,
   LogoLinkedin,
 } from "@carbon/icons-react";
@@ -119,7 +118,7 @@ function AppShell() {
       aria-current={item.active ? "page" : undefined}
       isActive={item.active}
       renderIcon={item.icon}
-      onClick={(event) => handleNavigate(event, item.href)}
+      onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, item.href)}
     >
       {item.label}
     </SideNavLink>
