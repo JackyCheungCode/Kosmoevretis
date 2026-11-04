@@ -6,12 +6,6 @@ import {
   TextInput, Tile, Toggle
 } from "@carbon/react";
 
-const providers = [
-  { id: "google", name: "Google", category: "搜索与趋势", description: "搜索趋势与搜索结果采集连接。", placeholder: "Google API Key" },
-  { id: "deepl", name: "DeepL", category: "语言服务", description: "多语言关键词和情报内容翻译。", placeholder: "DeepL Auth Key" },
-  { id: "youtube", name: "YouTube", category: "社交媒体", description: "视频、频道与互动数据采集。", placeholder: "YouTube API Key" },
-  { id: "reddit", name: "Reddit", category: "社区数据", description: "社区讨论、评论与消费者反馈。", placeholder: "Reddit Client Secret" },
-];
 const actors = [
   { name: "Google Trends", actorId: "待配置 Actor ID", channel: "搜索与趋势", usage: "搜索趋势、全球情报" },
   { name: "Amazon 商品采集", actorId: "待配置 Actor ID", channel: "全球电商", usage: "热销榜、竞品分析" },
