@@ -101,7 +101,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
     const failure = { status: "failed", error_message: String(message).slice(0, 1200), completed_at: new Date().toISOString() };
     await Promise.all([
       supabasePatch(auth.base, auth.headers, task.id, failure),
-      supabasePatchExecution(auth.base, auth.headers, task.id, failure)
+      supabasePatchExecution(auth.base, auth.headers, task.id, failure, Number(task.actor_meta?.attempt) || 1)
     ]);
     return json({ error: String(message).slice(0, 1200), taskId: task.id }, 502);
   }
@@ -109,11 +109,11 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
     actor_run_id: runPayload.data.id, dataset_id: runPayload.data.defaultDatasetId || null,
     status: runPayload.data.status === "READY" ? "queued" : "running",
     started_at: runPayload.data.startedAt || new Date().toISOString(),
-    actor_meta: { actorId: env.APIFY_ACTOR_ID || actorDefault, buildNumber: runPayload.data.buildNumber || null }
+    actor_meta: { actorId: env.APIFY_ACTOR_ID || actorDefault, buildNumber: runPayload.data.buildNumber || null, attempt: 1 }
   };
   await Promise.all([
     supabasePatch(auth.base, auth.headers, task.id, started),
-    supabasePatchExecution(auth.base, auth.headers, task.id, started)
+    supabasePatchExecution(auth.base, auth.headers, task.id, started, Number(task.actor_meta?.attempt) || 1)
   ]);
   return json({ taskId: task.id, runId: runPayload.data.id, status: runPayload.data.status }, 202);
 };
@@ -220,7 +220,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   };
   await Promise.all([
     supabasePatch(auth.base, auth.headers, task.id, patch),
-    supabasePatchExecution(auth.base, auth.headers, task.id, patch)
+    supabasePatchExecution(auth.base, auth.headers, task.id, patch, Number(task.actor_meta?.attempt) || 1)
   ]);
   return json({ task: { ...task, ...patch } });
 };
