@@ -74,10 +74,10 @@
 .gi-bar-row>div i,.gi-score i,.gi-term-list i,.gi-market-rank i{display:block;height:100%;background:#0f62fe}
 .gi-bar-row>b{text-align:right;font-size:.68rem;font-variant-numeric:tabular-nums}
 .gi-table-wrap{overflow-x:auto}
-.gi-data-table{width:100%;border-collapse:collapse;font-size:.7rem;white-space:nowrap}
-.gi-data-table th{text-align:left;padding:.55rem;background:var(--cds-layer-02,#e0e0e0);color:var(--cds-text-secondary,#525252);font-weight:600}
-.gi-data-table td{padding:.65rem .55rem;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6);color:var(--cds-text-primary,#161616)}
-.gi-data-table td strong{font-weight:600}
+
+
+
+
 .gi-score{display:flex;align-items:center;gap:.45rem}
 .gi-score i{height:.4rem;min-width:2rem;max-width:5rem;background:#0f62fe}
 .gi-score b{font-size:.66rem}
@@ -270,13 +270,13 @@
 .gi-evidence-track i{display:block;height:100%;background:var(--cds-interactive,#0f62fe);max-width:100%;border-radius:2px}
 .gi-history-section{min-width:0;margin-top:1rem;padding:1rem;background:var(--cds-layer-01,#f4f4f4)}
 .gi-history-table-wrap{width:100%;max-width:100%;overflow-x:auto}
-.gi-history-table{width:100%;min-width:680px;border-collapse:collapse;font-size:.7rem}
-.gi-history-table th{text-align:left;padding:.65rem;background:var(--cds-layer-02,#e0e0e0);color:var(--cds-text-secondary,#525252);font-weight:600}
-.gi-history-table td{padding:.7rem .65rem;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6);vertical-align:middle}
-.gi-history-table td:first-child{max-width:15rem;overflow-wrap:anywhere}
-.gi-history-status{display:inline-block;padding:.2rem .4rem;background:var(--cds-layer-02,#e0e0e0);color:var(--cds-text-secondary,#525252);white-space:nowrap}
-.gi-history-status.ok{background:#defbe6;color:#0e6027}.gi-history-status.bad{background:#fff1f1;color:#a2191f}
-.gi-history-open{border:0;background:transparent;color:var(--cds-link-primary,#0f62fe);font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+
+
+
+
+
+
+
 .gi-live-results,.gi-live-results *{box-sizing:border-box}
 .gi-live-results .gi-chart-grid,.gi-live-results .gi-chart-card{min-width:0;max-width:100%}
 .gi-live-results .gi-bars{min-width:0;max-width:100%}
@@ -358,3 +358,10 @@
 .global-intelligence .intelligence-tabs .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
 .global-intelligence .intelligence-tabs .cds--tab{flex:0 0 auto;min-width:max-content;white-space:nowrap}
 .global-intelligence .intelligence-tabs .cds--tab-content{min-width:0;padding-top:.5rem}
+
+/* Layout constraints around Carbon data tables; visual states remain Carbon-owned. */
+.gi-table-wrap .cds--data-table{min-width:42rem}
+.gi-history-table-wrap .cds--data-table{min-width:680px}
+.gi-history-table-wrap .cds--table-header-label{white-space:nowrap}
+.gi-history-table-wrap .cds--table-cell:first-child{max-width:15rem;overflow-wrap:anywhere}
+.gi-history-table-wrap .cds--tag{white-space:nowrap}
