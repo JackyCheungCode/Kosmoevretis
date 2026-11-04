@@ -382,53 +382,6 @@ body {
 .auth-card .text-button:hover { text-decoration: underline; }
 .auth-card .cds--inline-notification { max-width: none; }
 
-@media (max-width: 900px) {
-  .sidebar { width: 232px; }
-  .main {
-    margin-left: 232px;
-    padding-right: var(--app-space-05);
-    padding-left: var(--app-space-05);
-  }
-}
-@media (max-width: 720px) {
-  :root { --app-sidebar-width: 280px; }
-  .topbar { padding: 0 var(--app-space-03); }
-  .menu-toggle { display: inline-flex; }
-  .topbar-left, .top-actions { gap: var(--app-space-02); }
-  .brand { font-size: 15px; }
-  .workspace-indicator { max-width: 112px; font-size: 11px; }
-  .profile-btn { padding: 0 var(--app-space-1); }
-  .profile-btn > span:nth-child(2) { display: none; }
-  .sidebar {
-    z-index: 1200;
-    width: min(var(--app-sidebar-width), 86vw);
-    transform: translateX(-102%);
-    transition: transform var(--app-motion-moderate) ease;
-  }
-  .sidebar.sidebar-open { transform: translateX(0); }
-  .sidebar-backdrop {
-    position: fixed;
-    z-index: 1100;
-    inset: var(--app-header-height) 0 0;
-    display: block;
-    border: 0;
-    background: #16161666;
-  }
-  .main {
-    margin-left: 0;
-    padding: calc(var(--app-header-height) + var(--app-space-04)) var(--app-space-04) var(--app-space-06);
-  }
-  .breadcrumb { min-height: 28px; margin-bottom: var(--app-space-02); }
-  .auth-page {
-    align-items: flex-start;
-    padding: clamp(36px, 12vh, 100px) var(--app-space-04) var(--app-space-05);
-  }
-  .auth-card { padding: var(--app-space-06) var(--app-space-05); gap: var(--app-space-04); }
-  .auth-card h1 { font-size: 27px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .nav-item, .sidebar { transition: none; }
-}
 /* AppShell layout container */
 .app-shell { min-height: 100vh; background: var(--app-color-background); }
 .app-shell__content {
