@@ -116,14 +116,14 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoD
    </section>
    <section className="gi-ai-step">
     <div className="gi-ai-step-head"><span className="gi-ai-step-index">02</span><div><strong>选择分析范围</strong><small>单选一种分析方式，切换时保留已填写的研究条件。</small></div></div>
-    <Tabs className="gi-ai-tabs" selectedIndex={Math.max(0,["all","single","custom"].indexOf(mode))} onChange={({selectedIndex})=>setMode(["all","single","custom"][selectedIndex]||"all")}>
+    <div className="gi-ai-tabs"><Tabs selectedIndex={Math.max(0,["all","single","custom"].indexOf(mode))} onChange={({selectedIndex})=>setMode(["all","single","custom"][selectedIndex]||"all")}>
      <TabList aria-label="AI 分析范围"><Tab>全部结果</Tab><Tab>单个 Tab</Tab><Tab>组合分析</Tab></TabList>
      <TabPanels>
       <TabPanel><div className="gi-ai-tab-description">综合分析全部 8 个情报维度，生成市场概况、机会判断、竞争态势与行动建议。</div></TabPanel>
       <TabPanel><label className="gi-ai-field">选择分析板块<CarbonSelect value={singleTab} onChange={setSingleTab}>{tabOptions.map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</CarbonSelect></label></TabPanel>
       <TabPanel><div className="gi-ai-field"><strong>选择参与分析的情报维度</strong><div className="gi-ai-checks">{tabOptions.map(x=><label key={x[0]}><input type="checkbox" checked={customTabs.includes(x[0])} onChange={e=>setCustomTabs(v=>e.target.checked?[...v,x[0]]:v.filter(k=>k!==x[0]))}/>{x[1]}</label>)}</div><small>已选择 {customTabs.length} / 8 个维度</small></div></TabPanel>
      </TabPanels>
-    </Tabs>
+    </Tabs></div>
    </section>
    <section className="gi-ai-step">
     <div className="gi-ai-step-head"><span className="gi-ai-step-index">03</span><div><strong>补充研究问题</strong><small>可选，描述希望 AI 重点回答的商业问题。</small></div></div>
