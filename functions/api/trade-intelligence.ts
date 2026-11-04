@@ -4,8 +4,12 @@ const M49: Record<string,string> = { US:"842",CN:"156",JP:"392",GB:"826",DE:"276
 const COUNTRY: Record<string,string> = { CN:"China",VN:"Vietnam",IN:"India",TW:"Taiwan",KR:"South Korea" };
 async function getJson(url: string, timeout = 16000) { const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), timeout); try { const r = await fetch(url,{signal:controller.signal,headers:{Accept:"application/json"}}); const body = await r.json().catch(()=>null); if(!r.ok) throw new Error("上游服务 HTTP "+r.status); if(body?.success===false) throw new Error(body.error||"上游数据源返回失败"); return body; } finally { clearTimeout(timer); } }
 async function settled<T>(fn:()=>Promise<T>) { try { return {status:"success",data:await fn(),error:null}; } catch(e) { return {status:"unavailable",data:null,error:e instanceof Error?e.message:"请求失败"}; } }
-export async function onRequestPost({request}: {request:Request}) {
+export async function onRequestPost({request,env}: {request:Request;env:Record<string,string>}) {
  try {
+  const authorization=request.headers.get("Authorization")||"";
+  if(!authorization.startsWith("Bearer ")||!env.SUPABASE_URL||!env.SUPABASE_ANON_KEY) return json({error:"请先登录企业工作区。"},401,"no-store");
+  const authResponse=await fetch(env.SUPABASE_URL+"/auth/v1/user",{headers:{Authorization:authorization,apikey:env.SUPABASE_ANON_KEY}});
+  if(!authResponse.ok) return json({error:"登录状态已失效，请重新登录。"},401,"no-store");
   const body = await request.json() as { keywords?:string[]; hsCode?:string; markets?:string[]; originCountry?:string; destinationZip?:string; freightMode?:string; originCity?:string };
   const keywords = (body.keywords||[]).map(x=>String(x).trim()).filter(Boolean).slice(0,5);
   const hsCode = String(body.hsCode||"").replace(/[^0-9.]/g,"").trim();
