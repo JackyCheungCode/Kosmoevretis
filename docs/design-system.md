@@ -73,7 +73,7 @@ Use Carbon 2x grid breakpoints as the reference:
 | X Large | 1312px |
 | Max | 1584px |
 
-The AppShell switches to compact desktop navigation below 1056px and to an overlay navigation below 672px. Page-specific layouts must use the same breakpoint system rather than inventing unrelated breakpoints.
+The AppShell switches to compact desktop navigation below 1056px and to an overlay navigation below 672px. In CSS max-width queries, use 1055px and 671px respectively so the transition aligns with the same 1056px / 672px grid boundaries. Feature page layouts must use these shared boundaries rather than inventing unrelated breakpoints. Market Trends and Keyword Research now follow this contract.
 
 ## Review checklist
 
