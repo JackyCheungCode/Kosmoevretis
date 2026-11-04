@@ -336,7 +336,7 @@
 .gi-markdown-report table{width:100%;border-collapse:collapse;font-size:.75rem}
 .gi-markdown-report th{padding:.55rem .65rem;background:var(--cds-layer-02,#e0e0e0);text-align:left;font-weight:600;white-space:nowrap}
 .gi-markdown-report td{padding:.55rem .65rem;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6);vertical-align:top}
-.gi-history-accordion{margin:.8rem 0 1rem}
+.gi-history-accordion{margin:0}
 .gi-history-accordion .cds--accordion{background:transparent}
 .gi-history-accordion .cds--accordion__item{border-top:1px solid var(--cds-border-subtle,#c6c6c6);border-bottom:1px solid var(--cds-border-subtle,#c6c6c6)}
 .gi-history-accordion .cds--accordion__heading{font-size:.82rem}
@@ -344,3 +344,10 @@
 .gi-history-accordion .cds--accordion__content{padding:0 0 1rem}
 .gi-history-description{margin:0 0 .65rem;color:var(--cds-text-secondary,#525252);font-size:.72rem}
 @media(max-width:671px){.gi-markdown-report{font-size:.78rem;gap:.6rem}.gi-markdown-report table{min-width:520px}.gi-history-accordion .cds--accordion__content{padding-bottom:.7rem}}
+
+/* History task entry is a top-level utility above the analysis source. */
+.gi-history-top{display:flex;justify-content:flex-end;margin:0 0 .85rem;min-width:0}
+.gi-history-top .gi-history-accordion{width:min(100%,920px);margin:0}
+.gi-history-top .cds--accordion__heading{width:100%}
+.gi-history-top .cds--accordion__title{font-size:.8rem}
+.gi-history-top .gi-history-description{padding-top:.25rem}

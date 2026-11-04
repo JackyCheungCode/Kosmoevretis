@@ -61,7 +61,7 @@ Deno.serve(async (req: Request) => {
     const action = String(body.action || "collect");
     if (action === "list_history") {
       const { data: rows, error: historyError } = await admin.from("market_trend_tasks")
-        .select("id,title,status,result_count,created_at,actor_id,actor_meta,input_snapshot,error_message")
+        .select("id,title,status,result_count,created_at,actor_id,actor_meta,input_snapshot,raw_items,error_message")
         .eq("organization_id", organizationId).eq("task_type", "google_trends")
         .order("created_at", { ascending: false }).limit(20);
       if (historyError) throw historyError;
@@ -114,10 +114,11 @@ Deno.serve(async (req: Request) => {
       created_by: user.id,
       actor_id: actorId,
       task_type: "google_trends",
-      title,
+      title: String(body.analysis_snapshot?.title || title),
       status: "running",
       input_snapshot: {
         keywords, geo, markets: Array.isArray(body.markets) ? body.markets.slice(0, 30) : [], period, timeRange: ranges[period], actorInput,
+        ...(body.analysis_snapshot && typeof body.analysis_snapshot === "object" ? body.analysis_snapshot : {}),
         source: "Apify / surefetch/google-trends",
         evidence_type: "observed",
       },
