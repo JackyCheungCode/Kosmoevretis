@@ -2,13 +2,15 @@ import React from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
+import TradeAccessPage from "./TradeAccessPage";
 import Settings from "./Settings";
 
 const enterpriseItems = [["products","产品中心","▣"]] as const;
-const items = [["intelligence","全球情报中心","◎"]] as const;
+const items = [["intelligence","情报总览","◎"],["trade","贸易与市场准入","▤"]] as const;
 const settingsItems = [["sources","设置中心","⌘"]] as const;
 const validPaths = new Set([
   "/intelligence",
+  "/trade-access",
   "/products",
   "/settings/providers",
   "/settings/actors",
@@ -34,10 +36,10 @@ function AppShell() {
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
 
-  const active = isSettings ? "sources" : path === "/products" ? "products" : "intelligence";
-  const currentLabel = active === "products" ? "产品中心" : active === "sources" ? "设置中心" : "全球情报中心";
+  const active = isSettings ? "sources" : path === "/products" ? "products" : path === "/trade-access" ? "trade" : "intelligence";
+  const currentLabel = active === "products" ? "产品中心" : active === "sources" ? "设置中心" : active === "trade" ? "贸易与市场准入" : "全球情报中心";
   const selectPage = (id: string) => {
-    navigate(id === "products" ? "/products" : id === "sources" ? "/settings/providers" : "/intelligence");
+    navigate(id === "products" ? "/products" : id === "sources" ? "/settings/providers" : id === "trade" ? "/trade-access" : "/intelligence");
     setMobileNavOpen(false);
   };
 
@@ -65,8 +67,9 @@ function AppShell() {
     </aside>
     <main className="content">
       <div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div>
-      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active === "intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。" : active === "products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。" : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
+      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active === "intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。" : active === "products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。" : active === "trade" ? "评估目标市场的关税、贸易条件、产品准入与法规合规要求。" : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
       {active === "intelligence" && <GlobalIntelligence />}
+      {active === "trade" && <TradeAccessPage />}
       {active === "products" && <ProductCenter />}
       {isSettings && <Settings />}
     </main>
