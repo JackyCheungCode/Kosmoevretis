@@ -58,6 +58,27 @@ Deno.serve(async (req: Request) => {
     if (membershipError) throw membershipError;
     if (!membership || membership.role === "viewer") return fail("当前账号没有执行市场采集任务的权限。", 403);
 
+    const action = String(body.action || "collect");
+    if (action === "list_history") {
+      const { data: rows, error: historyError } = await admin.from("market_trend_tasks")
+        .select("id,title,status,result_count,created_at,actor_id,actor_meta,input_snapshot,error_message")
+        .eq("organization_id", organizationId).eq("task_type", "google_trends")
+        .order("created_at", { ascending: false }).limit(20);
+      if (historyError) throw historyError;
+      return reply({ history: rows || [] });
+    }
+    if (action === "get_history") {
+      const id = String(body.task_id || "");
+      if (!/^[0-9a-f-]{36}$/i.test(id)) return fail("采集记录编号无效。");
+      const { data: row, error: historyError } = await admin.from("market_trend_tasks")
+        .select("id,title,status,result_count,created_at,actor_id,actor_run_id,dataset_id,actor_meta,input_snapshot,raw_items,error_message")
+        .eq("id", id).eq("organization_id", organizationId).eq("task_type", "google_trends").maybeSingle();
+      if (historyError) throw historyError;
+      if (!row) return fail("找不到该采集记录，或当前账号无权查看。", 404);
+      return reply({ history: row });
+    }
+    if (action !== "collect") return fail("不支持的操作类型。");
+
     const keywords = Array.isArray(body.keywords)
       ? body.keywords.map((v: unknown) => String(v).trim()).filter(Boolean).slice(0, 5)
       : [];
