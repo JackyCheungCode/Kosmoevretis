@@ -7,9 +7,25 @@
 1. **Foundation**：Carbon 主题与 design-tokens.css。颜色、字体、间距、焦点和 AppShell 尺寸只能由基础层维护。
 2. **Shared components**：src/design-system/components。集中维护跨页面重复的页面标题、区块、空状态、加载、错误和状态标签等基础模式。
 3. **Page patterns**：src/design-system/patterns。根据业务任务选择情报工作台、数据列表、配置管理和分析报告模板。
-4. **Business pages**：业务页面只负责数据、业务交互和内容编排；不得重新定义全站视觉规则。
+4. **Application Shell**：src/app-shell.css 与 App.tsx 统一管理顶部栏、侧边导航、导航状态和响应式行为；业务页面不得创建或覆盖全局 Shell。
+5. **Business pages**：业务页面只负责数据、业务交互和内容编排；不得重新定义全站视觉规则。
 
-## 2. 使用约定
+## 2. AppShell 与导航规范
+
+- 全站使用统一 IBM Carbon v11 UI Shell：Carbon Header、HeaderName、HeaderMenuButton、SideNav、SideNavItems、SideNavMenu、SideNavMenuItem / SideNavLink、SkipToContent。
+- 顶部栏高度统一为 48px，使用 Carbon inverse header 层级；品牌、全局操作属于 Header，不在业务页面重复实现。
+- 菜单配置集中维护；桌面、平板和手机共用同一导航信息与路由定义。
+- 桌面端（宽度大于 1055px）：侧边栏默认完整展开，显示分组、图标和文字，宽度 256px。
+- 平板端（672px–1055px）：侧边栏默认收起为 48px 图标栏；图标必须具备可访问名称和 Tooltip。用户可通过 Header 菜单按钮展开；展开时覆盖内容，不持续挤压主工作区。
+- 手机端（宽度不超过 671px）：侧边栏默认隐藏；Header 显示菜单按钮；点击后以抽屉/覆盖方式展开完整导航，不占据主内容宽度。
+- 移动端导航支持遮罩关闭、Escape 关闭、路由跳转后关闭，并将焦点移回菜单触发按钮；打开时焦点进入导航。
+- 当前路由必须以 aria-current="page" 或等效 Carbon 当前页语义表达，不能只用颜色或 CSS class。
+- 导航图标使用 @carbon/icons-react，不允许使用 Unicode 字符或 CSS 线条模拟功能图标。
+- 导航焦点、Hover、Active、选中和展开状态使用 Carbon 组件行为与 Design Tokens。
+- AppShell 尺寸只从 design-tokens.css 读取；禁止在 styles.css 或业务 CSS 中重复定义顶栏、侧栏宽度和断点。
+- 以背景层级组织信息，以极少量边框辅助结构；禁止为每个菜单项添加独立边框。
+
+## 3. 使用约定
 
 - 新页面优先从 src/design-system 导入公共组件和模板。
 - 页面标题、区块标题、空状态、加载状态、错误状态和状态 Tag 优先使用共享实现。
@@ -19,7 +35,7 @@
 - 页面专属 CSS 仅允许定义业务特有布局，不允许覆盖 html/body/:root、Carbon 内部类或另建颜色体系。
 - 新增共享组件或修改 Tokens 必须单独提交，并同步更新设计系统预览和规范文档。
 
-## 3. 例外流程
+## 4. 例外流程
 
 确有业务理由无法使用现有组件时：
 1. 说明现有组件无法满足的具体场景。
@@ -29,7 +45,7 @@
 
 不得以赶工为由复制公共组件或全局控件 CSS。
 
-## 4. 自动检查
+## 5. 自动检查
 
 npm run design-system:check 扫描 src/pages：
 - 每个新页面必须使用 IntelligencePageTemplate、DataListPageTemplate、ConfigurationPageTemplate 或 AnalysisPageTemplate 之一。
@@ -39,7 +55,7 @@ npm run design-system:check 扫描 src/pages：
 
 检查由 GitHub Actions 在构建前执行。新业务页面统一放入 src/pages，以便自动门禁覆盖；尚未迁移的旧页面保持原路径，按页面逐一迁移。后续迁移现有页面时，按页面逐一纳入该目录与检查范围；在迁移完成前不对存量页面进行全仓库强制拦截。
 
-## 5. 新页面交付门槛
+## 6. 新页面交付门槛
 
 新页面必须：
 - 使用一个已批准页面模板或说明为何不适用。
