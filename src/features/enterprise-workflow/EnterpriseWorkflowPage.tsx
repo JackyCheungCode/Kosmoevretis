@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ProgressIndicator, ProgressStep, Button } from "@carbon/react";
 import { ArrowLeft, ArrowRight } from "@carbon/icons-react";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { EnterpriseProfilePage } from "../enterprise-profile/EnterpriseProfilePage";
 import { AIAnalysisPage } from "../ai-analysis/AIAnalysisPage";
 import { AnalysisResultsPage } from "../analysis-results/AnalysisResultsPage";
