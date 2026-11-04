@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Button, Checkbox, Dropdown, InlineNotification, NumberInput, Search, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tabs, TabList, Tab, TabPanels, TabPanel, TextArea, TextInput, Tag } from "@carbon/react";
+import { Button, Dropdown, InlineNotification, NumberInput, Search, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tabs, TabList, Tab, TabPanels, TabPanel, TextArea, TextInput, Tag } from "@carbon/react";
 import { Download, LogoInstagram } from "@carbon/icons-react";
 import { supabase } from "../lib/supabase";
 import "./instagram-discovery.css";
