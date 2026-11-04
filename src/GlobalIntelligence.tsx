@@ -5,7 +5,8 @@ import CarbonSelect from "./components/CarbonSelect";
 
 type Product={id:string;name:string;brand:string|null;model:string|null;category_path:string[]|null};
 type Value={id:string;value_text:string;unit:string|null};
-type Attribute={id:string;name:string;unit:string|null;product_attribute_values:Value[]};\ntype Variant={id:string;sku:string|null;title:string|null;model:string|null;price:number|null;currency:string|null;attribute_value_ids:string[]};
+type Attribute={id:string;name:string;unit:string|null;product_attribute_values:Value[]};
+type Variant={id:string;sku:string|null;title:string|null;model:string|null;price:number|null;currency:string|null;attribute_value_ids:string[]};
 type Tab={id:string;label:string;eyebrow:string;description:string};
 type Market={code:string;name:string;flag:string;mapCode:string};
 declare global{interface Window{L?:any}}
