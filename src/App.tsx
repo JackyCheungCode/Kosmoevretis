@@ -19,6 +19,7 @@ import {
   Settings,
   LogoFacebook,
   LogoLinkedin,
+  UserMultiple,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
