@@ -35,6 +35,14 @@
 - 页面专属 CSS 仅允许定义业务特有布局，不允许覆盖 html/body/:root、Carbon 内部类或另建颜色体系。
 - 新增共享组件或修改 Tokens 必须单独提交，并同步更新设计系统预览和规范文档。
 
+### 3.1 采集工作台公共模式
+
+- Instagram、X、Reddit、Pinterest、TikTok、YouTube 等采集工作台统一使用 `CollectionModeGrid`。
+- 卡片尺寸、网格断点、文本截断、选中与焦点状态由公共组件和 `src/design-tokens.css` 语义令牌维护；业务页面不得自定义卡片宽高或复制卡片 CSS。
+- 采集页面由业务模板负责唯一页面标题；AppShell 不得重复渲染页面标题、说明或 eyebrow。
+- Actor、备用执行器、Run / Dataset 标识和调度实现属于服务端技术细节，不作为普通用户页面内容展示。原始数据查看与导出仍可保留。
+- 公共采集组件必须在 `src/DesignSystemPreview.tsx` 中提供交互预览，并覆盖桌面、平板和移动端布局。
+
 ## 4. 例外流程
 
 确有业务理由无法使用现有组件时：
