@@ -1,7 +1,7 @@
 import { Children, isValidElement, useEffect, useMemo, useRef, useState } from "react";
 
 type Option = { value:string; label:string; disabled?:boolean };
-type Props = { value:string; onChange:(value:string)=>void; children?:React.ReactNode; placeholder?:string; className?:string; ariaLabel?:string };
+type Props = { value:string; onChange:(value:string)=>void; children?:React.ReactNode; placeholder?:string; className?:string; ariaLabel?:string };\n\nfunction OptionLabel({label}:{label:string}) {\n  const match=label.match(/^(\\p{Regional_Indicator}{2})\\s+(.*)$/u);\n  return match?<span className="carbon-select-flag-label"><span className="carbon-select-flag-circle">{match[1]}</span><span>{match[2]}</span></span>:<>{label}</>;\n}
 
 export default function CarbonSelect({value,onChange,children,placeholder="请选择",className="" ,ariaLabel}:Props) {
   const [open,setOpen]=useState(false);
@@ -23,11 +23,11 @@ export default function CarbonSelect({value,onChange,children,placeholder="请�
   },[open]);
   return <div className={`carbon-select ${className}`} ref={root}>
     <button type="button" className="carbon-select-trigger" aria-haspopup="listbox" aria-expanded={open} aria-label={ariaLabel} onClick={()=>setOpen(x=>!x)}>
-      <span className={selected?"":"carbon-select-placeholder"}>{selected?.label||placeholder}</span><span className="carbon-select-chevron" aria-hidden="true">⌄</span>
+      <span className={selected?"":"carbon-select-placeholder"}>{selected?<OptionLabel label={selected.label}/>:placeholder}</span><span className="carbon-select-chevron" aria-hidden="true">⌄</span>
     </button>
     {open&&<div className="carbon-select-menu" role="listbox">
       {options.length>8&&<input className="carbon-select-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索选项…" autoFocus/>}
-      <div className="carbon-select-options">{filtered.map(option=><button type="button" role="option" aria-selected={value===option.value} disabled={option.disabled} key={option.value} className={value===option.value?"carbon-select-option selected":"carbon-select-option"} onClick={()=>{onChange(option.value);setOpen(false);setQuery("");}}><span>{option.label}</span>{value===option.value&&<span aria-hidden="true">✓</span>}</button>)}{!filtered.length&&<div className="carbon-select-empty">没有匹配的选项</div>}</div>
+      <div className="carbon-select-options">{filtered.map(option=><button type="button" role="option" aria-selected={value===option.value} disabled={option.disabled} key={option.value} className={value===option.value?"carbon-select-option selected":"carbon-select-option"} onClick={()=>{onChange(option.value);setOpen(false);setQuery("");}}><OptionLabel label={option.label}/>{value===option.value&&<span aria-hidden="true">✓</span>}</button>)}{!filtered.length&&<div className="carbon-select-empty">没有匹配的选项</div>}</div>
     </div>}
   </div>;
 }
