@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle, Checkbox } from "@carbon/react";
+import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
 import SettingsBackend from "./SettingsBackend";
 import BrandLogo from "./BrandLogo";
 
@@ -45,7 +45,7 @@ function SystemPage({page}:{page:string}){const data:Record<string,{eyebrow:stri
  notifications:{eyebrow:"NOTIFICATIONS",title:"通知策略",desc:"管理采集任务、服务连接与平台运行告警。",body:<><Toggle id="task-notice" labelText="采集任务完成通知" labelA="关" labelB="开"/><Toggle id="error-notice" labelText="连接异常通知" labelA="关" labelB="开"/><Pending>通知策略保存和消息投递接口尚未接入。</Pending></>},
  governance:{eyebrow:"DATA GOVERNANCE",title:"数据治理",desc:"配置数据保留、来源追踪、质量与导出策略。",body:<><p>统一记录来源、采集时间、采集方法、置信度与标准化状态。不会自动删除现有业务数据。</p><Pending>数据保留策略、数据质量规则和导出权限接口尚未接入。</Pending></>},
  audit:{eyebrow:"SECURITY & AUDIT",title:"安全与审计",desc:"查看配置变更、密钥管理和权限操作的审计信息。",body:<><p>密钥不写入前端日志。配置变更、连接测试、Actor 执行和权限变更应保留审计轨迹。</p><Pending>审计检索与安全策略管理界面尚未全部接入。</Pending></>}
-};const x=data[page];return <><Heading {...x}/>{x.body}</>}
+};const x=data[page];return <><Heading eyebrow={x.eyebrow} title={x.title} description={x.desc}/>{x.body}</>}
 const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  providers:{title:"服务商连接",desc:"管理平台使用的外部数据采集服务和 API 凭证。",eyebrow:"API & DATA SOURCES"},
  actors:{title:"采集能力目录",desc:"注册可复用的 Actor，统一管理输入参数与输出映射。",eyebrow:"API & DATA SOURCES"},
