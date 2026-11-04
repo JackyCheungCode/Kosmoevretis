@@ -10,6 +10,7 @@ import {
 } from "@carbon/react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
+import { PageHeader } from "../../components/ui/PageHeader";
 import "./market-trends.scss";
 
 type TaskStatus = "queued" | "running" | "succeeded" | "partial" | "failed";
