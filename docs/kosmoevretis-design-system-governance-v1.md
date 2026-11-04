@@ -64,3 +64,5 @@ npm run design-system:check 扫描 src/pages：
 - 通过 TypeScript、生产构建和设计系统检查。
 - 完成桌面/移动端与既有页面回归。
 - 在 3c-platform 分支提交并验证 Cloudflare Build / Deploy。
+
+\n## 7. 设置中心专项约束\n\n- 设置中心使用 `ConfigurationPageTemplate`，页面内容标题通过 `PageSection` 表达；不得再创建平行的页面框架或重复标题工具栏。\n- 设置分类导航使用真实路由链接（React Router `NavLink`），当前项必须输出 `aria-current="page"`；不得使用按钮模拟页面导航。\n- 桌面和平板使用配置模板的侧栏布局；手机端改为可访问的覆盖式导航，支持 Escape 关闭、遮罩关闭和焦点恢复。\n- 设置中心样式统一放在 `src/settings-center.css`，使用 Carbon/Kosmo tokens；不得覆盖 Carbon 内部类、使用 `!important` 或重复追加响应式补丁。\n- 自动检查覆盖 `src/Settings.tsx`、`src/SettingsBackend.tsx` 和 `src/settings-center.css`，不再因设置中心位于 `src/` 根目录而漏检。\n
