@@ -18,11 +18,12 @@ export async function onRequestPost({request}: {request:Request}) {
   } else tasks.tariff = Promise.resolve({status:"not_applicable",data:null,error:markets.includes("US")?"请输入产品关键词或 HS 编码以查询美国 HTS。":"当前目标市场不包含美国；首期 USITC 仅覆盖美国 HTS。"});
   const iso3 = markets.map(x=>ISO3[x]).filter(Boolean);
   tasks.bready = settled(async()=>{
-   if(!iso3.length) return {items:[],note:"所选国家暂未配置世界银行国家代码映射。"};
-   const codes=iso3.join(";");
-   const indicators=["IC.BRE.IT.OS","IC.BRE.BE.OS"];
-   const all=await Promise.all(indicators.map(async indicator=>({indicator,body:await getJson("https://api.worldbank.org/v2/country/"+codes+"/indicator/"+indicator+"?format=json&per_page=100&date=2024:2026")})));
-   return {items:all.flatMap(x=>(Array.isArray(x.body?.[1])?x.body[1]:[]).filter((r:any)=>r.value!==null).map((r:any)=>({country:r.country?.value,iso3:r.countryiso3code,indicator:x.indicator,year:r.date, value:r.value}))),source:"World Bank B-READY",note:"指标年度以 API 实际返回为准；B-READY 是制度与公共服务评估，不是实时营商成本。"};
+   const payload=await getJson("https://ddh-openapi.worldbank.org/resources/DR0094718/data?top=1000");
+   const rows=Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:Array.isArray(payload?.value)?payload.value:[];
+   const countryNames:Record<string,string>={US:"United States",CN:"China",JP:"Japan",GB:"United Kingdom",DE:"Germany",FR:"France",CA:"Canada",AU:"Australia",KR:"Korea",IN:"India",IT:"Italy",ES:"Spain",NL:"Netherlands",SG:"Singapore",BR:"Brazil",MX:"Mexico",VN:"Vietnam",TH:"Thailand",ID:"Indonesia",MY:"Malaysia",PH:"Philippines",TW:"Taiwan",HK:"Hong Kong"};
+   const wanted=markets.map(code=>(countryNames[code]||"").toLowerCase()).filter(Boolean);
+   const items=rows.filter((row:any)=>{const key=Object.keys(row||{}).find(k=>/^(economy|economy name|country|country name|economy_name)$/i.test(k));const value=key?String(row[key]).toLowerCase():"";return wanted.some(name=>value===name||value.includes(name));});
+   return {items,edition:"B-READY 2024",source:"World Bank Data Catalog · Business Ready (B-READY)",note:"官方公开数据集，当前接入的是 2024 版资源；不是实时数据。若目标市场不在该版已评分经济体中，将显示无匹配记录。",resource_id:"DR0094718",dataset_url:"https://datacatalog.worldbank.org/search/dataset/0066291/business-ready-b-ready"};
   });
   tasks.trade = settled(async()=>{
    if(!hsCode) return {items:[],note:"输入 HS 编码后可查询 UN Comtrade 商品贸易数据。"};
