@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DataBase } from "@carbon/icons-react";
 
 type BrandLogoProps = {
   name: string;
@@ -23,8 +24,7 @@ export default function BrandLogo({ name, domain, mark }: BrandLogoProps) {
         overflow: "hidden",
         background: "var(--cds-layer-02, #e8e8e8)",
         color: "var(--cds-text-primary, #161616)",
-        fontSize: 12,
-        fontWeight: 600,
+        padding: 4,
       }}
     >
       {!failed && domain ? (
@@ -37,7 +37,7 @@ export default function BrandLogo({ name, domain, mark }: BrandLogoProps) {
           onError={() => setFailed(true)}
         />
       ) : (
-        mark || name.slice(0, 2).toUpperCase()
+        <DataBase size={20} aria-hidden="true" />
       )}
     </span>
   );
