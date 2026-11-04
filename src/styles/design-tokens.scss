@@ -33,6 +33,13 @@
   --app-space-10: var(--cds-spacing-11, 80px);
   --app-space-11: var(--cds-spacing-12, 96px);
 
+  /* Typography aliases */
+  --app-font-family: var(--cds-font-family-sans, "IBM Plex Sans", Arial, sans-serif);
+  --app-type-body-size: var(--cds-body-01-font-size, 0.875rem);
+  --app-type-body-line-height: var(--cds-body-01-line-height, 1.43);
+  --app-type-label-size: var(--cds-label-01-font-size, 0.75rem);
+  --app-type-heading-size: var(--cds-heading-04-font-size, 1.75rem);
+
   /* Shared shell geometry */
   --app-header-height: 56px;
   --app-sidebar-width: 256px;
