@@ -100,7 +100,13 @@ export default function FacebookDiscovery() {
    if(invokeError)throw invokeError;if(data?.error)throw new Error(data.error);
    setResults(data.results||[]);setMeta(data.actor_meta||null);
    addLog("Actor 执行已返回，Dataset 数据读取完成。","success");
-   if(data.actor_meta?.actors?.length)for(const actor of data.actor_meta.actors)addLog("完成 "+actor.actor_id+" · "+actor.status+" · Dataset "+actor.dataset_id,"success");
+   if(data.actor_meta?.actors?.length)for(const actor of data.actor_meta.actors){
+    addLog("完成 "+actor.actor_id+" · "+actor.status+" · Dataset "+actor.dataset_id,"success");
+    if(actor.run_log){
+     addLog("以下为 Apify Run 原始日志："+actor.actor_id,"info");
+     String(actor.run_log).split(/\\r?\\n/).filter(Boolean).slice(-80).forEach((line:string)=>addLog(line,"info"));
+    }else addLog("该 Actor 暂无可显示的 Run 日志。","warning");
+   }
    addLog("结果已写入任务历史，共 "+(data.result_count||0)+" 条。","success");
    setNotice((data.status==="partial"?"采集已完成，但没有返回结果。":"采集完成。")+" 返回 "+(data.result_count||0)+" 条记录。");
    await loadHistory(organizationId);
@@ -117,8 +123,7 @@ export default function FacebookDiscovery() {
   <section className="fb-config-panel">
    <div className="fb-section-head"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div><span>一个渠道，多种公开对象</span></div>
    <div className="fb-dropdown-wrap"><ComboBox id="fb-discovery-object" titleText="发现对象" placeholder="请选择发现对象" items={modes} itemToString={item=>item?.label||""} selectedItem={selectedMode} onChange={({selectedItem})=>{if(selectedItem){setType(selectedItem.id);setResults([]);setMeta(null);setError("");setNotice("");}}} itemToElement={item=>{const Icon=item.icon;return <div className="fb-dropdown-item"><Icon size={20}/><span><strong>{item.label}</strong><small>{item.description}</small></span></div>;}} /></div>
-   <div className="fb-selected-object"><selectedMode.icon size={20}/><div><strong>{selectedMode.label}</strong><span>{selectedMode.description}</span></div></div>
-   <div className="fb-form-grid">
+    <div className="fb-form-grid">
     <div className="fb-field fb-keywords"><TextInput id="fb-search-terms" labelText="搜索关键词" placeholder={"例如：wireless earbuds manufacturer\n支持多个关键词，使用换行或逗号分隔"} value={terms} onChange={e=>setTerms(e.target.value)}/><small>{termList.length} 个关键词 · 每个关键词独立搜索</small></div>
     <div className="fb-field"><label>每次最多返回结果</label><NumberInput id="fb-max-results" label="每次最多返回结果" hideLabel min={1} max={200} value={maxResults} onChange={(_e,{value})=>setMaxResults(Number(value)||50)}/></div>
     {["people","pages","places","events"].includes(type)&&<div className="fb-field"><TextInput id="fb-location-uid" labelText="城市 / 地点 ID（可选）" placeholder="Facebook Place UID" value={locationUid} onChange={e=>setLocationUid(e.target.value)}/><small>填写 Facebook 城市 Place UID；不是城市名称。</small></div>}
@@ -132,7 +137,7 @@ export default function FacebookDiscovery() {
    {notice&&<InlineNotification kind="success" title="任务状态" subtitle={notice} onCloseButtonClick={()=>setNotice("")}/>}
   </section>
   <section className="fb-logs-section">
-   <div className="fb-section-head"><div><span className="eyebrow">02 / LIVE ACTIVITY</span><h3>任务日志</h3><p>显示当前页面可观测的请求阶段、Actor 返回与结果入库事件。</p></div><div className="fb-log-actions"><Tag type={busy?"blue":"gray"}>{busy?"执行中":"空闲"}</Tag><Button kind="ghost" size="sm" onClick={clearLogs}>清空日志</Button></div></div>
+   <div className="fb-section-head"><div><span className="eyebrow">02 / LIVE ACTIVITY</span><h3>任务日志</h3><p>同时展示页面任务事件与 Apify Actor Run 返回的原始执行日志。</p></div><div className="fb-log-actions"><Tag type={busy?"blue":"gray"}>{busy?"执行中":"空闲"}</Tag><Button kind="ghost" size="sm" onClick={clearLogs}>清空日志</Button></div></div>
    <div className="fb-log-console" aria-live="polite">{logs.length?logs.map(log=><div className={"fb-log-line "+log.level} key={log.id}><time>{log.time}</time><span className="fb-log-dot"/><span>{log.message}</span></div>):<div className="fb-log-placeholder">等待任务事件。启动发现后，日志将在此处追加。</div>}</div>
   </section>
   <section className="fb-results-section">
