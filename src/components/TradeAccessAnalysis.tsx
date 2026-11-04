@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import "../trade-access.css";
 import { Button, InlineNotification, Tag, Dropdown, InlineLoading } from "@carbon/react";
 
@@ -7,7 +8,7 @@ type Payload={generated_at:string;results:Record<string,any>;sources:any[]};
 const marketNames:Record<string,string>={US:"美国",CN:"中国大陆",JP:"日本",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",KR:"韩国",IN:"印度",IT:"意大利",ES:"西班牙",NL:"荷兰",SG:"新加坡",BR:"巴西",MX:"墨西哥",VN:"越南",TH:"泰国",ID:"印度尼西亚",MY:"马来西亚",PH:"菲律宾",TW:"中国台湾",HK:"中国香港"};
 const safeArray=(value:any):any[]=>Array.isArray(value)?value:Array.isArray(value?.data)?value.data:Array.isArray(value?.results)?value.results:value&&typeof value==="object"?Object.entries(value).slice(0,30).map(([key,val])=>({key,...(typeof val==="object"&&val?val as object:{value:val})})):[];
 
-function ResultSection({title,source,status,error,children}:{title:string;source:string;status:string;error?:string|null;children:React.ReactNode}){
+function ResultSection({title,source,status,error,children}:{title:string;source:string;status:string;error?:string|null;children:ReactNode}){
  return <section className="trade-result-section"><div className="trade-result-heading"><div><h3>{title}</h3><span>{source}</span></div><Tag type={status==="success"?"green":status==="not_applicable"||status==="needs_input"?"blue":"cool-gray"}>{status==="success"?"已获取":status==="needs_input"?"待补充条件":status==="not_applicable"?"不适用":"暂无数据"}</Tag></div>{error&&<p className="trade-muted">{error}</p>}{children}</section>;
 }
 function DataRows({items,kind}:{items:any[];kind:string}){
