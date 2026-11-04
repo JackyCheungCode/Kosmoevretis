@@ -182,7 +182,7 @@ function DataTable({ rows, empty }: { rows: any[]; empty: string }) {
   const columns = useMemo(() => Array.from(new Set(rows.flatMap((row) => Object.keys(row || {})))), [rows]);
   if (!rows.length) return <div className="mt-empty-inline"><Search size={22} /><span>{empty}</span></div>;
   const visibleRows = rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-  return <div className="mt-table-scroll"><Table size="lg" useZebraStyles><TableHead><TableRow>{columns.map((key) => <TableHeader key={key}>{key}</TableHeader>)}</TableRow></TableHead><TableBody>
+  return <div className="mt-table-scroll app-data-region"><Table size="lg" useZebraStyles><TableHead><TableRow>{columns.map((key) => <TableHeader key={key}>{key}</TableHeader>)}</TableRow></TableHead><TableBody>
     {visibleRows.map((row, index) => <TableRow key={currentPage * pageSize + index}>{columns.map((key) => { const raw = row[key]; const value = typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw ?? "—"); const isGeo = /^(geoName|region|country|name|location|geo)$/i.test(key); const code = countryCodeFor(row.countryCode || row.geoCode || row.code || raw); return <TableCell key={key}>{isGeo ? <span className="mt-country-cell"><span className="mt-country-flag" aria-hidden="true">{countryFlag(code)}</span>{value}</span> : value}</TableCell>; })}</TableRow>)}
   </TableBody></Table><div className="mt-table-foot"><span>显示第 {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, rows.length)} 条，共 {rows.length.toLocaleString()} 条记录</span><div><Button kind="ghost" size="sm" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>上一页</Button><span>第 {currentPage + 1} / {pageCount}</span><Button kind="ghost" size="sm" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>下一页</Button></div></div></div>;
 }
@@ -314,7 +314,7 @@ export function MarketTrendsPage() {
     {notice && <InlineNotification kind="success" title="研究状态" subtitle={notice} lowContrast onCloseButtonClick={() => setNotice("")} />}
 
     <section className="mt-workspace-grid">
-      <aside className="mt-config-panel">
+      <aside className="mt-config-panel app-surface">
         <div className="mt-panel-heading"><div><span className="mt-step">01</span><div><h2>研究配置</h2><p>定义需要采集的市场信号。</p></div></div><Tag type="blue">Apify 数据采集器</Tag></div>
         <div className="mt-form-field">
           <TextArea id="mt-keywords" labelText="研究关键词" placeholder={"例如：industrial automation\nAI agents, smart factory"} helperText="多个关键词请用逗号或换行分隔；最多可同时对比 5 个关键词。" rows={3} value={keywordsText} onChange={(event) => setKeywordsText(event.target.value)} disabled={trendingMode} />
@@ -357,7 +357,7 @@ export function MarketTrendsPage() {
         {busy && <InlineLoading description="正在向 Apify 提交研究任务…" />}
       </aside>
 
-      <section className="mt-results-panel">
+      <section className="mt-results-panel app-surface app-surface--raised">
         <div className="mt-results-head"><div><span className="mt-step">02</span><div><h2>研究结果</h2><p>可视化洞察与 Actor 完整返回数据。</p></div></div>
           {activeTask && <Tag type={activeTask.status === "succeeded" ? "green" : activeTask.status === "failed" ? "red" : "blue"}>{statusLabel[activeTask.status]}</Tag>}
         </div>
