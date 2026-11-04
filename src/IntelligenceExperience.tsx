@@ -136,36 +136,68 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoD
  </section>;
 }
 
-function LiveGoogleTrends({results,meta,history,loading,onSelectHistory}:{results:any[];meta:any|null;history:any[];loading:boolean;onSelectHistory:(id:string)=>void}) {
- const [selected,setSelected]=useState(0);
- const result=results[selected]||null;
+function TrendLineChart({series,keyword}:{series:any[];keyword:string}) {
+ const points=series.map((row:any,i:number)=>{const raw=row?.[keyword]??row?.value??row?.interest??row?.interestValue??row?.values?.[0]?.value??0;const value=Number(raw);const date=row?.date??row?.formattedTime??row?.time??(row?.timestamp?new Date(Number(row.timestamp)*1000).toISOString().slice(0,10):String(i+1));return{date:String(date),value:Number.isFinite(value)?Math.max(0,Math.min(100,value)):0};}).filter((p:any)=>p.date);
+ if(!points.length)return <div className="gi-empty-state">Actor 未返回可绘制的时间序列。请展开原始数据检查返回字段。</div>;
+ const w=760,h=280,left=48,right=18,top=18,bottom=48,max=100;
+ const x=(i:number)=>left+(i/Math.max(1,points.length-1))*(w-left-right),y=(v:number)=>top+(1-v/max)*(h-top-bottom);
+ const path=points.map((p:any,i:number)=>(i?"L":"M")+x(i)+","+y(p.value)).join(" ");
+ const labels=points.filter((_:any,i:number)=>i===0||i===points.length-1||i%Math.max(1,Math.ceil(points.length/5))===0);
+ return <div className="gi-trend-chart"><svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={keyword+" 搜索兴趣时间序列折线图"} preserveAspectRatio="xMidYMid meet">
+ {[0,25,50,75,100].map(v=><g key={v}><line x1={left} x2={w-right} y1={y(v)} y2={y(v)} className="gi-gridline"/><text x={left-10} y={y(v)+4} textAnchor="end" className="gi-axis-label">{v}</text></g>)}
+ <path d={path} className="gi-line gi-line-search"/>{points.map((p:any,i:number)=><circle key={i} cx={x(i)} cy={y(p.value)} r={points.length>90?1.8:3} className="gi-dot-search"><title>{p.date} · {p.value}</title></circle>)}
+ {labels.map((p:any)=><text key={p.date} x={x(points.indexOf(p))} y={h-12} textAnchor="middle" className="gi-axis-label">{p.date.slice(0,10)}</text>)}
+ </svg><div className="gi-chart-footnote">Google Trends 相对兴趣指数 · 0–100</div></div>;
+}
+function RankedEvidence({items,kind="query"}:{items:any[];kind?:string}) {
+ const rows=items.slice(0,20).map((item:any)=>({label:String(item.query??item.topic??item.title??item.keyword??item.value??"未命名"),value:Number(item.value??item.extracted_value??item.score??0),growth:item.formattedValue??item.growth??item.formatted_value??""}));
+ const max=Math.max(1,...rows.map(x=>x.value));
+ if(!rows.length)return <div className="gi-empty-state">当前 Actor 结果没有返回此类数据。</div>;
+ return <div className="gi-evidence-list">{rows.map((row:any,i:number)=><div className="gi-evidence-row" key={i}><span className="gi-evidence-rank">{i+1}</span><div className="gi-evidence-main"><strong title={row.label}>{row.label}</strong><div className="gi-evidence-track"><i style={{width:Math.max(0,Math.min(100,row.value/max*100))+"%"}}/></div></div><b>{row.growth|| (row.value||"—")}</b></div>)}</div>;
+}
+function HistoryRecords({history,onSelectHistory}:{history:any[];onSelectHistory:(id:string)=>void}) {
+ if(!history.length)return null;
+ return <section className="gi-history-section"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>查看已保存的原始结果，可恢复当次情报。</p></div></div>
+ <div className="gi-history-table-wrap"><table className="gi-history-table"><thead><tr><th>采集任务</th><th>数据来源</th><th>市场</th><th>采集时间</th><th>状态</th><th>结果</th><th>操作</th></tr></thead><tbody>{history.map((item:any)=><tr key={item.id}><td><strong>{item.title||"Google Trends 采集"}</strong></td><td>Google Trends</td><td>{item.input_snapshot?.geo||item.input_snapshot?.markets?.join(", ")||"全球"}</td><td>{item.created_at?new Date(item.created_at).toLocaleString():"—"}</td><td><span className={"gi-history-status "+(item.status==="succeeded"?"ok":item.status==="failed"?"bad":"")}>{item.status}</span></td><td>{item.result_count??0}</td><td><button type="button" className="gi-history-open" onClick={()=>onSelectHistory(item.id)}>查看结果</button></td></tr>)}</tbody></table></div></section>;
+}
+function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTab}:{results:any[];meta:any|null;history:any[];loading:boolean;onSelectHistory:(id:string)=>void;activeTab:string}) {
+ const [selected,setSelected]=useState(0);const result=results[selected]||results[0]||null;
+ useEffect(()=>setSelected(0),[results]);
  const series=Array.isArray(result?.interest_over_time)?result.interest_over_time:[];
  const regions=Array.isArray(result?.interest_by_region)?result.interest_by_region:[];
- const related=result?.related_queries||{};
- const rows=Array.isArray(related.rising)?related.rising:Array.isArray(related.top)?related.top:[];
- const values: {label:string;value:number}[]=series.map((row:any)=>({label:String(row.date||new Date(Number(row.timestamp||0)*1000).toLocaleDateString()),value:Number(row[result?.keyword]??row.value??0)}));
- const max=Math.max(1,...values.map(x=>x.value));
+ const related=result?.related_queries||{},topics=result?.related_topics||{};
+ const relatedItems=Array.isArray(related.rising)?related.rising:Array.isArray(related.top)?related.top:[];
+ const topicItems=Array.isArray(topics.rising)?topics.rising:Array.isArray(topics.top)?topics.top:[];
+ const regionRows=regions.map((x:any)=>({label:String(x.region??x.geoCode??x.geo_code??x.name??"未知地区"),value:Number(x.value??x.interest??0)})).sort((a:any,b:any)=>b.value-a.value);
+ const allTerms=results.flatMap((x:any)=>{const r=x.related_queries||{};return (Array.isArray(r.rising)?r.rising:Array.isArray(r.top)?r.top:[]).map((q:any)=>({query:q.query??q.keyword??"",value:q.value??q.extracted_value??0}));});
  return <section className="gi-live-results">
-  <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>真实搜索趋势数据</h2><p>数据由 Apify Google Trends Actor 实时采集，指标为 Google Trends 相对搜索兴趣指数（0–100），不是搜索量或销量。</p></div><span className="gi-status ready">{loading?"正在采集…":meta?.status==="failed"?"采集失败":meta?"真实数据":"等待采集"}</span></div>
-  {loading&&<div className="gi-warning">正在调用 Google Trends Actor。采集完成后会自动保存原始数据和任务记录，请勿关闭页面。</div>}
-  {meta&&<div className="gi-kpi-grid"><div><small>返回结果组</small><strong>{meta.result_count??results.length}</strong></div><div><small>Actor 运行 ID</small><strong>{meta.actor_run_id||"—"}</strong></div><div><small>采集来源</small><strong>surefetch/google-trends</strong></div><div><small>运行状态</small><strong>{meta.status||"succeeded"}</strong></div></div>}
-  {results.length>0&&<>
-   {results.length>1&&<div className="gi-filter-row"><label>关键词结果<select value={selected} onChange={e=>setSelected(Number(e.target.value))}>{results.map((x,i)=><option key={i} value={i}>{x.keyword||"关键词 "+(i+1)}</option>)}</select></label></div>}
-   <div className="gi-chart-grid"><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>{result.keyword} · 搜索兴趣时间序列</h4><p>{result.geo||"全球"} · {result.time_range} · Google Trends 指数</p></div></div>
-    {values.length?<div className="gi-live-series">{values.map((x:{label:string;value:number},i:number)=><div key={i} title={x.label}><span>{x.label}</span><div><i style={{height:(x.value/max*100)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>Actor 未返回时间序列数据。可在下方查看完整原始结果。</p>}
-   </article>
-   <article className="gi-chart-card"><div className="gi-card-head"><div><h4>地区搜索兴趣</h4><p>地区内相对兴趣指数</p></div></div>{regions.length?<div className="gi-bars">{regions.slice(0,15).map((x:any,i:number)=><div className="gi-bar-row" key={i}><span>{x.region||x.geoCode}</span><div><i style={{width:(Number(x.value)||0)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>当前结果没有地区分布数据。</p>}</article>
-   <article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关搜索查询</h4><p>Actor 返回的关联查询</p></div></div>{rows.length?<div className="gi-bars">{rows.slice(0,20).map((x:any,i:number)=><div className="gi-bar-row" key={i}><span>{x.query||x.keyword||JSON.stringify(x)}</span><div><i style={{width:(Number(x.value)||0)+"%"}}/></div><b>{x.value??"—"}</b></div>)}</div>:<p>当前结果没有相关查询数据。</p>}</article>
-   </div>
-   <details className="gi-raw-evidence"><summary>查看 Actor 原始返回数据（完整 JSON）</summary><pre>{JSON.stringify(result,null,2)}</pre></details>
-  </>}
-  {!loading&&!results.length&&<div className="gi-warning">{meta?.status==="failed"?meta.error:"尚无本次真实采集结果。请在上方配置关键词、目标市场和时间范围后点击“开始分析”。"}</div>}
-  {history.length>0&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>已保存到组织工作区，可用于后续历史对比。</p></div></div><div className="gi-bars">{history.map((x:any)=><div className="gi-bar-row" key={x.id}><button type="button" onClick={()=>onSelectHistory(x.id)}>{x.title}</button><div><i style={{width:(x.status==="succeeded"?100:0)+"%"}}/></div><b>{x.status} · {x.result_count}</b></div>)}</div></article>}
+  <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>Google Trends 情报数据</h2><p>一次采集的原始结果按情报维度归类复用；所有指数均为相对兴趣信号，不代表销量或绝对搜索量。</p></div><span className={"gi-status "+(loading?"limited":meta?.status==="failed"?"error":"ready")}>{loading?"正在采集…":meta?.status==="failed"?"采集失败":meta?"真实数据":"等待采集"}</span></div>
+  {loading&&<div className="gi-warning">正在调用 Google Trends Actor，完成后自动保存任务与原始结果。</div>}
+  {meta&&<div className="gi-kpi-grid"><div><small>关键词结果组</small><strong>{results.length||meta.result_count||0}</strong></div><div><small>时间序列样本</small><strong>{series.length}</strong></div><div><small>关联查询</small><strong>{relatedItems.length}</strong></div><div><small>地区样本</small><strong>{regions.length}</strong></div></div>}
+  {results.length>1&&<div className="gi-filter-row"><label>关键词结果<select value={selected} onChange={e=>setSelected(Number(e.target.value))}>{results.map((x:any,i:number)=><option key={i} value={i}>{x.keyword||"关键词 "+(i+1)}</option>)}</select></label></div>}
+  {result&&<div className="gi-chart-grid">
+   {activeTab==="overview"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>搜索兴趣概览 · {result.keyword}</h4><p>当前关键词的真实时间序列</p></div></div><TrendLineChart series={series} keyword={result.keyword}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>重点国家 / 地区</h4><p>按 Google Trends 相对兴趣排序</p></div></div><RankedEvidence items={regionRows}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>上升相关查询</h4><p>消费者关联搜索线索</p></div></div><RankedEvidence items={relatedItems}/></article></>}
+   {activeTab==="search"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>搜索兴趣时间序列</h4><p>{result.keyword} · {result.geo||"全球"} · {result.time_range}</p></div></div><TrendLineChart series={series} keyword={result.keyword}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关搜索查询</h4><p>Top / Rising 查询</p></div></div><RankedEvidence items={related.top?.length?related.top:relatedItems}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关主题</h4><p>与关键词共同出现的主题</p></div></div><RankedEvidence items={topics.top?.length?topics.top:topicItems}/></article></>}
+   {activeTab==="markets"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>国家市场搜索兴趣分布</h4><p>地区相对兴趣指数；国家代码和地区名称以 Actor 返回为准</p></div></div><RankedEvidence items={regionRows}/></article></>}
+   {activeTab==="consumer"&&<><article className="gi-chart-card"><div className="gi-card-head"><div><h4>消费者关注主题</h4><p>由相关主题提取，属于需求线索而非已验证购买需求</p></div></div><RankedEvidence items={topicItems}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>消费者相关搜索</h4><p>用于识别场景、功能和问题线索</p></div></div><RankedEvidence items={relatedItems}/></article></>}
+   {activeTab==="categories"&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>品类相关搜索线索</h4><p>从相关查询和主题中识别相邻需求</p></div></div><RankedEvidence items={[...topicItems,...relatedItems]}/></article>}
+   {activeTab==="bestsellers"&&<div className="gi-warning">Google Trends 不提供真实电商销量或热销排名。请接入 Amazon、eBay 等电商数据源后再展示真实热销榜。</div>}
+   {activeTab==="social"&&<div className="gi-warning">Google Trends 不包含社交媒体互动数据。社媒趋势需接入 TikTok、YouTube、Reddit 等数据源。</div>}
+   {activeTab==="competitors"&&<div className="gi-warning">当前 Google Trends 结果不足以验证品牌份额或竞品销量。可将竞品关键词分别加入分析后进行搜索关注度比较。</div>}
+   {activeTab==="markets"&&<article className="gi-chart-card"><div className="gi-card-head"><div><h4>国家市场筛选</h4><p>各市场的相对兴趣值</p></div></div><div className="gi-market-rank">{regionRows.slice(0,20).map((x:any)=><div key={x.label}><span>{x.label}</span><div><i style={{width:Math.min(100,x.value)+"%"}}/></div><b>{x.value}</b></div>)}</div></article>}
+  </div>}
+  {!result&&!loading&&<div className="gi-warning">{meta?.status==="failed"?meta.error:"尚无真实采集结果。请配置关键词、市场和时间范围后开始分析。"}</div>}
+  {meta?.error&&<div className="gi-warning">{meta.error}</div>}
+  <HistoryRecords history={history} onSelectHistory={onSelectHistory}/>
+  {result&&<details className="gi-raw-evidence"><summary>查看 Actor 原始返回数据（完整 JSON）</summary><pre>{JSON.stringify(result,null,2)}</pre></details>}
  </section>;
 }
 
 export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false,onSelectHistory=()=>{}}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean;onSelectHistory?:(id:string)=>void}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);
- return <>{liveResults.length||collectionLoading||liveMeta||history.length?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading} onSelectHistory={onSelectHistory}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>}</>;
+ const hasLive=liveResults.length>0;
+ return <>{hasLive||collectionLoading||liveMeta?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading} onSelectHistory={onSelectHistory} activeTab={activeTab}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}</>}
+ <AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab} liveResults={liveResults}/>
+ </>;
 }
