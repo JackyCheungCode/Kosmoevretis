@@ -67,7 +67,7 @@ export function AnalysisPageTemplate({ title, description, eyebrow, actions, hea
 }) {
   return (
     <PageFrame className="kosmo-template kosmo-template--analysis">
-      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} />
+      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} headingLevel={headingLevel} />
       {context && <section className="kosmo-template__context">{context}</section>}
       {navigation && <nav className="kosmo-template__navigation" aria-label="分析结果导航">{navigation}</nav>}
       <div className="kosmo-template__content">{children}</div>
