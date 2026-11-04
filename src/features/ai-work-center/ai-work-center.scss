@@ -117,12 +117,6 @@
 }
 .awc-task-link:hover { text-decoration: underline; }
 .awc-task-link svg { flex: none; }
-.awc-task-link:focus-visible,
-.awc-code-panel summary:focus-visible,
-.awc-result-preview :focus-visible {
-  outline: 2px solid var(--app-color-focus);
-  outline-offset: 2px;
-}
 .awc-error-text { color: var(--app-color-support-error); font-size: var(--app-type-label-size); }
 .awc-empty {
   display: flex;
