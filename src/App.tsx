@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Header,
+  Theme,
   HeaderMenuButton,
   HeaderName,
   SideNav,
@@ -220,11 +221,13 @@ function AppShell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Theme theme="g10">
+      <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/intelligence" replace />} />
         <Route path="*" element={<AppShell />} />
       </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+    </Theme>
   );
 }
