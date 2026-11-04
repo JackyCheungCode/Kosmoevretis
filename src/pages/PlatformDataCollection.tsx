@@ -8,7 +8,7 @@ import "./platform-data-collection.css";
 
 type Platform = "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
 type RowData = Record<string, unknown>;
-type History = {id:string;title:string;status:string;result_count:number;created_at:string;actor_id?:string};
+type History = {id:string;title:string;status:string;result_count:number;created_at:string};
 type Mode = {id:string;label:string;description:string;inputLabel:string;placeholder:string;target:boolean;keyword?:boolean};
 const config:Record<Platform,{name:string;description:string;modes:Mode[]}> = {
  x:{name:"X",description:"覆盖公开动态检索、账号研究、互动关系、社区与趋势发现。",modes:[
