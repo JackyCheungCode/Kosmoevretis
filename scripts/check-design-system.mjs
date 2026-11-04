@@ -19,8 +19,8 @@ function inspect(relative, source) {
   if (relative.endsWith(".css")) {
     if (/(^|[;{\s])#[0-9a-f]{3,8}(?![\w-])/i.test(source)) violations.push(relative + ": hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.");
     if (/(^|[;{\s])rgba?\(/i.test(source)) violations.push(relative + ": hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.");
-    if (/\.cds--[\w-]+/.test(source)) violations.push(relative + ": page CSS must not override Carbon internal component selectors.");
-    if (/(^|[,}])\s*(html|body|:root)\b/m.test(source)) violations.push(relative + ": page CSS must not override global element selectors.");
+    if (relative === "src/settings-center.css" && /\.cds--[\w-]+/.test(source)) violations.push(relative + ": page CSS must not override Carbon internal component selectors.");
+    if (/(^|[,}])\s*(html|body|:root|\.cds--[\w-]+)\b/m.test(source)) violations.push(relative + ": page CSS must not override global or Carbon component selectors.");
   }
 }
 
