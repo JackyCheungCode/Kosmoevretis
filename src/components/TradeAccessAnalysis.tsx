@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../trade-access.css";
 import { Button, InlineNotification, Tag, TextInput, Dropdown, InlineLoading } from "@carbon/react";
 
 type Props={productName:string;keywords:string[];markets:string[];hsCode:string;onHsCodeChange:(value:string)=>void};
