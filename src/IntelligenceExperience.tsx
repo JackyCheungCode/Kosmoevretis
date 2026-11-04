@@ -203,7 +203,7 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  return()=>{cancelled=true;if(map){map.remove();map=null;}};},[geo,global,keyword,retry,rows.map((x:any)=>x.code+":"+x.value+":"+x.name).join("|")]);
  return <div className="gi-gt-map-shell"><div ref={host} className="gi-gt-map" role="img" aria-label={global?"Google Trends 国家搜索兴趣地图":keyword+" 省州搜索兴趣地图"}/>{mapError&&<div className="gi-map-error">{mapError}<button type="button" className="gi-map-retry" onClick={()=>{setMapError("");setRetry(x=>x+1);}}>重试加载</button></div>}<div className="gi-gt-map-legend"><span>低</span>{["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce"].map((c,i)=><i key={i} style={{background:c}}/>)}<span>高</span><small>相对兴趣指数 0–100 · 灰色表示无足够数据 · 边界：geoBoundaries</small></div></div>;
 }
-function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTab}:{results:any[];meta:any|null;history:any[];loading:boolean;onSelectHistory:(id:string)=>void;activeTab:string}) {
+function LiveGoogleTrends({results,meta,loading,activeTab}:{results:any[];meta:any|null;loading:boolean;activeTab:string}) {
  const [selected,setSelected]=useState(0);const result=results[selected]||results[0]||null;
  useEffect(()=>setSelected(0),[results]);
  const series=Array.isArray(result?.interest_over_time)?result.interest_over_time:[];
@@ -235,11 +235,11 @@ function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTa
  </section>;
 }
 
-export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false,onSelectHistory=()=>{}}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean;onSelectHistory?:(id:string)=>void}) {
+export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);
  const hasLive=liveResults.length>0;
- return <>{hasLive||collectionLoading||liveMeta||history.length>0?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading} onSelectHistory={onSelectHistory} activeTab={activeTab}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}</>}
+ return <>{hasLive||collectionLoading||liveMeta||history.length>0?<LiveGoogleTrends results={liveResults} meta={liveMeta} loading={collectionLoading} activeTab={activeTab}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}</>}
  <AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab} liveResults={liveResults}/>
  </>;
 }
