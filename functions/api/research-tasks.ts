@@ -154,7 +154,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const filter = new URLSearchParams({
     id: "in.(" + taskIds.join(",") + ")",
     organization_id: "eq." + organizationId,
-    select: "id,status"
+    select: "id,status,created_by"
   });
   if (action === "archive" || action === "trash") {
     filter.set("status", "in.(succeeded,partial,failed,cancelled)");
@@ -163,7 +163,20 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const eligibleResponse = await fetch(taskUrl(auth.base, filter), { headers: auth.headers });
   if (!eligibleResponse.ok) return json({ error: "无法确认所选任务的访问权限。" }, 403);
   const eligible = await safeJson(eligibleResponse);
-  const eligibleIds = Array.isArray(eligible) ? eligible.map((row: any) => row.id) : [];
+  const membershipParams = new URLSearchParams({
+    organization_id: "eq." + organizationId,
+    user_id: "eq." + auth.user.id,
+    select: "role",
+    limit: "1"
+  });
+  const membershipResponse = await fetch(auth.base + "/rest/v1/organization_members?" + membershipParams.toString(), { headers: auth.headers });
+  if (!membershipResponse.ok) return json({ error: "无法验证当前工作空间角色。" }, 403);
+  const membership = (await safeJson(membershipResponse))?.[0];
+  if (!membership) return json({ error: "当前用户不属于此工作空间。" }, 403);
+  const isAdmin = ["owner", "admin"].includes(String(membership.role).toLowerCase());
+  const eligibleRows = Array.isArray(eligible) ? eligible : [];
+  const permitted = isAdmin ? eligibleRows : eligibleRows.filter((row: any) => row.created_by === auth.user.id);
+  const eligibleIds = permitted.map((row: any) => row.id);
   if (!eligibleIds.length) return json({ affected: 0, skipped: taskIds.length, updatedIds: [] });
 
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
