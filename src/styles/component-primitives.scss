@@ -77,3 +77,43 @@
     padding: var(--app-space-05);
   }
 }
+
+/* Keep the shared header contract stronger than transitional feature selectors. */
+.app-shell__content .app-page-header {
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0;
+  border: 0;
+  position: static;
+}
+
+.app-shell__content .app-page-header h1 {
+  margin: 0;
+  font-size: var(--app-type-heading-size);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.app-shell__content .app-page-header .app-page-header__copy > p {
+  margin: var(--app-space-03) 0 0;
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-type-body-size);
+  line-height: 1.55;
+}
+
+.app-shell__content .app-page-header__eyebrow,
+.app-shell__content .app-page-header__eyebrow > * {
+  margin: 0 0 var(--app-space-02);
+  color: var(--app-color-text-helper);
+  font-size: var(--app-type-label-size);
+  line-height: 1.4;
+}
+
+.app-shell__content .app-page-header.kr-header::after {
+  display: none;
+}
+
+.app-shell__content .mt-heading-mark {
+  border: 0;
+  background: var(--app-color-layer-01);
+}
