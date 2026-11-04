@@ -1,12 +1,14 @@
 /* Shared, layer-first primitives for feature-page composition. */
-.app-surface {
+.app-shell__content .app-surface,
+.app-shell__content .cds--tile.app-surface {
   min-width: 0;
   background: var(--app-color-layer-01);
   border: 0;
   box-shadow: none;
 }
 
-.app-surface--raised {
+.app-shell__content .app-surface.app-surface--raised,
+.app-shell__content .cds--tile.app-surface.app-surface--raised {
   background: var(--app-color-layer-02);
 }
 
