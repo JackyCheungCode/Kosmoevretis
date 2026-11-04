@@ -20,6 +20,11 @@ import {
   LogoFacebook,
   LogoLinkedin,
   LogoInstagram,
+  LogoX,
+  LogoPinterest,
+  LogoYoutube,
+  Forum,
+  Music,
   Logout,
   DataBase,
 } from "@carbon/icons-react";
@@ -139,11 +144,11 @@ function AppShell() {
     { id: "linkedin", label: "LinkedIn 发现", href: "/leads/linkedin", icon: LogoLinkedin, active: path === "/leads/linkedin" },
     { id: "instagram", label: "Instagram 发现", href: "/leads/instagram", icon: LogoInstagram, active: path === "/leads/instagram" },
     { id: "maps", label: "Google Maps 发现", href: "/leads/google-maps", icon: Map, active: path === "/leads/google-maps" },
-    { id: "x", label: "X 数据采集", href: "/platform-data/x", icon: DataBase, active: path === "/platform-data/x" },
-    { id: "reddit", label: "Reddit 数据采集", href: "/platform-data/reddit", icon: DataBase, active: path === "/platform-data/reddit" },
-    { id: "pinterest", label: "Pinterest 数据采集", href: "/platform-data/pinterest", icon: DataBase, active: path === "/platform-data/pinterest" },
-    { id: "tiktok", label: "TikTok 数据采集", href: "/platform-data/tiktok", icon: DataBase, active: path === "/platform-data/tiktok" },
-    { id: "youtube", label: "YouTube 数据采集", href: "/platform-data/youtube", icon: DataBase, active: path === "/platform-data/youtube" },
+    { id: "x", label: "X 数据采集", href: "/platform-data/x", icon: LogoX, active: path === "/platform-data/x" },
+    { id: "reddit", label: "Reddit 数据采集", href: "/platform-data/reddit", icon: Forum, active: path === "/platform-data/reddit" },
+    { id: "pinterest", label: "Pinterest 数据采集", href: "/platform-data/pinterest", icon: LogoPinterest, active: path === "/platform-data/pinterest" },
+    { id: "tiktok", label: "TikTok 数据采集", href: "/platform-data/tiktok", icon: Music, active: path === "/platform-data/tiktok" },
+    { id: "youtube", label: "YouTube 数据采集", href: "/platform-data/youtube", icon: LogoYoutube, active: path === "/platform-data/youtube" },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
