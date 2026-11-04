@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Download, Refresh } from "@carbon/icons-react";
+import { ArrowLeft, Download, Renew } from "@carbon/icons-react";
 import { Button, InlineLoading, InlineNotification, Tag } from "@carbon/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../app/AuthProvider";
@@ -66,7 +66,7 @@ export function ResearchTaskDetailPage() {
     <Button kind="ghost" size="sm" renderIcon={ArrowLeft} onClick={() => navigate("/ai-work-center")}>返回任务中心</Button>
     <header className="awc-detail-header">
       <div><div className="awc-eyebrow">RESEARCH TASK DETAIL</div><h1>{task.title || "研究任务"}</h1><p>{taskTypeLabel[task.task_type] || task.task_type} · 创建于 {dateLabel(task.created_at)} · ID {task.id}</p></div>
-      <div className="awc-detail-actions"><Button kind="tertiary" size="sm" renderIcon={Refresh} onClick={() => void load()}>刷新状态</Button><Button kind="tertiary" size="sm" renderIcon={Download} onClick={exportJson}>导出 JSON</Button><Button kind="tertiary" size="sm" renderIcon={Download} disabled={!rawItems.length} onClick={exportCsv}>导出 CSV</Button></div>
+      <div className="awc-detail-actions"><Button kind="tertiary" size="sm" renderIcon={Renew} onClick={() => void load()}>刷新状态</Button><Button kind="tertiary" size="sm" renderIcon={Download} onClick={exportJson}>导出 JSON</Button><Button kind="tertiary" size="sm" renderIcon={Download} disabled={!rawItems.length} onClick={exportCsv}>导出 CSV</Button></div>
     </header>
 
     <div className="awc-detail-grid">
