@@ -14,11 +14,14 @@ export function PageHeader({ title, description, eyebrow, actions, headingLevel 
   return (
     <header className="kosmo-page-header">
       <div className="kosmo-page-header__copy">
-        {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
+        <p className="kosmo-page-header__eyebrow">{eyebrow || "KOSMOEVRETIS / GLOBAL INTELLIGENCE"}</p>
         <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
         {description && <p className="kosmo-page-header__description">{description}</p>}
       </div>
-      {actions && <div className="kosmo-page-header__actions">{actions}</div>}
+      <div className="kosmo-page-header__meta">
+        {actions && <div className="kosmo-page-header__actions">{actions}</div>}
+        <span className="kosmo-page-header__scope">● GLOBAL　全球市场</span>
+      </div>
     </header>
   );
 }
