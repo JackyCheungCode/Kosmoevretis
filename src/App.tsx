@@ -4,13 +4,19 @@ import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import TradeAccessPage from "./TradeAccessPage";
 import Settings from "./Settings";
+import FacebookDiscovery from "./FacebookDiscovery";
+import LeadChannelPlaceholder from "./LeadChannelPlaceholder";
 
 const enterpriseItems = [["products","产品中心","▣"]] as const;
 const items = [["intelligence","情报总览","◎"],["trade","贸易与市场准入","▤"]] as const;
 const settingsItems = [["sources","设置中心","⌘"]] as const;
+const leadItems = [["facebook","Facebook 发现","f"],["linkedin","LinkedIn 发现","in"],["google-maps","Google Maps 发现","⌖"]] as const;
 const validPaths = new Set([
   "/intelligence",
   "/trade-access",
+  "/leads/facebook",
+  "/leads/linkedin",
+  "/leads/google-maps",
   "/products",
   "/settings/providers",
   "/settings/actors",
@@ -36,10 +42,10 @@ function AppShell() {
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
 
-  const active = isSettings ? "sources" : path === "/products" ? "products" : path === "/trade-access" ? "trade" : "intelligence";
-  const currentLabel = active === "products" ? "产品中心" : active === "sources" ? "设置中心" : active === "trade" ? "贸易与市场准入" : "全球情报中心";
+  const active = isSettings ? "sources" : path === "/products" ? "products" : path === "/trade-access" ? "trade" : path.startsWith("/leads/") ? "leads" : "intelligence";
+  const currentLabel = active === "products" ? "产品中心" : active === "sources" ? "设置中心" : active === "trade" ? "贸易与市场准入" : active === "leads" ? "潜在客户" : "全球情报中心";
   const selectPage = (id: string) => {
-    navigate(id === "products" ? "/products" : id === "sources" ? "/settings/providers" : id === "trade" ? "/trade-access" : "/intelligence");
+    navigate(id === "products" ? "/products" : id === "sources" ? "/settings/providers" : id === "trade" ? "/trade-access" : id === "facebook" ? "/leads/facebook" : id === "linkedin" ? "/leads/linkedin" : id === "google-maps" ? "/leads/google-maps" : "/intelligence");
     setMobileNavOpen(false);
   };
 
@@ -59,6 +65,10 @@ function AppShell() {
       <div className="nav-group">
         {items.map(item => <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
       </div>
+      <div className="nav-caption">潜在客户</div>
+      <div className="nav-group lead-nav-group">
+        {leadItems.map(item => <button key={item[0]} className={path === (item[0] === "facebook" ? "/leads/facebook" : item[0] === "linkedin" ? "/leads/linkedin" : "/leads/google-maps") ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}><span className="nav-icon lead-nav-icon">{item[2]}</span>{item[1]}</button>)}
+      </div>
       <div className="nav-caption settings-caption">系统设置</div>
       <div className="nav-group settings-nav">
         {settingsItems.map(item => <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
@@ -67,10 +77,13 @@ function AppShell() {
     </aside>
     <main className="content">
       <div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div>
-      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active === "intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。" : active === "products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。" : active === "trade" ? "评估目标市场的关税、贸易条件、产品准入与法规合规要求。" : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
+      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active === "intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。" : active === "products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。" : active === "trade" ? "评估目标市场的关税、贸易条件、产品准入与法规合规要求。" : active === "leads" ? "通过不同公开渠道发现潜在客户、企业主页、内容与商业机会。" : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
       {active === "intelligence" && <GlobalIntelligence />}
       {active === "trade" && <TradeAccessPage />}
       {active === "products" && <ProductCenter />}
+      {path === "/leads/facebook" && <FacebookDiscovery />}
+      {path === "/leads/linkedin" && <LeadChannelPlaceholder title="LinkedIn 发现" description="通过 LinkedIn 公开职业资料、企业主页与内容发现潜在客户。该渠道将在 Facebook 发现完成后接入。" />}
+      {path === "/leads/google-maps" && <LeadChannelPlaceholder title="Google Maps 发现" description="通过 Google Maps 发现目标国家和地区的企业、门店、商家与公开联系信息。" />}
       {isSettings && <Settings />}
     </main>
   </div>;
