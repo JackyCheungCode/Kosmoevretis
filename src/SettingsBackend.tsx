@@ -6,13 +6,20 @@ import BrandLogo from "./BrandLogo";
 const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 
 const apiProviders = [
-  { key: "apify", name: "Apify", domain: "apify.com", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
-  { key: "bright_data", name: "Bright Data", domain: "brightdata.com", description: "全球代理网络、网页采集与结构化数据", credentialLabel: "Bright Data API Key", placeholder: "输入 Bright Data API Key" },
-  { key: "octoparse", name: "Octoparse", domain: "octoparse.com", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
-  { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
-  { key: "phantombuster", name: "PhantomBuster", domain: "phantombuster.com", description: "社交平台自动化、线索采集与数据丰富", credentialLabel: "PhantomBuster API Key", placeholder: "输入 PhantomBuster API Key" },
-  { key: "texau", name: "TexAu", domain: "texau.com", description: "销售情报、社交数据与工作流自动化", credentialLabel: "TexAu API Key", placeholder: "输入 TexAu API Key" },
-  { key: "upkuajing", name: "跨境魔方", domain: "upkuajing.com", description: "全球企业、采购商与海关贸易数据 API", credentialLabel: "跨境魔方 API Key", placeholder: "输入跨境魔方 API Key" },
+  { key: "apify", name: "Apify", domain: "apify.com", group: "数据采集与网页抓取", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
+  { key: "octoparse", name: "Octoparse", domain: "octoparse.com", group: "数据采集与网页抓取", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
+  { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", group: "数据采集与网页抓取", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
+  { key: "bright_data", name: "Bright Data", domain: "brightdata.com", group: "全球数据访问", description: "全球代理网络、网页采集与结构化数据", credentialLabel: "Bright Data API Key", placeholder: "输入 Bright Data API Key" },
+  { key: "phantombuster", name: "PhantomBuster", domain: "phantombuster.com", group: "社媒与线索采集", description: "社交平台自动化、线索采集与数据丰富", credentialLabel: "PhantomBuster API Key", placeholder: "输入 PhantomBuster API Key" },
+  { key: "texau", name: "TexAu", domain: "texau.com", group: "社媒与线索采集", description: "销售情报、社交数据与工作流自动化", credentialLabel: "TexAu API Key", placeholder: "输入 TexAu API Key" },
+  { key: "upkuajing", name: "跨境魔方", domain: "upkuajing.com", group: "跨境市场数据", description: "全球企业、采购商与海关贸易数据 API", credentialLabel: "跨境魔方 API Key", placeholder: "输入跨境魔方 API Key" },
+] as const;
+
+const providerGroups = [
+  { name: "数据采集与网页抓取", description: "管理网页抓取、自动化采集和结构化数据服务。" },
+  { name: "全球数据访问", description: "管理全球代理网络与跨区域网页数据访问能力。" },
+  { name: "社媒与线索采集", description: "管理社交平台自动化、线索发现与数据丰富服务。" },
+  { name: "跨境市场数据", description: "管理跨境电商、企业与贸易市场数据服务。" },
 ] as const;
 
 type ApiState = {
@@ -137,33 +144,43 @@ export default function SettingsBackend() {
       <PasswordInput id="settings-admin-password" labelText="登录密码" value={password} onChange={event => setPassword(event.target.value)} />
       <div className="analysis-submit-row"><span>登录状态仅保存在 Supabase Auth 会话中。</span><Button kind="primary" disabled={!email.trim() || !password || busyKey === "login"} onClick={signIn}>{busyKey === "login" ? "登录中…" : "登录并加载配置"}</Button></div>
     </Tile> : <>
-      <div className="library-list">{apiProviders.map(definition => {
-        const saved = savedProviders.find(item => item.provider_key === definition.key);
-        const isApify = definition.key === "apify";
-        const status = saved?.status === "verified" ? "已验证" : saved?.status === "error" ? "连接异常" : saved?.credential_hint ? "已保存" : "未配置";
-        const tagType = saved?.status === "verified" ? "green" : saved?.status === "error" ? "red" : saved?.credential_hint ? "blue" : "gray";
-        return <Tile key={definition.key} className="library-card">
-          <div className="library-card-head">
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <BrandLogo name={definition.name} domain={definition.domain} />
-              <div><strong>{definition.name}</strong><span>{saved?.credential_hint ? "已保存凭证 · " + saved.credential_hint : definition.description}</span></div>
-            </div>
-            <Tag type={tagType}>{status}</Tag>
+      <div className="provider-groups">{providerGroups.map(group => {
+        const definitions = apiProviders.filter(item => item.group === group.name);
+        return <section className="provider-group" key={group.name}>
+          <div className="provider-group-heading">
+            <div><h4>{group.name}</h4><p>{group.description}</p></div>
+            <Tag type="cool-gray">{definitions.length} 个服务商</Tag>
           </div>
-          <PasswordInput
-            id={"settings-provider-" + definition.key}
-            labelText={definition.credentialLabel}
-            placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
-            value={credentials[definition.key] || ""}
-            onChange={event => setCredentials(current => ({ ...current, [definition.key]: event.target.value }))}
-          />
-          <div className="analysis-submit-row">
-            <span>{isApify && saved?.last_tested_at ? "上次测试：" + new Date(saved.last_tested_at).toLocaleString() : saved?.credential_hint ? "凭证已加密保存" : "尚未配置连接凭证"}</span>
-            <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
-              {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
-            </Button>
-          </div>
-        </Tile>;
+          <div className="library-list">{definitions.map(definition => {
+            const saved = savedProviders.find(item => item.provider_key === definition.key);
+            const isApify = definition.key === "apify";
+            const status = saved?.status === "verified" ? "已验证" : saved?.status === "error" ? "连接异常" : saved?.credential_hint ? "已保存" : "未配置";
+            const tagType = saved?.status === "verified" ? "green" : saved?.status === "error" ? "red" : saved?.credential_hint ? "blue" : "gray";
+            return <Tile key={definition.key} className="library-card provider-card">
+              <div className="library-card-head provider-card-head">
+                <div className="provider-identity">
+                  <BrandLogo name={definition.name} domain={definition.domain} />
+                  <strong>{definition.name}</strong>
+                </div>
+                <Tag type={tagType}>{status}</Tag>
+              </div>
+              <p className="provider-description">{saved?.credential_hint ? "已保存凭证 · " + saved.credential_hint : definition.description}</p>
+              <PasswordInput
+                id={"settings-provider-" + definition.key}
+                labelText={definition.credentialLabel}
+                placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
+                value={credentials[definition.key] || ""}
+                onChange={event => setCredentials(current => ({ ...current, [definition.key]: event.target.value }))}
+              />
+              <div className="analysis-submit-row">
+                <span>{isApify && saved?.last_tested_at ? "上次测试：" + new Date(saved.last_tested_at).toLocaleString() : saved?.credential_hint ? "凭证已加密保存" : "尚未配置连接凭证"}</span>
+                <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
+                  {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
+                </Button>
+              </div>
+            </Tile>;
+          })}</div>
+        </section>;
       })}</div>
       <div className="analysis-submit-row"><span>已通过组织管理员身份验证。</span><Button kind="ghost" size="sm" onClick={signOut}>退出登录</Button></div>
     </>}
