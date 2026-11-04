@@ -12,8 +12,8 @@
 .ig-kpis strong{font-size:var(--cds-heading-04-font-size);font-weight:var(--cds-heading-04-font-weight);font-variant-numeric:tabular-nums}
 .ig-raw{display:flex;flex-direction:column;gap:var(--kosmo-space-3);min-width:0}
 .ig-raw pre{max-height:42rem;overflow:auto;margin:0;padding:var(--kosmo-space-3);background:var(--cds-layer-01);color:var(--cds-text-primary);font-size:var(--cds-code-01-font-size);line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:1055px){.ig-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ig-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:671px){.ig-form-grid,.ig-history-bar{grid-template-columns:minmax(0,1fr)}.ig-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ig-submit-row{align-items:stretch;flex-direction:column}.ig-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1055px){.ig-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:671px){.ig-form-grid,.ig-history-bar{grid-template-columns:minmax(0,1fr)}.ig-submit-row{align-items:stretch;flex-direction:column}.ig-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .ig-form-grid,.ig-history-bar,.ig-overview,.ig-raw{width:100%;min-width:0;max-width:100%;}
 .ig-form-grid>div{min-width:0;}
 .ig-raw pre{max-width:100%;}
