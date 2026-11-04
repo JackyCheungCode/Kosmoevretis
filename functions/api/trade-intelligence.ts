@@ -13,7 +13,8 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
   const body = await request.json() as { keywords?:string[]; hsCode?:string; markets?:string[]; originCountry?:string; destinationZip?:string; freightMode?:string; originCity?:string; complianceScope?:string[] };
   const keywords = (body.keywords||[]).map(x=>String(x).trim()).filter(Boolean).slice(0,5);
   const hsCode = String(body.hsCode||"").replace(/[^0-9.]/g,"").trim();
-  const allowedCompliance = new Set(["customs","sanctions","export","product-safety","certification","labeling"]);\n  const complianceScope = Array.from(new Set((Array.isArray(body.complianceScope)?body.complianceScope:[]).map(String).filter(x=>allowedCompliance.has(x))));
+  const allowedCompliance = new Set(["customs","sanctions","export","product-safety","certification","labeling"]);
+  const complianceScope = Array.from(new Set((Array.isArray(body.complianceScope)?body.complianceScope:[]).map(String).filter(x=>allowedCompliance.has(x))));
   const markets = Array.from(new Set((body.markets||[]).map(x=>String(x).toUpperCase()).filter(x=>/^[A-Z]{2}$/.test(x)))).slice(0,8);
   if(!markets.length) return json({error:"请先在分析源中选择目标市场。"},400,"no-store");
   const searchTerm = hsCode || keywords[0] || "";
