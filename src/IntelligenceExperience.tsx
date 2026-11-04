@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Accordion, AccordionItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tag, Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
+import { Accordion, AccordionItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tag, Tabs, TabList, Tab, TabPanels, TabPanel, TextArea } from "@carbon/react";
 import MarkdownReport from "./components/MarkdownReport";
 import CarbonSelect from "./components/CarbonSelect";
 import "./intelligence.css";
@@ -130,7 +130,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab,liveResults=
    </section>
    <section className="gi-ai-step">
     <div className="gi-ai-step-head"><span className="gi-ai-step-index">03</span><div><strong>补充研究问题</strong><small>可选，描述希望 AI 重点回答的商业问题。</small></div></div>
-    <label className="gi-ai-field">研究问题<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></label>
+    <div className="gi-ai-field"><TextArea id="gi-ai-question" labelText="研究问题" rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></div>
    </section>
    <Button kind="primary" className="gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</Button>
    <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。真实采集数据与模拟数据会在分析结论中区分标注。</small>
