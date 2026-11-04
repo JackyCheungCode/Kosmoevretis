@@ -3,7 +3,8 @@ import { Archive, ArrowRight, Refresh, Search, TrashCan } from "@carbon/icons-re
 import { Button, Checkbox, InlineLoading, InlineNotification, Search as CarbonSearch, Select, SelectItem, Tag, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@carbon/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthProvider";
-import { ResearchTask, ResearchTaskStatus, taskStatusLabel, taskTypeLabel } from "./types";
+import { taskStatusLabel, taskTypeLabel } from "./types";
+import type { ResearchTask, ResearchTaskStatus } from "./types";
 import "./ai-work-center.scss";
 
 type TaskView = "active" | "archived" | "trash" | "all";
@@ -81,7 +82,7 @@ export function AIWorkCenterPage() {
       </div>
     </div>
     <div className="awc-bulkbar">
-      <div className="awc-selection"><Checkbox id="awc-select-page" labelText="选择本页" checked={allSelected} indeterminate={selectedCount > 0 && !allSelected} onChange={(_, state) => selectPage(state.checked)} /><span>{selectedCount ? "已选择 " + selectedCount + " 项" : "未选择任务"}</span></div>
+      <div className="awc-selection"><Checkbox id="awc-select-page" labelText="选择本页" checked={allSelected} onChange={(_, state) => selectPage(state.checked)} /><span>{selectedCount ? "已选择 " + selectedCount + " 项" : "未选择任务"}</span></div>
       <div className="awc-actions">{view === "trash" ? <Button size="sm" kind="tertiary" renderIcon={Refresh} disabled={!selectedCount || busy} onClick={() => void runAction("restore")}>恢复所选</Button> : <><Button size="sm" kind="ghost" renderIcon={Archive} disabled={!selectedCount || busy || view === "archived"} onClick={() => void runAction("archive")}>批量归档</Button><Button size="sm" kind="danger--tertiary" renderIcon={TrashCan} disabled={!selectedCount || busy || view === "archived"} onClick={() => void runAction("trash")}>移入回收站</Button></>}</div>
     </div>
     <div className="awc-table-wrap">
