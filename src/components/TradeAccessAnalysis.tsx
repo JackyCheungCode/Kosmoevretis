@@ -4,7 +4,7 @@ import "../trade-access.css";
 import { Button, InlineNotification, Tag, TextInput, Dropdown, InlineLoading } from "@carbon/react";
 
 type Props={productName:string;keywords:string[];markets:string[];hsCode:string;accessToken:string};
-type Payload={generated_at:string;results:Record<string,any>;sources:any[]};
+type Payload={generated_at:string;results:Record<string,any>;sources:any[];compliance_scope?:string[]};
 const originOptions=[{id:"CN",text:"中国"},{id:"VN",text:"越南"},{id:"IN",text:"印度"},{id:"TW",text:"中国台湾"},{id:"KR",text:"韩国"}];
 const modeOptions=[{id:"ocean",text:"海运"},{id:"air",text:"空运"}];
 const originCities:Record<string,string[]>={CN:["Shanghai","Shenzhen (Yantian)","Guangzhou","Qingdao","Xiamen","Tianjin"],VN:["Ho Chi Minh City"],IN:["Mumbai","Chennai"],TW:["Kaohsiung","Taipei"],KR:["Busan","Seoul (Incheon)"]};
@@ -26,7 +26,7 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
  const [origin,setOrigin]=useState("CN"),[originCity,setOriginCity]=useState("Shanghai"),[zip,setZip]=useState(""),[mode,setMode]=useState("ocean"),[payload,setPayload]=useState<Payload|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");\n const [complianceScope,setComplianceScope]=useState<string[]>(["customs","sanctions","export","product-safety","certification","labeling"]);\n const complianceTopics=[{id:"customs",title:"海关归类与申报",detail:"HS 归类、原产地规则、海关估价、申报资料与记录保存"},{id:"sanctions",title:"制裁与贸易限制",detail:"目标市场及交易对手限制、禁运措施、受限实体筛查"},{id:"export",title:"出口管制与两用物项",detail:"出口管制分类、最终用户 / 最终用途及许可要求"},{id:"product-safety",title:"产品安全与技术法规",detail:"目标市场强制安全要求、测试标准及责任主体"},{id:"certification",title:"认证与市场准入",detail:"适用的合格评定、认证注册、进口许可及符合性文件"},{id:"labeling",title:"标签、包装与环保义务",detail:"语言、警示标识、包装材料、回收及生产者责任"}];
  const marketLabel=markets.map(x=>marketNames[x]||x).join("、");
  const cityOptions=(originCities[origin]||[]).map(x=>({id:x,text:x}));
- const analyze=async()=>{setBusy(true);setError("");try{const response=await fetch("/api/trade-intelligence",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},body:JSON.stringify({keywords,hsCode,markets,originCountry:origin,originCity,destinationZip:zip,freightMode:mode})});const data=await response.json();if(!response.ok)throw new Error(data.error||"贸易情报请求失败");setPayload(data);}catch(e){setError(e instanceof Error?e.message:"贸易情报请求失败");}finally{setBusy(false);}};
+ const analyze=async()=>{setBusy(true);setError("");try{const response=await fetch("/api/trade-intelligence",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},body:JSON.stringify({keywords,hsCode,markets,originCountry:origin,originCity,destinationZip:zip,freightMode:mode,complianceScope})});const data=await response.json();if(!response.ok)throw new Error(data.error||"贸易情报请求失败");setPayload(data);}catch(e){setError(e instanceof Error?e.message:"贸易情报请求失败");}finally{setBusy(false);}};
  const results=payload?.results||{};
  return <div className="trade-access">
   <div className="trade-access-intro"><div><span className="eyebrow">TRADE & MARKET ACCESS</span><h2>贸易与市场准入</h2><p>复用当前产品、关键词与目标市场，评估关税、贸易流向、运输环境和营商条件。</p></div><Tag type="green">免费数据源优先</Tag></div>
@@ -43,7 +43,7 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
   {error&&<InlineNotification kind="error" lowContrast title="数据获取失败" subtitle={error} hideCloseButton/>}
   {!payload&&!busy&&<div className="trade-empty">提交后将在这里展示官方税则、国际贸易统计、B-READY 指标与港口运行数据。不同来源独立返回，单一来源不可用不会阻断其他分析。</div>}
   {busy&&<InlineLoading description="正在连接免费官方数据源…" />}
-  {payload&&<><div className="trade-result-meta"><span>数据生成时间：{new Date(payload.generated_at).toLocaleString("zh-CN")}</span><span>每个来源分别显示获取状态，不将估算值混同官方数据。</span></div>
+  {payload&&<><div className="trade-compliance-result"><strong>本次合规核查范围</strong><span>{(payload.compliance_scope||complianceScope).map(id=>complianceTopics.find(topic=>topic.id===id)?.title||id).join("、")||"未选择"}</span><small>范围配置已随本次请求提交；当前数据接口尚未完成制裁名单、出口管制清单及产品认证法规的自动核验，因此不生成合规结论。</small></div><div className="trade-result-meta"><span>数据生成时间：{new Date(payload.generated_at).toLocaleString("zh-CN")}</span><span>每个来源分别显示获取状态，不将估算值混同官方数据。</span></div>
    <div className="trade-results-grid">
     <ResultSection title="关税与 HTS 商品归类" source="USITC · 美国官方协调关税表" status={results.tariff?.status||"unavailable"} error={results.tariff?.error}><DataRows items={safeArray(results.tariff?.data?.items)} kind="tariff"/></ResultSection>
     <ResultSection title="国际贸易流向" source="UN Comtrade · 官方贸易统计（公共预览）" status={results.trade?.status||"unavailable"} error={results.trade?.error||results.trade?.data?.note}><DataRows items={results.trade?.data?.items||[]} kind="trade"/></ResultSection>
