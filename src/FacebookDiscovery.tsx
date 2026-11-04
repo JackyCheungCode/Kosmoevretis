@@ -8,6 +8,8 @@ import {
   User, Building, Chat, Video, Map, Calendar, Search, UserMultiple,
 } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
+import { PageHeader } from "./design-system";
+import { CollectionModeGrid } from "./design-system/components/CollectionModeGrid";
 import "./facebook-discovery.css";
 
 type SearchType = "people" | "pages" | "posts" | "videos" | "places" | "events" | "top" | "groups";
@@ -118,16 +120,10 @@ export default function FacebookDiscovery() {
  if(!ready)return <div className="fb-boot">正在连接客户发现工作台…</div>;
  if(!session)return <form className="fb-login" onSubmit={login}><h2>登录企业工作区</h2><TextInput id="fb-login-email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)}/><TextInput id="fb-login-password" type="password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)}/>{authError&&<InlineNotification kind="error" title="登录失败" subtitle={authError} hideCloseButton/>}<Button type="submit">登录</Button></form>;
  return <section className="facebook-discovery">
-  <div className="fb-channel-heading"><div><span className="eyebrow">01 / FACEBOOK DISCOVERY</span><h2>Facebook 公开信息发现</h2><p>按对象类型检索公开个人资料、企业主页、帖子、视频、地点、活动及群组。采集结果保留来源 Actor 与原始字段。</p></div><Tag type="green">{organizationName||"企业工作区"}</Tag></div>
+  <PageHeader title="Facebook 公开信息发现" description="按对象类型检索公开个人资料、企业主页、帖子、视频、地点、活动及群组。采集结果保留来源 Actor 与原始字段。" actions={<Tag type="green">{organizationName||"企业工作区"}</Tag>} />
   <section className="fb-config-panel">
    <div className="fb-section-head"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div><span>一个渠道，多种公开对象</span></div>
-   <div className="fb-object-grid" role="group" aria-label="选择 Facebook 发现对象">
-    {modes.map(mode=>{const Icon=mode.icon;const selected=type===mode.id;return <button type="button" key={mode.id} className={selected?"fb-object-card selected":"fb-object-card"} aria-pressed={selected} onClick={()=>{if(type!==mode.id){setType(mode.id);setResults([]);setMeta(null);setError("");setNotice("");}}}>
-     <span className="fb-object-card-icon"><Icon size={22}/></span>
-     <span className="fb-object-card-copy"><strong>{mode.label}</strong><small>{mode.description}</small></span>
-     <span className="fb-object-card-check" aria-hidden="true">{selected?"✓":""}</span>
-    </button>;})}
-   </div>
+   <CollectionModeGrid ariaLabel="选择 Facebook 发现对象" options={modes} selectedId={type} onSelect={id=>{if(type!==id){setType(id as SearchType);setResults([]);setMeta(null);setError("");setNotice("");}}} />
     <div className="fb-form-grid">
     <div className="fb-field fb-keywords"><TextInput id="fb-search-terms" labelText="搜索关键词" placeholder={"例如：wireless earbuds manufacturer\n支持多个关键词，使用换行或逗号分隔"} value={terms} onChange={e=>setTerms(e.target.value)}/><small>{termList.length} 个关键词 · 每个关键词独立搜索</small></div>
     <div className="fb-field"><label>每次最多返回结果</label><NumberInput id="fb-max-results" label="每次最多返回结果" hideLabel min={1} max={200} value={maxResults} onChange={(_e,{value})=>setMaxResults(Number(value)||50)}/></div>
