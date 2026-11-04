@@ -37,12 +37,28 @@ export async function onRequestPost({ request, env }: PagesContext): Promise<Res
     if (!["all","single","custom"].includes(mode)) return json({ error: "不支持的分析模式。" }, 400);
     const dataset = payload.dataset;
     if (!dataset || typeof dataset !== "object") return json({ error: "缺少情报数据集。" }, 400);
+    const datasetRecord = dataset as Record<string, unknown>;
     const tab = typeof payload.tab === "string" && allowedTabs.has(payload.tab) ? payload.tab : "overview";
     const tabs = Array.isArray(payload.tabs) ? payload.tabs.filter((x): x is string => typeof x === "string" && allowedTabs.has(x)).slice(0,8) : [];
     if (mode === "custom" && tabs.length === 0) return json({ error: "请至少选择一个情报 Tab。" }, 400);
     const question = typeof payload.question === "string" ? payload.question.slice(0,1200) : "";
     const context = typeof payload.context === "string" ? payload.context.slice(0,1600) : "";
-    const datasetText = JSON.stringify(dataset);
+    const tabKeys: Record<string,string[]> = {
+      overview:["kpis","trend","social","markets"],
+      bestsellers:["bestsellers"],
+      search:["trend","search_terms"],
+      social:["social"],
+      consumer:["pain_points"],
+      competitors:["competitors"],
+      categories:["categories"],
+      markets:["markets"]
+    };
+    const scopeTabs = mode === "single" ? [tab] : mode === "custom" ? tabs : Array.from(allowedTabs);
+    const dataKeys = mode === "all" ? ["kpis","trend","bestsellers","search_terms","social","pain_points","competitors","categories","markets"] : [...new Set(scopeTabs.flatMap(key=>tabKeys[key]||[]))];
+    const scopedDataset: Record<string,unknown> = {};
+    for (const key of ["demo_notice","product"]) if (key in datasetRecord) scopedDataset[key]=datasetRecord[key];
+    for (const key of dataKeys) if (key in datasetRecord) scopedDataset[key]=datasetRecord[key];
+    const datasetText = JSON.stringify(scopedDataset);
     if (datasetText.length > 18000) return json({ error: "分析数据量过大，请缩小分析范围。" }, 413);
     const scope = mode === "single" ? "仅分析 Tab：" + tab : mode === "custom" ? "分析用户选中的 Tab：" + tabs.join(", ") : "综合分析全部情报结果。";
     const system = [
