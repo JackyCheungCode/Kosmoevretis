@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Checkbox, InlineNotification, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Tabs, Tab, TabList, TabPanels, TabPanel, Tag, TextInput, Toggle } from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
+import { CollectionModeGrid } from "./design-system/components/CollectionModeGrid";
 import "./design-system-preview.css";
 
 export default function DesignSystemPreview() {
@@ -8,6 +9,7 @@ export default function DesignSystemPreview() {
   const [keyword, setKeyword] = useState("Wireless earbuds");
   const [alerts, setAlerts] = useState(true);
   const [estimates, setEstimates] = useState(false);
+  const [collectionMode, setCollectionMode] = useState("search");
   return <div className="ds-preview">
     <section className="ds-intro">
       <div className="ds-overline">KOSMOEVRETIS / DESIGN FOUNDATION</div>
@@ -76,6 +78,15 @@ export default function DesignSystemPreview() {
     <section className="ds-section">
       <div className="ds-section-heading"><div><span className="ds-overline">09 / PAGE PATTERN</span><h3>页面布局范式</h3></div><p>根据任务类型选择模板，而不是所有页面套同一个卡片布局。</p></div>
       <div className="ds-page-pattern"><div className="ds-pattern-header">页面标题 / 说明 / 主要操作</div><div className="ds-pattern-source">分析源配置 / 搜索条件 / 筛选器</div><div className="ds-pattern-tabs">同级业务 Tabs</div><div className="ds-pattern-content">数据表格 / 图表 / 分析结果工作区</div><div className="ds-pattern-meta">数据来源 / 时间 / 置信度 / 分页</div></div>
+    </section>
+    <section className="ds-section">
+      <div className="ds-section-heading"><div><span className="ds-overline">10 / COLLECTION WORKSPACE</span><h3>采集能力选择</h3></div><p>跨平台统一卡片尺寸、间距、选中状态和自适应网格，避免内容溢出。</p></div>
+      <CollectionModeGrid ariaLabel="采集能力组件预览" selectedId={collectionMode} onSelect={setCollectionMode} options={[
+        {id:"search",label:"关键词搜索",description:"按关键词发现公开内容"},
+        {id:"profiles",label:"账号档案",description:"分析公开账号与创作者资料"},
+        {id:"posts",label:"内容采集",description:"获取帖子、视频和互动信息"},
+        {id:"trends",label:"趋势发现",description:"识别地区与主题热度变化"},
+      ]}/>
     </section>
     <section className="ds-final-note"><span className="ds-overline">IMPLEMENTATION RULE</span><h3>统一规范，逐页执行</h3><p>业务页面必须复用统一令牌和组件。新增样式需说明必要性；不得通过页面私有 CSS 重新定义全站控件。</p></section>
   </div>;
