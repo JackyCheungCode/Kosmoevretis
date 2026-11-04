@@ -119,7 +119,7 @@ export default function GlobalIntelligence(){
    {error&&<div className="notice error">{error}</div>}<div className="analysis-submit-row"><span>配置完成后提交分析条件；切换下方 Tab 不会重置当前条件。</span><button className="primary-button" type="button" onClick={startAnalysis}>开始分析 <span aria-hidden="true">→</span></button></div>
    <div className="intelligence-tabs" role="tablist" aria-label="情报分析维度">{tabs.map(tab=><button key={tab.id} type="button" role="tab" aria-selected={activeTab===tab.id} className={activeTab===tab.id?"intelligence-tab selected":"intelligence-tab"} onClick={()=>setActiveTab(tab.id)}>{tab.label}</button>)}</div>
    <div className="intelligence-panel" role="tabpanel">
-    {activeTab==="trade"?<TradeAccessAnalysis productName={selectedProduct?.name||""} keywords={keywordList} markets={selectedMarkets.map(x=>x==="CN-MAINLAND"?"CN":x)} hsCode={hsCode}/>:<IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting}/>}
+    {activeTab==="trade"?<TradeAccessAnalysis productName={selectedProduct?.name||""} keywords={keywordList} markets={selectedMarkets.map(x=>x==="CN-MAINLAND"?"CN":x)} hsCode={hsCode} accessToken={session.access_token}/>:<IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting}/>}
    </div>
   </section>
  </section>;
