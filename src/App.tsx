@@ -195,7 +195,7 @@ function AppShell() {
           className="kosmo-header-menu-button"
         />
         <HeaderName href="/intelligence" onClick={(event) => handleNavigate(event, "/intelligence")}>
-          Kosmoevretis
+          kosmoevretis
         </HeaderName>
         <span className="kosmo-header-context">GLOBAL INTELLIGENCE PLATFORM</span>
         <div className="kosmo-account-menu" ref={accountMenuRef}>
