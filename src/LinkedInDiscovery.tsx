@@ -3,7 +3,7 @@ import {
   Button, ComboBox, InlineNotification, NumberInput, Tag, TextInput, TextArea,
   Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
 } from "@carbon/react";
-import { User, Building, Chat, Briefcase, ScanSearch } from "@carbon/icons-react";
+import { User, Building, Chat, Calendar, Search } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
 import "./linkedin-discovery.css";
 
@@ -16,8 +16,8 @@ const kinds:{id:Kind;label:string;description:string;icon:any}[] = [
  {id:"people",label:"人员发现",description:"寻找采购、管理层与业务决策者",icon:User},
  {id:"companies",label:"企业发现",description:"寻找品牌商、分销商与零售企业",icon:Building},
  {id:"posts",label:"帖子发现",description:"发现公开需求、讨论与市场信号",icon:Chat},
- {id:"jobs",label:"招聘发现",description:"识别企业招聘与扩张信号",icon:Briefcase},
- {id:"enrich",label:"信息补全",description:"通过 LinkedIn URL 补充公开资料",icon:ScanSearch},
+ {id:"jobs",label:"招聘发现",description:"识别企业招聘与扩张信号",icon:Calendar},
+ {id:"enrich",label:"信息补全",description:"通过 LinkedIn URL 补充公开资料",icon:Search},
 ];
 const countries:Option[] = [
  "United States","Canada","United Kingdom","Germany","France","Italy","Spain","Netherlands","Belgium","Switzerland","Austria","Sweden","Norway","Denmark","Finland","Poland","Czechia","Portugal","Ireland","Japan","South Korea","China","Hong Kong","Taiwan","Singapore","Malaysia","Thailand","Vietnam","Indonesia","Philippines","India","Australia","New Zealand","United Arab Emirates","Saudi Arabia","Turkey","Brazil","Mexico","Argentina","South Africa","Egypt"
