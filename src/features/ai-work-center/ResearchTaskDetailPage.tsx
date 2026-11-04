@@ -31,9 +31,9 @@ export function ResearchTaskDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!session?.access_token || !workspace?.id || !taskId) return;
-    setLoading(true); setError("");
+    if (!silent) setLoading(true); setError("");
     const params = new URLSearchParams({ organizationId: workspace.id, taskId });
     try {
       const response = await fetch("/api/research-tasks?" + params.toString(), { headers: { Authorization: "Bearer " + session.access_token } });
@@ -44,6 +44,11 @@ export function ResearchTaskDetailPage() {
     finally { setLoading(false); }
   }, [session?.access_token, workspace?.id, taskId]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (!task || !["queued", "running"].includes(task.status)) return;
+    const timer = window.setInterval(() => { void load(true); }, 5000);
+    return () => window.clearInterval(timer);
+  }, [task?.id, task?.status, load]);
 
   const task = data?.task;
   const executions = data?.executions || [];
