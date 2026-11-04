@@ -1,0 +1,15 @@
+/* Shared styles for the project CarbonSelect control. Keep component behavior in CarbonSelect.tsx. */
+/* Carbon-native dropdowns: never expose browser-rendered select menus */
+.carbon-select{position:relative;width:100%;min-width:0}
+.carbon-select-trigger{width:100%;min-height:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.55rem .75rem;border:1px solid var(--cds-border-strong,#8d8d8d);border-radius:0;background:var(--cds-field,#fff);color:var(--cds-text-primary,#161616);font:inherit;font-size:.82rem;text-align:left;cursor:pointer}
+.carbon-select-trigger:hover{background:var(--cds-field-hover,#e8e8e8)}
+.carbon-select-placeholder{color:var(--cds-text-secondary,#6f6f6f)}
+.carbon-select-chevron{font-size:1.1rem;color:var(--cds-text-secondary,#525252)}
+.carbon-select-menu{position:absolute;z-index:30;top:calc(100% + 2px);left:0;right:0;max-height:20rem;display:flex;flex-direction:column;background:var(--cds-layer-01,#fff);box-shadow:0 4px 14px rgba(0,0,0,.2);border:1px solid var(--cds-border-subtle,#c6c6c6)}
+.carbon-select-search{flex:none;width:100%;min-height:2.5rem;padding:.6rem .75rem;border:0;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6);font:inherit;font-size:.8rem;outline:0}
+.carbon-select-options{overflow-y:auto;overscroll-behavior:contain}
+.carbon-select-option{width:100%;min-height:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.55rem .75rem;border:0;background:transparent;color:var(--cds-text-primary,#161616);font:inherit;font-size:.8rem;text-align:left;cursor:pointer}
+.carbon-select-option:hover,.carbon-select-option.selected{background:var(--cds-layer-hover-01,#e8e8e8)}
+.carbon-select-option.selected{color:#0f62fe;font-weight:600}
+.carbon-select-option:disabled{opacity:.45;cursor:not-allowed}
+.carbon-select-empty{padding:1rem;color:var(--cds-text-secondary,#6f6f6f);font-size:.76rem;text-align:center}
