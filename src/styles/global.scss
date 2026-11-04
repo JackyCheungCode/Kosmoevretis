@@ -58,19 +58,19 @@
 
 
 /* Shared Carbon interaction and accessibility foundation */
-:root{color-scheme:light;--kosmo-blue:#0f62fe;--kosmo-ink:#161616;--kosmo-muted:#6f6f6f;--kosmo-border:#e0e0e0;--kosmo-layer:#f4f4f4}
+:root{color-scheme:light}
 html{scroll-behavior:smooth}
-body{color:var(--kosmo-ink);font-family:"IBM Plex Sans",Arial,sans-serif}
+body{color:var(--app-color-text-primary);font-family:var(--app-font-family)}
 button,a,input,textarea,select,[role="button"]{-webkit-tap-highlight-color:transparent}
-:where(a,button,input,textarea,select,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--kosmo-blue);outline-offset:2px}
-.skip-to-content{position:fixed;z-index:10000;top:8px;left:8px;transform:translateY(-160%);padding:12px 16px;background:#fff;color:var(--kosmo-blue);border:2px solid var(--kosmo-blue);font-size:14px;font-weight:600;text-decoration:none}
+:where(a,button,input,textarea,select,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--app-color-focus);outline-offset:2px}
+.skip-to-content{position:fixed;z-index:10000;top:8px;left:8px;transform:translateY(-160%);padding:12px 16px;background:var(--app-color-layer-02);color:var(--app-color-interactive);border:2px solid var(--app-color-focus);font-size:14px;font-weight:600;text-decoration:none}
 .skip-to-content:focus{transform:translateY(0)}
 .main{min-width:0}
 .breadcrumb{display:flex;align-items:center;gap:9px;min-height:32px}
 .breadcrumb b{font-weight:600;color:#393939}
 :where(.market-trends-page,.keyword-research-page,.enterprise-page){min-width:0}
 :where(.mt-heading,.kr-header,.ep-page-heading){gap:20px}
-:where(.mt-heading h1,.kr-header h1,.ep-page-heading h1){font-family:"IBM Plex Sans",Arial,sans-serif;letter-spacing:-.55px}
+:where(.mt-heading h1,.kr-header h1,.ep-page-heading h1){font-family:var(--app-font-family);letter-spacing:-.55px}
 :where(.mt-heading p,.kr-header p,.ep-page-heading p){max-width:760px}
 :where(.mt-config-panel,.mt-results-panel,.kr-config,.kr-results){box-shadow:none}
 :where(.mt-config-panel,.mt-results-panel,.kr-config,.kr-results) :where(.cds--label,.cds--form__helper-text){line-height:1.5}
@@ -81,7 +81,7 @@ button,a,input,textarea,select,[role="button"]{-webkit-tap-highlight-color:trans
 :where(.mt-history-row,.kr-history-row){text-align:left}
 :where(.mt-table-scroll,.kr-table-scroll){max-width:100%;overscroll-behavior-x:contain}
 :where(.mt-empty-inline,.kr-empty){text-wrap:pretty}
-@media(max-width:720px){
+@media(max-width:671px){
  .breadcrumb{min-height:28px;font-size:11px}
  :where(.mt-heading,.kr-header,.ep-page-heading){align-items:flex-start}
  :where(.mt-heading,.kr-header,.ep-page-heading) h1{font-size:30px;line-height:1.25}
