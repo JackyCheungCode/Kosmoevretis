@@ -1,0 +1,58 @@
+/* Shared page composition primitives. Feature styles may extend these classes,
+   but should not redefine the global page-header layout contract. */
+.app-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--app-space-05);
+  min-width: 0;
+  margin: 0 0 var(--app-space-06);
+}
+
+.app-page-header__copy {
+  min-width: 0;
+}
+
+.app-page-header__eyebrow {
+  margin: 0 0 var(--app-space-02);
+  color: var(--app-color-text-helper);
+  font-size: var(--app-type-label-size);
+  line-height: 1.4;
+}
+
+.app-page-header h1 {
+  margin: 0;
+  color: var(--app-color-text-primary);
+  font-family: var(--app-font-family);
+  font-size: var(--app-type-heading-size);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.app-page-header__copy > p {
+  max-width: 760px;
+  margin: var(--app-space-03) 0 0;
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-type-body-size);
+  line-height: 1.55;
+}
+
+.app-page-header__meta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--app-space-02);
+}
+
+@media (max-width: 671px) {
+  .app-page-header {
+    flex-direction: column;
+    gap: var(--app-space-03);
+    margin-bottom: var(--app-space-05);
+  }
+
+  .app-page-header h1 {
+    font-size: 1.75rem;
+  }
+}
