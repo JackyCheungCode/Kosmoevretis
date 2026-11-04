@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import SettingsBackend from "./SettingsBackend";
+import BrandLogo from "./BrandLogo";
 import {
   Accordion, AccordionItem, Button, Checkbox, InlineNotification,
   Tab, TabList, TabPanel, TabPanels, Tabs, Tag,
@@ -13,7 +14,16 @@ const actors = [
   { name: "YouTube 数据采集", actorId: "待配置 Actor ID", channel: "社交媒体", usage: "社媒趋势、消费者洞察" },
   { name: "Reddit 数据采集", actorId: "待配置 Actor ID", channel: "社区与论坛", usage: "消费者洞察、用户痛点" },
 ];
-const aiProviders = ["Cloudflare Workers AI", "OpenAI", "Anthropic", "Google Gemini", "DeepSeek", "阿里云通义千问", "智谱 AI", "兼容 OpenAI 的服务商"];
+const aiProviders = [
+  { name: "Cloudflare Workers AI", domain: "cloudflare.com", description: "由 Cloudflare Workers AI Binding 提供模型调用能力。", connected: true },
+  { name: "OpenAI", domain: "openai.com", description: "GPT 系列模型与 Embedding 服务。", connected: false },
+  { name: "Anthropic", domain: "anthropic.com", description: "Claude 系列模型服务。", connected: false },
+  { name: "Google Gemini", domain: "google.com", description: "Gemini 多模态与生成式 AI 模型。", connected: false },
+  { name: "DeepSeek", domain: "deepseek.com", description: "DeepSeek 通用对话与推理模型。", connected: false },
+  { name: "阿里云通义千问", domain: "qwen.ai", description: "Qwen 通义千问模型服务。", connected: false },
+  { name: "智谱 AI", domain: "zhipuai.cn", description: "GLM 系列大语言模型服务。", connected: false },
+  { name: "兼容 OpenAI 的服务商", mark: "API", description: "支持自定义 Base URL 的 OpenAI 兼容接口。", connected: false },
+];
 const modelTasks = [
   ["企业档案理解", "理解企业能力、产品与市场定位"],
   ["产品信息分析", "识别产品规格、卖点与产品属性"],
@@ -96,10 +106,15 @@ function AiSettings({ explain }: { explain:()=>void }) {
       <TabPanels>
         <TabPanel><div className="intelligence-panel">
           <div className="source-settings-note"><strong>当前已接入：Cloudflare Workers AI</strong><span>全球情报分析接口当前使用 Cloudflare Workers AI。其他服务商在完成安全凭证与统一模型路由接口后开放。</span><Tag type="green">已接入运行时</Tag></div>
-          <div className="library-list">{aiProviders.map((name,index)=><Tile key={name} className="library-card">
-            <div className="library-card-head"><strong>{name}</strong><Tag type={index===0?"green":"gray"}>{index===0?"运行时已接入":"待接入"}</Tag></div>
-            <p>{index===0?"由 Cloudflare Workers AI Binding 提供模型调用能力。":"可配置 API Base URL、密钥与兼容协议。"}</p>
-            {index!==0&&<Button kind="ghost" size="sm" onClick={explain}>配置服务商</Button>}
+          <div className="library-list">{aiProviders.map(provider=><Tile key={provider.name} className="library-card">
+            <div className="library-card-head">
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <BrandLogo name={provider.name} domain={"domain" in provider ? provider.domain : undefined} mark={"mark" in provider ? provider.mark : undefined} />
+                <div><strong>{provider.name}</strong><span>{provider.description}</span></div>
+              </div>
+              <Tag type={provider.connected?"green":"gray"}>{provider.connected?"运行时已接入":"待接入"}</Tag>
+            </div>
+            {!provider.connected&&<Button kind="ghost" size="sm" onClick={explain}>配置服务商</Button>}
           </Tile>)}</div><Pending />
         </div></TabPanel>
         <TabPanel><div className="intelligence-panel"><Heading eyebrow="MODEL CATALOG" title="模型目录" description="模型目录区分对话、推理、视觉和 Embedding 能力，并记录上下文长度与价格信息。" /><Pending>当前运行模型由服务端接口控制；模型发现、价格目录和自定义模型持久化尚未接入。</Pending></div></TabPanel>
