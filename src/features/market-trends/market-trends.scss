@@ -156,7 +156,7 @@
 .mt-output-options .cds--checkbox-label-text {
   display: flex;
   flex-direction: column;
-  gap: var(--app-space-01);
+  gap: var(--app-space-2);
 }
 .mt-advanced-toggle { border-bottom: 1px solid var(--app-color-border-subtle); }
 .mt-advanced-toggle button,
@@ -201,7 +201,7 @@
   gap: var(--app-space-04);
   padding-top: var(--app-space-05);
 }
-.mt-run-footer > div { display: flex; flex-direction: column; gap: var(--app-space-01); }
+.mt-run-footer > div { display: flex; flex-direction: column; gap: var(--app-space-2); }
 .mt-run-footer > div span {
   color: var(--app-color-text-secondary);
   font-size: var(--app-type-label-size);
@@ -341,7 +341,7 @@
   margin: var(--app-space-06) 0 var(--app-space-04);
 }
 .mt-subsection-head h3,
-.mt-raw-toolbar h3 { margin: 0 0 var(--app-space-01); font-size: 1rem; font-weight: 600; }
+.mt-raw-toolbar h3 { margin: 0 0 var(--app-space-2); font-size: 1rem; font-weight: 600; }
 .mt-subsection-head p,
 .mt-raw-toolbar p {
   margin: 0;
@@ -362,7 +362,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--app-space-01) 0 var(--app-space-03);
+  padding: var(--app-space-2) 0 var(--app-space-03);
   color: var(--app-color-text-helper);
   font-size: var(--app-type-label-size);
 }
@@ -405,7 +405,7 @@
 }
 .mt-table-scroll .cds--data-table th { font-size: var(--app-type-label-size); font-weight: 600; }
 .mt-table-scroll .cds--data-table td { font-size: var(--app-type-body-size); line-height: 1.5; }
-.mt-table-scroll .cds--data-table tbody tr:hover td { background: var(--app-color-layer-hover); }
+.mt-table-scroll .cds--data-table tbody tr:hover td { background: var(--app-color-layer-hover-01); }
 .mt-country-cell { display: inline-flex; align-items: center; gap: var(--app-space-02); }
 .mt-country-cell .mt-country-flag { width: 1.5rem; height: 1.5rem; font-size: .9rem; }
 .mt-country-preview { margin-top: var(--app-space-03); }
@@ -473,7 +473,7 @@
   text-align: left;
 }
 .mt-history-row.cds--btn:hover,
-.mt-history-row.cds--btn.selected { background: var(--app-color-layer-hover); color: var(--app-color-text-primary); }
+.mt-history-row.cds--btn.selected { background: var(--app-color-layer-hover-01); color: var(--app-color-text-primary); }
 .mt-history-icon {
   display: grid;
   width: 2.25rem;
