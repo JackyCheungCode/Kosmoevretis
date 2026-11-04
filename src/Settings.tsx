@@ -79,7 +79,7 @@ export default function Settings(){
  const triggerRef=useRef<HTMLButtonElement|null>(null);
  const selected=pageMeta[active]||pageMeta.providers;
  const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
- const closeNavigation=()=>{setMobileNavOpen(false);triggerRef.current?.focus();};
+ const closeNavigation=()=>{if(mobileNavOpen)triggerRef.current?.focus();setMobileNavOpen(false);};
  useEffect(()=>{
   if(!mobileNavOpen)return;
   navRef.current?.querySelector<HTMLAnchorElement>("a[aria-current='page'], a")?.focus();
