@@ -62,3 +62,11 @@
 @media(max-width:800px){.fb-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.fb-object-grid{gap:.5rem}.fb-object-card{min-height:4.75rem;padding:.7rem;gap:.5rem}.fb-object-card-icon{flex-basis:1.65rem;width:1.65rem;height:1.65rem}.fb-object-card-icon svg{width:20px;height:20px}}
 @media(max-width:360px){.fb-object-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Carbon white result surface and consistent native tabs. */
+.fb-results-section { background:var(--cds-layer-02); }
+.fb-results-section .cds--tabs { min-width:0; }
+.fb-results-section .cds--tab-list { display:flex; flex-wrap:nowrap; max-width:100%; overflow-x:auto; background:transparent; border-bottom:1px solid var(--cds-border-subtle); }
+.fb-results-section .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
+.fb-results-section .cds--tab-content { padding:1rem 0 0; }
+.fb-results-section .cds--tab-panel { padding:0; }
