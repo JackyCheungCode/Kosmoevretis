@@ -322,15 +322,14 @@
 .mt-overview-cards {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--app-color-border-subtle);
+  gap: var(--app-space-02);
 }
 .mt-overview-cards > div {
   display: flex;
   flex-direction: column;
   gap: var(--app-space-02);
   padding: var(--app-space-03);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .mt-overview-cards b { font-size: 1.5rem; font-weight: 400; }
 .mt-subsection-head {
@@ -388,8 +387,7 @@
 .mt-region-note { padding-top: var(--app-space-02); color: var(--app-color-text-secondary); font-size: var(--app-type-label-size); }
 .mt-region-value-label {
   padding: var(--app-space-02) var(--app-space-03);
-  border: 1px solid var(--app-color-border-strong);
-  border-radius: 0;
+  background: var(--app-color-layer-02);
   color: var(--app-color-text-primary);
   font-family: var(--app-font-family);
   font-size: var(--app-type-label-size);
