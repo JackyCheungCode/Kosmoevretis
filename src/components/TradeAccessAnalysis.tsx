@@ -7,6 +7,7 @@ type Props={productName:string;keywords:string[];markets:string[];hsCode:string}
 type Payload={generated_at:string;results:Record<string,any>;sources:any[]};
 const originOptions=[{id:"CN",text:"中国"},{id:"VN",text:"越南"},{id:"IN",text:"印度"},{id:"TW",text:"中国台湾"},{id:"KR",text:"韩国"}];
 const modeOptions=[{id:"ocean",text:"海运"},{id:"air",text:"空运"}];
+const originCities:Record<string,string[]>={CN:["Shanghai","Shenzhen (Yantian)","Guangzhou","Qingdao","Xiamen","Tianjin"],VN:["Ho Chi Minh City"],IN:["Mumbai","Chennai"],TW:["Kaohsiung","Taipei"],KR:["Busan","Seoul (Incheon)"]};
 const marketNames:Record<string,string>={US:"美国",CN:"中国大陆",JP:"日本",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",KR:"韩国",IN:"印度",IT:"意大利",ES:"西班牙",NL:"荷兰",SG:"新加坡",BR:"巴西",MX:"墨西哥",VN:"越南",TH:"泰国",ID:"印度尼西亚",MY:"马来西亚",PH:"菲律宾",TW:"中国台湾",HK:"中国香港"};
 const safeArray=(value:any):any[]=>Array.isArray(value)?value:Array.isArray(value?.data)?value.data:Array.isArray(value?.results)?value.results:value&&typeof value==="object"?Object.entries(value).slice(0,30).map(([key,val])=>({key,...(typeof val==="object"&&val?val as object:{value:val})})):[];
 
@@ -25,7 +26,6 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
  const [origin,setOrigin]=useState("CN"),[originCity,setOriginCity]=useState("Shanghai"),[zip,setZip]=useState(""),[mode,setMode]=useState("ocean"),[payload,setPayload]=useState<Payload|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const marketLabel=markets.map(x=>marketNames[x]||x).join("、");
  const cityOptions=(originCities[origin]||[]).map(x=>({id:x,text:x}));
- const originCities:Record<string,string[]>={CN:["Shanghai","Shenzhen (Yantian)","Guangzhou","Qingdao","Xiamen","Tianjin"],VN:["Ho Chi Minh City"],IN:["Mumbai","Chennai"],TW:["Kaohsiung","Taipei"],KR:["Busan","Seoul (Incheon)"]};
  const analyze=async()=>{setBusy(true);setError("");try{const response=await fetch("/api/trade-intelligence",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keywords,hsCode,markets,originCountry:origin,originCity,destinationZip:zip,freightMode:mode})});const data=await response.json();if(!response.ok)throw new Error(data.error||"贸易情报请求失败");setPayload(data);}catch(e){setError(e instanceof Error?e.message:"贸易情报请求失败");}finally{setBusy(false);}};
  const results=payload?.results||{};
  return <div className="trade-access">
