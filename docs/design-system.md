@@ -53,6 +53,10 @@ Use this primitive for top-level feature pages instead of re-creating a page hea
 
 `src/styles/component-primitives.scss` provides shared composition classes for surfaces, section headings, action groups, horizontally scrollable data regions, and empty states. These primitives use Carbon layer and spacing tokens. Feature pages should adopt them rather than recreating bordered cards or bespoke data wrappers. The surface variants are intentionally borderless: use background contrast and spacing for hierarchy, and reserve borders for actual input affordances or dense data separation.
 
+## Enterprise intelligence pages
+
+`src/styles/intelligence-pages.scss` is the shared layout and component styling layer for enterprise profile editing, the four-step enterprise workflow, AI model allocation and execution, and analysis result reporting. It is loaded after the global and shared primitive styles. Keep these page styles on Carbon semantic aliases and the shared spacing scale; preserve feature-owned data and task behavior when adjusting presentation.
+
 ## Responsive grid
 
 Use Carbon 2x grid breakpoints as the reference:
