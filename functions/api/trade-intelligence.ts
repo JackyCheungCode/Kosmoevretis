@@ -50,12 +50,12 @@ export async function onRequestPost({request}: {request:Request}) {
    return {items,note:"港口拥堵来自 IMF PortWatch AIS 港口活动数据，通常滞后约 6–7 天；不是船舶等待时间。"};
   });
   const origin=String(body.originCountry||"").toUpperCase();
-  if(markets.includes("US") && body.destinationZip && ["CN","VN","IN","TW","KR"].includes(origin)) {
+  if(markets.includes("US") && body.destinationZip && body.originCity && ["CN","VN","IN","TW","KR"].includes(origin)) {
    const mode=body.freightMode==="air"?"air":"ocean";
    const originCountry=COUNTRY[origin]||"";
-   const url="https://freightpulsehq.com/api/v1/freight-rates?mode="+mode+"&origin_country="+encodeURIComponent(originCountry)+"&dest_zip="+encodeURIComponent(String(body.destinationZip).trim());
+   const url="https://freightpulsehq.com/api/v1/freight-rates?mode="+mode+"&origin_country="+encodeURIComponent(originCountry)+"&dest_zip="+encodeURIComponent(String(body.destinationZip).trim())+"&origin_city="+encodeURIComponent(String(body.originCity||"").trim());
    tasks.freight=settled(async()=>getJson(url));
-  } else tasks.freight=Promise.resolve({status:"needs_input",data:null,error:markets.includes("US")?"如需查询亚洲至美国的海运/空运参考报价，请补充支持的起运国家与美国目的邮编。当前不影响关税、贸易与营商环境分析。":"首期免费运价接口仅支持部分亚洲起运地至美国，当前市场组合暂不支持该报价查询。"});
+  } else tasks.freight=Promise.resolve({status:"needs_input",data:null,error:markets.includes("US")?"如需查询亚洲至美国的海运/空运参考报价，请补充支持的起运国家、起运城市与美国目的邮编。当前不影响关税、贸易与营商环境分析。":"首期免费运价接口仅支持部分亚洲起运地至美国，当前市场组合暂不支持该报价查询。"});
   const keys=Object.keys(tasks);
   const results=await Promise.all(keys.map(async key=>[key,await tasks[key]] as const));
   return json({generated_at:new Date().toISOString(),markets,hs_code:hsCode||null,keywords,results:Object.fromEntries(results),sources:[{id:"usitc",name:"USITC HTS",type:"official tariff schedule",free:true},{id:"comtrade",name:"UN Comtrade Public Preview",type:"official trade statistics",free:true,limit:"500 rows/request; preview endpoints"},{id:"bready",name:"World Bank B-READY",type:"business environment indicators",free:true},{id:"freightpulse",name:"FreightPulse / IMF PortWatch",type:"port congestion and conditional spot quote",free:true,limit:"guest quota applies"}]},200,"public, max-age=300, s-maxage=900");
