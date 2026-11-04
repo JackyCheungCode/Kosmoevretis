@@ -30,6 +30,7 @@ export function ResearchTaskDetailPage() {
   const [data, setData] = useState<DetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const task = data?.task;
 
   const load = useCallback(async (silent = false) => {
     if (!session?.access_token || !workspace?.id || !taskId) return;
@@ -41,7 +42,7 @@ export function ResearchTaskDetailPage() {
       if (!response.ok) throw new Error(payload.error || "无法读取任务详情。");
       setData(payload as DetailResponse);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "无法读取任务详情。"); }
-    finally { setLoading(false); }
+    finally { if (!silent) setLoading(false); }
   }, [session?.access_token, workspace?.id, taskId]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
@@ -50,7 +51,6 @@ export function ResearchTaskDetailPage() {
     return () => window.clearInterval(timer);
   }, [task?.id, task?.status, load]);
 
-  const task = data?.task;
   const executions = data?.executions || [];
   const rawItems = Array.isArray(task?.raw_items) ? task.raw_items : [];
   const previewRows = rawItems.slice(0, 20);
