@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, InlineLoading, InlineNotification, PasswordInput, PasswordInputSkeleton, TextInput, Tile, Tag } from "@carbon/react";
+import { Button, InlineLoading, InlineNotification, PasswordInput, TextInput, Tile, Tag } from "@carbon/react";
 import { supabase } from "./lib/supabase";
 
 const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
