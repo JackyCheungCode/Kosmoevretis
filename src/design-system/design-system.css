@@ -31,8 +31,8 @@
   .kosmo-template__configuration-layout { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Unified collection result workspace: Carbon Gray 10 white layer. */
-.kosmo-template__results { min-width:0; padding:var(--kosmo-space-4); background:var(--cds-layer-02); }
+/* Unified collection result workspace: match the white Carbon layer used by sibling page sections. */
+.kosmo-template__results { min-width:0; padding:var(--kosmo-space-4); background:var(--cds-layer-01); }
 .kosmo-template__results .kosmo-template__content { gap:0; }
 .kosmo-template__results .kosmo-page-section { min-width:0; }
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-space-4); }
