@@ -1,0 +1,24 @@
+/* AppShell refinements: layout remains stable while colors resolve through shared tokens. */
+.topbar {
+  background: var(--cds-background-inverse, #161616);
+  color: var(--cds-text-inverse, #f4f4f4);
+}
+.brand-mark { background: var(--kosmo-color-interactive); }
+.nav-item.active {
+  box-shadow: inset 3px 0 var(--kosmo-color-interactive);
+}
+.nav-group-mark, .back-link, .text-action {
+  color: var(--kosmo-color-interactive);
+}
+.scope { background: var(--kosmo-color-layer); }
+.skip-to-content {
+  position: fixed;
+  z-index: 100;
+  top: -4rem;
+  left: 1rem;
+  padding: .75rem 1rem;
+  background: var(--cds-layer-01, #fff);
+  color: var(--kosmo-color-text);
+  border: 2px solid var(--kosmo-color-focus);
+}
+.skip-to-content:focus { top: .5rem; }
