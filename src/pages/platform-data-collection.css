@@ -2,11 +2,11 @@
 .pdc-toggles{display:flex;gap:var(--kosmo-space-4);flex-wrap:wrap;margin-top:var(--kosmo-space-4)}
 .pdc-submit{display:flex;align-items:center;justify-content:space-between;gap:var(--kosmo-space-4);margin-top:var(--kosmo-space-4);padding-top:var(--kosmo-space-4);border-top:1px solid var(--cds-border-subtle)}.pdc-submit>div{min-width:0;display:flex;flex-direction:column;gap:var(--kosmo-space-1)}
 .pdc-history{min-width:0;max-width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kosmo-space-3);align-items:end;margin-bottom:var(--kosmo-space-4)}
-.pdc-actions{display:flex;align-items:center;gap:var(--kosmo-space-2);flex-wrap:wrap}.pdc-run-meta,.pdc-meta{display:flex;gap:var(--kosmo-space-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--kosmo-space-3)}
+.pdc-actions{display:flex;align-items:center;gap:var(--kosmo-space-2);flex-wrap:wrap}
 .pdc-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--kosmo-space-3);margin-bottom:var(--kosmo-space-4)}.pdc-kpis>div{display:flex;flex-direction:column;gap:var(--kosmo-space-2);padding:var(--kosmo-space-3);background:var(--cds-layer-01);min-width:0}.pdc-kpis span{color:var(--cds-text-secondary);font-size:var(--cds-helper-text-01-font-size)}.pdc-kpis strong{font-size:var(--cds-heading-04-font-size);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .pdc-raw pre{max-height:42rem;overflow:auto;margin:0 0 var(--kosmo-space-3);padding:var(--kosmo-space-3);background:var(--cds-layer-01);font-size:var(--cds-code-01-font-size);white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:1055px){.pdc-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.pdc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:671px){.pdc-form,.pdc-history{grid-template-columns:minmax(0,1fr)}.pdc-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.pdc-submit{align-items:stretch;flex-direction:column}.pdc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1055px){.pdc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:671px){.pdc-form,.pdc-history{grid-template-columns:minmax(0,1fr)}.pdc-submit{align-items:stretch;flex-direction:column}.pdc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .pdc-form>div,.pdc-history>div,.pdc-raw{min-width:0;max-width:100%;}
 .pdc-submit>span{min-width:0;color:var(--cds-text-secondary);font-size:var(--cds-helper-text-01-font-size);line-height:1.45;}
