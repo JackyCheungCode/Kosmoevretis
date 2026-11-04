@@ -6,9 +6,10 @@ type SharedHeader = {
   description?: string;
   eyebrow?: string;
   actions?: ReactNode;
+  headingLevel?: 1 | 2;
 };
 
-export function IntelligencePageTemplate({ title, description, eyebrow, actions, sourceConfiguration, navigation, children, metadata }: SharedHeader & {
+export function IntelligencePageTemplate({ title, description, eyebrow, actions, headingLevel, sourceConfiguration, navigation, children, metadata }: SharedHeader & {
   sourceConfiguration: ReactNode;
   navigation?: ReactNode;
   children: ReactNode;
@@ -16,7 +17,7 @@ export function IntelligencePageTemplate({ title, description, eyebrow, actions,
 }) {
   return (
     <PageFrame className="kosmo-template kosmo-template--intelligence">
-      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} />
+      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} headingLevel={headingLevel} />
       <section className="kosmo-template__source" aria-label="分析源配置">{sourceConfiguration}</section>
       {navigation && <nav className="kosmo-template__navigation" aria-label="页面内容导航">{navigation}</nav>}
       <div className="kosmo-template__content">{children}</div>
@@ -25,7 +26,7 @@ export function IntelligencePageTemplate({ title, description, eyebrow, actions,
   );
 }
 
-export function DataListPageTemplate({ title, description, eyebrow, actions, toolbar, summary, children, metadata }: SharedHeader & {
+export function DataListPageTemplate({ title, description, eyebrow, actions, headingLevel, toolbar, summary, children, metadata }: SharedHeader & {
   toolbar?: ReactNode;
   summary?: ReactNode;
   children: ReactNode;
@@ -33,7 +34,7 @@ export function DataListPageTemplate({ title, description, eyebrow, actions, too
 }) {
   return (
     <PageFrame className="kosmo-template kosmo-template--data-list">
-      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} />
+      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} headingLevel={headingLevel} />
       {toolbar && <section className="kosmo-template__toolbar" aria-label="搜索与筛选">{toolbar}</section>}
       {summary && <section className="kosmo-template__summary" aria-label="数据摘要">{summary}</section>}
       <div className="kosmo-template__content">{children}</div>
@@ -42,13 +43,14 @@ export function DataListPageTemplate({ title, description, eyebrow, actions, too
   );
 }
 
-export function ConfigurationPageTemplate({ title, description, eyebrow, actions, navigation, children }: SharedHeader & {
+export function ConfigurationPageTemplate({ title, description, eyebrow, actions, headingLevel, navigation, children, className }: SharedHeader & {
   navigation?: ReactNode;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <PageFrame className="kosmo-template kosmo-template--configuration">
-      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} />
+    <PageFrame className={["kosmo-template kosmo-template--configuration", className].filter(Boolean).join(" ")}>
+      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} headingLevel={headingLevel} />
       <div className="kosmo-template__configuration-layout">
         {navigation && <nav className="kosmo-template__configuration-nav" aria-label="配置分类">{navigation}</nav>}
         <div className="kosmo-template__content">{children}</div>
@@ -57,7 +59,7 @@ export function ConfigurationPageTemplate({ title, description, eyebrow, actions
   );
 }
 
-export function AnalysisPageTemplate({ title, description, eyebrow, actions, context, navigation, children, evidence }: SharedHeader & {
+export function AnalysisPageTemplate({ title, description, eyebrow, actions, headingLevel, context, navigation, children, evidence }: SharedHeader & {
   context?: ReactNode;
   navigation?: ReactNode;
   children: ReactNode;
