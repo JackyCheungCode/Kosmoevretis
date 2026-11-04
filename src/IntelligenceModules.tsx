@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabase";
+import CarbonSelect from "./components/CarbonSelect";
 
 type Source = { id:string; slug:string; channel:string; name:string; logo_url:string; website_url:string; description:string; market_codes:string[]; status:string; sort_order:number };
 type Connector = { id:string; source_id:string; name:string; connector_type:string; provider:string; actor_id:string|null; status:string; notes:string; auth_required:boolean };
@@ -85,7 +86,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoD
  const sample=mode==="single"?(data?.ai_reports.tabs[singleTab]||data?.ai_reports.all):mode==="custom"?data?.ai_reports.all:data?.ai_reports.all;
  return <section className="gi-ai-section" id="ai-intelligence-analysis"><div className="gi-section-head"><div><span className="eyebrow">05 / AI INTELLIGENCE</span><h2>AI 分析与商业洞察</h2><p>可综合全部情报、分析单个 Tab，或组合多个维度；结论可追溯到当前数据集。</p></div><span className="gi-ai-model">Cloudflare Workers AI</span></div>
   <div className="gi-ai-layout"><div className="gi-ai-controls"><div className="gi-mode-switch">{[["all","全部结果"],["single","单个 Tab"],["custom","组合分析"]].map(x=><button type="button" key={x[0]} className={mode===x[0]?"active":""} onClick={()=>setMode(x[0])}>{x[1]}</button>)}</div>
-   {mode==="single"&&<label className="gi-ai-field">选择分析板块<select value={singleTab} onChange={e=>setSingleTab(e.target.value)}>{tabOptions.map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</select></label>}
+   {mode==="single"&&<label className="gi-ai-field">选择分析板块<CarbonSelect value={singleTab} onChange={setSingleTab}>{tabOptions.map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</CarbonSelect></label>}
    {mode==="custom"&&<div className="gi-ai-field"><strong>选择参与分析的 Tab</strong><div className="gi-ai-checks">{tabOptions.map(x=><label key={x[0]}><input type="checkbox" checked={customTabs.includes(x[0])} onChange={e=>setCustomTabs(v=>e.target.checked?[...v,x[0]]:v.filter(k=>k!==x[0]))}/>{x[1]}</label>)}</div></div>}
    <label className="gi-ai-field">补充研究问题（可选）<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></label>
    <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken}>{busy?"AI 正在分析…":"开始 AI 分析"}</button><small>实时分析会调用 Cloudflare Workers AI，产生模型用量；仅发送本次选择的数据摘要与问题。</small>
