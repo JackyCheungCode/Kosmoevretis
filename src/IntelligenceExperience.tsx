@@ -88,12 +88,14 @@ export function IntelligenceTabContent({data,activeTab,analyzed,loading}:{data:D
  </div>;
 }
 
-export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoData|null;accessToken:string;context:string;activeTab:string}) {
+export function AIAnalysisPanel({data,accessToken,context,activeTab,liveResults=[]}:{data:DemoData|null;accessToken:string;context:string;activeTab:string;liveResults?:any[]}) {
  const [provider,setProvider]=useState("cloudflare-workers-ai"),[model,setModel]=useState("@cf/meta/llama-3.3-70b-instruct-fp8-fast"),[mode,setMode]=useState("all"),[singleTab,setSingleTab]=useState(activeTab),[customTabs,setCustomTabs]=useState(["bestsellers","search","consumer"]),[question,setQuestion]=useState(""),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const tabOptions=[["overview","情报总览"],["bestsellers","全球热销榜"],["search","搜索趋势"],["social","社交媒体趋势"],["consumer","消费者洞察"],["competitors","品牌与竞品"],["categories","品类分析"],["markets","国家市场"]];
  useEffect(()=>{setSingleTab(activeTab);},[activeTab]);
- const run=async()=>{if(!data){setError("演示数据集尚未加载。");return;}if(provider!=="cloudflare-workers-ai"){setError("当前 AI 服务尚未配置，请选择已接入的服务。");return;}if(mode==="custom"&&!customTabs.length){setError("请至少选择一个情报维度。");return;}setBusy(true);setError("");try{const response=await fetch("/api/intelligence-ai",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+accessToken},body:JSON.stringify({provider,model,mode,tab:singleTab,tabs:customTabs,question,context,dataset:data})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 分析暂不可用");setAnswer(payload.answer||"AI 未返回可展示内容。");}catch(e){setError(e instanceof Error?e.message:"AI 分析失败，请稍后重试。");}finally{setBusy(false);}};
- const sample=mode==="single"?(data?.ai_reports.tabs[singleTab]||data?.ai_reports.all):mode==="custom"?data?.ai_reports.all:data?.ai_reports.all;
+ const liveDataset=(liveResults.length?({demo_notice:"以下为真实 Google Trends 采集数据；未接入的电商、社媒维度不作推测。",product:{name:context||liveResults[0]?.keyword||"关键词研究",category:"Google Trends",brand:""},kpis:[],trend:[],bestsellers:[],search_terms:liveResults.flatMap((r:any)=>{const q=r.related_queries||{};return (Array.isArray(q.rising)?q.rising:Array.isArray(q.top)?q.top:[]).map((x:any)=>({term:x.query||x.keyword||"",index:Number(x.value)||0,growth:x.formattedValue||""}));}),social:[],pain_points:[],competitors:[],categories:[],markets:liveResults.flatMap((r:any)=>Array.isArray(r.interest_by_region)?r.interest_by_region.map((x:any)=>({code:x.geoCode||"",name:x.region||x.geoCode||"",flag:"",opportunity:Number(x.value)||0,search:Number(x.value)||0,social:0,price:0})):[]),ai_reports:{all:"请基于已采集的 Google Trends 数据进行分析。",tabs:{}}} as DemoData):null);
+ const aiDataset=data||liveDataset;
+ const run=async()=>{if(!aiDataset){setError("请先加载真实采集结果或可用数据集。");return;}if(provider!=="cloudflare-workers-ai"){setError("当前 AI 服务尚未配置，请选择已接入的服务。");return;}if(mode==="custom"&&!customTabs.length){setError("请至少选择一个情报维度。");return;}setBusy(true);setError("");try{const response=await fetch("/api/intelligence-ai",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+accessToken},body:JSON.stringify({provider,model,mode,tab:singleTab,tabs:customTabs,question,context,dataset:aiDataset,live_evidence:liveResults})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 分析暂不可用");setAnswer(payload.answer||"AI 未返回可展示内容。");}catch(e){setError(e instanceof Error?e.message:"AI 分析失败，请稍后重试。");}finally{setBusy(false);}};
+ const sample=mode==="single"?(aiDataset?.ai_reports.tabs[singleTab]||aiDataset?.ai_reports.all):mode==="custom"?aiDataset?.ai_reports.all:aiDataset?.ai_reports.all;
  const modelOptions=[
   {value:"@cf/meta/llama-3.3-70b-instruct-fp8-fast",label:"Meta Llama 3.3 70B · 推荐",description:"均衡的综合分析能力，当前默认模型"},
   {value:"@cf/meta/llama-4-scout-17b-16e-instruct",label:"Meta Llama 4 Scout 17B",description:"新一代多模态模型，适合复杂语义理解"},
@@ -132,7 +134,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoD
    <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</button>
    <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。当前演示数据会在分析结论中明确标注。</small>
   </div>
-  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>当前样本全部为模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
+  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>{liveResults.length?"本次包含真实 Google Trends 观察数据；AI 对需求和机会的解释属于推断，不能替代真实销量或已验证购买需求。":"当前样本可能包含模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。"}</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
  </section>;
 }
 
@@ -150,7 +152,7 @@ function TrendLineChart({series,keyword}:{series:any[];keyword:string}) {
  </svg><div className="gi-chart-footnote">Google Trends 相对兴趣指数 · 0–100</div></div>;
 }
 function RankedEvidence({items,kind="query"}:{items:any[];kind?:string}) {
- const rows=items.slice(0,20).map((item:any)=>({label:String(item.query??item.topic??item.title??item.keyword??item.value??"未命名"),value:Number(item.value??item.extracted_value??item.score??0),growth:item.formattedValue??item.growth??item.formatted_value??""}));
+ const rows=items.slice(0,20).map((item:any)=>({label:String(item.label??item.query??item.topic??item.title??item.keyword??item.value??"未命名"),value:Number(item.value??item.extracted_value??item.score??0),growth:item.formattedValue??item.growth??item.formatted_value??""}));
  const max=Math.max(1,...rows.map(x=>x.value));
  if(!rows.length)return <div className="gi-empty-state">当前 Actor 结果没有返回此类数据。</div>;
  return <div className="gi-evidence-list">{rows.map((row:any,i:number)=><div className="gi-evidence-row" key={i}><span className="gi-evidence-rank">{i+1}</span><div className="gi-evidence-main"><strong title={row.label}>{row.label}</strong><div className="gi-evidence-track"><i style={{width:Math.max(0,Math.min(100,row.value/max*100))+"%"}}/></div></div><b>{row.growth|| (row.value||"—")}</b></div>)}</div>;
