@@ -11,8 +11,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  flex-direction: column;
-  gap: var(--kosmo-space-1);
+  flex-direction: row;
+  gap: var(--kosmo-space-3);
   width: 100%;
   min-width: 0;
   min-height: var(--kosmo-collection-mode-card-height);
@@ -25,39 +25,46 @@
   text-align: left;
   white-space: normal;
 }
-
 .kosmo-collection-mode-grid__item.cds--btn::before,
-.kosmo-collection-mode-grid__item.cds--btn::after {
-  display: none;
-}
-
-.kosmo-collection-mode-grid__item.cds--btn:hover {
-  background: var(--cds-layer-hover-02);
-}
-
+.kosmo-collection-mode-grid__item.cds--btn::after { display: none; }
+.kosmo-collection-mode-grid__item.cds--btn:hover { background: var(--cds-layer-hover-02); }
 .kosmo-collection-mode-grid__item.cds--btn.is-selected {
   background: var(--cds-layer-selected-01);
   box-shadow: inset 3px 0 var(--cds-interactive);
 }
-
-.kosmo-collection-mode-grid__item strong,
-.kosmo-collection-mode-grid__item span {
+.kosmo-collection-mode-grid__icon {
+  display: grid !important;
+  flex: 0 0 1.5rem;
+  width: 1.5rem !important;
+  height: 1.5rem;
+  place-items: center;
+  color: var(--cds-icon-secondary);
+}
+.kosmo-collection-mode-grid__item.is-selected .kosmo-collection-mode-grid__icon { color: var(--cds-icon-primary); }
+.kosmo-collection-mode-grid__copy {
+  display: flex !important;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--kosmo-space-1);
+  min-width: 0;
+  width: auto !important;
+  text-align: left;
+}
+.kosmo-collection-mode-grid__copy strong,
+.kosmo-collection-mode-grid__copy > span {
   display: block;
   width: 100%;
   min-width: 0;
+  overflow: hidden;
   overflow-wrap: anywhere;
   white-space: normal;
-  overflow: hidden;
 }
-
-.kosmo-collection-mode-grid__item strong {
+.kosmo-collection-mode-grid__copy strong {
   font-size: var(--cds-body-compact-01-font-size);
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  font-weight: 600;
+  line-height: 1.35;
 }
-
-.kosmo-collection-mode-grid__item span {
+.kosmo-collection-mode-grid__copy > span {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -65,8 +72,4 @@
   font-size: var(--cds-helper-text-01-font-size);
   line-height: 1.4;
 }
-
-.kosmo-collection-mode-grid__item:focus-visible {
-  outline: 2px solid var(--cds-focus);
-  outline-offset: 2px;
-}
+.kosmo-collection-mode-grid__item:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: 2px; }
