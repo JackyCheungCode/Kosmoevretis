@@ -141,7 +141,7 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab,liveResults=
 function TrendLineChart({series,keyword}:{series:any[];keyword:string}) {
  const points=series.map((row:any,i:number)=>{const raw=row?.[keyword]??row?.value??row?.interest??row?.interestValue??row?.values?.[0]?.value??0;const value=Number(raw);const date=row?.date??row?.formattedTime??row?.time??(row?.timestamp?new Date(Number(row.timestamp)*1000).toISOString().slice(0,10):String(i+1));return{date:String(date),value:Number.isFinite(value)?Math.max(0,Math.min(100,value)):0};}).filter((p:any)=>p.date);
  if(!points.length)return <div className="gi-empty-state">Actor 未返回可绘制的时间序列。请展开原始数据检查返回字段。</div>;
- const w=760,h=280,left=48,right=18,top=18,bottom=48;
+ const w=760,h=280,left=48,right=18,top=18,bottom=48,max=100;
  const x=(i:number)=>left+(i/Math.max(1,points.length-1))*(w-left-right),y=(v:number)=>top+(1-v/max)*(h-top-bottom);
  const path=points.map((p:any,i:number)=>(i?"L":"M")+x(i)+","+y(p.value)).join(" ");
  const labels=points.filter((_:any,i:number)=>i===0||i===points.length-1||i%Math.max(1,Math.ceil(points.length/5))===0);
