@@ -1,8 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, InlineLoading, InlineNotification, PasswordInput, TextInput, Tile, Tag } from "@carbon/react";
 import { supabase } from "./lib/supabase";
+import BrandLogo from "./BrandLogo";
 
 const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
+
+const apiProviders = [
+  { key: "apify", name: "Apify", domain: "apify.com", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
+  { key: "bright_data", name: "Bright Data", domain: "brightdata.com", description: "全球代理网络、网页采集与结构化数据", credentialLabel: "Bright Data API Key", placeholder: "输入 Bright Data API Key" },
+  { key: "octoparse", name: "Octoparse", domain: "octoparse.com", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
+  { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
+  { key: "phantombuster", name: "PhantomBuster", domain: "phantombuster.com", description: "社交平台自动化、线索采集与数据丰富", credentialLabel: "PhantomBuster API Key", placeholder: "输入 PhantomBuster API Key" },
+  { key: "texau", name: "TexAu", domain: "texau.com", description: "销售情报、社交数据与工作流自动化", credentialLabel: "TexAu API Key", placeholder: "输入 TexAu API Key" },
+  { key: "upkuajing", name: "跨境魔方", domain: "upkuajing.com", description: "全球企业、采购商与海关贸易数据 API", credentialLabel: "跨境魔方 API Key", placeholder: "输入跨境魔方 API Key" },
+] as const;
 
 type ApiState = {
   providers: Array<{ provider_key: string; display_name: string; is_enabled: boolean; credential_hint: string | null; status: string; last_tested_at: string | null }>;
@@ -13,9 +24,9 @@ export default function SettingsBackend() {
   const [password, setPassword] = useState("");
   const [sessionReady, setSessionReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
-  const [token, setToken] = useState("");
-  const [provider, setProvider] = useState<ApiState["providers"][number] | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [credentials, setCredentials] = useState<Record<string, string>>({});
+  const [savedProviders, setSavedProviders] = useState<ApiState["providers"]>([]);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error" | "info"; title: string; message: string } | null>(null);
 
   const invoke = useCallback(async (action: string, payload: Record<string, unknown> = {}) => {
@@ -29,7 +40,7 @@ export default function SettingsBackend() {
 
   const load = useCallback(async () => {
     const data = await invoke("list") as ApiState;
-    setProvider(data.providers?.find(item => item.provider_key === "apify") || null);
+    setSavedProviders(data.providers || []);
   }, [invoke]);
 
   useEffect(() => {
@@ -48,7 +59,7 @@ export default function SettingsBackend() {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSignedIn(!!session);
       if (session) load().catch(error => setNotice({ kind: "error", title: "读取配置失败", message: error.message }));
-      else setProvider(null);
+      else setSavedProviders([]);
     });
     return () => {
       active = false;
@@ -57,7 +68,7 @@ export default function SettingsBackend() {
   }, [load]);
 
   const signIn = async () => {
-    setBusy(true);
+    setBusyKey("login");
     setNotice(null);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -67,39 +78,44 @@ export default function SettingsBackend() {
     } catch (error) {
       setNotice({ kind: "error", title: "登录失败", message: error instanceof Error ? error.message : "请检查账号和密码。" });
     } finally {
-      setBusy(false);
+      setBusyKey(null);
     }
   };
 
-  const saveAndTest = async () => {
-    if (!token.trim() && !provider?.credential_hint) {
-      setNotice({ kind: "error", title: "缺少 API Token", message: "请先输入 Apify API Token。" });
+  const saveProvider = async (providerKey: string) => {
+    const definition = apiProviders.find(item => item.key === providerKey);
+    const credential = credentials[providerKey]?.trim();
+    if (!definition || !credential) {
+      setNotice({ kind: "error", title: "缺少 API 凭证", message: "请先输入 " + (definition?.credentialLabel || "API Key") + "。" });
       return;
     }
-    setBusy(true);
+    setBusyKey(providerKey);
     setNotice(null);
     try {
-      if (token.trim()) {
-        await invoke("save_provider", {
-          provider_key: "apify",
-          display_name: "Apify",
-          credential: token.trim(),
-          is_enabled: true,
-        });
-        setToken("");
-      }
-      const result = await invoke("test_apify") as { actor_username?: string; plan?: string };
-      await load();
-      setNotice({
-        kind: "success",
-        title: "Apify 连接成功",
-        message: [result.actor_username ? "账号：" + result.actor_username : "", result.plan ? "套餐：" + result.plan : ""].filter(Boolean).join(" · ") || "API Token 已验证。",
+      await invoke("save_provider", {
+        provider_key: providerKey,
+        display_name: definition.name,
+        credential,
+        is_enabled: true,
       });
+      setCredentials(current => ({ ...current, [providerKey]: "" }));
+      if (providerKey === "apify") {
+        const result = await invoke("test_apify") as { actor_username?: string; plan?: string };
+        await load();
+        setNotice({
+          kind: "success",
+          title: "Apify 连接成功",
+          message: [result.actor_username ? "账号：" + result.actor_username : "", result.plan ? "套餐：" + result.plan : ""].filter(Boolean).join(" · ") || "API Token 已验证。",
+        });
+      } else {
+        await load();
+        setNotice({ kind: "success", title: definition.name + " 凭证已安全保存", message: "凭证已通过服务端加密保存。该服务商的实时连通性测试接口尚未接入。" });
+      }
     } catch (error) {
-      setNotice({ kind: "error", title: "Apify 连接失败", message: error instanceof Error ? error.message : "请检查 Token 和服务配置。" });
+      setNotice({ kind: "error", title: definition.name + " 配置失败", message: error instanceof Error ? error.message : "请检查凭证和服务配置。" });
       await load().catch(() => undefined);
     } finally {
-      setBusy(false);
+      setBusyKey(null);
     }
   };
 
@@ -111,21 +127,44 @@ export default function SettingsBackend() {
   if (!sessionReady) return <InlineLoading description="正在检查管理员登录状态…" />;
   return <div className="intelligence-panel">
     <div className="results-heading">
-      <h3>Apify 账号连接</h3>
-      <p>通过服务端加密保存 API Token，并使用 Apify 官方账号接口验证连接。凭证不会返回浏览器。</p>
+      <h3>服务商 API 连接</h3>
+      <p>统一管理数据采集与情报服务商凭证。密钥通过服务端 AES-GCM 加密保存，不会返回浏览器。</p>
     </div>
     {!signedIn ? <Tile className="library-card">
       <div className="library-card-head"><strong>组织管理员登录</strong><Tag type="gray">需要授权</Tag></div>
       <p>设置中心的凭证管理仅允许组织 Owner 或 Admin 操作。请使用已加入当前组织的管理员账号登录。</p>
       <TextInput id="settings-admin-email" labelText="管理员邮箱" type="email" value={email} onChange={event => setEmail(event.target.value)} />
       <PasswordInput id="settings-admin-password" labelText="登录密码" value={password} onChange={event => setPassword(event.target.value)} />
-      <div className="analysis-submit-row"><span>登录状态仅保存在 Supabase Auth 会话中。</span><Button kind="primary" disabled={!email.trim() || !password || busy} onClick={signIn}>{busy ? "登录中…" : "登录并加载配置"}</Button></div>
+      <div className="analysis-submit-row"><span>登录状态仅保存在 Supabase Auth 会话中。</span><Button kind="primary" disabled={!email.trim() || !password || busyKey === "login"} onClick={signIn}>{busyKey === "login" ? "登录中…" : "登录并加载配置"}</Button></div>
     </Tile> : <>
-      <Tile className="library-card">
-        <div className="library-card-head"><div><strong>Apify API Token</strong><span>{provider?.credential_hint ? "已保存凭证 · " + provider.credential_hint : "尚未配置凭证"}</span></div><Tag type={provider?.status === "verified" ? "green" : provider?.status === "error" ? "red" : provider?.credential_hint ? "blue" : "gray"}>{provider?.status === "verified" ? "已验证" : provider?.status === "error" ? "连接异常" : provider?.credential_hint ? "已保存" : "未配置"}</Tag></div>
-        <PasswordInput id="settings-apify-token" labelText="Apify API Token" placeholder={provider?.credential_hint ? "留空则保留当前凭证" : "输入 Apify API Token"} value={token} onChange={event => setToken(event.target.value)} />
-        <div className="analysis-submit-row"><span>{provider?.last_tested_at ? "上次测试：" + new Date(provider.last_tested_at).toLocaleString() : "凭证将通过 AES-GCM 加密保存。"}</span><Button kind="primary" disabled={busy} onClick={saveAndTest}>{busy ? "处理中…" : "保存并测试连接"}</Button></div>
-      </Tile>
+      <div className="library-list">{apiProviders.map(definition => {
+        const saved = savedProviders.find(item => item.provider_key === definition.key);
+        const isApify = definition.key === "apify";
+        const status = saved?.status === "verified" ? "已验证" : saved?.status === "error" ? "连接异常" : saved?.credential_hint ? "已保存" : "未配置";
+        const tagType = saved?.status === "verified" ? "green" : saved?.status === "error" ? "red" : saved?.credential_hint ? "blue" : "gray";
+        return <Tile key={definition.key} className="library-card">
+          <div className="library-card-head">
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <BrandLogo name={definition.name} domain={definition.domain} />
+              <div><strong>{definition.name}</strong><span>{saved?.credential_hint ? "已保存凭证 · " + saved.credential_hint : definition.description}</span></div>
+            </div>
+            <Tag type={tagType}>{status}</Tag>
+          </div>
+          <PasswordInput
+            id={"settings-provider-" + definition.key}
+            labelText={definition.credentialLabel}
+            placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
+            value={credentials[definition.key] || ""}
+            onChange={event => setCredentials(current => ({ ...current, [definition.key]: event.target.value }))}
+          />
+          <div className="analysis-submit-row">
+            <span>{isApify && saved?.last_tested_at ? "上次测试：" + new Date(saved.last_tested_at).toLocaleString() : saved?.credential_hint ? "凭证已加密保存" : "尚未配置连接凭证"}</span>
+            <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
+              {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
+            </Button>
+          </div>
+        </Tile>;
+      })}</div>
       <div className="analysis-submit-row"><span>已通过组织管理员身份验证。</span><Button kind="ghost" size="sm" onClick={signOut}>退出登录</Button></div>
     </>}
     {notice && <InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} hideCloseButton />}
