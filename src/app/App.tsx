@@ -10,6 +10,8 @@ const SettingsPage = lazy(() => import("../features/settings/SettingsPage").then
 const EnterpriseWorkflowPage = lazy(() => import("../features/enterprise-workflow/EnterpriseWorkflowPage").then((module) => ({ default: module.EnterpriseWorkflowPage })));
 const MarketTrendsPage = lazy(() => import("../features/market-trends/MarketTrendsPage").then((module) => ({ default: module.MarketTrendsPage })));
 const KeywordResearchPage = lazy(() => import("../features/keyword-research/KeywordResearchPage").then((module) => ({ default: module.KeywordResearchPage })));
+const AIWorkCenterPage = lazy(() => import("../features/ai-work-center/AIWorkCenterPage").then((module) => ({ default: module.AIWorkCenterPage })));
+const ResearchTaskDetailPage = lazy(() => import("../features/ai-work-center/ResearchTaskDetailPage").then((module) => ({ default: module.ResearchTaskDetailPage })));
 
 function RouteLoading() {
   return <div className="route-loading" role="status" aria-live="polite"><span className="route-loading-indicator" />正在加载页面…</div>;
@@ -41,6 +43,8 @@ export function App() {
     <Route path="/enterprise-profile/:enterpriseId" element={<Navigate to="/enterprise-workflow" replace />} />
     <Route path="/market-trends" element={<Protected><MarketTrendsPage /></Protected>} />
     <Route path="/keyword-research" element={<Protected><KeywordResearchPage /></Protected>} />
+    <Route path="/ai-work-center" element={<Protected><AIWorkCenterPage /></Protected>} />
+    <Route path="/ai-work-center/:taskId" element={<Protected><ResearchTaskDetailPage /></Protected>} />
     <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
     <Route path="/ai-analysis" element={<Navigate to="/enterprise-workflow" replace />} />
     <Route path="/analysis-results" element={<Navigate to="/enterprise-workflow" replace />} />
