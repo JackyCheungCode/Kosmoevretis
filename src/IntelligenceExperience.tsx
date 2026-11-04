@@ -135,8 +135,37 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoD
   <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>当前样本全部为模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
  </section>;
 }
-export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string}) {
+
+function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any|null;history:any[];loading:boolean}) {
+ const [selected,setSelected]=useState(0);
+ const result=results[selected]||null;
+ const series=Array.isArray(result?.interest_over_time)?result.interest_over_time:[];
+ const regions=Array.isArray(result?.interest_by_region)?result.interest_by_region:[];
+ const related=result?.related_queries||{};
+ const rows=Array.isArray(related.rising)?related.rising:Array.isArray(related.top)?related.top:[];
+ const values=series.map((row:any)=>({label:String(row.date||new Date(Number(row.timestamp||0)*1000).toLocaleDateString()),value:Number(row[result?.keyword]??row.value??0)}));
+ const max=Math.max(1,...values.map(x=>x.value));
+ return <section className="gi-live-results">
+  <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>真实搜索趋势数据</h2><p>数据由 Apify Google Trends Actor 实时采集，指标为 Google Trends 相对搜索兴趣指数（0–100），不是搜索量或销量。</p></div><span className="gi-status ready">{loading?"正在采集…":meta?"真实数据":"等待采集"}</span></div>
+  {loading&&<div className="gi-warning">正在调用 Google Trends Actor。采集完成后会自动保存原始数据和任务记录，请勿关闭页面。</div>}
+  {meta&&<div className="gi-kpi-grid"><div><small>返回结果组</small><strong>{meta.result_count??results.length}</strong></div><div><small>Actor 运行 ID</small><strong>{meta.actor_run_id||"—"}</strong></div><div><small>采集来源</small><strong>surefetch/google-trends</strong></div><div><small>运行状态</small><strong>{meta.status||"succeeded"}</strong></div></div>}
+  {results.length>0&&<>
+   {results.length>1&&<div className="gi-filter-row"><label>关键词结果<select value={selected} onChange={e=>setSelected(Number(e.target.value))}>{results.map((x,i)=><option key={i} value={i}>{x.keyword||"关键词 "+(i+1)}</option>)}</select></label></div>}
+   <div className="gi-chart-grid"><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>{result.keyword} · 搜索兴趣时间序列</h4><p>{result.geo||"全球"} · {result.time_range} · Google Trends 指数</p></div></div>
+    {values.length?<div className="gi-live-series">{values.map((x,i)=><div key={i} title={x.label}><span>{x.label}</span><div><i style={{height:(x.value/max*100)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>Actor 未返回时间序列数据。可在下方查看完整原始结果。</p>}
+   </article>
+   <article className="gi-chart-card"><div className="gi-card-head"><div><h4>地区搜索兴趣</h4><p>地区内相对兴趣指数</p></div></div>{regions.length?<div className="gi-bars">{regions.slice(0,15).map((x:any,i:number)=><div className="gi-bar-row" key={i}><span>{x.region||x.geoCode}</span><div><i style={{width:(Number(x.value)||0)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>当前结果没有地区分布数据。</p>}</article>
+   <article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关搜索查询</h4><p>Actor 返回的关联查询</p></div></div>{rows.length?<div className="gi-bars">{rows.slice(0,20).map((x:any,i:number)=><div className="gi-bar-row" key={i}><span>{x.query||x.keyword||JSON.stringify(x)}</span><div><i style={{width:(Number(x.value)||0)+"%"}}/></div><b>{x.value??"—"}</b></div>)}</div>:<p>当前结果没有相关查询数据。</p>}</article>
+   </div>
+   <details className="gi-raw-evidence"><summary>查看 Actor 原始返回数据（完整 JSON）</summary><pre>{JSON.stringify(result,null,2)}</pre></details>
+  </>}
+  {!loading&&!results.length&&<div className="gi-warning">尚无本次真实采集结果。请在上方配置关键词、目标市场和时间范围后点击“开始分析”。</div>}
+  {history.length>0&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>已保存到组织工作区，可用于后续历史对比。</p></div></div><div className="gi-bars">{history.map((x:any)=><div className="gi-bar-row" key={x.id}><span>{x.title}</span><div><i style={{width:(x.status==="succeeded"?100:0)+"%"}}/></div><b>{x.status} · {x.result_count}</b></div>)}</div></article>}
+ </section>;
+}
+
+export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);
- return <><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>;
+ return <>{liveResults.length||collectionLoading?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>}</>;
 }
