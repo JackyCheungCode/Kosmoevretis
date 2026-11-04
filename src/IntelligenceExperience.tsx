@@ -231,7 +231,6 @@ function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTa
   </div>}
   {!result&&!loading&&<div className="gi-warning">{meta?.status==="failed"?meta.error:"尚无真实采集结果。请配置关键词、市场和时间范围后开始分析。"}</div>}
   {meta?.error&&<div className="gi-warning">{meta.error}</div>}
-  <HistoryRecords history={history} onSelectHistory={onSelectHistory}/>
   {result&&<details className="gi-raw-evidence"><summary>查看 Actor 原始返回数据（完整 JSON）</summary><pre>{JSON.stringify(result,null,2)}</pre></details>}
  </section>;
 }
