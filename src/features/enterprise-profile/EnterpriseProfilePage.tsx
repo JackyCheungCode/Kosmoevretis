@@ -5,6 +5,7 @@ import {
 } from "@carbon/react";
 import { requireSupabase } from "../../lib/supabase";
 import { useAuth } from "../../app/AuthProvider";
+import { PageHeader } from "../../components/ui/PageHeader";
 
 type Profile = {
   id: string; display_name: string; legal_name: string | null; website: string | null;
@@ -220,10 +221,7 @@ export function EnterpriseProfilePage({
   const relationshipFields: ProfileField[] = profileSections[3].fields;
 
   return <div className="enterprise-page">
-    {!embedded && <header className="ep-page-heading">
-      <div><div className="ep-eyebrow"><i/> VERIFIED BUSINESS CONTEXT</div><h1>企业档案</h1><p>以结构化企业信息、字段来源和版本记录建立可信的 AI 分析基础。</p></div>
-      <Tag type="blue">{workspace?.name || "工作空间"}</Tag>
-    </header>}
+    {!embedded && <PageHeader className="ep-page-heading" eyebrow={<span className="ep-eyebrow"><i/> VERIFIED BUSINESS CONTEXT</span>} title="企业档案" description="以结构化企业信息、字段来源和版本记录建立可信的 AI 分析基础。" meta={<Tag type="blue">{workspace?.name || "工作空间"}</Tag>} />}
 
     <div className="profile-workspace">
       <aside className="profile-list">
