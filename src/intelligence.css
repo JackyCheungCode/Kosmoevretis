@@ -148,3 +148,88 @@
 .gi-ai-tabs .gi-ai-field>small{font-size:.63rem;color:var(--cds-text-secondary,#6f6f6f)}
 .gi-ai-run-note{display:block;margin-top:.35rem;font-size:.63rem;line-height:1.5;color:var(--cds-text-secondary,#6f6f6f)}
 @media(max-width:671px){.gi-ai-model-grid{grid-template-columns:1fr}.gi-ai-tabs .cds--tab{padding-inline:.45rem;font-size:.65rem}}
+
+
+ 
+/* Global intelligence — mobile typography, navigation and source layout */
+@media (max-width: 671px) {
+  .intelligence-panel {
+    min-width: 0;
+    padding: .9rem 0 .2rem;
+  }
+  .analysis-source,
+  .analysis-results,
+  .market-section {
+    min-width: 0;
+    padding: .9rem;
+  }
+  .analysis-source-heading,
+  .results-heading {
+    gap: .45rem;
+    margin-bottom: .9rem;
+  }
+  .analysis-source-heading h2,
+  .results-heading h2 {
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+  .analysis-source-heading p,
+  .results-heading p {
+    font-size: .82rem;
+    line-height: 1.55;
+  }
+  .source-settings-note {
+    margin-top: 1rem;
+    padding: .875rem;
+  }
+  .source-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .source-options > .field-label,
+  .source-option-foot {
+    grid-column: auto;
+  }
+  .parameter-area,
+  .translation-panel,
+  .variant-selection {
+    padding: .85rem;
+  }
+  .analysis-submit-row {
+    gap: .65rem;
+  }
+  .analysis-submit-row > span {
+    font-size: .74rem;
+    line-height: 1.5;
+  }
+  .intelligence-tabs {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+  }
+  .intelligence-tab {
+    min-height: 2.75rem;
+    padding-inline: .75rem;
+    font-size: .78rem;
+  }
+  .market-picker,
+  .market-map-panel {
+    min-width: 0;
+    padding: .75rem;
+  }
+  .market-option {
+    font-size: .8rem;
+  }
+  .world-map {
+    max-width: 100%;
+  }
+  .gi-ai-tabs .cds--tab {
+    min-height: 2.65rem;
+    padding-inline: .65rem;
+    font-size: .72rem;
+  }
+  .gi-ai-tab-description,
+  .gi-ai-field > small,
+  .gi-ai-run-note {
+    font-size: .72rem;
+    line-height: 1.5;
+  }
+}
