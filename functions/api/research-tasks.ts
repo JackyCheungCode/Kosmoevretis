@@ -5,7 +5,7 @@ const safeJson = async (response: Response) => response.json().catch(() => ({}))
 async function authenticate(request: Request, env: Env) {
   const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   if (!token) return { error: json({ error: "请登录后管理研究任务。" }, 401) };
-  const base = env.SUPABASE_URL?.replace(/\\/$/, "");
+  const base = env.SUPABASE_URL?.replace(/\/$/, "");
   if (!base || !env.SUPABASE_ANON_KEY) return { error: json({ error: "Supabase 服务端配置不可用。" }, 503) };
   const response = await fetch(base + "/auth/v1/user", {
     headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: "Bearer " + token }
