@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ChartLine, Locked } from "@carbon/icons-react";
 import { useAuth } from "../../app/AuthProvider";
 import { requireSupabase } from "../../lib/supabase";
+import { PageHeader } from "../../components/ui/PageHeader";
 
 type View = "overview" | "dimensions" | "history";
 type AnalysisRun = {
@@ -72,10 +73,7 @@ export function AnalysisResultsPage({ companyName, onConfigureAnalysis, embedded
   const profileVersion = latest?.input_snapshot?.profile_version ?? latest?.input_snapshot?.profile?.version ?? "—";
 
   return <section className="ep-tab-content ar-page">
-    {!embedded && <div className="ep-tab-heading ar-heading">
-      <div><div className="ep-section-kicker">BUSINESS INTELLIGENCE / REPORT CENTER</div><h2>分析结果</h2><p>查看 {companyName} 的经营诊断、维度分析、行动建议与历史报告版本。</p></div>
-      <div className="ar-secure"><Locked size={15}/> 企业私有分析档案</div>
-    </div>}
+    {!embedded && <PageHeader className="ep-tab-heading ar-heading" eyebrow="BUSINESS INTELLIGENCE / REPORT CENTER" title="分析结果" description={`查看 ${companyName} 的经营诊断、维度分析、行动建议与历史报告版本。`} meta={<div className="ar-secure"><Locked size={15}/> 企业私有分析档案</div>} />}
     <nav className="ar-tabs" aria-label="分析结果分区">
       <button type="button" className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}>报告总览</button>
       <button type="button" className={view === "dimensions" ? "active" : ""} onClick={() => setView("dimensions")}>维度报告 <span>12</span></button>
