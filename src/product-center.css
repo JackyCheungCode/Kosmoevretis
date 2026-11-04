@@ -72,3 +72,12 @@
 .pc-empty{margin-top:1rem}
 @media(max-width:900px){.pc-management-grid{grid-template-columns:1fr}.pc-variant-form{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-catalog-stats,.pc-product-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:671px){.pc-heading,.pc-panel-heading,.pc-section-head{align-items:flex-start;flex-direction:column}.pc-heading-actions{width:100%;justify-content:space-between}.pc-catalog-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-product-row{gap:.6rem;padding:.7rem}.pc-product-thumb{width:2.8rem;height:2.8rem}.pc-product-price{min-width:4.5rem}.pc-product-main strong{font-size:.78rem}.pc-product-main span,.pc-product-main small{font-size:.65rem}.pc-form-grid,.pc-create-category,.pc-create-attribute,.pc-check-list{grid-template-columns:1fr}.pc-span-2{grid-column:auto}.pc-variant-form{grid-template-columns:1fr}.pc-form-actions{flex-direction:column-reverse}.pc-form-actions button{width:100%}.pc-product-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-category-item{padding-left:.5rem!important}.pc-category-item small{display:none}.pc-category-item button{padding-inline:.35rem}}
+
+.pc-axis-selector{margin-bottom:1rem;padding:1rem;background:var(--cds-layer-02,#e0e0e0)}
+.pc-axis-selector>div:first-child{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.75rem}
+.pc-axis-selector strong{font-size:.82rem}.pc-axis-selector span{font-size:.68rem;color:var(--cds-text-secondary,#525252)}
+.pc-axis-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
+.pc-attribute-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin-top:.75rem;background:var(--cds-border-subtle,#c6c6c6)}
+.pc-attribute-summary>div{display:flex;flex-direction:column;gap:.2rem;padding:.75rem;background:var(--cds-layer-02,#e0e0e0)}
+.pc-attribute-summary strong{font-size:.78rem}.pc-attribute-summary span,.pc-attribute-summary small{font-size:.68rem;color:var(--cds-text-secondary,#525252)}
+@media(max-width:671px){.pc-axis-grid,.pc-attribute-summary{grid-template-columns:1fr}}
