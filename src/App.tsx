@@ -31,11 +31,11 @@ function AppShell() {
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
 
   const active = isSettings ? "sources" : path === "/products" ? "products" : "intelligence";
   const currentLabel = active === "products" ? "产品中心" : active === "sources" ? "设置中心" : "全球情报中心";
-  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   const selectPage = (id: string) => {
     navigate(id === "products" ? "/products" : id === "sources" ? "/settings/providers" : "/intelligence");
     setMobileNavOpen(false);
