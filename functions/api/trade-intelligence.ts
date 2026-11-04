@@ -50,6 +50,7 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
     for(const dataset of datasets){
      const rows=dataset.rows.filter((row:any)=>row.countryiso3code===item.iso3&&row.value!==null).sort((x:any,y:any)=>Number(y.date)-Number(x.date));
      const latest=rows[0];
+     if(latest?.country?.value)countryName=String(latest.country.value);
      metrics[dataset.indicator.key]=latest?.value??null;
      if(latest&&(!year||Number(latest.date)>Number(year)))year=String(latest.date);
     }
