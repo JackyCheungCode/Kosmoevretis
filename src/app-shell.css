@@ -50,6 +50,16 @@
 }
 
 
+.kosmo-header .cds--header__name {
+  color: var(--cds-text-primary);
+}
+.kosmo-header .cds--header__menu-trigger {
+  color: var(--cds-icon-primary);
+}
+.kosmo-header .cds--header__menu-trigger svg {
+  fill: currentColor;
+}
+
 .kosmo-header-context {
   align-self: center;
   color: var(--cds-text-secondary);
