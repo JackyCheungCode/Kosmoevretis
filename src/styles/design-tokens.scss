@@ -17,6 +17,11 @@
   --app-color-border-subtle: var(--cds-border-subtle, #e0e0e0);
   --app-color-border-strong: var(--cds-border-strong, #8d8d8d);
   --app-color-interactive: var(--cds-interactive, #0f62fe);
+  --app-color-interactive-hover: var(--cds-interactive-hover, #0043ce);
+  --app-color-text-on-color: var(--cds-text-on-color, #ffffff);
+  --app-color-text-disabled: var(--cds-text-disabled, #c6c6c6);
+  --app-color-support-info: var(--cds-support-info, #0043ce);
+  --app-color-support-success: var(--cds-support-success, #198038);
   --app-color-focus: var(--cds-focus, #0f62fe);
 
   /* Carbon 2x spacing scale: 2 / 4 / 8 / 12 / 16 / 24 / 32 / 40 / 48 / 64 / 80 / 96 */
