@@ -128,18 +128,23 @@ function AppShell() {
     </SideNavLink>
   );
 
-  const renderMenuItem = (item: typeof navItems[number]) => (
-    <SideNavMenuItem
-      key={item.id}
-      href={item.href}
-      aria-current={item.active ? "page" : undefined}
-      isActive={item.active}
-      renderIcon={item.icon}
-      onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, item.href)}
-    >
-      {item.label}
-    </SideNavMenuItem>
-  );
+  const renderMenuItem = (item: typeof navItems[number]) => {
+    const ItemIcon = item.icon;
+    return (
+      <SideNavMenuItem
+        key={item.id}
+        href={item.href}
+        aria-current={item.active ? "page" : undefined}
+        isActive={item.active}
+        onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, item.href)}
+      >
+        <span className="kosmo-nav-item-content">
+          <ItemIcon size={16} aria-hidden="true" />
+          <span>{item.label}</span>
+        </span>
+      </SideNavMenuItem>
+    );
+  };
 
   return (
     <div className="shell kosmo-app-shell">
@@ -155,8 +160,8 @@ function AppShell() {
           }}
           className="kosmo-header-menu-button"
         />
-        <HeaderName href="/intelligence" prefix="K" onClick={(event) => handleNavigate(event, "/intelligence")}>
-          OSMOEVRETIS
+        <HeaderName href="/intelligence" onClick={(event) => handleNavigate(event, "/intelligence")}>
+          KOSMOEVRETIS
         </HeaderName>
         <span className="kosmo-header-context">GLOBAL INTELLIGENCE PLATFORM</span>
       </Header>
