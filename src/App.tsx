@@ -22,6 +22,7 @@ import {
   LogoInstagram,
   UserMultiple,
   Logout,
+  DataBase,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
