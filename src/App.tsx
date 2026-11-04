@@ -19,6 +19,7 @@ import {
   Settings,
   LogoFacebook,
   LogoLinkedin,
+  LogoInstagram,
   UserMultiple,
   Logout,
 } from "@carbon/icons-react";
@@ -29,6 +30,7 @@ import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
 import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
+import InstagramDiscovery from "./pages/InstagramDiscovery";
 import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
@@ -38,7 +40,7 @@ type Viewport = "desktop" | "tablet" | "mobile";
 
 const validPaths = new Set([
   "/intelligence", "/trade-access", "/leads/facebook", "/leads/linkedin",
-  "/leads/google-maps", "/products", "/settings/providers", "/settings/actors",
+  "/leads/google-maps", "/leads/instagram", "/products", "/settings/providers", "/settings/actors",
   "/settings/channels", "/settings/runs", "/settings/ai-providers", "/settings/models",
   "/settings/routes", "/settings/prompts", "/settings/organization", "/settings/members",
   "/settings/locale", "/settings/notifications", "/settings/governance",
@@ -132,6 +134,7 @@ function AppShell() {
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "facebook", label: "Facebook 发现", href: "/leads/facebook", icon: LogoFacebook, active: path === "/leads/facebook" },
     { id: "linkedin", label: "LinkedIn 发现", href: "/leads/linkedin", icon: LogoLinkedin, active: path === "/leads/linkedin" },
+    { id: "instagram", label: "Instagram 发现", href: "/leads/instagram", icon: LogoInstagram, active: path === "/leads/instagram" },
     { id: "maps", label: "Google Maps 发现", href: "/leads/google-maps", icon: Map, active: path === "/leads/google-maps" },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
@@ -246,6 +249,7 @@ function AppShell() {
                 {renderMenuItem(navItems[3])}
                 {renderMenuItem(navItems[4])}
                 {renderMenuItem(navItems[5])}
+                {renderMenuItem(navItems[7])}
               </SideNavMenu>
               <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
                 {renderMenuItem(navItems[6])}
@@ -275,6 +279,7 @@ function AppShell() {
         {path === "/products" && <ProductCenter />}
         {path === "/leads/facebook" && <FacebookDiscovery />}
         {path === "/leads/linkedin" && <LinkedInDiscovery />}
+        {path === "/leads/instagram" && <InstagramDiscovery />}
         {path === "/leads/google-maps" && <GoogleMapsDiscovery />}
         {isSettings && <SettingsPage />}
       </main>
