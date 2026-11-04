@@ -74,7 +74,7 @@ export default function Settings(){
   <div className="settings-workspace-layout">
    <aside className="settings-local-nav">
     <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
-    {filtered.map(g=><div className="settings-nav-group" key={g.title}><div className="settings-nav-group-title">{g.title}</div>{g.items.map(([id,label,icon])=><button key={id} type="button" className={active===id?"settings-nav-item is-active":"settings-nav-item"} onClick={()=>choose(id)}>{(() => { const Icon = navIconMap[icon]; return <Icon size={16} aria-hidden="true"/>; })()}{label}</button>)}</div>)}
+    {filtered.map(g=><div className="settings-nav-group" key={g.title}><div className="settings-nav-group-title">{g.title}</div>{g.items.map(([id,label,icon])=><button key={id} type="button" className={active===id?"settings-nav-item is-active":"settings-nav-item"} aria-label={label} title={label} onClick={()=>choose(id)}>{(() => { const Icon = navIconMap[icon]; return <Icon size={16} aria-hidden="true"/>; })()}<span className="settings-nav-label">{label}</span></button>)}</div>)}
    </aside>
    <main className="settings-workspace-content">
     <div className="settings-content-toolbar"><div><div className="settings-breadcrumb">{selected.eyebrow} / {selected.title}</div><h3>{selected.title}</h3></div></div>
