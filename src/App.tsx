@@ -69,7 +69,10 @@ function AppShell() {
 
   const sideNavExpanded = viewport === "desktop" || (viewport === "tablet" && tabletExpanded) || (viewport === "mobile" && mobileOpen);
   const sideNavPersistent = viewport !== "mobile";
-  const closeMobileNav = React.useCallback(() => setMobileOpen(false), []);
+  const closeMobileNav = React.useCallback(() => {
+    setMobileOpen(false);
+    document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
+  }, []);
 
   React.useEffect(() => {
     if (viewport !== "mobile" || !mobileOpen) return;
