@@ -87,3 +87,11 @@
 .trade-access .cds--text-input{font-size:.75rem}
 .trade-access .cds--form-item{min-width:0}
 @media(max-width:760px){.trade-page-source{padding:1rem}.trade-results-grid{grid-template-columns:1fr}}
+
+
+/* Carbon layer consistency: keep all three trade configuration sections on one surface token */
+.trade-page .trade-page-source,
+.trade-page .trade-compliance-panel,
+.trade-page .trade-input-panel {
+  background: var(--cds-layer-01);
+}
