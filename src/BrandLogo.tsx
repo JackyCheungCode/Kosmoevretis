@@ -7,7 +7,7 @@ type BrandLogoProps = {
   mark?: string;
 };
 
-export default function BrandLogo({ name, domain, mark }: BrandLogoProps) {
+export default function BrandLogo({ name, domain }: BrandLogoProps) {
   const [failed, setFailed] = useState(!domain);
   return (
     <span
