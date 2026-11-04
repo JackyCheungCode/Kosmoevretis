@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
-  Button, Dropdown, InlineNotification, NumberInput, Tag, TextInput,
-  Tabs, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,
+  Button, ComboBox, InlineNotification, NumberInput, Tag, TextInput,
+  Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,
   TableContainer,
 } from "@carbon/react";
 import {
