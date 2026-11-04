@@ -18,6 +18,10 @@
   --kosmo-space-7: 2.5rem;
   --kosmo-shell-header-height: 3rem;
   --kosmo-shell-sidebar-width: 16rem;
+  --kosmo-shell-sidebar-collapsed-width: 3rem;
+  --kosmo-shell-sidebar-mobile-width: 17.5rem;
+  --kosmo-shell-breakpoint-tablet: 1055px;
+  --kosmo-shell-breakpoint-mobile: 671px;
   --kosmo-content-max-width: 1680px;
 }
 html, body, #root {
