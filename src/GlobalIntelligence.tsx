@@ -8,19 +8,19 @@ type Product={id:string;name:string;brand:string|null;model:string|null;category
 type Value={id:string;value_text:string;unit:string|null;include_in_analysis?:boolean};
 type Attribute={id:string;name:string;unit:string|null;include_in_analysis?:boolean;product_attribute_values:Value[]};
 type Variant={id:string;sku:string|null;title:string|null;model:string|null;price:number|null;currency:string|null;attribute_value_ids:string[]};
-type Tab={id:string;label:string;eyebrow:string;description:string};
+type Tab={id:string;label:string};
 type Market={code:string;name:string;flag:string;mapCode:string};
 declare global{interface Window{L?:any}}
 
 const tabs:Tab[]=[
-{id:"overview",label:"情报总览",eyebrow:"INTELLIGENCE OVERVIEW",description:"汇总商品热度、搜索需求、社交声量、消费者反馈与竞争态势。"},
-{id:"bestsellers",label:"全球热销榜",eyebrow:"GLOBAL BESTSELLERS",description:"跨电商平台观察热销排名、价格带、评论表现及销售动能信号。"},
-{id:"search",label:"搜索趋势",eyebrow:"SEARCH TRENDS",description:"观察 Google 搜索兴趣、地区差异、增长查询与季节性需求。"},
-{id:"social",label:"社交媒体趋势",eyebrow:"SOCIAL MOMENTUM",description:"追踪社媒内容热度、互动增长、创作者讨论与产品传播。"},
-{id:"consumer",label:"消费者洞察",eyebrow:"CONSUMER VOICE",description:"归纳评论与社区讨论中的购买动机、使用场景、痛点和未满足需求。"},
-{id:"competitors",label:"品牌与竞品",eyebrow:"BRAND & COMPETITORS",description:"比较品牌、型号、产品规格、价格定位与竞品动态。"},
-{id:"categories",label:"品类分析",eyebrow:"CATEGORY INTELLIGENCE",description:"分析细分品类规模信号、增长方向、产品结构与机会空间。"},
-{id:"markets",label:"国家市场",eyebrow:"COUNTRY MARKETS",description:"比较不同国家和地区的需求、价格、竞争与渠道特征。"}];
+{id:"overview",label:"情报总览"},
+{id:"bestsellers",label:"全球热销榜"},
+{id:"search",label:"搜索趋势"},
+{id:"social",label:"社交媒体趋势"},
+{id:"consumer",label:"消费者洞察"},
+{id:"competitors",label:"品牌与竞品"},
+{id:"categories",label:"品类分析"},
+{id:"markets",label:"国家市场"}];
 const isoCodes="AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ").filter(x=>!["CN","HK","MO","TW"].includes(x));
 const displayNames=new Intl.DisplayNames(["zh-CN"],{type:"region"});
 const flagFor=(code:string)=>String.fromCodePoint(...code.toUpperCase().split("").map(c=>127397+c.charCodeAt(0)));
@@ -112,7 +112,7 @@ export default function GlobalIntelligence(){
    {task&&<div className="analysis-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="context-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
    {error&&<div className="notice error">{error}</div>}<div className="analysis-submit-row"><span>配置完成后提交分析条件；切换下方 Tab 不会重置当前条件。</span><button className="primary-button" type="button" onClick={startAnalysis}>开始分析 <span aria-hidden="true">→</span></button></div>
    <div className="intelligence-tabs" role="tablist" aria-label="情报分析维度">{tabs.map(tab=><button key={tab.id} type="button" role="tab" aria-selected={activeTab===tab.id} className={activeTab===tab.id?"intelligence-tab selected":"intelligence-tab"} onClick={()=>setActiveTab(tab.id)}>{tab.label}</button>)}</div>
-   <div className="intelligence-panel" role="tabpanel"><div className="panel-title"><div><span className="eyebrow">{tabs.find(t=>t.id===activeTab)?.eyebrow}</span><h3>{tabs.find(t=>t.id===activeTab)?.label}</h3><p>{tabs.find(t=>t.id===activeTab)?.description}</p></div></div>
+   <div className="intelligence-panel" role="tabpanel">
     <IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} history={trendHistory} collectionLoading={loading} onSelectHistory={async(id:string)=>{const {data,error}=await supabase.functions.invoke("market-trends",{body:{action:"get_history",organization_id:organizationId,task_id:id}});if(error||data?.error){setError(data?.error||error?.message||"读取历史记录失败");return;}const row=data.history;const items=Array.isArray(row.raw_items)?row.raw_items:[];setLiveTrendResults(items.map((item:any)=>({keyword:item.keyword||"",geo:item.geo||"",time_range:item.timeRange||"",interest_over_time:item.interestOverTime||[],interest_by_region:item.interestByRegion||[],related_queries:item.relatedQueries||{},related_topics:item.relatedTopics||{},evidence_type:"observed",source:"历史采集记录"})));setLiveTrendMeta({status:row.status,result_count:row.result_count,actor_run_id:row.actor_meta?.runId,history:true});setActiveTab("search");}}/>
    </div>
   </section>
