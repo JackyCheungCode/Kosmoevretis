@@ -62,7 +62,7 @@
 html{scroll-behavior:smooth}
 body{color:var(--app-color-text-primary);font-family:var(--app-font-family)}
 button,a,input,textarea,select,[role="button"]{-webkit-tap-highlight-color:transparent}
-:where(a,button,input,textarea,select,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--app-color-focus);outline-offset:2px}
+:where(a,button,input,textarea,select,summary,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--app-color-focus);outline-offset:2px}
 .skip-to-content{position:fixed;z-index:10000;top:8px;left:8px;transform:translateY(-160%);padding:12px 16px;background:var(--app-color-layer-02);color:var(--app-color-interactive);border:2px solid var(--app-color-focus);font-size:14px;font-weight:600;text-decoration:none}
 .skip-to-content:focus{transform:translateY(0)}
 .main{min-width:0}
