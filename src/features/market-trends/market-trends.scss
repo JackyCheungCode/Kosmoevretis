@@ -1,7 +1,7 @@
 /* Market Trends — Carbon layer-first page composition.
    Surfaces use background hierarchy; dividers are reserved for data boundaries. */
 .market-trends-page {
-  max-width: 1680px;
+  max-width: var(--app-content-max-width);
   margin: 0 auto;
   padding: 0 var(--app-space-05) var(--app-space-08);
   color: var(--app-color-text-primary);
@@ -258,9 +258,8 @@
 .mt-task-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
+  gap: var(--app-space-02);
   margin: var(--app-space-05) 0;
-  background: var(--app-color-border-subtle);
 }
 .mt-task-summary > div {
   display: flex;
@@ -269,7 +268,7 @@
   flex-direction: column;
   gap: var(--app-space-02);
   padding: var(--app-space-04);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .mt-task-summary small,
 .mt-overview-cards span {
