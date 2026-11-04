@@ -695,3 +695,75 @@
  .settings-workspace .settings-route-fields{grid-template-columns:minmax(0,1fr)}
  .settings-workspace .settings-context-note{align-items:flex-start}
 }
+
+
+/* Keep settings navigation persistently visible on the left at every viewport */
+.settings-workspace .settings-workspace-layout{
+ display:grid!important;
+ grid-template-columns:clamp(176px,26vw,248px) minmax(0,1fr)!important;
+ align-items:start;
+ gap:1.5rem;
+}
+.settings-workspace .settings-local-nav{
+ display:block!important;
+ position:sticky!important;
+ top:1rem!important;
+ inset:auto!important;
+ width:auto!important;
+ max-height:calc(100dvh - 2rem)!important;
+ overflow-y:auto!important;
+ transform:none!important;
+ visibility:visible!important;
+ box-shadow:none!important;
+ z-index:1!important;
+}
+.settings-workspace .settings-nav-backdrop,
+.settings-workspace .settings-mobile-nav-trigger{display:none!important}
+.settings-workspace .settings-workspace-content{min-width:0!important;width:100%!important}
+@media(max-width:1023px){
+ .settings-workspace .settings-workspace-layout{
+  display:grid!important;
+  grid-template-columns:clamp(176px,30vw,220px) minmax(0,1fr)!important;
+  gap:1rem!important;
+ }
+ .settings-workspace .settings-local-nav{
+  position:sticky!important;
+  top:.75rem!important;
+  width:auto!important;
+  max-height:calc(100dvh - 1.5rem)!important;
+  transform:none!important;
+ }
+ .settings-workspace .settings-workspace-content{padding:0!important}
+ .settings-workspace .settings-catalog-items,
+ .settings-workspace .provider-directory{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:600px){
+ .settings-workspace{padding:.875rem!important}
+ .settings-workspace .settings-workspace-layout{
+  grid-template-columns:156px minmax(0,1fr)!important;
+  gap:.75rem!important;
+ }
+ .settings-workspace .settings-local-nav{
+  position:sticky!important;
+  top:.5rem!important;
+  max-height:calc(100dvh - 1rem)!important;
+  padding:0!important;
+ }
+ .settings-workspace .settings-nav-search{padding:.5rem 0!important}
+ .settings-workspace .settings-nav-group-title{font-size:.625rem!important}
+ .settings-workspace .settings-nav-item{
+  padding:.625rem .375rem!important;
+  gap:.375rem!important;
+  font-size:.75rem!important;
+  line-height:1.25!important;
+  white-space:normal!important;
+ }
+ .settings-workspace .settings-nav-item svg{width:14px;height:14px}
+ .settings-workspace .settings-page-heading h2{font-size:1.375rem}
+ .settings-workspace .settings-page-heading p{font-size:.75rem;line-height:1.45}
+ .settings-workspace .settings-content-toolbar h3{font-size:1rem}
+ .settings-workspace .settings-content-toolbar p{font-size:.75rem}
+ .settings-workspace .settings-catalog-items,
+ .settings-workspace .provider-directory{grid-template-columns:minmax(0,1fr)!important}
+ .settings-workspace .settings-catalog-item{padding:.75rem!important}
+}
