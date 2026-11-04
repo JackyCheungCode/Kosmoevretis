@@ -16,7 +16,7 @@ declare global { interface Window { maplibregl?: any } }
 const countries:Option[] = [
   ["US","United States"],["CA","Canada"],["GB","United Kingdom"],["DE","Germany"],["FR","France"],["IT","Italy"],["ES","Spain"],["NL","Netherlands"],["CH","Switzerland"],["SE","Sweden"],["NO","Norway"],["DK","Denmark"],["PL","Poland"],["PT","Portugal"],["IE","Ireland"],["JP","Japan"],["KR","South Korea"],["CN","China"],["HK","Hong Kong"],["TW","Taiwan"],["SG","Singapore"],["MY","Malaysia"],["TH","Thailand"],["VN","Vietnam"],["ID","Indonesia"],["PH","Philippines"],["IN","India"],["AU","Australia"],["NZ","New Zealand"],["AE","United Arab Emirates"],["SA","Saudi Arabia"],["TR","Turkey"],["BR","Brazil"],["MX","Mexico"],["AR","Argentina"],["ZA","South Africa"]
 ].map(([id,label])=>({id,label}));
-const val=(r:Row,keys:string[])=>{for(const k of keys){const v=k.split(".").reduce((o,p)=>o?.[p],r);if(v!==undefined&&v!==null&&v!=="")return v;}return null;};
+const val=(r:Row,keys:string[])=>{for(const k of keys){const v=k.split(".").reduce<any>((o,p)=>o?.[p],r as any);if(v!==undefined&&v!==null&&v!=="")return v;}return null;};
 const text=(v:any)=>v==null?"—":typeof v==="object"?JSON.stringify(v):String(v);
 const coords=(r:Row):[number,number]|null=>{
  const lat=Number(val(r,["location.lat","location.latitude","latitude","lat","gpsCoordinates.lat","gpsCoordinates.latitude"]));
