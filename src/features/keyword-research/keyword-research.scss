@@ -191,12 +191,12 @@
 .kr-history-row small, .kr-footer { color: var(--app-color-text-secondary); font-size: var(--app-type-label-size); }
 .kr-footer { margin-top: var(--app-space-06); padding-top: var(--app-space-04); border-top: 1px solid var(--app-color-border-subtle); }
 
-@media (max-width: 900px) {
+@media (max-width: 1055px) {
   .keyword-research-page { padding-inline: var(--app-space-04); }
   .kr-config, .kr-results { padding: var(--app-space-05); }
   .kr-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 600px) {
+@media (max-width: 671px) {
   .keyword-research-page { padding: 0 0 var(--app-space-06); }
   .kr-grid { margin-top: var(--app-space-04); row-gap: var(--app-space-04); }
   .kr-config, .kr-results { padding: var(--app-space-04); }
