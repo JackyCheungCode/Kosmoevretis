@@ -48,7 +48,23 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const execution = (await safe(executionResponse))?.[0];
   if (!execution?.id) return json({ error: "未能创建执行记录，Actor 未启动。" }, 500);
 
-  const actorApiId = task.actor_meta?.actorApiId || task.actor_id.replace("/", "~");
+  let actorApiId = task.actor_meta?.actorApiId || "";
+  if (!actorApiId) {
+    const actorSlug = task.actor_id.replace("/", "~");
+    const directResponse = await fetch("https://api.apify.com/v2/actors/" + encodeURIComponent(actorSlug), { headers: { Authorization: "Bearer " + apiToken, Accept: "application/json" } });
+    const directPayload = await safe(directResponse);
+    actorApiId = directResponse.ok && directPayload?.data?.id ? String(directPayload.data.id) : actorSlug;
+    if (!directResponse.ok && task.actor_id === "habit.zhou/keyword-suggest-multi") {
+      const storeUrl = new URL("https://api.apify.com/v2/store");
+      storeUrl.searchParams.set("username", "habit.zhou");
+      storeUrl.searchParams.set("limit", "1000");
+      const storeResponse = await fetch(storeUrl.toString(), { headers: { Authorization: "Bearer " + apiToken, Accept: "application/json" } });
+      const storePayload = await safe(storeResponse);
+      const storeItems = Array.isArray(storePayload?.data?.items) ? storePayload.data.items : [];
+      const match = storeItems.find((item: any) => String(item?.username || "").toLowerCase() === "habit.zhou" && String(item?.name || "").toLowerCase() === "keyword-suggest-multi");
+      if (match?.id) actorApiId = String(match.id);
+    }
+  }
   const runResponse = await fetch("https://api.apify.com/v2/acts/" + encodeURIComponent(actorApiId) + "/runs", {
     method: "POST", headers: { Authorization: "Bearer " + apiToken, "Content-Type": "application/json" }, body: JSON.stringify(input)
   });
