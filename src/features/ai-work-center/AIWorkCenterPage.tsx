@@ -4,6 +4,7 @@ import { Button, Checkbox, InlineLoading, InlineNotification, Search as CarbonSe
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthProvider";
 import { taskStatusLabel, taskTypeLabel } from "./types";
+import { PageHeader } from "../../components/ui/PageHeader";
 import type { ResearchTask, ResearchTaskStatus } from "./types";
 import "./ai-work-center.scss";
 
@@ -69,7 +70,7 @@ export function AIWorkCenterPage() {
   const viewLabel = useMemo(() => ({ active: "全部任务", archived: "已归档", trash: "回收站", all: "全部（含归档）" }[view]), [view]);
 
   return <section className="awc-page">
-    <header className="awc-header"><div><div className="awc-eyebrow">AI WORK CENTER</div><h1>AI 工作中心</h1><p>集中管理市场研究、关键词研究及后续 AI 工作流任务。任务删除与外部 Actor 取消相互独立。</p></div><Button kind="tertiary" renderIcon={Renew} onClick={() => void load()} disabled={loading || busy}>刷新</Button></header>
+    <PageHeader className="awc-header" eyebrow="AI WORK CENTER" title="AI 工作中心" description="集中管理市场研究、关键词研究及后续 AI 工作流任务。任务删除与外部 Actor 取消相互独立。" meta={<Button kind="tertiary" renderIcon={Renew} onClick={() => void load()} disabled={loading || busy}>刷新</Button>} />
     <div className="awc-summary" aria-label="任务状态统计">{(["queued", "running", "succeeded", "partial", "failed", "cancelled"] as ResearchTaskStatus[]).map((key) => <div className="awc-summary-card" key={key}><span>{taskStatusLabel[key]}</span><strong>{summary[key] ?? "—"}</strong></div>)}</div>
     {error && <InlineNotification kind="error" lowContrast title="操作失败" subtitle={error} onCloseButtonClick={() => setError("")} />}
     {notice && <InlineNotification kind="success" lowContrast title="操作完成" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}
