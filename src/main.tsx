@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./styles/carbon.scss";
 import "./styles/design-tokens.scss";
 import "./styles/global.scss";
+import "./styles/page-layout.scss";
 import { App } from "./app/App";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
