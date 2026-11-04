@@ -178,11 +178,10 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  let geojson:any=null;
  if(global){const r=await fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson");if(!r.ok)throw new Error("国家边界数据加载失败");geojson=await r.json();}
  else{
-  const countryResp=await fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson");if(!countryResp.ok)throw new Error("国家边界数据加载失败");const countries=await countryResp.json();
-  const feature=(countries.features||[]).find((f:any)=>String(f.properties?.["ISO3166-1-Alpha-2"]||f.properties?.ISO_A2||"").toUpperCase()===geo.toUpperCase());
-  const iso3=feature?.properties?.["ISO3166-1-Alpha-3"]||feature?.properties?.ISO_A3||feature?.properties?.ADM0_A3;
-  if(!iso3)throw new Error("无法识别所选国家的行政区边界代码");
-  const meta=await fetch("https://www.geoboundaries.org/api/current/gbOpen/"+iso3+"/ADM1/");if(!meta.ok)throw new Error("该国家的省／州边界暂不可用");const boundaryMeta=await meta.json();const url=boundaryMeta.gjDownloadURL||boundaryMeta.geojson;if(!url)throw new Error("该国家暂无可用的省／州边界");const boundary=await fetch(url);if(!boundary.ok)throw new Error("省／州边界下载失败");geojson=await boundary.json();
+  const boundaryResponse=await fetch("/api/region-boundaries?geo="+encodeURIComponent(geo));
+  const boundaryPayload=await boundaryResponse.json();
+  if(!boundaryResponse.ok)throw new Error(boundaryPayload?.error||"省／州边界数据加载失败");
+  geojson=boundaryPayload;
  }
  if(cancelled)return;
  const normalize=(v:string)=>v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
@@ -213,13 +212,13 @@ function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTa
   {result&&<div className="gi-chart-grid">
    {activeTab==="overview"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>搜索兴趣概览 · {result.keyword}</h4><p>当前关键词的真实时间序列</p></div></div><TrendLineChart series={series} keyword={result.keyword}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>重点国家 / 地区</h4><p>按 Google Trends 相对兴趣排序</p></div></div><RankedEvidence items={regionRows}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>上升相关查询</h4><p>消费者关联搜索线索</p></div></div><RankedEvidence items={relatedItems}/></article></>}
    {activeTab==="search"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>搜索兴趣时间序列</h4><p>{result.keyword} · {result.geo||"全球"} · {result.time_range}</p></div></div><TrendLineChart series={series} keyword={result.keyword}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关搜索查询</h4><p>Top / Rising 查询</p></div></div><RankedEvidence items={related.top?.length?related.top:relatedItems}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关主题</h4><p>与关键词共同出现的主题</p></div></div><RankedEvidence items={topics.top?.length?topics.top:topicItems}/></article></>}
-   {activeTab==="markets"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>{mapGeo?"省／州搜索兴趣分布":"全球国家搜索兴趣分布"}</h4><p>{mapGeo?"按所选国家的次级行政区展示":"按国家展示全球搜索兴趣"} · 颜色越深代表相对兴趣越高</p></div></div><div className="gi-gt-region-layout"><GoogleTrendsRegionMap regions={regions} geo={mapGeo} keyword={result.keyword||""}/><div className="gi-gt-region-ranking"><h5>{mapGeo?"地区排行":"国家排行"}</h5><RankedEvidence items={regionRows}/></div></div></article></>}
+   {activeTab==="markets"&&<><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>{mapGeo?"省／州搜索兴趣分布":"全球国家搜索兴趣分布"}</h4><p>{mapGeo?"按所选国家的次级行政区展示":"按国家展示全球搜索兴趣"} · 颜色越深代表相对兴趣越高</p></div></div><div className="gi-gt-region-layout"><GoogleTrendsRegionMap regions={regions} geo={mapGeo} keyword={result.keyword||""}/><div className="gi-gt-region-ranking"><h5>{mapGeo?"省／州相对兴趣排行":"国家相对兴趣排行"}</h5><RankedEvidence items={regionRows}/></div></div></article></>}
    {activeTab==="consumer"&&<><article className="gi-chart-card"><div className="gi-card-head"><div><h4>消费者关注主题</h4><p>由相关主题提取，属于需求线索而非已验证购买需求</p></div></div><RankedEvidence items={topicItems}/></article><article className="gi-chart-card"><div className="gi-card-head"><div><h4>消费者相关搜索</h4><p>用于识别场景、功能和问题线索</p></div></div><RankedEvidence items={relatedItems}/></article></>}
    {activeTab==="categories"&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>品类相关搜索线索</h4><p>从相关查询和主题中识别相邻需求</p></div></div><RankedEvidence items={[...topicItems,...relatedItems]}/></article>}
    {activeTab==="bestsellers"&&<div className="gi-warning">Google Trends 不提供真实电商销量或热销排名。请接入 Amazon、eBay 等电商数据源后再展示真实热销榜。</div>}
    {activeTab==="social"&&<div className="gi-warning">Google Trends 不包含社交媒体互动数据。社媒趋势需接入 TikTok、YouTube、Reddit 等数据源。</div>}
    {activeTab==="competitors"&&<div className="gi-warning">当前 Google Trends 结果不足以验证品牌份额或竞品销量。可将竞品关键词分别加入分析后进行搜索关注度比较。</div>}
-   {activeTab==="markets"&&<article className="gi-chart-card"><div className="gi-card-head"><div><h4>国家市场筛选</h4><p>各市场的相对兴趣值</p></div></div><div className="gi-market-rank">{regionRows.slice(0,20).map((x:any)=><div key={x.label}><span>{x.label}</span><div><i style={{width:Math.min(100,x.value)+"%"}}/></div><b>{x.value}</b></div>)}</div></article>}
+
   </div>}
   {!result&&!loading&&<div className="gi-warning">{meta?.status==="failed"?meta.error:"尚无真实采集结果。请配置关键词、市场和时间范围后开始分析。"}</div>}
   {meta?.error&&<div className="gi-warning">{meta.error}</div>}
