@@ -2,10 +2,8 @@ import { useState } from "react";
 import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 
-const items = [
-  ["intelligence","全球情报中心","◎"],
-  ["products","产品中心","▣"],
-] as const;
+const enterpriseItems = [["products","产品中心","▣"]] as const;
+const items = [["intelligence","全球情报中心","◎"]] as const;
 const settingsItems = [["sources","数据源管理","⌘"]] as const;
 
 export default function App() {
@@ -21,7 +19,11 @@ export default function App() {
     </header>
     {mobileNavOpen&&<button className="sidebar-backdrop" aria-label="关闭导航菜单" onClick={()=>setMobileNavOpen(false)}/>}
     <aside className={mobileNavOpen?"sidebar mobile-open":"sidebar"}>
-      <div className="nav-caption">情报平台</div>
+      <div className="nav-caption">企业数据</div>
+      <div className="nav-group">
+        {enterpriseItems.map(item=><button key={item[0]} className={active===item[0]?"nav-item active":"nav-item"} onClick={()=>selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
+      </div>
+      <div className="nav-caption">全球情报中心</div>
       <div className="nav-group">
         {items.map(item=><button key={item[0]} className={active===item[0]?"nav-item active":"nav-item"} onClick={()=>selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
       </div>
