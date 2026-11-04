@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import SettingsBackend from "./SettingsBackend";
 import {
   Accordion, AccordionItem, Button, Checkbox, InlineNotification,
-  PasswordInput, Tab, TabList, TabPanel, TabPanels, Tabs, Tag,
+  Tab, TabList, TabPanel, TabPanels, Tabs, Tag,
   TextInput, Tile, Toggle
 } from "@carbon/react";
 
@@ -36,24 +36,6 @@ function Heading({ eyebrow, title, description }: { eyebrow: string; title: stri
 }
 function Pending({ children = "配置保存与服务端凭证管理将在安全接口接入后启用。" }: { children?: string }) {
   return <InlineNotification kind="info" lowContrast title="配置接口尚未启用" subtitle={children} hideCloseButton />;
-}
-function ProviderFields({ credentials, setCredentials, explain }: {
-  credentials: Record<string,string>;
-  setCredentials: React.Dispatch<React.SetStateAction<Record<string,string>>>;
-  explain: () => void;
-}) {
-  const [enabled,setEnabled] = useState<Record<string,boolean>>({});
-  return <div className="library-list">
-    {providers.map(provider => <Tile key={provider.id} className="library-card">
-      <div className="library-card-head"><div><strong>{provider.name}</strong><span>{provider.category}</span></div><Tag type="gray">待接入</Tag></div>
-      <p>{provider.description}</p>
-      <PasswordInput id={`settings-${provider.id}`} labelText="API 凭证" placeholder={provider.placeholder} value={credentials[provider.id] || ""} onChange={event => setCredentials(current => ({ ...current, [provider.id]: event.target.value }))} />
-      <div className="analysis-submit-row">
-        <Toggle id={`settings-enabled-${provider.id}`} labelText="连接启用" labelA="关" labelB="开" toggled={!!enabled[provider.id]} onToggle={value => setEnabled(current => ({ ...current, [provider.id]: value }))} />
-        <Button kind="secondary" size="sm" onClick={explain}>保存配置</Button>
-      </div>
-    </Tile>)}
-  </div>;
 }
 function ChannelCatalog() {
   const channels = [
@@ -97,7 +79,7 @@ function ActorRegistry({ filter, setFilter, explain }: { filter:string; setFilte
     </Accordion>
   </>;
 }
-function ApiSettings({ credentials, setCredentials, explain }: { credentials:Record<string,string>; setCredentials:React.Dispatch<React.SetStateAction<Record<string,string>>>; explain:()=>void }) {
+function ApiSettings({ explain }: { explain:()=>void }) {
   const [filter,setFilter] = useState("");
   return <div className="intelligence-panel">
     <Heading eyebrow="API & DATA SOURCES" title="API 与数据源配置" description="统一管理服务商授权、数据连接器和 Apify Actor。业务模块通过注册中心复用连接能力。" />
@@ -159,7 +141,6 @@ function SystemSettings({ explain }: { explain:()=>void }) {
 }
 
 export default function Settings() {
-  const [credentials,setCredentials] = useState<Record<string,string>>({});
   const [notice,setNotice] = useState<string | null>(null);
   const explain = () => setNotice("当前页面已建立配置结构；服务端加密凭证存储、组织级配置持久化和连接测试接口尚未接入，因此没有将密钥保存到浏览器或明文数据库。");
   return <section className="module">
@@ -170,7 +151,7 @@ export default function Settings() {
     <Tabs defaultSelectedIndex={0}>
       <TabList aria-label="系统设置大类"><Tab>API 与数据源</Tab><Tab>AI 配置</Tab><Tab>系统配置</Tab></TabList>
       <TabPanels>
-        <TabPanel><ApiSettings credentials={credentials} setCredentials={setCredentials} explain={explain} /></TabPanel>
+        <TabPanel><ApiSettings explain={explain} /></TabPanel>
         <TabPanel><AiSettings explain={explain} /></TabPanel>
         <TabPanel><SystemSettings explain={explain} /></TabPanel>
       </TabPanels>
