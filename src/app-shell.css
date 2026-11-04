@@ -7,9 +7,9 @@
 
 .kosmo-header.cds--header {
   height: var(--kosmo-shell-header-height);
-  background: var(--cds-background-inverse);
-  color: var(--cds-text-inverse);
-  border-bottom: 0;
+  background: var(--cds-background);
+  color: var(--cds-text-primary);
+  border-bottom: 1px solid var(--cds-border-subtle);
   z-index: 9000;
 }
 
@@ -17,6 +17,7 @@
   display: inline-flex;
   align-items: center;
   width: var(--kosmo-shell-sidebar-width);
+  flex: 0 0 var(--kosmo-shell-sidebar-width);
   max-width: none;
   padding-inline: var(--kosmo-space-5);
   font-weight: 600;
@@ -48,21 +49,11 @@
   letter-spacing: .06em;
 }
 
-.kosmo-header .cds--header__name--prefix {
-  display: inline-grid;
-  width: 1.75rem;
-  height: 1.75rem;
-  place-items: center;
-  margin-right: var(--kosmo-space-3);
-  background: var(--cds-interactive);
-  color: var(--cds-text-inverse);
-  letter-spacing: 0;
-}
 
 .kosmo-header-context {
   align-self: center;
-  color: var(--cds-text-inverse, #f4f4f4);
-  opacity: .72;
+  color: var(--cds-text-secondary);
+  opacity: 1;
   font-size: .6875rem;
   letter-spacing: .12em;
   white-space: nowrap;
@@ -110,9 +101,11 @@
 }
 
 .kosmo-main.content {
+  width: calc(100% - var(--kosmo-shell-sidebar-width));
   max-width: var(--kosmo-content-max-width);
   min-height: 100vh;
   margin-left: var(--kosmo-shell-sidebar-width);
+  margin-right: 0;
   padding: calc(var(--kosmo-shell-header-height) + 2.25rem) var(--kosmo-space-7) var(--kosmo-space-6);
 }
 
@@ -124,6 +117,7 @@
 @media (min-width: 672px) and (max-width: 1055px) {
   .kosmo-header .cds--header__name {
     width: var(--kosmo-shell-sidebar-collapsed-width);
+    flex-basis: var(--kosmo-shell-sidebar-collapsed-width);
     padding-inline: .625rem;
   }
 
@@ -158,6 +152,7 @@
   }
 
   .kosmo-main.content {
+    width: calc(100% - var(--kosmo-shell-sidebar-collapsed-width));
     margin-left: var(--kosmo-shell-sidebar-collapsed-width);
     padding-inline: var(--kosmo-space-5);
   }
@@ -166,6 +161,7 @@
 @media (max-width: 671px) {
   .kosmo-header .cds--header__name {
     width: auto;
+    flex: 1 1 auto;
     padding-inline: var(--kosmo-space-3);
   }
 
@@ -191,6 +187,7 @@
 
   .kosmo-main.content {
     width: 100%;
+    max-width: none;
     margin-left: 0;
     padding: calc(var(--kosmo-shell-header-height) + 2.25rem) var(--kosmo-space-4) var(--kosmo-space-6);
   }
@@ -202,4 +199,33 @@
     transition: none;
   }
 }
-\n/* Keep Carbon navigation labels and their icons aligned consistently. */\n.kosmo-side-nav .kosmo-nav-item-content {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--kosmo-space-3);\n  min-width: 0;\n}\n.kosmo-side-nav .kosmo-nav-item-content > svg {\n  flex: 0 0 1rem;\n  fill: currentColor;\n}\n.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {\n  color: var(--cds-interactive);\n}\n
+
+/* Keep Carbon navigation labels and their icons aligned consistently. */
+.kosmo-side-nav .kosmo-nav-item-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kosmo-space-3);
+  min-width: 0;
+}
+.kosmo-side-nav .kosmo-nav-item-content > svg {
+  flex: 0 0 1rem;
+  fill: currentColor;
+}
+.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {
+  color: var(--cds-interactive);
+}
+
+/* Keep Carbon navigation labels and their icons aligned consistently. */
+.kosmo-side-nav .kosmo-nav-item-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kosmo-space-3);
+  min-width: 0;
+}
+.kosmo-side-nav .kosmo-nav-item-content > svg {
+  flex: 0 0 1rem;
+  fill: currentColor;
+}
+.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {
+  color: var(--cds-interactive);
+}
