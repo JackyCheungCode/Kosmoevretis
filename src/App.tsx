@@ -280,6 +280,7 @@ function AppShell() {
               {path === "/intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。"
                 : path === "/products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。"
                 : path === "/trade-access" ? "评估目标市场的关税、贸易条件、产品准入与法规合规要求。"
+                : path.startsWith("/platform-data/") ? "统一采集 X、Reddit、Pinterest、TikTok 与 YouTube 的公开内容、账号、评论和趋势数据。"
                 : path.startsWith("/leads/") ? "通过不同公开渠道发现潜在客户、企业主页、内容与商业机会。"
                 : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}
             </p>
