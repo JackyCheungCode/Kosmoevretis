@@ -354,7 +354,7 @@
   gap: var(--app-space-03);
   min-width: 0;
   padding: var(--app-space-04);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .analysis-dimension-check > span:first-of-type {
   color: var(--app-color-text-helper);
@@ -477,7 +477,7 @@
 .ar-section-title b { font-size: 1rem; font-weight: 600; }
 .ar-section-title small, .ar-section-title > span { color: var(--app-color-text-secondary); font-size: var(--app-type-label-size); }
 .ar-dimension-list { display: grid; gap: var(--app-space-02); }
-.ar-dimension-list article { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) auto 1.5rem; align-items: start; gap: var(--app-space-03); padding: var(--app-space-04); background: var(--app-color-layer-02); }
+.ar-dimension-list article { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) auto 1.5rem; align-items: start; gap: var(--app-space-03); padding: var(--app-space-04); background: var(--app-color-layer-01); }
 .ar-dimension-no { color: var(--app-color-text-helper); font-size: var(--app-type-label-size); font-variant-numeric: tabular-nums; }
 .ar-dimension-list article > div { display: flex; min-width: 0; flex-direction: column; gap: var(--app-space-02); }
 .ar-dimension-list article > div > b { font-size: var(--app-type-body-size); font-weight: 600; }
