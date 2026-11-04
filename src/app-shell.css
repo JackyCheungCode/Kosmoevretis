@@ -1,4 +1,4 @@
-/* Kosmoevretis AppShell: IBM Carbon v11 UI Shell, Gray 10. */
+/* Kosmoevretis AppShell — IBM Carbon v11, Gray 10. */
 .kosmo-app-shell {
   --kosmo-shell-header-height: 3rem;
   min-height: 100vh;
@@ -7,7 +7,7 @@
 
 .kosmo-header.cds--header {
   height: var(--kosmo-shell-header-height);
-  background: var(--cds-background);
+  background: var(--cds-layer-01);
   color: var(--cds-text-primary);
   border-bottom: 1px solid var(--cds-border-subtle);
   z-index: 9000;
@@ -17,53 +17,25 @@
   display: inline-flex;
   align-items: center;
   width: var(--kosmo-shell-sidebar-width);
-  flex: 0 0 var(--kosmo-shell-sidebar-width);
   max-width: none;
   padding-inline: var(--kosmo-space-5);
+  color: var(--cds-text-primary);
   font-weight: 600;
   letter-spacing: .06em;
 }
 
- Kosmoevretis AppShell: IBM Carbon v11 UI Shell, Gray 10. */
-.kosmo-app-shell {
-  --kosmo-shell-header-height: 3rem;
-  min-height: 100vh;
-  background: var(--cds-background);
-}
-
-.kosmo-header.cds--header {
-  height: var(--kosmo-shell-header-height);
-  background: var(--cds-background-inverse);
-  color: var(--cds-text-inverse);
-  border-bottom: 0;
-  z-index: 9000;
-}
-
-.kosmo-header .cds--header__name {
-  display: inline-flex;
-  align-items: center;
-  width: var(--kosmo-shell-sidebar-width);
-  max-width: none;
-  padding-inline: var(--kosmo-space-5);
-  font-weight: 600;
-  letter-spacing: .06em;
-}
-
-
-.kosmo-header .cds--header__name {
+.kosmo-header .cds--header__name:hover {
+  background: var(--cds-layer-hover-01);
   color: var(--cds-text-primary);
 }
-.kosmo-header .cds--header__menu-trigger {
-  color: var(--cds-icon-primary);
-}
-.kosmo-header .cds--header__menu-trigger svg {
-  fill: currentColor;
+
+.kosmo-header .cds--header__name--prefix {
+  display: none;
 }
 
 .kosmo-header-context {
   align-self: center;
   color: var(--cds-text-secondary);
-  opacity: 1;
   font-size: .6875rem;
   letter-spacing: .12em;
   white-space: nowrap;
@@ -71,11 +43,14 @@
 
 .kosmo-header-menu-button.cds--header__menu-trigger {
   display: none;
+  color: var(--cds-text-primary);
 }
 
 .kosmo-side-nav.cds--side-nav {
+  position: fixed;
   top: var(--kosmo-shell-header-height);
   bottom: 0;
+  left: 0;
   width: var(--kosmo-shell-sidebar-width);
   background: var(--cds-layer-01);
   border-right: 0;
@@ -99,6 +74,18 @@
   min-height: 2.75rem;
 }
 
+.kosmo-side-nav .kosmo-nav-item-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kosmo-space-3);
+  min-width: 0;
+}
+
+.kosmo-side-nav .kosmo-nav-item-content > svg {
+  flex: 0 0 1rem;
+  fill: currentColor;
+}
+
 .kosmo-side-nav .cds--side-nav__link[aria-current="page"],
 .kosmo-side-nav .cds--side-nav__link--current {
   background: var(--cds-layer-02);
@@ -106,16 +93,16 @@
   color: var(--cds-text-primary);
 }
 
-.kosmo-side-nav .cds--side-nav__icon {
-  fill: currentColor;
+.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {
+  color: var(--cds-interactive);
 }
 
 .kosmo-main.content {
+  box-sizing: border-box;
   width: calc(100% - var(--kosmo-shell-sidebar-width));
   max-width: var(--kosmo-content-max-width);
   min-height: 100vh;
   margin-left: var(--kosmo-shell-sidebar-width);
-  margin-right: 0;
   padding: calc(var(--kosmo-shell-header-height) + 2.25rem) var(--kosmo-space-7) var(--kosmo-space-6);
 }
 
@@ -127,7 +114,6 @@
 @media (min-width: 672px) and (max-width: 1055px) {
   .kosmo-header .cds--header__name {
     width: var(--kosmo-shell-sidebar-collapsed-width);
-    flex-basis: var(--kosmo-shell-sidebar-collapsed-width);
     padding-inline: .625rem;
   }
 
@@ -157,8 +143,26 @@
     padding-inline: 0;
   }
 
+  .kosmo-side-nav .kosmo-nav-item-content {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .kosmo-side-nav .kosmo-nav-item-content > span {
+    display: none;
+  }
+
   .kosmo-side-nav-tablet-expanded.cds--side-nav {
     width: var(--kosmo-shell-sidebar-width);
+  }
+
+  .kosmo-side-nav-tablet-expanded .kosmo-nav-item-content {
+    justify-content: flex-start;
+    gap: var(--kosmo-space-3);
+  }
+
+  .kosmo-side-nav-tablet-expanded .kosmo-nav-item-content > span {
+    display: inline;
   }
 
   .kosmo-main.content {
@@ -171,7 +175,6 @@
 @media (max-width: 671px) {
   .kosmo-header .cds--header__name {
     width: auto;
-    flex: 1 1 auto;
     padding-inline: var(--kosmo-space-3);
   }
 
@@ -197,7 +200,6 @@
 
   .kosmo-main.content {
     width: 100%;
-    max-width: none;
     margin-left: 0;
     padding: calc(var(--kosmo-shell-header-height) + 2.25rem) var(--kosmo-space-4) var(--kosmo-space-6);
   }
@@ -208,34 +210,4 @@
   .kosmo-header-menu-button {
     transition: none;
   }
-}
-
-/* Keep Carbon navigation labels and their icons aligned consistently. */
-.kosmo-side-nav .kosmo-nav-item-content {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--kosmo-space-3);
-  min-width: 0;
-}
-.kosmo-side-nav .kosmo-nav-item-content > svg {
-  flex: 0 0 1rem;
-  fill: currentColor;
-}
-.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {
-  color: var(--cds-interactive);
-}
-
-/* Keep Carbon navigation labels and their icons aligned consistently. */
-.kosmo-side-nav .kosmo-nav-item-content {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--kosmo-space-3);
-  min-width: 0;
-}
-.kosmo-side-nav .kosmo-nav-item-content > svg {
-  flex: 0 0 1rem;
-  fill: currentColor;
-}
-.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {
-  color: var(--cds-interactive);
 }
