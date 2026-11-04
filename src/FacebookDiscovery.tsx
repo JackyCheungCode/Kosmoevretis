@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   Button, InlineNotification, NumberInput, Tag, TextInput,
-  Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,
+  Tabs, TabList, Tab, TabPanels, TabPanel, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,
   TableContainer,
 } from "@carbon/react";
 import {
@@ -143,9 +143,9 @@ export default function FacebookDiscovery() {
   </section>
   <section className="fb-results-section">
    <div className="fb-section-head"><div><span className="eyebrow">03 / DISCOVERY RESULTS</span><h3>发现结果</h3><p>按对象类型分 Tab 展示；各 Tab 已预设对应字段列，实际单元格根据 Actor 返回数据填充。</p></div><strong className="fb-result-count">{results.length.toLocaleString()} 条</strong></div>
-   <div className="fb-result-tabs"><Tabs selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="发现结果对象类型">{modes.map(mode=>{const Icon=mode.icon;return <Tab key={mode.id} id={"fb-tab-"+mode.id}><span className="fb-tab-label"><Icon size={16}/>{mode.label}<span className="fb-tab-count">{countByType(mode.id)}</span></span></Tab>;})}</TabList></Tabs></div>
-   {busy&&<div className="fb-empty">正在执行 Actor 并读取 Dataset…</div>}
-   {!busy&&<ResultTable rows={visibleResults} type={modes[activeTab]?.id||"people"}/>}
+   <div className="fb-result-tabs"><Tabs className="kosmo-results-tabs" selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="发现结果对象类型">{modes.map(mode=>{const Icon=mode.icon;return <Tab key={mode.id} id={"fb-tab-"+mode.id}><span className="fb-tab-label"><Icon size={16}/>{mode.label}<span className="fb-tab-count">{countByType(mode.id)}</span></span></Tab>;})}</TabList>
+    <TabPanels>{modes.map(mode=><TabPanel key={mode.id}>{busy?<div className="fb-empty">正在执行 Actor 并读取 Dataset…</div>:<ResultTable rows={visibleResults} type={mode.id}/>}</TabPanel>)}</TabPanels>
+   </Tabs></div>
    {meta?.actors?.length>0&&<div className="fb-actor-meta"><strong>采集执行信息</strong>{meta.actors.map((actor:any)=><div key={actor.run_id}><span>{actor.actor_id}</span><small>Run：{actor.run_id} · Dataset：{actor.dataset_id}</small></div>)}</div>}
   </section>
   <section className="fb-history-section"><div className="fb-section-head"><div><span className="eyebrow">04 / TASK HISTORY</span><h3>历史发现任务</h3></div><Button kind="ghost" size="sm" onClick={()=>loadHistory(organizationId)}>刷新记录</Button></div>
