@@ -5,6 +5,8 @@ import {
 } from "@carbon/react";
 import { User, Building, Chat, Calendar, Search } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
+import { PageHeader } from "./design-system";
+import { CollectionModeGrid } from "./design-system/components/CollectionModeGrid";
 import "./linkedin-discovery.css";
 
 type Kind = "people" | "companies" | "posts" | "jobs" | "enrich";
@@ -90,10 +92,10 @@ export default function LinkedInDiscovery(){
  if(!ready)return <div className="li-boot">正在连接 LinkedIn 发现工作台…</div>;
  if(!session)return <form className="li-login" onSubmit={login}><h2>登录企业工作区</h2><TextInput id="li-email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)}/><TextInput id="li-password" labelText="密码" type="password" value={password} onChange={e=>setPassword(e.target.value)}/>{authError&&<InlineNotification kind="error" title="登录失败" subtitle={authError} hideCloseButton/>}<Button type="submit">登录</Button></form>;
  return <section className="linkedin-discovery">
-  <div className="li-heading"><div><span className="eyebrow">02 / LINKEDIN DISCOVERY</span><h2>LinkedIn 公开信息发现</h2><p>发现目标企业、采购决策者、公开帖子与招聘信号，保留 Actor 来源及原始数据。</p></div><Tag type="blue">{orgName||"企业工作区"}</Tag></div>
+  <PageHeader title="LinkedIn 公开信息发现" description="发现目标企业、采购决策者、公开帖子与招聘信号，保留 Actor 来源及原始数据。" actions={<Tag type="blue">{orgName||"企业工作区"}</Tag>} />
   <section className="li-panel li-config">
-   <div className="li-section-head"><div><span className="eyebrow">DISCOVERY SOURCE</span><h3>配置发现条件</h3><p>选择发现对象后，仅显示该对象适用的搜索参数。</p></div></div>
-   <div className="li-object-grid">{kinds.map(k=>{const Icon=k.icon;return <button key={k.id} type="button" className={kind===k.id?"li-object active":"li-object"} onClick={()=>{setKind(k.id);setRows([]);setMeta(null);setError("");setNotice("");}}><Icon size={22}/><span><strong>{k.label}</strong><small>{k.description}</small></span></button>;})}</div>
+   <div className="li-section-head"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3><p>选择发现对象后，仅显示该对象适用的搜索参数。</p></div></div>
+   <CollectionModeGrid ariaLabel="选择 LinkedIn 发现对象" options={kinds} selectedId={kind} onSelect={id=>{setKind(id as Kind);setRows([]);setMeta(null);setError("");setNotice("");}} />
    <div className="li-form-grid">
     {kind!=="enrich"&&<div className="li-field li-keywords"><TextArea id="li-keywords" labelText={kind==="posts"?"搜索关键词 / 话题":"搜索关键词"} placeholder={kind==="people"?"例如：B2B Purchasing Manager\n也可通过职位筛选进一步限定":kind==="companies"?"例如：Consumer Electronics Distributor":"例如：wireless earbuds, sourcing, procurement"} value={terms} onChange={e=>setTerms(e.target.value)} rows={3}/><small>{termsList.length} 个关键词 · 换行或逗号分隔</small></div>}
     {kind!=="enrich"&&kind!=="posts"&&<div className="li-field"><ComboBox id="li-country" titleText="国家 / 地区" placeholder="选择国家或地区" items={countries} itemToString={x=>x?.label||""} selectedItem={country} onChange={({selectedItem})=>setCountry(selectedItem||null)}/><small>按 Actor 支持的 LinkedIn 地区名称传入。</small></div>}
