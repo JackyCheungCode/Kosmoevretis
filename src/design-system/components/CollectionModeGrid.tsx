@@ -7,7 +7,7 @@ export type CollectionModeOption = {
   id: string;
   label: string;
   description: string;
-  icon?: ComponentType<{ size?: number }>;
+  icon?: ComponentType<any>;
 };
 
 const iconFor = (option: CollectionModeOption) => {
