@@ -90,3 +90,8 @@ The AppShell switches to compact desktop navigation below 1056px and to an overl
 ## Shell breakpoint ownership
 
 AppShell responsive behavior is defined once in `src/styles/global.scss`: compact desktop navigation begins below 1056px and overlay navigation begins below 672px. Do not add parallel legacy 900px/720px shell breakpoint blocks. Feature-owned responsive rules may use the same Carbon grid breakpoints for their own content, but must not redefine `.sidebar`, `.main`, `.topbar`, or the shared navigation overlay.
+
+
+## Platform settings and integrations
+
+`src/styles/settings-pages.scss` owns the layout and visual treatment for the AI service directory, provider configuration, Apify credentials, diagnostics, and security panels. It is loaded after the shared page and intelligence styles. Keep credentials and integration behavior in feature components; the stylesheet only standardizes Carbon layers, spacing, responsive grids, and data regions. Use status text and Carbon semantic support tokens rather than decorative card outlines.
