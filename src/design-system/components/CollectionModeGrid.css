@@ -1,6 +1,6 @@
 .kosmo-collection-mode-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kosmo-collection-mode-card-min-width)), 1fr));
   gap: var(--kosmo-space-2);
   width: 100%;
   min-width: 0;
@@ -15,9 +15,9 @@
   gap: var(--kosmo-space-1);
   width: 100%;
   min-width: 0;
-  min-height: 6rem;
-  height: 6rem;
-  max-height: 6rem;
+  min-height: var(--kosmo-collection-mode-card-height);
+  height: var(--kosmo-collection-mode-card-height);
+  max-height: var(--kosmo-collection-mode-card-height);
   max-width: 100%;
   padding: var(--kosmo-space-3);
   color: var(--cds-text-primary);
