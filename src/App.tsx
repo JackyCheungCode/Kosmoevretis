@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import Settings from "./Settings";
@@ -6,40 +7,77 @@ import Settings from "./Settings";
 const enterpriseItems = [["products","产品中心","▣"]] as const;
 const items = [["intelligence","全球情报中心","◎"]] as const;
 const settingsItems = [["sources","设置中心","⌘"]] as const;
+const validPaths = new Set([
+  "/intelligence",
+  "/products",
+  "/settings/providers",
+  "/settings/actors",
+  "/settings/channels",
+  "/settings/runs",
+  "/settings/ai-providers",
+  "/settings/models",
+  "/settings/routes",
+  "/settings/prompts",
+  "/settings/organization",
+  "/settings/members",
+  "/settings/locale",
+  "/settings/notifications",
+  "/settings/governance",
+  "/settings/audit"
+]);
 
-export default function App() {
-  const [active,setActive] = useState("intelligence");
-  const [mobileNavOpen,setMobileNavOpen] = useState(false);
-  const currentLabel = active==="products"?"产品中心":active==="sources"?"设置中心":"全球情报中心";
-  const selectPage = (id:string) => { setActive(id); setMobileNavOpen(false); };
+function AppShell() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const path = location.pathname.replace(/\/$/, "") || "/";
+  const isSettings = path.startsWith("/settings/");
+  if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
+
+  const active = isSettings ? "sources" : path === "/products" ? "products" : "intelligence";
+  const currentLabel = active === "products" ? "产品中心" : active === "sources" ? "设置中心" : "全球情报中心";
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const selectPage = (id: string) => {
+    navigate(id === "products" ? "/products" : id === "sources" ? "/settings/providers" : "/intelligence");
+    setMobileNavOpen(false);
+  };
+
   return <div className="shell">
     <header className="topbar">
-      <button className="mobile-menu-toggle" type="button" aria-label={mobileNavOpen?"关闭导航菜单":"打开导航菜单"} aria-expanded={mobileNavOpen} onClick={()=>setMobileNavOpen(x=>!x)}><span></span><span></span><span></span></button>
-      <a className="brand" href="/"><span className="brand-mark">K</span><b>KOSMOEVRETIS</b></a>
+      <button className="mobile-menu-toggle" type="button" aria-label={mobileNavOpen ? "关闭导航菜单" : "打开导航菜单"} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(x => !x)}><span></span><span></span><span></span></button>
+      <a className="brand" href="/intelligence"><span className="brand-mark">K</span><b>KOSMOEVRETIS</b></a>
       <span className="top-context">GLOBAL INTELLIGENCE PLATFORM</span><span className="top-status">P0 · 全球市场情报</span>
     </header>
-    {mobileNavOpen&&<button className="sidebar-backdrop" aria-label="关闭导航菜单" onClick={()=>setMobileNavOpen(false)}/>}
-    <aside className={mobileNavOpen?"sidebar mobile-open":"sidebar"}>
+    {mobileNavOpen && <button className="sidebar-backdrop" aria-label="关闭导航菜单" onClick={() => setMobileNavOpen(false)} />}
+    <aside className={mobileNavOpen ? "sidebar mobile-open" : "sidebar"}>
       <div className="nav-caption">企业数据</div>
       <div className="nav-group">
-        {enterpriseItems.map(item=><button key={item[0]} className={active===item[0]?"nav-item active":"nav-item"} onClick={()=>selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
+        {enterpriseItems.map(item => <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
       </div>
       <div className="nav-caption">全球情报中心</div>
       <div className="nav-group">
-        {items.map(item=><button key={item[0]} className={active===item[0]?"nav-item active":"nav-item"} onClick={()=>selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
+        {items.map(item => <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
       </div>
       <div className="nav-caption settings-caption">系统设置</div>
       <div className="nav-group settings-nav">
-        {settingsItems.map(item=><button key={item[0]} className={active===item[0]?"nav-item active":"nav-item"} onClick={()=>selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
+        {settingsItems.map(item => <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}><span className="nav-icon">{item[2]}</span>{item[1]}</button>)}
       </div>
       <div className="sidebar-foot">P0 · 全球市场情报</div>
     </aside>
     <main className="content">
       <div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div>
-      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active==="intelligence"?"统一配置分析对象，在同一工作台查看全球市场多维情报。":active==="products"?"统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。":"集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
-      {active==="intelligence"&&<GlobalIntelligence/>}
-      {active==="products"&&<ProductCenter/>}
-      {active==="sources"&&<Settings/>}
+      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active === "intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。" : active === "products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。" : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
+      {active === "intelligence" && <GlobalIntelligence />}
+      {active === "products" && <ProductCenter />}
+      {isSettings && <Settings />}
     </main>
   </div>;
+}
+
+export default function App() {
+  return <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to="/intelligence" replace />} />
+      <Route path="*" element={<AppShell />} />
+    </Routes>
+  </BrowserRouter>;
 }
