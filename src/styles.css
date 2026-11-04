@@ -170,8 +170,8 @@
 .market-dropdown-trigger{width:100%;min-height:2.75rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.65rem .8rem;border:1px solid var(--cds-border-strong,#8d8d8d);background:var(--cds-field,#fff);color:var(--cds-text-primary,#161616);font:inherit;font-size:.82rem;text-align:left;cursor:pointer}
 .market-dropdown-trigger:hover{background:var(--cds-field-hover,#e8e8e8)}
 .market-dropdown-panel{position:absolute;z-index:35;top:4.55rem;left:0;right:0;display:flex;flex-direction:column;max-height:28rem;background:var(--cds-layer-01,#fff);box-shadow:0 6px 18px rgba(0,0,0,.22);border:1px solid var(--cds-border-subtle,#c6c6c6)}
-.market-search{display:flex;align-items:center;gap:.55rem;flex:none;padding:.55rem .75rem;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6);color:var(--cds-text-secondary,#525252)}
-.market-search input{width:100%;min-width:0;min-height:1.8rem;border:0;outline:0;background:transparent;color:var(--cds-text-primary,#161616);font:inherit;font-size:.8rem}
+.market-search{flex:none;min-width:0;padding:0;border:0;color:var(--cds-text-secondary,#525252)}
+.market-search .cds--search{width:100%;min-width:0}
 .market-actions{display:flex;align-items:center;gap:.75rem;flex:none;padding:.45rem .75rem;background:var(--cds-layer-02,#e0e0e0)}
 .market-actions button{padding:0;border:0;background:transparent;color:#0f62fe;font:inherit;font-size:.72rem;cursor:pointer}
 .market-actions span{margin-left:auto;color:var(--cds-text-secondary,#525252);font-size:.68rem}

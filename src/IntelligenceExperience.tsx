@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Accordion, AccordionItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tag, Tabs, TabList, Tab, TabPanels, TabPanel, TextArea } from "@carbon/react";
+import { Accordion, AccordionItem, Button, Search, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tag, Tabs, TabList, Tab, TabPanels, TabPanel, TextArea } from "@carbon/react";
 import MarkdownReport from "./components/MarkdownReport";
 import CarbonSelect from "./components/CarbonSelect";
 import "./intelligence.css";
@@ -66,7 +66,7 @@ export function DataSourceSelector({organizationId,selectedSourceIds,onChange,on
   <div className="gi-section-head"><div><span className="eyebrow">03 / DATA SOURCES</span><h2>数据渠道与平台</h2><p>选择本次分析的数据来源</p></div><span className="gi-count-pill">{selected} 个已选</span></div>
   <div className="gi-source-actions"><div className="gi-source-actions-left"><button type="button" className="gi-quiet-button" onClick={()=>onChange(recommended.map(s=>s.id))}>推荐组合</button><button type="button" className="gi-quiet-button" onClick={()=>{onChange(recommended.map(s=>s.id));onLoadDemo();}}>载入演示数据</button></div><button type="button" className="gi-expand-button" onClick={()=>setExpanded(v=>!v)} aria-expanded={expanded}>{expanded?"收起平台":"更多平台"} <span>{expanded?"−":"＋"}</span></button></div>
   {loading?<div className="gi-loading">正在读取平台目录…</div>:error?<div className="gi-warning">{error}</div>:<>
-   {expanded&&<div className="gi-source-toolbar"><div className="gi-channel-filter">{["全部","电商平台","搜索引擎","社交媒体","视频平台","社区论坛","新闻媒体","行业媒体","行业数据"].map(x=><button key={x} type="button" className={channel===x?"active":""} onClick={()=>setChannel(x)}>{x}</button>)}</div><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索平台或能力"/><button type="button" className="gi-quiet-button" onClick={()=>onChange(sources.map(s=>s.id))}>全选</button><button type="button" className="gi-quiet-button" onClick={()=>onChange([])}>清空</button></div>}
+   {expanded&&<div className="gi-source-toolbar"><div className="gi-channel-filter">{["全部","电商平台","搜索引擎","社交媒体","视频平台","社区论坛","新闻媒体","行业媒体","行业数据"].map(x=><button key={x} type="button" className={channel===x?"active":""} onClick={()=>setChannel(x)}>{x}</button>)}</div><Search size="lg" labelText="搜索平台或能力" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索平台或能力"/><button type="button" className="gi-quiet-button" onClick={()=>onChange(sources.map(s=>s.id))}>全选</button><button type="button" className="gi-quiet-button" onClick={()=>onChange([])}>清空</button></div>}
    <div className="gi-source-grid">{list.map(renderCard)}{expanded&&!list.length&&<div className="gi-source-empty">没有匹配的平台</div>}</div>
   </>}
   <div className="gi-source-note">平台状态以实际授权和接入情况为准；选择平台不代表已启动实时采集。</div>
