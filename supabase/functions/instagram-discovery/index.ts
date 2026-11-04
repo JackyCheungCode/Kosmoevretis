@@ -37,7 +37,7 @@ Deno.serve(async(req:Request)=>{
   if(type==="hashtags"?!keywords.length:!sources.length)return reply({error:"请提供有效的账号、内容、标签或地点输入。"},400);
   if(type==="comments"&&sources.some(x=>!/^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv)\//i.test(x)))return reply({error:"评论洞察仅接受帖子或 Reels URL。"},400);
   if(type==="places"&&sources.some(x=>!validUrl(x)))return reply({error:"地点发现仅接受 Instagram 地点 URL。"},400);
-  const normalized=sources.map(x=>type==="profiles"||type==="creators"?profileUrl(x):x);if(normalized.some(x=>!validUrl(x)))return reply({error:"输入包含无效的 Instagram URL 或用户名。"},400);
+  const normalized=sources.map(x=>["profiles","creators","posts","reels","brand"].includes(type)?profileUrl(x):x);if(normalized.some(x=>!validUrl(x)))return reply({error:"输入包含无效的 Instagram URL 或用户名。"},400);
   const {data:provider,error:providerError}=await admin.from("platform_provider_connections").select("credential_ciphertext,credential_iv,is_enabled,status").eq("organization_id",org).eq("provider_key","apify").maybeSingle();
   if(providerError)throw providerError;if(!provider?.is_enabled||provider.status!=="verified"||!provider.credential_ciphertext||!provider.credential_iv)return reply({error:"Apify 尚未启用或验证，请先到设置中心完成连接测试。"},400);
   const token=await decrypt(provider.credential_ciphertext,provider.credential_iv),actor="instagram-data-api/instagram-scraper";
@@ -48,7 +48,7 @@ Deno.serve(async(req:Request)=>{
   const title="Instagram "+type+"："+(type==="hashtags"?keywords.join("、"):normalized.slice(0,3).join("、"));
   const {data:task,error:insertError}=await admin.from("market_trend_tasks").insert({organization_id:org,created_by:user.id,actor_id:actor,task_type:"instagram_discovery",title,status:"running",input_snapshot:{discovery_type:type,sources,keywords,max_results:limit,only_newer_than:body.only_newer_than||null,actor_id:actor,results_type:resultsType},started_at:new Date().toISOString()}).select("id").single();
   if(insertError)throw insertError;taskId=task.id;
-  const run=await runActor(actor,input,token),results=run.items.map((item:Record<string,unknown>)=>({...item,discovery_type:type,source_actor:actor})),completed=new Date().toISOString(),actorMeta={actors:[run.meta],input};
+  const runs=type==="creators"?await Promise.all([runActor(actor,{...input,resultsType:"details"},token),runActor(actor,{...input,resultsType:"posts"},token)]):[await runActor(actor,input,token)];const results=runs.flatMap((run,index)=>run.items.map((item:Record<string,unknown>)=>({...item,discovery_type:type==="creators"&&index===1?"creator_posts":type,source_actor:actor})));const completed=new Date().toISOString(),actorMeta={actors:runs.map(run=>run.meta),input};
   const {error:updateError}=await admin.from("market_trend_tasks").update({actor_id:actor,actor_run_id:run.meta.run_id,dataset_id:run.meta.dataset_id,status:results.length?"succeeded":"partial",raw_items:results,result_count:results.length,actor_meta:actorMeta,error_message:results.length?null:"Actor 已完成，但没有返回公开结果。",completed_at:completed,updated_at:completed}).eq("id",taskId);
   if(updateError)throw updateError;return reply({task_id:taskId,status:results.length?"succeeded":"partial",result_count:results.length,results,actor_meta:actorMeta});
  }catch(error){const message=error instanceof Error?error.message:"Instagram 发现任务失败。";if(taskId)await admin.from("market_trend_tasks").update({status:"failed",error_message:message,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",taskId);return reply({error:message,task_id:taskId},502);}
