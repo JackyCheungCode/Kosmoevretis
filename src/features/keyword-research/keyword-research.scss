@@ -1,6 +1,6 @@
 /* Keyword Research — Carbon layer-first composition. */
 .keyword-research-page {
-  max-width: 1680px;
+  max-width: var(--app-content-max-width);
   margin: 0 auto;
   padding: 0 var(--app-space-05) var(--app-space-08);
   color: var(--app-color-text-primary);
@@ -102,9 +102,8 @@
 .kr-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
+  gap: var(--app-space-02);
   margin-bottom: var(--app-space-04);
-  background: var(--app-color-border-subtle);
 }
 .kr-metrics .cds--tile {
   display: flex;
@@ -113,7 +112,7 @@
   flex-direction: column;
   gap: var(--app-space-02);
   padding: var(--app-space-04);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .kr-metrics span { color: var(--app-color-text-secondary); font-size: var(--app-type-label-size); }
 .kr-metrics b { font-size: 1.5rem; line-height: 1.3; font-weight: 400; overflow-wrap: anywhere; }
@@ -123,9 +122,8 @@
 .kr-platforms {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
+  gap: var(--app-space-02);
   margin-top: var(--app-space-04);
-  background: var(--app-color-border-subtle);
 }
 .kr-platforms .cds--tile {
   display: flex;
@@ -135,7 +133,7 @@
   justify-content: space-between;
   gap: var(--app-space-02);
   padding: var(--app-space-03);
-  background: var(--app-color-layer-02);
+  background: var(--app-color-layer-01);
 }
 .kr-platforms b { font-size: var(--app-type-body-size); font-weight: 600; }
 .kr-table-head {
