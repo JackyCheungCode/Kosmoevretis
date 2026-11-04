@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Button, InlineNotification, NumberInput, Tag, TextInput } from "@carbon/react";
-import CarbonSelect from "./components/CarbonSelect";
 import { supabase } from "./lib/supabase";
 import "./facebook-discovery.css";
 
