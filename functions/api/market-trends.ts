@@ -143,7 +143,7 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
     if (task.status !== status) {
       await Promise.all([
         supabasePatch(auth.base, auth.headers, task.id, { status }),
-        supabasePatchExecution(auth.base, auth.headers, task.id, { status })
+        supabasePatchExecution(auth.base, auth.headers, task.id, { status }, Number(task.actor_meta?.attempt) || 1)
       ]);
     }
     return json({ task: { ...task, status } });
