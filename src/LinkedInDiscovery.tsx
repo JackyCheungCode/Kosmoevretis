@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   Button, ComboBox, InlineNotification, NumberInput, Tag, TextInput, TextArea,
-  Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
+  Tabs, TabList, Tab, TabPanels, TabPanel, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
 } from "@carbon/react";
 import { User, Building, Chat, Calendar, Search } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
@@ -110,8 +110,9 @@ export default function LinkedInDiscovery(){
   </section>
   <section className="li-panel li-logs"><div className="li-section-head"><div><span className="eyebrow">RUN ACTIVITY</span><h3>任务日志</h3><p>同时显示页面任务阶段与 Apify Run 原始日志；不将阶段事件伪装为 Actor 实时日志。</p></div><div className="li-log-tools"><Tag type={busy?"blue":"gray"}>{busy?"执行中":"空闲"}</Tag><Button kind="ghost" size="sm" onClick={()=>setLogs([])}>清空日志</Button></div></div><div className="li-console" aria-live="polite">{logs.length?logs.map(l=><div className={"li-log "+l.level} key={l.id}><time>{l.time}</time><i/><span>{l.message}</span></div>):<div className="li-log-empty">等待任务事件。开始发现后将在此处显示执行日志。</div>}</div></section>
   <section className="li-panel li-results"><div className="li-section-head"><div><span className="eyebrow">DISCOVERY RESULTS</span><h3>发现结果</h3><p>使用对象 Tab 切换对应 Carbon 表格，实际字段以 Actor 返回为准。</p></div><strong>{rows.length.toLocaleString()} 条</strong></div>
-   <Tabs selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="LinkedIn 发现结果">{kinds.map(k=>{const Icon=k.icon;return <Tab key={k.id} id={"li-tab-"+k.id}><span className="li-tab-label"><Icon size={16}/>{k.label}<small>{count(k.id)}</small></span></Tab>;})}</TabList></Tabs>
-   {busy?<div className="li-empty">正在执行 Actor 并读取 Dataset…</div>:<DataTable rows={visible} kind={activeKind}/>}
+   <Tabs className="kosmo-results-tabs" selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="LinkedIn 发现结果">{kinds.map(k=>{const Icon=k.icon;return <Tab key={k.id} id={"li-tab-"+k.id}><span className="li-tab-label"><Icon size={16}/>{k.label}<small>{count(k.id)}</small></span></Tab>;})}</TabList>
+    <TabPanels>{kinds.map(k=><TabPanel key={k.id}>{busy?<div className="li-empty">正在执行 Actor 并读取 Dataset…</div>:<DataTable rows={visible} kind={k.id}/>}</TabPanel>)}</TabPanels>
+   </Tabs>
    {meta?.actors?.length>0&&<div className="li-meta"><strong>采集执行信息</strong>{meta.actors.map((a:any)=><div key={a.run_id}><span>{a.actor_id}</span><small>Run：{a.run_id} · Dataset：{a.dataset_id}</small></div>)}</div>}
   </section>
   <section className="li-panel li-history"><div className="li-section-head"><div><span className="eyebrow">TASK HISTORY</span><h3>历史发现任务</h3></div><Button kind="ghost" size="sm" onClick={()=>loadHistory(org)}>刷新记录</Button></div>
