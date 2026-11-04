@@ -30,8 +30,9 @@
 .trade-page-badge{padding:.35rem .55rem;background:var(--cds-layer-02);color:var(--cds-text-secondary);font-size:.7rem;white-space:nowrap}
 .trade-page-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
 .trade-page-form label{display:grid;gap:.4rem;color:var(--cds-text-secondary);font-size:.75rem}
-.trade-page-form input,.trade-page-form textarea{width:100%;min-height:2.5rem;padding:.65rem .75rem;border:0;border-bottom:1px solid var(--cds-border-strong);border-radius:0;background:var(--cds-field-01);color:var(--cds-text-primary);font:inherit;font-size:.82rem}
-.trade-page-form textarea{resize:vertical}
+.trade-page-form .cds--text-input,.trade-page-form .cds--text-area__field{width:100%;min-height:2.5rem;border:0;border-bottom:1px solid var(--cds-border-strong);border-radius:0;background:var(--cds-field-01);color:var(--cds-text-primary);font:inherit;font-size:.82rem}
+.trade-page-form .cds--text-area__field{resize:vertical}
+.trade-page-form .cds--form-item{min-width:0;width:100%}
 .trade-page-wide{grid-column:1/-1}
 .trade-page-help{margin:0;color:var(--cds-text-secondary);font-size:.72rem}
 .trade-page-error{padding:.7rem;background:var(--cds-support-error-inverse,#fff1f1);color:var(--cds-text-error)}
