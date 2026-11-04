@@ -235,11 +235,11 @@ function LiveGoogleTrends({results,meta,loading,activeTab}:{results:any[];meta:a
  </section>;
 }
 
-export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean}) {
+export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,collectionLoading=false}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;collectionLoading?:boolean}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);
  const hasLive=liveResults.length>0;
- return <>{hasLive||collectionLoading||liveMeta||history.length>0?<LiveGoogleTrends results={liveResults} meta={liveMeta} loading={collectionLoading} activeTab={activeTab}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}</>}
+ return <>{hasLive||collectionLoading||liveMeta?<LiveGoogleTrends results={liveResults} meta={liveMeta} loading={collectionLoading} activeTab={activeTab}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}</>}
  <AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab} liveResults={liveResults}/>
  </>;
 }
