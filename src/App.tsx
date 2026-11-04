@@ -14,21 +14,38 @@ const items = [
 
 export default function App() {
   const [active, setActive] = useState("overview");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const current = items.find((item) => item[0] === active) || items[0];
+
+  const selectPage = (id: string) => {
+    setActive(id);
+    setMobileNavOpen(false);
+  };
+
   return (
     <div className="shell">
       <header className="topbar">
+        <button
+          className="mobile-menu-toggle"
+          type="button"
+          aria-label={mobileNavOpen ? "关闭导航菜单" : "打开导航菜单"}
+          aria-expanded={mobileNavOpen}
+          onClick={() => setMobileNavOpen((open) => !open)}
+        >
+          <span></span><span></span><span></span>
+        </button>
         <a className="brand" href="/"><span className="brand-mark">K</span><b>KOSMOEVRETIS</b></a>
         <span className="top-context">GLOBAL 3C MARKET INTELLIGENCE</span>
         <span className="top-status">● 平台初始化中</span>
       </header>
-      <aside className="sidebar">
+      {mobileNavOpen && <button className="sidebar-backdrop" aria-label="关闭导航菜单" onClick={() => setMobileNavOpen(false)} />}
+      <aside className={mobileNavOpen ? "sidebar mobile-open" : "sidebar"}>
         <div className="nav-caption">情报平台</div>
         <div className="nav-group">
           <div className="nav-group-title"><span className="nav-group-mark">▦</span><span>全球 3C市场情报</span></div>
           <div className="nav-group-items">
             {items.map((item) => (
-              <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => setActive(item[0])}>
+              <button key={item[0]} className={active === item[0] ? "nav-item active" : "nav-item"} onClick={() => selectPage(item[0])}>
                 <span className="nav-icon">{item[2]}</span>{item[1]}
               </button>
             ))}
@@ -58,7 +75,7 @@ export default function App() {
           </section>
           <section className="section">
             <div className="section-head"><div><span className="eyebrow">PRODUCT OPPORTUNITY</span><h2>市场机会发现</h2></div><small>等待数据源接入</small></div>
-            <div className="empty"><h3>建立第一条市场证据链</h3><p>连接电商、搜索和社交数据源后，平台将关联跨渠道商品信号，识别增长品类、消费者未满足需求与潜在产品机会。</p><button onClick={() => setActive("sources")}>配置数据源　→</button></div>
+            <div className="empty"><h3>建立第一条市场证据链</h3><p>连接电商、搜索和社交数据源后，平台将关联跨渠道商品信号，识别增长品类、消费者未满足需求与潜在产品机会。</p><button onClick={() => selectPage("sources")}>配置数据源　→</button></div>
           </section>
         </> : <section className="module"><span className="eyebrow">P0 MODULE</span><h2>{current[1]}</h2><p>模块入口已建立。下一步将接入统一数据模型、真实采集任务和可追溯的市场证据。</p>{active === "sources" && <p>集中配置 Apify、Google Trends、YouTube、Reddit 与电商连接器。凭证只存放在服务端安全配置中。</p>}</section>}
       </main>
