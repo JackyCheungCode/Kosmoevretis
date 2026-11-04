@@ -4,6 +4,7 @@ import { Button, InlineLoading, InlineNotification, Tag } from "@carbon/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../app/AuthProvider";
 import { taskStatusLabel, taskTypeLabel } from "./types";
+import { PageHeader } from "../../components/ui/PageHeader";
 import type { ResearchTask, ResearchTaskExecution } from "./types";
 import "./ai-work-center.scss";
 
@@ -83,9 +84,7 @@ export function ResearchTaskDetailPage() {
 
   return <section className="awc-detail">
     <Button kind="ghost" size="sm" renderIcon={ArrowLeft} onClick={() => navigate("/ai-work-center")}>返回任务中心</Button>
-    {error && <InlineNotification kind="error" lowContrast title="操作失败" subtitle={error} onCloseButtonClick={() => setError("")} />}\n    {notice && <InlineNotification kind="success" lowContrast title="任务已重新提交" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}\n    <header className="awc-detail-header">
-      <div><div className="awc-eyebrow">RESEARCH TASK DETAIL</div><h1>{task.title || "研究任务"}</h1><p>{taskTypeLabel[task.task_type] || task.task_type} · 创建于 {dateLabel(task.created_at)} · ID {task.id}</p></div>
-      <div className="awc-detail-actions"><Button kind="tertiary" size="sm" renderIcon={Renew} onClick={() => void load()}>刷新状态</Button>{!["queued", "running"].includes(task.status) && <Button kind="tertiary" size="sm" renderIcon={Renew} disabled={retrying} onClick={() => void retry()}>{retrying ? "正在重试" : "重新执行"}</Button>}<Button kind="tertiary" size="sm" renderIcon={Download} onClick={exportJson}>导出 JSON</Button><Button kind="tertiary" size="sm" renderIcon={Download} disabled={!rawItems.length} onClick={exportCsv}>导出 CSV</Button></div>
+    {error && <InlineNotification kind="error" lowContrast title="操作失败" subtitle={error} onCloseButtonClick={() => setError("")} />}\n    {notice && <InlineNotification kind="success" lowContrast title="任务已重新提交" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}\n    <PageHeader className="awc-detail-header" eyebrow="RESEARCH TASK DETAIL" title={task.title || "研究任务"} description={`${taskTypeLabel[task.task_type] || task.task_type} · 创建于 ${dateLabel(task.created_at)} · ID ${task.id}`} meta={<div className="awc-detail-actions"><Button kind="tertiary" size="sm" renderIcon={Renew} onClick={() => void load()}>刷新状态</Button>{!["queued", "running"].includes(task.status) && <Button kind="tertiary" size="sm" renderIcon={Renew} disabled={retrying} onClick={() => void retry()}>{retrying ? "正在重试" : "重新执行"}</Button>}<Button kind="tertiary" size="sm" renderIcon={Download} onClick={exportJson}>导出 JSON</Button><Button kind="tertiary" size="sm" renderIcon={Download} disabled={!rawItems.length} onClick={exportCsv}>导出 CSV</Button></div>
     </header>
 
     <div className="awc-detail-grid">
