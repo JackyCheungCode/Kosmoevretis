@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
-import { Activity, Ai, Building, Document, DataBase, Earth, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
+import { Activity, Ai, Building, Document, DataBase, Earth, Flow, Menu, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
 import SettingsBackend from "./SettingsBackend";
 import BrandLogo from "./BrandLogo";
 import DesignSystemPreview from "./DesignSystemPreview";
+import { ConfigurationPageTemplate } from "./design-system/patterns";
+import { PageSection } from "./design-system/components";
 
 type Item = { name: string; description: string; status?: string; statusType?: "green"|"blue"|"gray"|"warm-gray"|"red"; domain?: string; mark?: string; meta?: string };
 const navGroups = [
@@ -68,22 +70,63 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  "design-system":{title:"设计系统",desc:"查看并验收 Kosmoevretis 全站统一的 Carbon 设计规范与基础组件。",eyebrow:"DESIGN GOVERNANCE"}
 };
 export default function Settings(){
- const location=useLocation();const navigate=useNavigate();const active=location.pathname.split("/")[2]||"providers";const [search,setSearch]=useState("");const [notice,setNotice]=useState<string|null>(null);
- const selected=pageMeta[active];const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
- const choose=(id:string)=>{navigate("/settings/"+id);setNotice(null);};
- const body=()=>{switch(active){case"providers":return <SettingsBackend/>;case"actors":return <Actors/>;case"channels":return <Channels/>;case"runs":return <><Heading eyebrow="COLLECTION OBSERVABILITY" title="采集运行记录" description="统一查看业务模块发起的采集任务、执行状态、数据集和错误信息。"/><Pending>采集任务调度与运行记录服务尚未接入；当前不会展示虚构的任务或运行数据。</Pending></>;case"ai-providers":return <AiProviders/>;case"models":return <Models/>;case"routes":return <Routes/>;case"prompts":return <Prompts/>;case"design-system":return <DesignSystemPreview/>;default:return <SystemPage page={active}/>;}};
- return <section className="module settings-center settings-workspace">
-  <div className="settings-page-heading"><div className="eyebrow">KOSMOEVRETIS / PLATFORM ADMINISTRATION</div><h2>配置管理中心</h2><p>像管理业务应用一样，统一管理连接、采集、AI 能力与平台治理。</p></div>
-  <div className="settings-workspace-layout">
-   <aside className="settings-local-nav">
-    <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
-    {filtered.map(g=><div className="settings-nav-group" key={g.title}><div className="settings-nav-group-title">{g.title}</div>{g.items.map(([id,label,icon])=><button key={id} type="button" className={active===id?"settings-nav-item is-active":"settings-nav-item"} aria-label={label} title={label} onClick={()=>choose(id)}>{(() => { const Icon = navIconMap[icon]; return <Icon size={16} aria-hidden="true"/>; })()}<span className="settings-nav-label">{label}</span></button>)}</div>)}
-   </aside>
-   <main className="settings-workspace-content">
-    <div className="settings-content-toolbar"><div><div className="settings-breadcrumb">{selected.eyebrow} / {selected.title}</div><h3>{selected.title}</h3></div></div>
-    {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
-    {body()}
-   </main>
-  </div>
- </section>;
+ const location=useLocation();
+ const active=location.pathname.split("/")[2]||"providers";
+ const [search,setSearch]=useState("");
+ const [notice,setNotice]=useState<string|null>(null);
+ const [mobileNavOpen,setMobileNavOpen]=useState(false);
+ const navRef=useRef<HTMLElement|null>(null);
+ const triggerRef=useRef<HTMLButtonElement|null>(null);
+ const selected=pageMeta[active]||pageMeta.providers;
+ const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
+ const closeNavigation=()=>setMobileNavOpen(false);
+ useEffect(()=>{
+  if(!mobileNavOpen)return;
+  navRef.current?.querySelector<HTMLAnchorElement>("a[aria-current='page'], a")?.focus();
+  const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){setMobileNavOpen(false);triggerRef.current?.focus();}};
+  document.addEventListener("keydown",onKeyDown);
+  return()=>document.removeEventListener("keydown",onKeyDown);
+ },[mobileNavOpen]);
+ const navigation=<div className="settings-navigation-shell">
+  {mobileNavOpen&&<button type="button" className="settings-nav-backdrop" aria-label="关闭设置导航" onClick={closeNavigation}/>}
+  <aside className={mobileNavOpen?"settings-local-nav is-open":"settings-local-nav"} ref={node=>{navRef.current=node;}} aria-label="设置分类">
+   <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
+   {filtered.map(group=><div className="settings-nav-group" key={group.title}>
+    <div className="settings-nav-group-title">{group.title}</div>
+    {group.items.map(([id,label,icon])=>{
+     const Icon=navIconMap[icon];
+     return <NavLink key={id} to={"/settings/"+id} end className={({isActive})=>isActive?"settings-nav-item is-active":"settings-nav-item"} onClick={closeNavigation} aria-label={label}>
+      <Icon size={16} aria-hidden="true"/><span className="settings-nav-label">{label}</span>
+     </NavLink>;
+    })}
+   </div>)}
+  </aside>
+ </div>;
+ const actions=<Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu} aria-label="打开设置导航" aria-expanded={mobileNavOpen} onClick={()=>setMobileNavOpen(open=>!open)}>设置分类</Button>;
+ const body=()=>{switch(active){
+  case"providers":return <SettingsBackend/>;
+  case"actors":return <Actors/>;
+  case"channels":return <Channels/>;
+  case"runs":return <><Heading eyebrow="COLLECTION OBSERVABILITY" title="采集运行记录" description="统一查看业务模块发起的采集任务、执行状态、数据集和错误信息。"/><Pending>采集任务调度与运行记录服务尚未接入；当前不会展示虚构的任务或运行数据。</Pending></>;
+  case"ai-providers":return <AiProviders/>;
+  case"models":return <Models/>;
+  case"routes":return <Routes/>;
+  case"prompts":return <Prompts/>;
+  case"design-system":return <DesignSystemPreview/>;
+  default:return <SystemPage page={active}/>;
+ }};
+ return <ConfigurationPageTemplate
+  className="module settings-center settings-workspace"
+  title="配置管理中心"
+  description="统一管理数据源连接、采集能力、AI 服务与平台治理配置。"
+  eyebrow="KOSMOEVRETIS / PLATFORM ADMINISTRATION"
+  headingLevel={2}
+  actions={actions}
+  navigation={navigation}
+ >
+  <PageSection title={selected.title} description={selected.desc} className="settings-selected-section">
+   {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
+   {body()}
+  </PageSection>
+ </ConfigurationPageTemplate>;
 }
