@@ -39,7 +39,7 @@
 .catalog-stats>div{display:flex;flex-direction:column;gap:.3rem;padding:1rem 1.2rem;background:var(--cds-layer-01,#e8e8e8)}
 .catalog-stats strong{font-size:1.65rem;font-weight:400}.catalog-stats span,.list-toolbar span{font-size:.72rem;color:var(--cds-text-secondary,#525252)}
 .list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.list-toolbar input,.form-grid input,.form-grid textarea,.inline-create input,.inline-create select,.variant-form input,.variant-form select,.monitor-form input,.monitor-form select,.import-panel textarea,.auth-card input,.add-value-row input{width:100%;min-height:2.5rem;padding:.55rem .75rem;border:1px solid var(--cds-border-strong,#8d8d8d);border-radius:0;background:var(--cds-field,#fff);color:var(--cds-text-primary,#161616);font:inherit;font-size:.84rem}
+.list-toolbar input,.form-grid input,.form-grid textarea,.inline-create input,.inline-create select,.variant-form input,.variant-form select,.monitor-form input,.monitor-form select,.import-panel textarea,.add-value-row input{width:100%;min-height:2.5rem;padding:.55rem .75rem;border:1px solid var(--cds-border-strong,#8d8d8d);border-radius:0;background:var(--cds-field,#fff);color:var(--cds-text-primary,#161616);font:inherit;font-size:.84rem}
 .form-grid textarea,.import-panel textarea{resize:vertical}
 .product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--cds-border-subtle,#c6c6c6)}
 .product-card{min-width:0;display:flex;align-items:center;gap:1rem;padding:1rem;border:0;background:var(--cds-layer-01,#e8e8e8);text-align:left;cursor:pointer;color:inherit}
@@ -57,7 +57,7 @@
 .back-link{padding:0;border:0;background:transparent;color:#0f62fe;font:inherit;font-size:.8rem;cursor:pointer}
 .editor-panel h2{margin:.7rem 0 .35rem}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.25rem}
-.form-grid label,.monitor-form label,.auth-card label{display:flex;flex-direction:column;gap:.4rem;color:var(--cds-text-secondary,#525252);font-size:.75rem}
+.form-grid label,.monitor-form label{display:flex;flex-direction:column;gap:.4rem;color:var(--cds-text-secondary,#525252);font-size:.75rem}
 .form-grid .span-2{grid-column:span 2}
 .form-actions{grid-column:span 2;justify-content:flex-end;margin-top:.25rem}
 .notice{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1rem;background:#edf5ff;color:#0043ce;font-size:.8rem}
