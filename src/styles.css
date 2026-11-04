@@ -249,3 +249,29 @@
  .market-map-panel{height:22rem;min-height:22rem}
  .market-map-panel .world-map{height:19rem;max-height:calc(22rem - 3rem)}
 }
+
+/* Product attribute library — IBM Carbon layered workspace */
+.count-pill{display:inline-grid;place-items:center;min-width:1.25rem;height:1.25rem;margin-left:.25rem;padding:0 .25rem;background:rgba(15,98,254,.12);color:#0f62fe;font-size:.68rem}
+.attribute-library{gap:1rem}
+.library-create{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-top:1.25rem;padding:1rem;background:var(--cds-layer-02,#e0e0e0)}
+.library-create label,.attribute-controls label{display:flex;flex-direction:column;gap:.4rem;min-width:0;color:var(--cds-text-secondary,#525252);font-size:.74rem}
+.library-create input:not([type=checkbox]){width:100%;min-height:2.5rem;padding:.55rem .7rem;border:1px solid var(--cds-border-subtle,#c6c6c6);background:var(--cds-field,#fff);color:var(--cds-text-primary,#161616);font:inherit;font-size:.82rem}
+.library-create .library-check{flex-direction:row;align-items:center;align-self:end;min-height:2.5rem}
+.library-create .form-actions{grid-column:1/-1}
+.library-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--cds-border-subtle,#c6c6c6)}
+.library-card{min-width:0;padding:1rem;background:var(--cds-layer-01,#e8e8e8)}
+.library-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+.library-card-head>div:first-child{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.library-card-head strong{font-size:.88rem;font-weight:600}
+.library-card-head span{font-size:.7rem;color:var(--cds-text-secondary,#525252)}
+.library-card-head .tag-row{margin:0;justify-content:flex-end}
+.library-values{display:flex;flex-wrap:wrap;gap:.35rem;min-height:2rem;margin:.75rem 0;color:var(--cds-text-secondary,#525252);font-size:.7rem}
+.library-values small{align-self:center}
+.attach-attribute{grid-template-columns:minmax(14rem,1fr) auto auto;align-items:center}
+.attribute-controls{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin:.75rem 0}
+.attribute-controls label{flex-direction:row;align-items:center;gap:.55rem}
+.attribute-controls .carbon-select{min-width:10rem}
+.analysis-toggle{min-height:2rem;padding:0 .65rem;border:0;background:var(--cds-layer-02,#e0e0e0);color:var(--cds-text-secondary,#525252);font:inherit;font-size:.7rem;cursor:pointer}
+.analysis-toggle.active{background:#edf5ff;color:#0043ce}
+@media(max-width:900px){.library-create{grid-template-columns:repeat(2,minmax(0,1fr))}.library-list{grid-template-columns:1fr}}
+@media(max-width:671px){.library-create{grid-template-columns:1fr}.attach-attribute{grid-template-columns:1fr}.attach-attribute button{width:100%}.library-card-head{flex-direction:column}}
