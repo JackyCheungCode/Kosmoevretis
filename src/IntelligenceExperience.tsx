@@ -180,7 +180,7 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  else{
   const boundaryResponse=await fetch("/api/region-boundaries?geo="+encodeURIComponent(geo));
   const boundaryText=await boundaryResponse.text();let boundaryPayload:any=null;try{boundaryPayload=JSON.parse(boundaryText);}catch{throw new Error("省／州边界服务返回了非 JSON 响应（HTTP "+boundaryResponse.status+"），请稍后重试。");}
-  if(!boundaryResponse.ok)throw new Error(boundaryPayload?.error||("省／州边界数据加载失败（HTTP "+boundaryResponse.status+"）"));
+  if(!boundaryResponse.ok)throw new Error([boundaryPayload?.error,boundaryPayload?.detail].filter(Boolean).join("：")||("省／州边界数据加载失败（HTTP "+boundaryResponse.status+"）"));
   if(boundaryPayload?.type!=="FeatureCollection"||!Array.isArray(boundaryPayload.features))throw new Error(boundaryPayload?.error||"省／州边界数据格式无效。");
   geojson=boundaryPayload;
  }
@@ -191,7 +191,7 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  const layer=L.geoJSON({type:"FeatureCollection",features},{style:(feature:any)=>{const value=feature.properties.__trendValue;return{color:"#ffffff",weight:0.8,fillColor:value===null?"#d8d8d8":color(value),fillOpacity:value===null?0.45:0.88};},onEachFeature:(feature:any,shape:any)=>{const p=feature.properties||{};const label=p.__trendValue===null?"暂无足够数据":("搜索兴趣指数："+p.__trendValue);shape.bindTooltip("<strong>"+String(p.__trendName)+"</strong><br/>"+label,{sticky:true});}}).addTo(map);
  if(!global&&layer.getBounds().isValid())map.fitBounds(layer.getBounds(),{padding:[12,12]});else if(layer.getBounds().isValid())map.fitBounds(layer.getBounds(),{padding:[8,8]});
  window.setTimeout(()=>map.invalidateSize(),120);
- }catch(e){if(!cancelled)setMapError(e instanceof Error?e.message:"地区地图加载失败");}})();
+ }catch(e){if(!cancelled)setMapError(e instanceof Error?(e.message==="Failed to fetch"?"省／州边界请求失败：地图服务或网络暂不可达，请重试。":e.message):"地区地图加载失败");}})();
  return()=>{cancelled=true;if(map){map.remove();map=null;}};},[geo,global,keyword,retry,rows.map((x:any)=>x.code+":"+x.value+":"+x.name).join("|")]);
  return <div className="gi-gt-map-shell"><div ref={host} className="gi-gt-map" role="img" aria-label={global?"Google Trends 国家搜索兴趣地图":keyword+" 省州搜索兴趣地图"}/>{mapError&&<div className="gi-map-error">{mapError}<button type="button" className="gi-map-retry" onClick={()=>{setMapError("");setRetry(x=>x+1);}}>重试加载</button></div>}<div className="gi-gt-map-legend"><span>低</span>{["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce"].map((c,i)=><i key={i} style={{background:c}}/>)}<span>高</span><small>相对兴趣指数 0–100 · 灰色表示无足够数据 · 边界：geoBoundaries</small></div></div>;
 }
