@@ -3,7 +3,8 @@ import { ArrowLeft, Download, Refresh } from "@carbon/icons-react";
 import { Button, InlineLoading, InlineNotification, Tag } from "@carbon/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../app/AuthProvider";
-import { ResearchTask, ResearchTaskExecution, taskStatusLabel, taskTypeLabel } from "./types";
+import { taskStatusLabel, taskTypeLabel } from "./types";
+import type { ResearchTask, ResearchTaskExecution } from "./types";
 import "./ai-work-center.scss";
 
 type DetailResponse = { task: ResearchTask; executions: ResearchTaskExecution[] };
