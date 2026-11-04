@@ -251,13 +251,7 @@
 
 /* AI analysis configuration and execution */
 .analysis-page { padding-bottom: var(--app-space-06); }
-.analysis-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--app-space-04);
-  margin-bottom: var(--app-space-05);
-}
+.analysis-heading { margin-bottom: var(--app-space-05); }
 .analysis-heading h1 { margin: var(--app-space-02) 0; font-size: 2rem; line-height: 1.2; }
 .analysis-heading p { max-width: 52rem; margin: 0; }
 .analysis-secure,
