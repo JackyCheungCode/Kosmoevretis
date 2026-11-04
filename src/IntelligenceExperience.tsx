@@ -169,10 +169,10 @@ function loadLeafletForTrends():Promise<any>{
  const script=document.createElement("script");script.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";script.async=true;script.dataset.trendsLeaflet="true";script.onload=()=>resolve((window as any).L);script.onerror=()=>reject(new Error("Leaflet 地图组件加载失败"));document.head.appendChild(script);});
 }
 function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;keyword:string}){
- const host=useRef<HTMLDivElement>(null);const mapRef=useRef<any>(null);const [mapError,setMapError]=useState("");
+ const host=useRef<HTMLDivElement>(null);const [mapError,setMapError]=useState("");
  const rows=regions.map((x:any)=>({name:String(x.region??x.name??x.geoCode??x.geo_code??"未知地区"),code:String(x.geoCode??x.geo_code??""),value:Math.max(0,Math.min(100,Number(x.value??x.interest??x.interestValue??0)||0))})).filter((x:any)=>x.name!=="未知地区");
  const global=!geo;
- useEffect(()=>{let cancelled=false;let map:any=null;(async()=>{try{const L=await loadLeafletForTrends();if(cancelled||!host.current)return;map=L.map(host.current,{scrollWheelZoom:false,worldCopyJump:true}).setView(global?[20,0]:[25,0],global?1.4:3);mapRef.current=map;L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:9,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+ useEffect(()=>{let cancelled=false;let map:any=null;(async()=>{try{const L=await loadLeafletForTrends();if(cancelled||!host.current)return;map=L.map(host.current,{scrollWheelZoom:false,worldCopyJump:true}).setView(global?[20,0]:[25,0],global?1.4:3);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:9,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
  const palette=["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce"];
  const color=(v:number)=>palette[Math.min(palette.length-1,Math.floor(Math.max(0,Math.min(100,v))/100*palette.length))];
  let geojson:any=null;
@@ -187,12 +187,12 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  if(cancelled)return;
  const normalize=(v:string)=>v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
  const lookup=new Map<string,number>();rows.forEach((r:any)=>{if(r.code)lookup.set(normalize(r.code),r.value);lookup.set(normalize(r.name),r.value);});
- const features=(geojson.features||[]).map((feature:any)=>{const p=feature.properties||{};const code=global?(p["ISO3166-1-Alpha-2"]||p.ISO_A2||p.iso_a2):(p.shapeISO||p.shapeISO3||p.shapeID||"");const name=p.ADMIN||p.shapeName||p.name||p.NAME_1||code;let value=lookup.get(normalize(String(code)));if(value===undefined)value=lookup.get(normalize(String(name)));if(value===undefined&& !global){const suffix=rows.find((r:any)=>normalize(r.name)===normalize(String(name))||normalize(r.code).endsWith(normalize(String(code))));if(suffix)value=suffix.value;}return{...feature,properties:{...p,__trendName:name,__trendCode:code,__trendValue:value??null}};});
+ const features=(geojson.features||[]).map((feature:any)=>{const p=feature.properties||{};const code=global?(p["ISO3166-1-Alpha-2"]||p.ISO_A2||p.iso_a2):(p.shapeISO||p.shapeISO3||p.shapeID||"");const name=p.ADMIN||p.shapeName||p.name||p.NAME_1||code;let value=lookup.get(normalize(String(code)));if(value===undefined)value=lookup.get(normalize(String(name)));if(value===undefined&&!global){const featureSuffix=normalize(String(code)).split("-").pop();const suffix=rows.find((r:any)=>normalize(r.name)===normalize(String(name))||normalize(r.name).includes(normalize(String(name)))||normalize(String(name)).includes(normalize(r.name))||(featureSuffix&&normalize(r.code).split("-").pop()===featureSuffix));if(suffix)value=suffix.value;}return{...feature,properties:{...p,__trendName:name,__trendCode:code,__trendValue:value??null}};});
  const layer=L.geoJSON({type:"FeatureCollection",features},{style:(feature:any)=>{const value=feature.properties.__trendValue;return{color:"#ffffff",weight:0.8,fillColor:value===null?"#d8d8d8":color(value),fillOpacity:value===null?0.45:0.88};},onEachFeature:(feature:any,shape:any)=>{const p=feature.properties||{};const label=p.__trendValue===null?"暂无足够数据":("搜索兴趣指数："+p.__trendValue);shape.bindTooltip("<strong>"+String(p.__trendName)+"</strong><br/>"+label,{sticky:true});}}).addTo(map);
  if(!global&&layer.getBounds().isValid())map.fitBounds(layer.getBounds(),{padding:[12,12]});else if(layer.getBounds().isValid())map.fitBounds(layer.getBounds(),{padding:[8,8]});
- mapRef.current=map;window.setTimeout(()=>map.invalidateSize(),120);
+ window.setTimeout(()=>map.invalidateSize(),120);
  }catch(e){if(!cancelled)setMapError(e instanceof Error?e.message:"地区地图加载失败");}})();
- return()=>{cancelled=true;if(map){map.remove();map=null;}mapRef.current=null;};},[geo,global,keyword,rows.map((x:any)=>x.code+":"+x.value+":"+x.name).join("|")]);
+ return()=>{cancelled=true;if(map){map.remove();map=null;}};},[geo,global,keyword,rows.map((x:any)=>x.code+":"+x.value+":"+x.name).join("|")]);
  return <div className="gi-gt-map-shell"><div ref={host} className="gi-gt-map" role="img" aria-label={global?"Google Trends 国家搜索兴趣地图":keyword+" 省州搜索兴趣地图"}/>{mapError&&<div className="gi-map-error">{mapError}</div>}<div className="gi-gt-map-legend"><span>低</span>{["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce"].map((c,i)=><i key={i} style={{background:c}}/>)}<span>高</span><small>相对兴趣指数 0–100</small></div></div>;
 }
 function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTab}:{results:any[];meta:any|null;history:any[];loading:boolean;onSelectHistory:(id:string)=>void;activeTab:string}) {
