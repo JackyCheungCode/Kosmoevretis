@@ -12,10 +12,6 @@
 }
 .awc-header,
 .awc-detail-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--app-space-05);
   margin-bottom: var(--app-space-05);
   padding-bottom: var(--app-space-05);
   border-bottom: 1px solid var(--app-color-border-subtle);
