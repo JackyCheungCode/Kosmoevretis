@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Checkbox, InlineNotification, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Tabs, Tab, Tag, TextInput, Toggle } from "@carbon/react";
+import { Button, Checkbox, InlineNotification, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Tabs, Tab, TabList, TabPanels, TabPanel, Tag, TextInput, Toggle } from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
 import "./design-system-preview.css";
 
@@ -58,7 +58,7 @@ export default function DesignSystemPreview() {
     </section>
     <section className="ds-section">
       <div className="ds-section-heading"><div><span className="ds-overline">06 / NAVIGATION</span><h3>页内导航</h3></div><p>Tabs 用于同一工作区内的同级内容切换，不代替全局导航。</p></div>
-      <div className="ds-tabs-demo"><Tabs><Tab id="ds-tab-overview" label="情报总览"><p>汇总关键指标、市场变化与重要信号。</p></Tab><Tab id="ds-tab-trends" label="搜索趋势"><p>展示关键词热度、地区分布与时间变化。</p></Tab><Tab id="ds-tab-social" label="社媒趋势"><p>展示公开内容、互动信号和讨论主题。</p></Tab></Tabs></div>
+      <div className="ds-tabs-demo"><Tabs defaultSelectedIndex={0}><TabList aria-label="情报内容导航"><Tab>情报总览</Tab><Tab>搜索趋势</Tab><Tab>社媒趋势</Tab></TabList><TabPanels><TabPanel><p>汇总关键指标、市场变化与重要信号。</p></TabPanel><TabPanel><p>展示关键词热度、地区分布与时间变化。</p></TabPanel><TabPanel><p>展示公开内容、互动信号和讨论主题。</p></TabPanel></TabPanels></Tabs></div>
     </section>
     <section className="ds-section">
       <div className="ds-section-heading"><div><span className="ds-overline">07 / DATA DISPLAY</span><h3>状态与数据表格</h3></div><p>区分平台观测、第三方估算与 AI 推断，不把不同证据类型混为一谈。</p></div>
