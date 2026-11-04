@@ -4,7 +4,6 @@ import "./intelligence.css";
 import { supabase } from "./lib/supabase";
 
 type Source = { id:string; slug:string; channel:string; name:string; logo_url:string; website_url:string; description:string; market_codes:string[]; status:string; sort_order:number };
-type Connector = { id:string; source_id:string; name:string; connector_type:string; provider:string; actor_id:string|null; status:string; notes:string; auth_required:boolean };
 type Capability = { id:string; source_id:string; capability_key:string; label:string; description:string; evidence_type:string; availability_status:string };
 type DemoData = {
   demo_notice:string; product:{name:string;category:string;brand:string};
@@ -22,7 +21,6 @@ type DemoData = {
 
 const statusLabel:Record<string,string>={ready:"已验证",needs_auth:"需授权",limited:"受限",planned:"待接入",error:"异常"};
 const statusTone:Record<string,string>={ready:"ready",needs_auth:"auth",limited:"limited",planned:"planned",error:"error"};
-const channelList=["全部渠道","电商平台","搜索引擎","社交媒体","视频平台","社区论坛","用户评价","新闻媒体","行业媒体","行业数据"];
 const defaultSourceSlugs=["amazon","google-trends","tiktok","youtube","reddit"];
 
 function LineChart({data}:{data:DemoData["trend"]}) {
