@@ -7,7 +7,7 @@
 
 .kosmo-header.cds--header {
   height: var(--kosmo-shell-header-height);
-  background: var(--cds-layer-01);
+  background: var(--cds-background);
   color: var(--cds-text-primary);
   border-bottom: 1px solid var(--cds-border-subtle);
   z-index: 9000;
@@ -224,3 +224,8 @@
 .kosmo-account-signout:hover{background:var(--cds-layer-hover-01,#e8e8e8)}
 .kosmo-account-signout:focus-visible{outline:2px solid var(--cds-focus,#0f62fe);outline-offset:-2px}
 @media(max-width:671px){.kosmo-account-menu{margin-right:.5rem}}
+
+.kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-6)); min-width: 0; }
+.kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
+@media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
+@media (max-width: 671px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }
