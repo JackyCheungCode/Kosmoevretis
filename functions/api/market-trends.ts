@@ -42,8 +42,8 @@ async function supabasePatch(base: string, headers: Record<string, string>, id: 
   });
   if (!response.ok) throw new Error("无法更新 Supabase 研究任务：" + (await response.text()).slice(0, 400));
 }
-async function supabasePatchExecution(base: string, headers: Record<string, string>, taskId: string, patch: Record<string, unknown>) {
-  const response = await fetch(base + "/rest/v1/research_task_executions?task_id=eq." + encodeURIComponent(taskId) + "&attempt_number=eq.1", {
+async function supabasePatchExecution(base: string, headers: Record<string, string>, taskId: string, patch: Record<string, unknown>, attemptNumber = 1) {
+  const response = await fetch(base + "/rest/v1/research_task_executions?task_id=eq." + encodeURIComponent(taskId) + "&attempt_number=eq." + attemptNumber, {
     method: "PATCH", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify(patch)
   });
   if (!response.ok) throw new Error("无法更新研究执行记录：" + (await response.text()).slice(0, 400));
