@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
-import { Activity, Ai, Building, Clipboard, DataBase, Earth, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
+import { Activity, Ai, Building, Document, DataBase, Earth, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
 import SettingsBackend from "./SettingsBackend";
 import BrandLogo from "./BrandLogo";
 
