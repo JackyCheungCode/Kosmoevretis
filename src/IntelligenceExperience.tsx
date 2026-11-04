@@ -132,16 +132,16 @@ export function AIAnalysisPanel({data,accessToken,context,activeTab,liveResults=
     <label className="gi-ai-field">研究问题<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></label>
    </section>
    <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</button>
-   <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。当前演示数据会在分析结论中明确标注。</small>
+   <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。真实采集数据与模拟数据会在分析结论中区分标注。</small>
   </div>
-  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>{liveResults.length?"本次包含真实 Google Trends 观察数据；AI 对需求和机会的解释属于推断，不能替代真实销量或已验证购买需求。":"当前样本可能包含模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。"}</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
+  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":liveResults.length?"真实数据待分析":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>{liveResults.length?"本次包含真实 Google Trends 观察数据；AI 对需求和机会的解释属于推断，不能替代真实销量或已验证购买需求。":"当前样本可能包含模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。"}</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
  </section>;
 }
 
 function TrendLineChart({series,keyword}:{series:any[];keyword:string}) {
  const points=series.map((row:any,i:number)=>{const raw=row?.[keyword]??row?.value??row?.interest??row?.interestValue??row?.values?.[0]?.value??0;const value=Number(raw);const date=row?.date??row?.formattedTime??row?.time??(row?.timestamp?new Date(Number(row.timestamp)*1000).toISOString().slice(0,10):String(i+1));return{date:String(date),value:Number.isFinite(value)?Math.max(0,Math.min(100,value)):0};}).filter((p:any)=>p.date);
  if(!points.length)return <div className="gi-empty-state">Actor 未返回可绘制的时间序列。请展开原始数据检查返回字段。</div>;
- const w=760,h=280,left=48,right=18,top=18,bottom=48,max=100;
+ const w=760,h=280,left=48,right=18,top=18,bottom=48;
  const x=(i:number)=>left+(i/Math.max(1,points.length-1))*(w-left-right),y=(v:number)=>top+(1-v/max)*(h-top-bottom);
  const path=points.map((p:any,i:number)=>(i?"L":"M")+x(i)+","+y(p.value)).join(" ");
  const labels=points.filter((_:any,i:number)=>i===0||i===points.length-1||i%Math.max(1,Math.ceil(points.length/5))===0);
@@ -151,7 +151,7 @@ function TrendLineChart({series,keyword}:{series:any[];keyword:string}) {
  {labels.map((p:any)=><text key={p.date} x={x(points.indexOf(p))} y={h-12} textAnchor="middle" className="gi-axis-label">{p.date.slice(0,10)}</text>)}
  </svg><div className="gi-chart-footnote">Google Trends 相对兴趣指数 · 0–100</div></div>;
 }
-function RankedEvidence({items,kind="query"}:{items:any[];kind?:string}) {
+function RankedEvidence({items}:{items:any[]}) {
  const rows=items.slice(0,20).map((item:any)=>({label:String(item.label??item.query??item.topic??item.title??item.keyword??item.value??"未命名"),value:Number(item.value??item.extracted_value??item.score??0),growth:item.formattedValue??item.growth??item.formatted_value??""}));
  const max=Math.max(1,...rows.map(x=>x.value));
  if(!rows.length)return <div className="gi-empty-state">当前 Actor 结果没有返回此类数据。</div>;
@@ -171,7 +171,6 @@ function LiveGoogleTrends({results,meta,history,loading,onSelectHistory,activeTa
  const relatedItems=Array.isArray(related.rising)?related.rising:Array.isArray(related.top)?related.top:[];
  const topicItems=Array.isArray(topics.rising)?topics.rising:Array.isArray(topics.top)?topics.top:[];
  const regionRows=regions.map((x:any)=>({label:String(x.region??x.geoCode??x.geo_code??x.name??"未知地区"),value:Number(x.value??x.interest??0)})).sort((a:any,b:any)=>b.value-a.value);
- const allTerms=results.flatMap((x:any)=>{const r=x.related_queries||{};return (Array.isArray(r.rising)?r.rising:Array.isArray(r.top)?r.top:[]).map((q:any)=>({query:q.query??q.keyword??"",value:q.value??q.extracted_value??0}));});
  return <section className="gi-live-results">
   <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>Google Trends 情报数据</h2><p>一次采集的原始结果按情报维度归类复用；所有指数均为相对兴趣信号，不代表销量或绝对搜索量。</p></div><span className={"gi-status "+(loading?"limited":meta?.status==="failed"?"error":"ready")}>{loading?"正在采集…":meta?.status==="failed"?"采集失败":meta?"真实数据":"等待采集"}</span></div>
   {loading&&<div className="gi-warning">正在调用 Google Trends Actor，完成后自动保存任务与原始结果。</div>}
