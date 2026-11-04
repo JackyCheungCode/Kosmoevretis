@@ -1,7 +1,12 @@
 import { Children, isValidElement, useEffect, useMemo, useRef, useState } from "react";
 
 type Option = { value:string; label:string; disabled?:boolean };
-type Props = { value:string; onChange:(value:string)=>void; children?:React.ReactNode; placeholder?:string; className?:string; ariaLabel?:string };\n\nfunction OptionLabel({label}:{label:string}) {\n  const match=label.match(/^(\\p{Regional_Indicator}{2})\\s+(.*)$/u);\n  return match?<span className="carbon-select-flag-label"><span className="carbon-select-flag-circle">{match[1]}</span><span>{match[2]}</span></span>:<>{label}</>;\n}
+type Props = { value:string; onChange:(value:string)=>void; children?:React.ReactNode; placeholder?:string; className?:string; ariaLabel?:string };
+
+function OptionLabel({label}:{label:string}) {
+  const match=label.match(/^(\p{Regional_Indicator}{2})\s+(.*)$/u);
+  return match?<span className="carbon-select-flag-label"><span className="carbon-select-flag-circle">{match[1]}</span><span>{match[2]}</span></span>:<>{label}</>;
+}
 
 export default function CarbonSelect({value,onChange,children,placeholder="请选择",className="" ,ariaLabel}:Props) {
   const [open,setOpen]=useState(false);
