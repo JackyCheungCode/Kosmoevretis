@@ -31,13 +31,7 @@ export function EnterpriseWorkflowPage() {
   const companyName = profile?.display_name || "当前企业";
 
   return <div className="enterprise-page enterprise-workflow-page">
-    <header className="ep-page-heading">
-      <div>
-        <div className="ep-eyebrow"><i/> BUSINESS PROFILE / AI INTELLIGENCE</div>
-        <h1>企业档案与AI分析</h1>
-        <p>先建立完整企业画像，再配置 AI、执行分析，最后查看可追溯的分析结果。</p>
-      </div>
-    </header>
+    <PageHeader className="ep-page-heading" eyebrow={<div className="ep-eyebrow"><i/> BUSINESS PROFILE / AI INTELLIGENCE</div>} title="企业档案与AI分析" description="先建立完整企业画像，再配置 AI、执行分析，最后查看可追溯的分析结果。" />
     <div className="ep-carbon-stepper" aria-label="企业档案与 AI 分析四阶段流程">
       <ProgressIndicator currentIndex={currentStep} spaceEqually>
         {steps.map((step, index) => <ProgressStep key={step.label} label={step.label} description={step.description} secondaryLabel={index === currentStep ? "当前步骤" : index < currentStep ? "已完成" : "待处理"} />)}
