@@ -19,6 +19,7 @@ import {
   Settings,
   LogoFacebook,
   LogoLinkedin,
+  UserMultiple,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -174,19 +175,19 @@ function AppShell() {
             navItems.map(renderRailLink)
           ) : (
             <>
-              <SideNavMenu title="企业数据" defaultExpanded>
+              <SideNavMenu title="企业数据" defaultExpanded renderIcon={Product}>
                 {renderMenuItem(navItems[0])}
               </SideNavMenu>
-              <SideNavMenu title="全球情报中心" defaultExpanded>
+              <SideNavMenu title="全球情报中心" defaultExpanded renderIcon={Dashboard}>
                 {renderMenuItem(navItems[1])}
                 {renderMenuItem(navItems[2])}
               </SideNavMenu>
-              <SideNavMenu title="潜在客户" defaultExpanded>
+              <SideNavMenu title="潜在客户" defaultExpanded renderIcon={UserMultiple}>
                 {renderMenuItem(navItems[3])}
                 {renderMenuItem(navItems[4])}
                 {renderMenuItem(navItems[5])}
               </SideNavMenu>
-              <SideNavMenu title="系统设置" defaultExpanded>
+              <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
                 {renderMenuItem(navItems[6])}
               </SideNavMenu>
             </>
