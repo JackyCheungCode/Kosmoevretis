@@ -8,13 +8,14 @@ const navigation=[
  {section:"工作台",items:[{label:"总览",to:"/dashboard",icon:Home}]},
  {section:"企业智能",items:[{label:"企业档案与 AI 分析",to:"/enterprise-workflow",icon:Activity}]},
  {section:"市场情报",items:[{label:"市场趋势情报",to:"/market-trends",icon:ChartLine},{label:"关键词研究",to:"/keyword-research",icon:Search}]},
+ {section:"AI 工作中心",items:[{label:"全部任务",to:"/ai-work-center",icon:Activity}]},
 ];
 export function AppShell({children}:{children:ReactNode}){
  const location=useLocation();const{workspace}=useAuth();const[sidebarOpen,setSidebarOpen]=useState(false);
  useEffect(()=>{setSidebarOpen(false);},[location.pathname]);
  useEffect(()=>{if(!sidebarOpen)return;const f=(e:KeyboardEvent)=>{if(e.key==="Escape")setSidebarOpen(false);};window.addEventListener("keydown",f);return()=>window.removeEventListener("keydown",f);},[sidebarOpen]);
  const path=location.pathname;
- const pageLabel=path==="/dashboard"?"总览":path==="/market-trends"?"市场趋势情报":path==="/keyword-research"?"关键词研究":path.startsWith("/enterprise")||path==="/ai-analysis"||path==="/analysis-results"?"企业档案与 AI 分析":path==="/settings"?"设置":"工作空间";
+ const pageLabel=path==="/dashboard"?"总览":path==="/market-trends"?"市场趋势情报":path==="/keyword-research"?"关键词研究":path.startsWith("/ai-work-center")?"AI 工作中心":path.startsWith("/enterprise")||path==="/ai-analysis"||path==="/analysis-results"?"企业档案与 AI 分析":path==="/settings"?"设置":"工作空间";
  return <div className="app-frame">\n  <a className="skip-to-content" href="#main-content">跳转到主要内容</a>
   <header className="topbar">
    <div className="topbar-left">
