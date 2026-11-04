@@ -53,7 +53,9 @@ export default function ProductCenter() {
   const [selectedDefinitionIds,setSelectedDefinitionIds] = useState<string[]>([]);
   const [definitionForm,setDefinitionForm] = useState({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
   const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({});
-  const [variants,setVariants] = useState<Variant[]>([]);\n  const [productAttributes,setProductAttributes] = useState<ProductAttribute[]>([]);\n  const [variantAxisSelection,setVariantAxisSelection] = useState<Record<string,string>>({});
+  const [variants,setVariants] = useState<Variant[]>([]);
+  const [productAttributes,setProductAttributes] = useState<ProductAttribute[]>([]);
+  const [variantAxisSelection,setVariantAxisSelection] = useState<Record<string,string>>({});
   const [variantForm,setVariantForm] = useState({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
   const [login,setLogin] = useState({email:"",password:""});
   const [authError,setAuthError] = useState("");
