@@ -133,10 +133,6 @@ export default function SettingsBackend() {
 
   if (!sessionReady) return <InlineLoading description="正在检查管理员登录状态…" />;
   return <div className="intelligence-panel">
-    <div className="results-heading">
-      <h3>服务商 API 连接</h3>
-      <p>统一管理数据采集与情报服务商凭证。密钥通过服务端 AES-GCM 加密保存，不会返回浏览器。</p>
-    </div>
     {!signedIn ? <Tile className="library-card">
       <div className="library-card-head"><strong>组织管理员登录</strong><Tag type="gray">需要授权</Tag></div>
       <p>设置中心的凭证管理仅允许组织 Owner 或 Admin 操作。请使用已加入当前组织的管理员账号登录。</p>
