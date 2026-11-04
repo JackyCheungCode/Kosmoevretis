@@ -20,6 +20,9 @@ async function walk(directory) {
       const source = await readFile(path, "utf8");
       const relative = path.replaceAll("\\", "/").split("/src/pages/").at(-1);
       if (/<select\b/i.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.");
+      if (/\.(tsx|ts)$/.test(entry.name) && !/(Intelligence|DataList|Configuration|Analysis)PageTemplate/.test(source)) {
+        violations.push(relative + ": new pages must use an approved page template from src/design-system.");
+      }
       if (extname(entry.name) === ".css") {
         if (/(^|[;{\s])#[0-9a-f]{3,8}(?![\w-])/i.test(source)) violations.push(relative + ": hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.");
         if (/(^|[;{\s])rgba?\(/i.test(source)) violations.push(relative + ": hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.");
@@ -34,5 +37,5 @@ if (violations.length) {
   console.error("Design-system guard failed:\n" + violations.map(item => " - " + item).join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("Design-system guard passed: no page-local native selects, hard-coded colors, or global/Carbon overrides.");
+  console.log("Design-system guard passed: page templates, Carbon controls, token colors, and scoped CSS are enforced for src/pages.");
 }

@@ -32,11 +32,12 @@
 ## 4. 自动检查
 
 npm run design-system:check 扫描 src/pages：
+- 每个新页面必须使用 IntelligencePageTemplate、DataListPageTemplate、ConfigurationPageTemplate 或 AnalysisPageTemplate 之一。
 - 禁止浏览器原生 select。
 - 禁止页面 CSS 硬编码 HEX/RGB 颜色。
 - 禁止页面 CSS 覆盖全局元素和 Carbon 内部类。
 
-检查由 GitHub Actions 在构建前执行。后续迁移现有页面时，按页面逐一纳入该目录与检查范围；在迁移完成前不对存量页面进行全仓库强制拦截。
+检查由 GitHub Actions 在构建前执行。新业务页面统一放入 src/pages，以便自动门禁覆盖；尚未迁移的旧页面保持原路径，按页面逐一迁移。后续迁移现有页面时，按页面逐一纳入该目录与检查范围；在迁移完成前不对存量页面进行全仓库强制拦截。
 
 ## 5. 新页面交付门槛
 
