@@ -31,6 +31,7 @@ import SettingsPage from "./Settings";
 import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
+import PlatformDataCollection from "./pages/PlatformDataCollection";
 import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
@@ -40,7 +41,7 @@ type Viewport = "desktop" | "tablet" | "mobile";
 
 const validPaths = new Set([
   "/intelligence", "/trade-access", "/leads/facebook", "/leads/linkedin",
-  "/leads/google-maps", "/leads/instagram", "/products", "/settings/providers", "/settings/actors",
+  "/leads/google-maps", "/leads/instagram", "/platform-data/x", "/platform-data/reddit", "/platform-data/pinterest", "/platform-data/tiktok", "/platform-data/youtube", "/products", "/settings/providers", "/settings/actors",
   "/settings/channels", "/settings/runs", "/settings/ai-providers", "/settings/models",
   "/settings/routes", "/settings/prompts", "/settings/organization", "/settings/members",
   "/settings/locale", "/settings/notifications", "/settings/governance",
@@ -116,7 +117,8 @@ function AppShell() {
 
   if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
 
-  const currentLabel = path === "/products" ? "产品中心"
+  const currentLabel = path.startsWith("/platform-data/") ? "平台数据采集"
+    : path === "/products" ? "产品中心"
     : path === "/trade-access" ? "贸易与市场准入"
     : path.startsWith("/leads/") ? "潜在客户"
     : isSettings ? "设置中心"
@@ -136,6 +138,11 @@ function AppShell() {
     { id: "linkedin", label: "LinkedIn 发现", href: "/leads/linkedin", icon: LogoLinkedin, active: path === "/leads/linkedin" },
     { id: "instagram", label: "Instagram 发现", href: "/leads/instagram", icon: LogoInstagram, active: path === "/leads/instagram" },
     { id: "maps", label: "Google Maps 发现", href: "/leads/google-maps", icon: Map, active: path === "/leads/google-maps" },
+    { id: "x", label: "X 数据采集", href: "/platform-data/x", icon: DataBase, active: path === "/platform-data/x" },
+    { id: "reddit", label: "Reddit 数据采集", href: "/platform-data/reddit", icon: DataBase, active: path === "/platform-data/reddit" },
+    { id: "pinterest", label: "Pinterest 数据采集", href: "/platform-data/pinterest", icon: DataBase, active: path === "/platform-data/pinterest" },
+    { id: "tiktok", label: "TikTok 数据采集", href: "/platform-data/tiktok", icon: DataBase, active: path === "/platform-data/tiktok" },
+    { id: "youtube", label: "YouTube 数据采集", href: "/platform-data/youtube", icon: DataBase, active: path === "/platform-data/youtube" },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
@@ -245,7 +252,7 @@ function AppShell() {
                 {renderMenuItem(navItems[1])}
                 {renderMenuItem(navItems[2])}
               </SideNavMenu>
-              <SideNavMenu title="潜在客户" defaultExpanded renderIcon={UserMultiple}>
+              <SideNavMenu title="平台数据采集" defaultExpanded renderIcon={DataBase}>\n                {renderMenuItem(navItems[8])}\n                {renderMenuItem(navItems[9])}\n                {renderMenuItem(navItems[10])}\n                {renderMenuItem(navItems[11])}\n                {renderMenuItem(navItems[12])}\n              </SideNavMenu>\n              <SideNavMenu title="潜在客户" defaultExpanded renderIcon={UserMultiple}>
                 {renderMenuItem(navItems[3])}
                 {renderMenuItem(navItems[4])}
                 {renderMenuItem(navItems[5])}
@@ -280,7 +287,7 @@ function AppShell() {
         {path === "/leads/facebook" && <FacebookDiscovery />}
         {path === "/leads/linkedin" && <LinkedInDiscovery />}
         {path === "/leads/instagram" && <InstagramDiscovery />}
-        {path === "/leads/google-maps" && <GoogleMapsDiscovery />}
+        {path === "/leads/google-maps" && <GoogleMapsDiscovery />}\n        {path === "/platform-data/x" && <PlatformDataCollection platform="x" />}\n        {path === "/platform-data/reddit" && <PlatformDataCollection platform="reddit" />}\n        {path === "/platform-data/pinterest" && <PlatformDataCollection platform="pinterest" />}\n        {path === "/platform-data/tiktok" && <PlatformDataCollection platform="tiktok" />}\n        {path === "/platform-data/youtube" && <PlatformDataCollection platform="youtube" />}
         {isSettings && <SettingsPage />}
       </main>
     </div>
