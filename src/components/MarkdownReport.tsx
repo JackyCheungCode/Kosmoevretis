@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 
 type MarkdownReportProps = { content: string };
 
@@ -21,7 +21,7 @@ function inlineMarkdown(text: string) {
 
 export default function MarkdownReport({ content }: MarkdownReportProps) {
   const lines = String(content || "").replace(/\r\n?/g, "\n").split("\n");
-  const blocks: React.ReactNode[] = [];
+  const blocks: ReactNode[] = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
