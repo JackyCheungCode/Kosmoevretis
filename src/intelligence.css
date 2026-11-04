@@ -351,3 +351,10 @@
 .gi-history-top .cds--accordion__heading{width:100%;display:flex;justify-content:flex-end}
 .gi-history-top .cds--accordion__title{font-size:.8rem}
 .gi-history-top .gi-history-description{padding-top:.25rem}
+
+
+/* Carbon v11 tabs for the global intelligence result workspace. */
+.global-intelligence .intelligence-tabs{min-width:0;margin-bottom:0}
+.global-intelligence .intelligence-tabs .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
+.global-intelligence .intelligence-tabs .cds--tab{flex:0 0 auto;min-width:max-content;white-space:nowrap}
+.global-intelligence .intelligence-tabs .cds--tab-content{min-width:0;padding-top:.5rem}
