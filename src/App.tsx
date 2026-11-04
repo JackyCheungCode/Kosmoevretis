@@ -10,7 +10,6 @@ import {
   SideNavMenu,
   SideNavMenuItem,
   SkipToContent,
-  Button,
 } from "@carbon/react";
 import {
   Currency,
@@ -21,7 +20,6 @@ import {
   LogoFacebook,
   LogoLinkedin,
   UserMultiple,
-  Logout,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -55,6 +53,8 @@ function AppShell() {
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = React.useState(false);
+  const accountMenuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 671px)");
@@ -80,6 +80,22 @@ function AppShell() {
     setMobileOpen(false);
     document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
   }, []);
+
+  React.useEffect(() => {
+    if (!accountMenuOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) setAccountMenuOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setAccountMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [accountMenuOpen]);
 
   React.useEffect(() => {
     if (viewport !== "mobile" || !mobileOpen) return;
@@ -166,11 +182,42 @@ function AppShell() {
           className="kosmo-header-menu-button"
         />
         <HeaderName href="/intelligence" onClick={(event) => handleNavigate(event, "/intelligence")}>
-          KOSMOEVRETIS
+          Kosmoevretis
         </HeaderName>
         <span className="kosmo-header-context">GLOBAL INTELLIGENCE PLATFORM</span>
-        <span className="kosmo-header-user">{session?.user.email}</span>
-        <Button kind="ghost" size="sm" renderIcon={Logout} onClick={() => { void signOut().catch((error) => console.error("Sign out failed:", error)); }}>退出登录</Button>
+        <div className="kosmo-account-menu" ref={accountMenuRef}>
+          <button
+            type="button"
+            className="kosmo-account-avatar"
+            aria-label="打开账户菜单"
+            aria-haspopup="menu"
+            aria-expanded={accountMenuOpen}
+            onClick={() => setAccountMenuOpen((open) => !open)}
+          >
+            {session?.user.user_metadata?.avatar_url || session?.user.user_metadata?.picture ? (
+              <img src={String(session.user.user_metadata.avatar_url || session.user.user_metadata.picture)} alt="" />
+            ) : (
+              <span>{(session?.user.email?.trim().charAt(0) || "U").toUpperCase()}</span>
+            )}
+          </button>
+          {accountMenuOpen && (
+            <div className="kosmo-account-dropdown" role="menu" aria-label="账户菜单">
+              <div className="kosmo-account-email">{session?.user.email}</div>
+              <button
+                type="button"
+                role="menuitem"
+                className="kosmo-account-signout"
+                onClick={() => {
+                  setAccountMenuOpen(false);
+                  void signOut().catch((error) => console.error("Sign out failed:", error));
+                }}
+              >
+                <Logout size={16} aria-hidden="true" />
+                <span>退出系统</span>
+              </button>
+            </div>
+          )}
+        </div>
       </Header>
 
       <SideNav
