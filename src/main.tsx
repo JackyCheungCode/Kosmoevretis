@@ -3,5 +3,6 @@ import ReactDOM from "react-dom/client";
 import "@carbon/styles/css/styles.css";
 import "./design-tokens.css";
 import "./styles.css";
+import "./app-shell.css";
 import App from "./App";
 ReactDOM.createRoot(document.getElementById("root")!).render(<React.StrictMode><App /></React.StrictMode>);
