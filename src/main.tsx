@@ -4,6 +4,7 @@ import "./styles/carbon.scss";
 import "./styles/design-tokens.scss";
 import "./styles/global.scss";
 import "./styles/page-layout.scss";
+import "./styles/component-primitives.scss";
 import { App } from "./app/App";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
