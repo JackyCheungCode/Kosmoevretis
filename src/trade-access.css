@@ -95,3 +95,75 @@
 .trade-page .trade-input-panel {
   background: var(--cds-layer-01);
 }
+
+
+/* Trade page hierarchy: one Carbon surface treatment and a shared numbered heading rhythm */
+.trade-page .trade-page-source,
+.trade-page .trade-access-intro,
+.trade-page .trade-context,
+.trade-page .trade-compliance-panel,
+.trade-page .trade-input-panel,
+.trade-page .trade-empty,
+.trade-page .trade-result-section,
+.trade-page .trade-compliance-result {
+  background: var(--cds-layer-01);
+}
+.trade-page .trade-page-source,
+.trade-page .trade-access-intro {
+  padding: 1.25rem;
+}
+.trade-page-source-head,
+.trade-access-title {
+  min-width: 0;
+}
+.trade-page-source-head .eyebrow,
+.trade-access-title .eyebrow {
+  display: block;
+  margin: 0 0 .35rem;
+  color: var(--cds-text-secondary);
+  font-size: .66rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1.4;
+}
+.trade-page-source-head h2,
+.trade-access-title h2 {
+  margin: 0 0 .35rem;
+  font-size: 1.18rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.trade-access-intro {
+  align-items: flex-start;
+}
+.trade-access-title p {
+  margin: 0;
+  color: var(--cds-text-secondary);
+  font-size: .7rem;
+  line-height: 1.55;
+}
+.trade-access .trade-tabs {
+  background: var(--cds-layer-01);
+}
+.trade-access .trade-tabs .cds--tab-content {
+  padding: .9rem 1rem 1rem;
+}
+.trade-access .trade-tabs .cds--tab-panel {
+  min-height: 7rem;
+}
+.trade-empty {
+  min-height: 5rem;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  line-height: 1.6;
+}
+@media(max-width:760px) {
+  .trade-page .trade-page-source,
+  .trade-page .trade-access-intro {
+    padding: 1rem;
+  }
+  .trade-access-intro {
+    align-items: flex-start;
+  }
+}
