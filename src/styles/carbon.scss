@@ -32,3 +32,8 @@
 @use "@carbon/styles/scss/components/tile";
 @use "@carbon/styles/scss/components/data-table";
 @use "@carbon/styles/scss/components/form";
+
+// Emit the Gray 10 semantic theme as CSS custom properties for the whole app.
+:root {
+  @include theme.theme(themes.$g10);
+}
