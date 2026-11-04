@@ -74,12 +74,12 @@ export default function InstagramDiscovery() {
   <div className="ig-form-grid"><div className="ig-form-source"><TextArea id="ig-sources" labelText={current.input} placeholder={current.placeholder} value={sources} onChange={e=>setSources(e.target.value)} rows={4}/><span className="ig-helper">{sourceList.length} 个输入 · 每行一个；账号可使用用户名或完整 URL</span></div>
    {mode==="hashtags"&&<div><TextArea id="ig-keywords" labelText="Hashtag / 主题词" placeholder="#wirelessaudio\n#smarthome\n#gaming" value={keywords} onChange={e=>setKeywords(e.target.value)} rows={4}/><span className="ig-helper">通过标签发现相关公开内容。</span></div>}
    <div className="ig-control"><NumberInput id="ig-limit" label="最多返回结果" min={1} max={200} value={limit} onChange={(_e,s)=>setLimit(Number(s.value)||30)}/><span className="ig-helper">每次任务最多 200 条，实际数量取决于公开数据及平台限制。</span></div>
-   {["posts","reels","hashtags","brand"].includes(mode)&&<div className="ig-control"><TextInput id="ig-newer" labelText="仅采集此时间范围内的内容" value={newerThan} onChange={e=>setNewerThan(e.target.value)} placeholder="例如：7 days / 2026-10-01"/><span className="ig-helper">支持相对时间或日期，支持相对时间或日期。</span></div>}
+   {["posts","reels","hashtags","brand"].includes(mode)&&<div className="ig-control"><TextInput id="ig-newer" labelText="仅采集此时间范围内的内容" value={newerThan} onChange={e=>setNewerThan(e.target.value)} placeholder="例如：7 days / 2026-10-01"/><span className="ig-helper">支持相对时间或日期。</span></div>}
   </div>
   <div className="ig-submit-row"><div><span>任务仅在你主动启动时执行，可能产生数据服务费用。</span></div><Button kind="primary" onClick={run} disabled={loading||!org}>{loading?"正在执行…":"开始采集"}</Button></div>
   {error&&<ErrorState description={error} />}{notice&&<InlineNotification kind="success" lowContrast title="任务完成" subtitle={notice} hideCloseButton/>}
  </PageSection>}>
- <PageSection title="情报结果" description="按内容类型查看结果，或导出完整原始数据。" actions={<div className="ig-result-actions"><Tag type="blue">{rows.length.toLocaleString()} 条记录</Tag><Button kind="ghost" size="sm" onClick={loadHistory} disabled={historyLoading}>{historyLoading?"刷新中…":"刷新历史"}</Button></div>}>
+ <PageSection title="采集结果" description="按内容类型查看结果，或导出完整原始数据。" actions={<div className="ig-result-actions"><Tag type="blue">{rows.length.toLocaleString()} 条记录</Tag><Button kind="ghost" size="sm" onClick={loadHistory} disabled={historyLoading}>{historyLoading?"刷新中…":"刷新历史"}</Button></div>}>
   <div className="ig-history-bar"><Dropdown id="ig-history" titleText="历史任务" label="选择历史任务" items={history} itemToString={item=>item?item.title+" · "+item.result_count+" 条 · "+new Date(item.created_at).toLocaleString():""} selectedItem={history.find(x=>x.id===selectedHistory)||null} onChange={({selectedItem})=>{if(selectedItem)void openHistory(selectedItem.id);}}/><Search labelText="筛选当前结果" placeholder="搜索账号、文案、标签或字段" value={filter} onChange={e=>setFilter(e.target.value)}/></div>
   {loading&&<LoadingState description="正在采集并整理公开数据…"/>}
   {resultTabs}
