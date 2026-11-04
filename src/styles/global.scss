@@ -1,17 +1,6 @@
 
 
-/* Kosmoevretis v0.3 — workspace experience foundation */
-.brand{display:flex;align-items:center;gap:10px;color:#f4f4f4;text-decoration:none;font-size:16px;letter-spacing:0}
-.brand-symbol{width:28px;height:28px;display:grid;place-items:center;background:#0f62fe;color:#fff;font-size:14px;font-weight:600}
-.nav-group{margin-bottom:22px}
-.nav-group .nav-caption{padding-bottom:9px;font-size:11px;letter-spacing:.2px;color:#6f6f6f}
-.nav-item{min-height:42px;font-size:14px;gap:12px}
-.nav-item span{line-height:1.35}
-.sidebar{padding:20px 14px}
-.workspace{padding-bottom:18px;margin-bottom:20px}
-.sidebar-version{font-size:11px}
-.breadcrumb{font-size:12px;letter-spacing:0}
-.breadcrumb span:first-child{color:#6f6f6f}
+/* Page-specific legacy styles remain isolated below; shared shell rules are defined once later. */
 .dashboard-v2{max-width:1440px;padding-bottom:36px}
 .dashboard-hero{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(220px,.65fr);gap:28px;align-items:stretch;padding:42px 0 34px;border-bottom:1px solid #c6c6c6}
 .dashboard-hero-copy{min-width:0}
@@ -440,122 +429,61 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .nav-item, .sidebar { transition: none; }
 }
-/* --------------------------------------------------------------------------
-   Carbon layer-first application shell
-   Structural regions are separated by surface tone and spacing first.
-   Borders remain only where they communicate a real boundary or state.
-   -------------------------------------------------------------------------- */
-.app-shell {
-  min-height: 100vh;
-  color: var(--app-color-text-primary);
-  background: var(--app-color-background);
-}
-
-.app-shell__header {
-  height: var(--app-header-height);
-  background: #161616;
-  border: 0;
-  border-bottom: 1px solid #393939;
-}
-
-.app-shell__sidebar {
-  width: var(--app-sidebar-width);
-  padding: var(--app-space-05) var(--app-space-03);
-  background: var(--app-color-layer-01);
-  border: 0;
-  color: var(--app-color-text-primary);
-}
-
-.app-shell__sidebar .workspace {
-  padding: 0 var(--app-space-1) var(--app-space-04);
-  margin: 0 0 var(--app-space-05);
-  border: 0;
-}
-
-.app-shell__sidebar .workspace-mark {
-  background: var(--app-color-layer-03);
-}
-
-.app-shell__sidebar .nav-group {
-  margin-bottom: var(--app-space-05);
-}
-
-.app-shell__sidebar .nav-item {
-  min-height: 40px;
-  border: 0;
-  border-left: 3px solid transparent;
-  border-radius: var(--app-radius-none);
-  transition: background-color var(--app-motion-fast) ease, color var(--app-motion-fast) ease;
-}
-
-.app-shell__sidebar .nav-item:hover {
-  background: var(--app-color-layer-hover-01);
-}
-
-.app-shell__sidebar .nav-item.active {
-  background: var(--app-color-layer-02);
-  border-left: 3px solid var(--app-color-interactive);
-}
-
-.app-shell__sidebar .sidebar-version {
-  border: 0;
-}
-
-.app-shell__main {
-  min-height: 100vh;
-  margin-left: var(--app-sidebar-width);
-  padding: calc(var(--app-header-height) + var(--app-space-05)) var(--app-space-06) var(--app-space-07);
-  background: var(--app-color-background);
-}
-
+/* AppShell layout container */
+.app-shell { min-height: 100vh; background: var(--app-color-background); }
 .app-shell__content {
   width: 100%;
   max-width: var(--app-content-max-width);
   min-width: 0;
 }
 
-.app-shell .breadcrumb {
-  color: var(--app-color-text-helper);
+@media (min-width: 1312px) {
+  .main { padding-right: var(--app-space-06); padding-left: var(--app-space-06); }
 }
-
-.app-shell .breadcrumb b {
-  color: var(--app-color-text-primary);
-}
-
-@media (max-width: 900px) {
-  .app-shell__sidebar {
-    width: 232px;
-  }
-
-  .app-shell__main {
+@media (max-width: 1055px) {
+  .sidebar { width: 232px; }
+  .main {
     margin-left: 232px;
     padding-right: var(--app-space-05);
     padding-left: var(--app-space-05);
   }
 }
-
-@media (max-width: 720px) {
-  .app-shell__sidebar {
-    width: min(280px, 86vw);
-    background: var(--app-color-layer-01);
+@media (max-width: 671px) {
+  :root { --app-sidebar-width: 280px; }
+  .topbar { padding: 0 var(--app-space-03); }
+  .menu-toggle { display: inline-flex; }
+  .topbar-left, .top-actions { gap: var(--app-space-02); }
+  .brand { font-size: 15px; }
+  .workspace-indicator { max-width: 112px; font-size: 11px; }
+  .profile-btn { padding: 0 var(--app-space-1); }
+  .profile-btn > span:nth-child(2) { display: none; }
+  .sidebar {
+    z-index: 1200;
+    width: min(var(--app-sidebar-width), 86vw);
+    transform: translateX(-102%);
+    transition: transform var(--app-motion-moderate) ease;
   }
-
-  .app-shell__main {
+  .sidebar.sidebar-open { transform: translateX(0); }
+  .sidebar-backdrop {
+    position: fixed;
+    z-index: 1100;
+    inset: var(--app-header-height) 0 0;
+    display: block;
+    border: 0;
+    background: #16161666;
+  }
+  .main {
     margin-left: 0;
     padding: calc(var(--app-header-height) + var(--app-space-04)) var(--app-space-04) var(--app-space-06);
   }
-
-  .app-shell__sidebar.sidebar-open {
-    box-shadow: none;
+  .breadcrumb { min-height: 28px; margin-bottom: var(--app-space-02); }
+  .auth-page {
+    align-items: flex-start;
+    padding: clamp(36px, 12vh, 100px) var(--app-space-04) var(--app-space-05);
   }
-
-  .app-shell__content {
-    max-width: 100%;
-  }
+  .auth-card { padding: var(--app-space-06) var(--app-space-05); gap: var(--app-space-04); }
+  .auth-card h1 { font-size: 27px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .app-shell__sidebar .nav-item {
-    transition: none;
-  }
+  .nav-item, .sidebar { transition: none; }
 }
