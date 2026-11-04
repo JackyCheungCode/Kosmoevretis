@@ -33,11 +33,11 @@ const fields:Record<Kind,{key:string;label:string}[]> = {
  enrich:[{key:"entity_type",label:"对象类型"},{key:"full_name",label:"姓名 / 名称"},{key:"headline",label:"职位 / 简介"},{key:"company_name",label:"企业"},{key:"source_url",label:"来源链接"},{key:"scraped_at",label:"采集时间"}],
 };
 const aliases:Record<string,string[]> = {
- full_name:["full_name","name","firstName"],headline:["headline","job_title","title","description"],company_name:["company_name","companyName","currentCompany"],location:["location","li_profile_country","company_location"],
+ full_name:["full_name","name","firstName"],headline:["headline","job_title","title","description"],company_name:["company_name","companyName","currentCompany","linkedin_company_name"],location:["location","li_profile_country","company_location"],
  li_number_followers:["li_number_followers","followers","followerCount"],li_profile_url:["li_profile_url","profileUrl","url"],name:["name","company_name","companyName","title"],
- industry:["industry","industries"],employee_count:["employee_count","employeeCount","staffCount","company_size"],website:["website","company_website","websiteUrl"],linkedin_url:["linkedin_url","li_company_url","companyUrl","url"],
- text:["text","content","post_text","commentary"],author_name:["author_name","authorName","full_name"],posted_at:["posted_at","postedAt","date","publishedAt"],likes:["likes","likeCount","numLikes"],comments_count:["comments_count","commentsCount","numComments"],url:["url","linkedin_url","post_url","job_url","source_url"],
- title:["title","job_title"],employment_type:["employment_type","employmentType"],entity_type:["entity_type","type"],source_url:["source_url","url"],scraped_at:["scraped_at","scrapedAt"]
+ industry:["industry","industries"],employee_count:["employee_count","employeeCount","staffCount","company_size"],website:["website","company_website","websiteUrl"],linkedin_url:["linkedin_url","li_company_url","company_url","companyUrl","url"],
+ text:["text","content","post_text","postText","commentary"],author_name:["author_name","authorName","full_name"],posted_at:["posted_at","postedAt","date_posted","date","publishedAt"],likes:["likes","likeCount","numLikes"],comments_count:["comments_count","commentsCount","numComments"],url:["url","linkedin_url","post_url","postUrl","job_url","linkedin_job_url","source_url"],
+ title:["title","job_title","linkedin_job_title"],employment_type:["employment_type","employmentType","linkedin_employment_type"],entity_type:["entity_type","type"],source_url:["source_url","url"],scraped_at:["scraped_at","scrapedAt"]
 };
 const val=(row:Row,key:string)=>{for(const k of aliases[key]||[key])if(row?.[k]!==undefined&&row[k]!==null&&row[k]!=="")return row[k];return null;};
 const display=(v:any)=>v==null?"—":typeof v==="object"?JSON.stringify(v):String(v);
@@ -69,7 +69,7 @@ export default function LinkedInDiscovery(){
  useEffect(()=>{if(org)void loadHistory(org).catch(e=>setError(e instanceof Error?e.message:"无法读取 LinkedIn 任务历史。"));},[org]);
  const run=async()=>{
   setError("");setNotice("");setHistoryId("");
-  if(kind==="enrich"? !urls.trim():!termsList.length){setError(kind==="enrich"?"请粘贴至少一个 LinkedIn URL。":"请至少输入一个搜索关键词。");return;}
+  if(kind==="enrich"?!urls.trim():kind==="jobs"?(!termsList.length&&!role):!termsList.length){setError(kind==="enrich"?"请粘贴至少一个 LinkedIn URL。":"请至少输入一个搜索关键词或选择职位。");return;}
   if(!org){setError("当前账号没有可用的企业工作区。");return;}
   setBusy(true);setRows([]);setMeta(null);setActiveTab(kinds.findIndex(k=>k.id===kind));setLogs([]);
   addLog("已创建 LinkedIn 发现请求。");addLog("正在校验登录状态、组织权限与 Apify 连接。");
@@ -97,7 +97,7 @@ export default function LinkedInDiscovery(){
    <div className="li-form-grid">
     {kind!=="enrich"&&<div className="li-field li-keywords"><TextArea id="li-keywords" labelText={kind==="posts"?"搜索关键词 / 话题":"搜索关键词"} placeholder={kind==="people"?"例如：B2B Purchasing Manager\n也可通过职位筛选进一步限定":kind==="companies"?"例如：Consumer Electronics Distributor":"例如：wireless earbuds, sourcing, procurement"} value={terms} onChange={e=>setTerms(e.target.value)} rows={3}/><small>{termsList.length} 个关键词 · 换行或逗号分隔</small></div>}
     {kind!=="enrich"&&kind!=="posts"&&<div className="li-field"><ComboBox id="li-country" titleText="国家 / 地区" placeholder="选择国家或地区" items={countries} itemToString={x=>x?.label||""} selectedItem={country} onChange={({selectedItem})=>setCountry(selectedItem||null)}/><small>按 Actor 支持的 LinkedIn 地区名称传入。</small></div>}
-    {kind==="people"&&<div className="li-field"><ComboBox id="li-job-title" titleText="当前职位筛选" placeholder="选择职位（可选）" items={roles} itemToString={x=>x?.label||""} selectedItem={role} onChange={({selectedItem})=>setRole(selectedItem||null)}/><small>对应 Actor 的 currentJobTitles 参数；此项由 Actor 原生支持。</small></div>}
+    {(kind==="people"||kind==="jobs")&&<div className="li-field"><ComboBox id="li-job-title" titleText={kind==="people"?"当前职位筛选":"目标招聘职位"} placeholder="选择职位（可选）" items={roles} itemToString={x=>x?.label||""} selectedItem={role} onChange={({selectedItem})=>setRole(selectedItem||null)}/><small>人员搜索对应 currentJobTitles；招聘搜索将职位写入 LinkedIn Jobs 搜索 URL。</small></div>}
     {kind==="posts"&&<div className="li-field"><ComboBox id="li-date-range" titleText="帖子时间范围" items={[{id:"any",label:"不限"},{id:"24h",label:"过去 24 小时"},{id:"week",label:"过去 7 天"},{id:"month",label:"过去 30 天"},{id:"3months",label:"过去 3 个月"},{id:"year",label:"过去 1 年"}]} itemToString={x=>x?.label||""} selectedItem={[{id:"any",label:"不限"},{id:"24h",label:"过去 24 小时"},{id:"week",label:"过去 7 天"},{id:"month",label:"过去 30 天"},{id:"3months",label:"过去 3 个月"},{id:"year",label:"过去 1 年"}].find(x=>x.id===dateRange)||null} onChange={({selectedItem})=>setDateRange(selectedItem?.id||"month")}/></div>}
     {kind==="enrich"&&<><div className="li-field"><ComboBox id="li-enrich-type" titleText="补全对象" items={[{id:"person",label:"人员资料"},{id:"company",label:"企业资料"},{id:"person_posts",label:"人员公开动态"}]} itemToString={x=>x?.label||""} selectedItem={[{id:"person",label:"人员资料"},{id:"company",label:"企业资料"},{id:"person_posts",label:"人员公开动态"}].find(x=>x.id===enrichType)||null} onChange={({selectedItem})=>setEnrichType(selectedItem?.id||"person")}/></div><div className="li-field li-keywords"><TextArea id="li-urls" labelText="LinkedIn URL" placeholder="每行一个 LinkedIn 个人或企业主页 URL" value={urls} onChange={e=>setUrls(e.target.value)} rows={4}/><small>仅提交公开可访问的 LinkedIn URL。</small></div></>}
     {kind!=="enrich"&&<div className="li-field"><NumberInput id="li-max" label="最多返回结果" min={1} max={200} value={limit} onChange={(_e,{value})=>setLimit(Number(value)||50)}/><small>单次任务最多 {limit} 条；实际数量取决于 LinkedIn 公开结果。</small></div>}
