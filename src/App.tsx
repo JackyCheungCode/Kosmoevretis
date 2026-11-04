@@ -35,7 +35,7 @@ export default function App() {
     </aside>
     <main className="content">
       <div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div>
-      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active==="intelligence"?"统一配置分析对象，在同一工作台查看全球市场多维情报。":active==="products"?"管理企业产品、参数规格、关键词与监测档案。":"配置全球市场数据采集渠道与服务连接。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
+      <div className="page-head"><div><h1>{currentLabel}</h1><p>{active==="intelligence"?"统一配置分析对象，在同一工作台查看全球市场多维情报。":active==="products"?"统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。":"配置全球市场数据采集渠道与服务连接。"}</p></div><span className="scope">● GLOBAL　全球市场</span></div>
       {active==="intelligence"&&<GlobalIntelligence/>}
       {active==="products"&&<ProductCenter/>}
       {active==="sources"&&<section className="module"><span className="eyebrow">SYSTEM SETTINGS / DATA SOURCES</span><h2>数据源管理</h2><p>集中管理 Apify、Google Trends、YouTube、Reddit 与电商数据连接器。访问凭证应保存在服务端安全配置中，不在浏览器端展示。</p><div className="source-settings-note"><strong>DeepL 翻译服务</strong><span>翻译 API 由服务端代理调用。请在 Cloudflare Pages 项目 Settings → Variables and Secrets 中添加加密 Secret：DEEPL_AUTH_KEY。Free API Key 使用 :fx 结尾，服务端会自动选择 Free API 地址。</span></div><div className="source-settings-note"><strong>其他数据源配置</strong><span>Apify、Google Trends、YouTube、Reddit 与电商连接器凭证应保存在服务端。当前全球情报工作台尚未启动真实市场采集任务。</span></div></section>}
