@@ -1,0 +1,77 @@
+/* Shared, layer-first primitives for feature-page composition. */
+.app-surface {
+  min-width: 0;
+  background: var(--app-color-layer-01);
+  border: 0;
+  box-shadow: none;
+}
+
+.app-surface--raised {
+  background: var(--app-color-layer-02);
+}
+
+.app-section {
+  min-width: 0;
+  margin-block: var(--app-space-06);
+}
+
+.app-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--app-space-04);
+  margin-bottom: var(--app-space-04);
+}
+
+.app-section-heading h2 {
+  margin: 0;
+  color: var(--app-color-text-primary);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.app-section-heading p {
+  margin: var(--app-space-02) 0 0;
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-type-body-size);
+  line-height: 1.5;
+}
+
+.app-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--app-space-03);
+  min-width: 0;
+}
+
+.app-data-region {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.app-empty-state {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--app-space-02);
+  padding: var(--app-space-06);
+  background: var(--app-color-layer-01);
+  color: var(--app-color-text-secondary);
+}
+
+@media (max-width: 671px) {
+  .app-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .app-empty-state {
+    padding: var(--app-space-05);
+  }
+}
