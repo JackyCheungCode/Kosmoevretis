@@ -123,3 +123,5 @@
 .gi-ai-evidence strong{font-size:.7rem}.gi-ai-evidence p,.gi-ai-evidence span{display:block;margin:.3rem 0 0;font-size:.65rem;line-height:1.55;color:var(--cds-text-secondary,#525252)}
 @media(max-width:900px){.gi-source-grid{grid-template-columns:1fr}.gi-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gi-ai-layout{grid-template-columns:1fr}}
 @media(max-width:671px){.gi-source-section,.gi-ai-section{padding:.85rem}.gi-section-head{flex-direction:column}.gi-source-toolbar>input{flex-basis:100%}.gi-chart-grid{grid-template-columns:1fr}.gi-chart-card.wide{grid-column:span 1}.gi-donut-wrap{justify-content:flex-start}.gi-bar-row{grid-template-columns:minmax(5rem,1.2fr) minmax(3rem,2fr) 2rem}.gi-market-rank>div{grid-template-columns:5.5rem minmax(3rem,1fr) 2rem}.gi-source-foot{flex-direction:column;gap:.2rem}}
+
+.gi-logo-fallback{display:none;width:2rem;height:2rem;place-items:center;background:#fff;color:#0f62fe;border:1px solid #c6c6c6;border-radius:50%;font-size:.62rem;font-weight:700}
