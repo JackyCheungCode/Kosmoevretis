@@ -54,6 +54,7 @@ function AppShell() {
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
+  const isTemplatePage = path === "/leads/instagram" || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -181,6 +182,7 @@ function AppShell() {
   return (
     <div className="shell kosmo-app-shell">
       <SkipToContent href="#main-content">跳转到主要内容</SkipToContent>
+      <Theme theme="g100">
       <Header aria-label="Kosmoevretis 全球情报平台" className="kosmo-header">
         <HeaderMenuButton
           aria-label={sideNavExpanded && viewport !== "desktop" ? "收起导航菜单" : "展开导航菜单"}
@@ -230,6 +232,7 @@ function AppShell() {
           )}
         </div>
       </Header>
+      </Theme>
 
       <SideNav
         id="kosmo-primary-navigation"
@@ -271,7 +274,8 @@ function AppShell() {
         </SideNavItems>
       </SideNav>
 
-      <main id="main-content" className="content kosmo-main">
+      <main id="main-content" className={`content kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
+        {!isTemplatePage && <>
         <div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div>
         <div className="page-head">
           <div>
@@ -287,6 +291,7 @@ function AppShell() {
           </div>
           <span className="scope">● GLOBAL　全球市场</span>
         </div>
+        </>}
         {path === "/intelligence" && <GlobalIntelligence />}
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
