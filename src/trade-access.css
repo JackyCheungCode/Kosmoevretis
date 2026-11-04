@@ -1,5 +1,5 @@
 
-.trade-access{display:grid;gap:1.1rem;padding:.25rem 0}
+.trade-access{display:flex;flex-direction:column;gap:1.5rem;min-width:0;padding:0}
 .trade-access-intro,.trade-input-heading,.trade-submit-row,.trade-result-heading,.trade-result-meta{display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .trade-access-intro h2{margin:.25rem 0;font-size:1.35rem;font-weight:600;color:var(--cds-text-primary)}
 .trade-access-intro p,.trade-muted{margin:.25rem 0;color:var(--cds-text-secondary);font-size:.7rem;line-height:1.5}
@@ -22,11 +22,11 @@
 
 .trade-hs-summary{display:grid;align-content:center;gap:.25rem;min-height:3.5rem;padding:.6rem .75rem;background:var(--cds-field-01);border-bottom:1px solid var(--cds-border-strong);font-size:.75rem}.trade-hs-summary span,.trade-hs-summary small{color:var(--cds-text-secondary)}.trade-hs-summary strong{font-size:.85rem;color:var(--cds-text-primary)}
 
-.trade-page{display:grid;gap:1.25rem}
-.trade-page-source{display:grid;gap:1rem;padding:1.1rem;background:var(--cds-layer-01);border-radius:4px}
+.trade-page{display:flex;flex-direction:column;gap:1.5rem;min-width:0}
+.trade-page-source{display:grid;gap:1rem}
 .trade-page-source-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
-.trade-page-source-head h2{margin:.3rem 0;font-size:1.15rem;font-weight:600}
-.trade-page-source-head p{margin:0;color:var(--cds-text-secondary);font-size:.8rem;line-height:1.5}
+.trade-page-source-head h2{margin:.35rem 0;font-size:1.25rem;font-weight:500}
+.trade-page-source-head p{margin:0;color:var(--cds-text-secondary);font-size:.8rem;line-height:1.6}
 .trade-page-badge{padding:.35rem .55rem;background:var(--cds-layer-02);color:var(--cds-text-secondary);font-size:.7rem;white-space:nowrap}
 .trade-page-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
 .trade-page-form label{display:grid;gap:.4rem;color:var(--cds-text-secondary);font-size:.75rem}
@@ -64,10 +64,10 @@
 
 .carbon-select-flag-label{display:inline-flex;align-items:center;gap:.55rem}.carbon-select-flag-circle{display:inline-flex;align-items:center;justify-content:center;width:1.35rem;height:1.35rem;flex:0 0 1.35rem;border-radius:50%;overflow:hidden;background:var(--cds-layer-02);font-size:1rem;line-height:1;box-shadow:0 0 0 1px var(--cds-border-subtle)}
 
-/* Trade access — align with Global Intelligence Carbon layers and compact typography */
+/* Trade access — inherit the exact Global Intelligence workspace shell and layered surface tokens */
 .trade-page{gap:1rem}
 .trade-page-source,.trade-input-panel,.trade-compliance-panel,.trade-context,.trade-result-section{border-radius:0;box-shadow:none}
-.trade-page-source{padding:1.5rem;background:var(--cds-layer-01)}
+.trade-page-source{padding:0;background:transparent;border-radius:0}
 .trade-page-source-head h2{font-size:1.18rem}
 .trade-page-source-head p{font-size:.7rem;color:var(--cds-text-secondary);line-height:1.55}
 .trade-page-form{gap:.75rem 1rem}
