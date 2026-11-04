@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
-  Button, ComboBox, InlineNotification, NumberInput, Tag, TextInput, TextArea, MultiSelect,
+  Button, ComboBox, InlineNotification, NumberInput, Tag, TextInput, TextArea,
   Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
 } from "@carbon/react";
-import { User, Building, Chat, Briefcase, ScanSearch, Globe, Link as LinkIcon } from "@carbon/icons-react";
+import { User, Building, Chat, Briefcase, ScanSearch } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
 import "./linkedin-discovery.css";
 
