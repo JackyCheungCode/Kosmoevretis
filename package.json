@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && npm run design-system:check && vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "design-system:check": "node scripts/check-design-system.mjs"
   },
   "dependencies": {
     "@carbon/styles": "1.74.0",
