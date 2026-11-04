@@ -5,6 +5,7 @@ import GlobalIntelligence from "./GlobalIntelligence";
 import TradeAccessPage from "./TradeAccessPage";
 import Settings from "./Settings";
 import FacebookDiscovery from "./FacebookDiscovery";
+import LinkedInDiscovery from "./LinkedInDiscovery";
 import LeadChannelPlaceholder from "./LeadChannelPlaceholder";
 
 const enterpriseItems = [["products","产品中心","▣"]] as const;
@@ -82,7 +83,7 @@ function AppShell() {
       {active === "trade" && <TradeAccessPage />}
       {active === "products" && <ProductCenter />}
       {path === "/leads/facebook" && <FacebookDiscovery />}
-      {path === "/leads/linkedin" && <LeadChannelPlaceholder title="LinkedIn 发现" description="通过 LinkedIn 公开职业资料、企业主页与内容发现潜在客户。该渠道将在 Facebook 发现完成后接入。" />}
+      {path === "/leads/linkedin" && <LinkedInDiscovery /> }
       {path === "/leads/google-maps" && <LeadChannelPlaceholder title="Google Maps 发现" description="通过 Google Maps 发现目标国家和地区的企业、门店、商家与公开联系信息。" />}
       {isSettings && <Settings />}
     </main>
