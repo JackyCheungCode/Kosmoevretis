@@ -54,7 +54,7 @@ function AppShell() {
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
-  const isTemplatePage = path === "/leads/instagram" || path.startsWith("/platform-data/");
+  const isTemplatePage = ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
