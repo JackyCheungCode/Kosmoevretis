@@ -39,7 +39,8 @@ const config:Record<Platform,{name:string;actor:string;backup:string;description
  tiktok:{name:"TikTok",actor:"poidata/tiktok-scraper",backup:"clockworks/tiktok-scraper",description:"覆盖短视频、创作者、关键词、Hashtag、评论、字幕与声音。",modes:[
   {id:"search",label:"关键词搜索",description:"搜索公开视频并按热度或时间排序",inputLabel:"搜索关键词",placeholder:"wireless earbuds\\nportable monitor",target:false,keyword:true},
   {id:"hashtags",label:"Hashtag 趋势",description:"标签视频、热度及创作者发现",inputLabel:"Hashtag",placeholder:"#techgadgets\\n#smarthome",target:false,keyword:true},
-  {id:"profiles",label:"创作者档案",description:"账号资料、粉丝数及公开主页信息",inputLabel:"用户名或主页 URL",placeholder:"@creator 或 TikTok 主页 URL",target:true},\n  {id:"creatorVideos",label:"创作者作品",description:"指定创作者发布的视频与互动数据",inputLabel:"创作者用户名或主页 URL",placeholder:"每行一个 TikTok 创作者",target:true},
+  {id:"profiles",label:"创作者档案",description:"账号资料、粉丝数及公开主页信息",inputLabel:"用户名或主页 URL",placeholder:"@creator 或 TikTok 主页 URL",target:true},
+  {id:"creatorVideos",label:"创作者作品",description:"指定创作者发布的视频与互动数据",inputLabel:"创作者用户名或主页 URL",placeholder:"每行一个 TikTok 创作者",target:true},
   {id:"videos",label:"视频详情",description:"视频数据、音乐、标签及媒体",inputLabel:"视频 / 声音 / 主页 URL",placeholder:"https://www.tiktok.com/@user/video/...",target:true},
   {id:"comments",label:"评论洞察",description:"视频评论与公开回复",inputLabel:"视频 URL",placeholder:"每行一个 TikTok 视频链接",target:true},
   {id:"sounds",label:"声音趋势",description:"音乐 / 声音及关联视频",inputLabel:"TikTok 声音 URL",placeholder:"https://www.tiktok.com/music/...",target:true},
