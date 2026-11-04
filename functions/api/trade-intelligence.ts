@@ -46,14 +46,14 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
     return {indicator,rows};
    }));
    const items=selected.map(item=>{
-    const metrics:Record<string,number|null>={};let year="";
+    const metrics:Record<string,number|null>={};let year="";let countryName=item.code;
     for(const dataset of datasets){
      const rows=dataset.rows.filter((row:any)=>row.countryiso3code===item.iso3&&row.value!==null).sort((x:any,y:any)=>Number(y.date)-Number(x.date));
      const latest=rows[0];
      metrics[dataset.indicator.key]=latest?.value??null;
      if(latest&&(!year||Number(latest.date)>Number(year)))year=String(latest.date);
     }
-    return {market:item.code,country:marketNames[item.code]||item.code,...metrics,year};
+    return {market:item.code,country:countryName,...metrics,year};
    }).filter(item=>Object.values(item).some(value=>typeof value==="number"));
    return {items,source:"World Bank World Development Indicators",note:"宏观指标采用世界银行 WDI 最近可用年度值；各指标发布年份可能不同，不能视为实时行情或产品需求数据。"};
   });
