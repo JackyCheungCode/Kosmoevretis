@@ -24,7 +24,7 @@ Use Carbon semantic border tokens only when a real boundary, data separation, in
 
 ## Tokens
 
-- Colors: `--app-color-*` aliases to Carbon semantic `--cds-*` variables.
+- Colors: `--app-color-*` aliases to Carbon semantic `--cds-*` variables, including support-error and inverse-surface/text aliases for error states and raw-data previews.
 - Spacing: `--app-space-*` aliases to Carbon's spacing scale.
 - Typography: `--app-font-family` and `--app-type-*` aliases.
 - Shape and motion: shared radius, shadow, and motion aliases.
@@ -51,7 +51,7 @@ Use this primitive for top-level feature pages instead of re-creating a page hea
 
 ## Component primitives
 
-`src/styles/component-primitives.scss` provides shared composition classes for surfaces, section headings, action groups, horizontally scrollable data regions, and empty states. These primitives use Carbon layer and spacing tokens. Feature pages should adopt them rather than recreating bordered cards or bespoke data wrappers. The surface variants are intentionally borderless: use background contrast and spacing for hierarchy, and reserve borders for actual input affordances or dense data separation.
+`src/styles/component-primitives.scss` provides shared composition classes for surfaces, section headings, action groups, horizontally scrollable data regions, and empty states. These primitives use Carbon layer and spacing tokens. Feature pages should adopt them rather than recreating bordered cards or bespoke data wrappers. The surface variants are intentionally borderless: use background contrast and spacing for hierarchy, and reserve borders for actual input affordances or dense data separation. Metric groups should use layer contrast and spacing rather than 1px border-colored gridlines; map labels should use a contrasting layer surface instead of an outline when that provides sufficient separation.
 
 ## Enterprise intelligence pages
 
