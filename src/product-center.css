@@ -81,3 +81,79 @@
 .pc-attribute-summary>div{display:flex;flex-direction:column;gap:.2rem;padding:.75rem;background:var(--cds-layer-02,#e0e0e0)}
 .pc-attribute-summary strong{font-size:.78rem}.pc-attribute-summary span,.pc-attribute-summary small{font-size:.68rem;color:var(--cds-text-secondary,#525252)}
 @media(max-width:671px){.pc-axis-grid,.pc-attribute-summary{grid-template-columns:1fr}}
+
+
+ 
+/* Product center — mobile density and overflow safeguards */
+@media (max-width: 671px) {
+  .pc-workspace {
+    gap: .9rem;
+    min-width: 0;
+  }
+  .pc-heading h2 {
+    font-size: 1.3rem;
+    line-height: 1.35;
+  }
+  .pc-heading p,
+  .pc-panel-heading p,
+  .pc-section-head p {
+    font-size: .82rem;
+    line-height: 1.5;
+  }
+  .pc-catalog-stats > div,
+  .pc-product-facts > div {
+    padding: .75rem;
+  }
+  .pc-catalog-stats strong {
+    font-size: 1.35rem;
+  }
+  .pc-list-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: .55rem;
+  }
+  .pc-list-toolbar > span {
+    white-space: normal;
+  }
+  .pc-product-price {
+    min-width: 4rem;
+  }
+  .pc-product-price strong {
+    font-size: .76rem;
+  }
+  .pc-editor,
+  .pc-detail,
+  .pc-form-section {
+    min-width: 0;
+    gap: .8rem;
+  }
+  .pc-editor,
+  .pc-form-section {
+    padding: .9rem;
+  }
+  .pc-panel-heading h3 {
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+  .pc-table-wrap {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+  }
+  .pc-table th,
+  .pc-table td {
+    padding: .55rem;
+    font-size: .72rem;
+  }
+  .pc-definition-heading {
+    flex-wrap: wrap;
+  }
+  .pc-definition-heading strong {
+    overflow-wrap: anywhere;
+  }
+  .pc-add-value {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pc-add-value button {
+    width: 100%;
+  }
+}
