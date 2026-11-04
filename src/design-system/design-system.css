@@ -30,3 +30,26 @@
   .kosmo-page-header__actions { width: 100%; }
   .kosmo-template__configuration-layout { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Unified collection result workspace: Carbon Gray 10 white layer. */
+.kosmo-template__results { min-width:0; padding:var(--kosmo-space-4); background:var(--cds-layer-02); }
+.kosmo-template__results .kosmo-template__content { gap:0; }
+.kosmo-template__results .kosmo-page-section { min-width:0; }
+.kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-space-4); }
+.kosmo-page-header { align-items:flex-end; }
+.kosmo-page-header__eyebrow { margin:0 0 var(--kosmo-space-2); color:var(--cds-text-secondary); font-size:.6875rem; font-weight:600; letter-spacing:.1em; line-height:1.4; }
+.kosmo-page-header__title { font-size:2rem; font-weight:400; letter-spacing:-.035em; line-height:1.25; }
+.kosmo-page-header__description { max-width:72ch; margin-top:.45rem; font-size:.85rem; line-height:1.65; }
+.kosmo-page-header__meta { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:var(--kosmo-space-2); }
+.kosmo-page-header__scope { display:inline-flex; align-items:center; min-height:2.25rem; padding:.5rem .75rem; background:var(--cds-layer-01); color:var(--cds-text-secondary); font-size:.72rem; white-space:nowrap; }
+.kosmo-results-tabs.cds--tabs { min-width:0; margin:0; }
+.kosmo-results-tabs .cds--tab-list { display:flex; flex-wrap:nowrap; max-width:100%; overflow-x:auto; overflow-y:hidden; border-bottom:1px solid var(--cds-border-subtle); background:transparent; overscroll-behavior-x:contain; }
+.kosmo-results-tabs .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
+.kosmo-results-tabs .cds--tab-content { min-width:0; padding:var(--kosmo-space-4) 0 0; }
+.kosmo-results-tabs .cds--tab-panel { min-width:0; padding:0; }
+@media(max-width:671px) {
+ .kosmo-page-header { align-items:flex-start; }
+ .kosmo-page-header__title { font-size:1.65rem; }
+ .kosmo-page-header__meta { justify-content:flex-start; width:100%; }
+ .kosmo-template__results { padding:var(--kosmo-space-3); }
+}
