@@ -79,7 +79,7 @@ export default function Settings(){
  const triggerRef=useRef<HTMLButtonElement|null>(null);
  const selected=pageMeta[active]||pageMeta.providers;
  const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
- const closeNavigation=()=>setMobileNavOpen(false);
+ const closeNavigation=()=>{setMobileNavOpen(false);triggerRef.current?.focus();};
  useEffect(()=>{
   if(!mobileNavOpen)return;
   navRef.current?.querySelector<HTMLAnchorElement>("a[aria-current='page'], a")?.focus();
@@ -89,7 +89,7 @@ export default function Settings(){
  },[mobileNavOpen]);
  const navigation=<div className="settings-navigation-shell">
   {mobileNavOpen&&<button type="button" className="settings-nav-backdrop" aria-label="关闭设置导航" onClick={closeNavigation}/>}
-  <aside className={mobileNavOpen?"settings-local-nav is-open":"settings-local-nav"} ref={node=>{navRef.current=node;}} aria-label="设置分类">
+  <div id="settings-nav-panel" className={mobileNavOpen?"settings-local-nav is-open":"settings-local-nav"} ref={node=>{navRef.current=node;}} role="group" aria-label="设置分类">
    <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
    {filtered.map(group=><div className="settings-nav-group" key={group.title}>
     <div className="settings-nav-group-title">{group.title}</div>
@@ -100,9 +100,9 @@ export default function Settings(){
      </NavLink>;
     })}
    </div>)}
-  </aside>
+  </div>
  </div>;
- const actions=<Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu} aria-label="打开设置导航" aria-expanded={mobileNavOpen} onClick={()=>setMobileNavOpen(open=>!open)}>设置分类</Button>;
+ const actions=<Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu} aria-label="打开设置导航" aria-expanded={mobileNavOpen} aria-controls="settings-nav-panel" onClick={()=>setMobileNavOpen(open=>!open)}>设置分类</Button>;
  const body=()=>{switch(active){
   case"providers":return <SettingsBackend/>;
   case"actors":return <Actors/>;
@@ -124,7 +124,7 @@ export default function Settings(){
   actions={actions}
   navigation={navigation}
  >
-  <PageSection title={selected.title} description={selected.desc} className="settings-selected-section">
+  <PageSection title={selected.title} description={selected.desc} className="settings-selected-section" headingLevel={3}>
    {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
    {body()}
   </PageSection>
