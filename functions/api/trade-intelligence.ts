@@ -12,7 +12,7 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
   if(!authResponse.ok) return json({error:"登录状态已失效，请重新登录。"},401,"no-store");
   const body = await request.json() as { keywords?:string[]; hsCode?:string; markets?:string[]; originCountry?:string; destinationZip?:string; freightMode?:string; originCity?:string };
   const keywords = (body.keywords||[]).map(x=>String(x).trim()).filter(Boolean).slice(0,5);
-  const hsCode = String(body.hsCode||"").replace(/[^0-9.]/g,"").trim();
+  const hsCode = String(body.hsCode||"").replace(/[^0-9.]/g,"").trim();\n  const allowedCompliance = new Set(["customs","sanctions","export","product-safety","certification","labeling"]);\n  const complianceScope = Array.from(new Set((Array.isArray(body.complianceScope)?body.complianceScope:[]).map(String).filter(x=>allowedCompliance.has(x))));
   const markets = Array.from(new Set((body.markets||[]).map(x=>String(x).toUpperCase()).filter(x=>/^[A-Z]{2}$/.test(x)))).slice(0,8);
   if(!markets.length) return json({error:"请先在分析源中选择目标市场。"},400,"no-store");
   const searchTerm = hsCode || keywords[0] || "";
@@ -63,6 +63,6 @@ export async function onRequestPost({request,env}: {request:Request;env:Record<s
   } else tasks.freight=Promise.resolve({status:"needs_input",data:null,error:markets.includes("US")?"如需查询亚洲至美国的海运/空运参考报价，请补充支持的起运国家、起运城市与美国目的邮编。当前不影响关税、贸易与营商环境分析。":"首期免费运价接口仅支持部分亚洲起运地至美国，当前市场组合暂不支持该报价查询。"});
   const keys=Object.keys(tasks);
   const results=await Promise.all(keys.map(async key=>[key,await tasks[key]] as const));
-  return json({generated_at:new Date().toISOString(),markets,hs_code:hsCode||null,keywords,results:Object.fromEntries(results),sources:[{id:"usitc",name:"USITC HTS",type:"official tariff schedule",free:true},{id:"comtrade",name:"UN Comtrade Public Preview",type:"official trade statistics",free:true,limit:"500 rows/request; preview endpoints"},{id:"bready",name:"World Bank B-READY",type:"business environment indicators",free:true},{id:"freightpulse",name:"FreightPulse / IMF PortWatch",type:"port congestion and conditional spot quote",free:true,limit:"guest quota applies"}]},200,"public, max-age=300, s-maxage=900");
+  return json({generated_at:new Date().toISOString(),markets,hs_code:hsCode||null,keywords,compliance_scope:complianceScope,results:Object.fromEntries(results),sources:[{id:"usitc",name:"USITC HTS",type:"official tariff schedule",free:true},{id:"comtrade",name:"UN Comtrade Public Preview",type:"official trade statistics",free:true,limit:"500 rows/request; preview endpoints"},{id:"bready",name:"World Bank B-READY",type:"business environment indicators",free:true},{id:"freightpulse",name:"FreightPulse / IMF PortWatch",type:"port congestion and conditional spot quote",free:true,limit:"guest quota applies"}]},200,"public, max-age=300, s-maxage=900");
  } catch(e) { return json({error:e instanceof Error?e.message:"贸易分析请求失败。"},500,"no-store"); }
 }
