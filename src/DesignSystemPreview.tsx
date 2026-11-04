@@ -80,7 +80,7 @@ export default function DesignSystemPreview() {
       <div className="ds-page-pattern"><div className="ds-pattern-header">页面标题 / 说明 / 主要操作</div><div className="ds-pattern-source">分析源配置 / 搜索条件 / 筛选器</div><div className="ds-pattern-tabs">同级业务 Tabs</div><div className="ds-pattern-content">数据表格 / 图表 / 分析结果工作区</div><div className="ds-pattern-meta">数据来源 / 时间 / 置信度 / 分页</div></div>
     </section>
     <section className="ds-section">
-      <div className="ds-section-heading"><div><span className="ds-overline">10 / COLLECTION WORKSPACE</span><h3>采集能力选择</h3></div><p>跨平台统一卡片尺寸、间距、选中状态和自适应网格，避免内容溢出。</p></div>
+      <div className="ds-section-heading"><div><span className="ds-overline">10 / COLLECTION WORKSPACE</span><h3>采集能力选择</h3></div><p>跨平台统一卡片尺寸、间距、语义图标、选中状态和自适应网格，避免内容溢出。</p></div>
       <CollectionModeGrid ariaLabel="采集能力组件预览" selectedId={collectionMode} onSelect={setCollectionMode} options={[
         {id:"search",label:"关键词搜索",description:"按关键词发现公开内容"},
         {id:"profiles",label:"账号档案",description:"分析公开账号与创作者资料"},
