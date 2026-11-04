@@ -4,12 +4,13 @@ import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, T
 import { Activity, Ai, Building, Document, DataBase, Earth, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
 import SettingsBackend from "./SettingsBackend";
 import BrandLogo from "./BrandLogo";
+import DesignSystemPreview from "./DesignSystemPreview";
 
 type Item = { name: string; description: string; status?: string; statusType?: "green"|"blue"|"gray"|"warm-gray"|"red"; domain?: string; mark?: string; meta?: string };
 const navGroups = [
  { title:"API 与数据源", items:[["providers","服务商连接","plug"],["actors","采集能力目录","workflow"],["channels","数据渠道","database"],["runs","运行记录","activity"]] },
  { title:"AI 与模型", items:[["ai-providers","AI 服务商","brain"],["models","模型目录","boxes"],["routes","任务路由","route"],["prompts","提示词与成本","document"]] },
- { title:"系统管理", items:[["organization","组织与企业资料","building"],["members","用户与权限","users"],["locale","地区与语言","globe"],["notifications","通知策略","bell"]] },
+ { title:"系统管理", items:[["organization","组织与企业资料","building"],["members","用户与权限","users"],["locale","地区与语言","globe"],["notifications","通知策略","bell"],["design-system","设计系统","document"]] },
  { title:"平台治理", items:[["governance","数据治理","shield"],["audit","安全与审计","clipboard"]] }
 ] as const;
 const actorItems = [
@@ -63,13 +64,14 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  locale:{title:"地区与语言",desc:"设置默认市场、语言、时区和数据格式。",eyebrow:"SYSTEM MANAGEMENT"},
  notifications:{title:"通知策略",desc:"管理采集任务、服务连接与平台运行告警。",eyebrow:"SYSTEM MANAGEMENT"},
  governance:{title:"数据治理",desc:"配置数据保留、来源追踪、质量与导出策略。",eyebrow:"PLATFORM GOVERNANCE"},
- audit:{title:"安全与审计",desc:"查看配置变更、密钥管理和权限操作的审计信息。",eyebrow:"PLATFORM GOVERNANCE"}
+ audit:{title:"安全与审计",desc:"查看配置变更、密钥管理和权限操作的审计信息。",eyebrow:"PLATFORM GOVERNANCE"},
+ "design-system":{title:"设计系统",desc:"查看并验收 Kosmoevretis 全站统一的 Carbon 设计规范与基础组件。",eyebrow:"DESIGN GOVERNANCE"}
 };
 export default function Settings(){
  const location=useLocation();const navigate=useNavigate();const active=location.pathname.split("/")[2]||"providers";const [search,setSearch]=useState("");const [notice,setNotice]=useState<string|null>(null);
  const selected=pageMeta[active];const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
  const choose=(id:string)=>{navigate("/settings/"+id);setNotice(null);};
- const body=()=>{switch(active){case"providers":return <SettingsBackend/>;case"actors":return <Actors/>;case"channels":return <Channels/>;case"runs":return <><Heading eyebrow="COLLECTION OBSERVABILITY" title="采集运行记录" description="统一查看业务模块发起的采集任务、执行状态、数据集和错误信息。"/><Pending>采集任务调度与运行记录服务尚未接入；当前不会展示虚构的任务或运行数据。</Pending></>;case"ai-providers":return <AiProviders/>;case"models":return <Models/>;case"routes":return <Routes/>;case"prompts":return <Prompts/>;default:return <SystemPage page={active}/>;}};
+ const body=()=>{switch(active){case"providers":return <SettingsBackend/>;case"actors":return <Actors/>;case"channels":return <Channels/>;case"runs":return <><Heading eyebrow="COLLECTION OBSERVABILITY" title="采集运行记录" description="统一查看业务模块发起的采集任务、执行状态、数据集和错误信息。"/><Pending>采集任务调度与运行记录服务尚未接入；当前不会展示虚构的任务或运行数据。</Pending></>;case"ai-providers":return <AiProviders/>;case"models":return <Models/>;case"routes":return <Routes/>;case"prompts":return <Prompts/>;case"design-system":return <DesignSystemPreview/>;default:return <SystemPage page={active}/>;}};
  return <section className="module settings-center settings-workspace">
   <div className="settings-page-heading"><div className="eyebrow">KOSMOEVRETIS / PLATFORM ADMINISTRATION</div><h2>配置管理中心</h2><p>像管理业务应用一样，统一管理连接、采集、AI 能力与平台治理。</p></div>
   <div className="settings-workspace-layout">
