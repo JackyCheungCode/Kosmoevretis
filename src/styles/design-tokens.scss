@@ -1,0 +1,57 @@
+/* Kosmoevretis design tokens
+ * Carbon is the source of truth. App tokens are aliases, not page-level overrides.
+ */
+:root {
+  color-scheme: light;
+
+  /* Carbon semantic foundation */
+  --app-color-background: var(--cds-background, #ffffff);
+  --app-color-layer-01: var(--cds-layer-01, #f4f4f4);
+  --app-color-layer-02: var(--cds-layer-02, #ffffff);
+  --app-color-layer-03: var(--cds-layer-03, #f4f4f4);
+  --app-color-layer-hover-01: var(--cds-layer-hover-01, #e8e8e8);
+  --app-color-layer-hover-02: var(--cds-layer-hover-02, #e8e8e8);
+  --app-color-text-primary: var(--cds-text-primary, #161616);
+  --app-color-text-secondary: var(--cds-text-secondary, #525252);
+  --app-color-text-helper: var(--cds-text-helper, #6f6f6f);
+  --app-color-border-subtle: var(--cds-border-subtle, #e0e0e0);
+  --app-color-border-strong: var(--cds-border-strong, #8d8d8d);
+  --app-color-interactive: var(--cds-interactive, #0f62fe);
+  --app-color-focus: var(--cds-focus, #0f62fe);
+
+  /* Carbon spacing scale */
+  --app-space-2: 2px;
+  --app-space-1: 4px;
+  --app-space-02: 8px;
+  --app-space-03: 12px;
+  --app-space-04: 16px;
+  --app-space-05: 24px;
+  --app-space-06: 32px;
+  --app-space-07: 40px;
+  --app-space-08: 48px;
+  --app-space-09: 64px;
+  --app-space-10: 80px;
+  --app-space-11: 96px;
+
+  /* Shared shell geometry */
+  --app-header-height: 56px;
+  --app-sidebar-width: 256px;
+  --app-content-max-width: 1584px;
+
+  /* Shape and motion: deliberately restrained */
+  --app-radius-none: 0;
+  --app-radius-sm: 2px;
+  --app-radius-md: 4px;
+  --app-shadow-none: none;
+  --app-motion-fast: 120ms;
+  --app-motion-moderate: 160ms;
+}
+
+/* Breakpoint reference: Carbon 2x grid */
+:root {
+  --app-breakpoint-sm: 320px;
+  --app-breakpoint-md: 672px;
+  --app-breakpoint-lg: 1056px;
+  --app-breakpoint-xlg: 1312px;
+  --app-breakpoint-max: 1584px;
+}
