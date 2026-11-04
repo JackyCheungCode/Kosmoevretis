@@ -118,11 +118,6 @@
     width: var(--kosmo-shell-sidebar-collapsed-width);
   }
 
-  .kosmo-side-nav .cds--side-nav__submenu-title,
-  .kosmo-side-nav .cds--side-nav__submenu-chevron {
-    display: none;
-  }
-
   .kosmo-side-nav .cds--side-nav__item {
     width: var(--kosmo-shell-sidebar-collapsed-width);
   }
@@ -133,31 +128,8 @@
     padding-inline: 0;
   }
 
-  .kosmo-side-nav .cds--side-nav__link-text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
   .kosmo-side-nav-tablet-expanded.cds--side-nav {
     width: var(--kosmo-shell-sidebar-width);
-  }
-
-  .kosmo-side-nav-tablet-expanded .cds--side-nav__submenu-title,
-  .kosmo-side-nav-tablet-expanded .cds--side-nav__submenu-chevron,
-  .kosmo-side-nav-tablet-expanded .cds--side-nav__link-text {
-    display: inline;
-    position: static;
-    width: auto;
-    height: auto;
-    clip: auto;
-    overflow: visible;
-    white-space: normal;
   }
 
   .kosmo-main.content {
