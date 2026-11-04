@@ -16,6 +16,8 @@
   --kosmo-space-5: 1.5rem;
   --kosmo-space-6: 2rem;
   --kosmo-space-7: 2.5rem;
+  --kosmo-collection-mode-card-min-width: 13rem;
+  --kosmo-collection-mode-card-height: 6rem;
   --kosmo-shell-header-height: 3rem;
   --kosmo-shell-sidebar-width: 16rem;
   --kosmo-shell-sidebar-collapsed-width: 3rem;
