@@ -47,9 +47,8 @@
 .awc-summary {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1px;
+  gap: var(--app-space-02);
   margin: var(--app-space-05) 0;
-  background: var(--app-color-border-subtle);
 }
 .awc-summary-card {
   display: flex;
@@ -59,7 +58,7 @@
   justify-content: space-between;
   gap: var(--app-space-03);
   padding: var(--app-space-04);
-  background: var(--app-color-layer-01);
+  background: var(--app-color-layer-02);
 }
 .awc-summary-card span,
 .awc-detail-metric > span {
@@ -159,9 +158,8 @@
 .awc-detail-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
+  gap: var(--app-space-02);
   margin: var(--app-space-05) 0;
-  background: var(--app-color-border-subtle);
 }
 .awc-detail-metric {
   display: flex;
@@ -169,7 +167,7 @@
   flex-direction: column;
   gap: var(--app-space-03);
   padding: var(--app-space-04);
-  background: var(--app-color-layer-01);
+  background: var(--app-color-layer-02);
 }
 .awc-detail-metric strong {
   min-width: 0;
