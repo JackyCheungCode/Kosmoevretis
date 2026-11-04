@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Button, Checkbox, ComboBox, InlineNotification, NumberInput, Tag, TextInput,
-  Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
+  Tabs, TabList, Tab, TabPanels, TabPanel, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
 } from "@carbon/react";
 import { Search, Download } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
@@ -147,10 +147,13 @@ export default function GoogleMapsDiscovery(){
   </section>
   <section className="gm-panel gm-map-panel"><div className="gm-section-head"><div><span className="eyebrow">GLOBAL BUSINESS MAP</span><h3>全球商家分布</h3><p>地图聚合 {located.length.toLocaleString()} 个具有经纬度的商家；缩放后可查看单个位置。</p></div><Tag type="gray">{located.length} 个地图点</Tag></div><div className="gm-map-layout"><div className="gm-map-canvas" ref={mapNode}/><aside className="gm-map-legend"><strong>地图图例</strong><span><i className="gm-legend-cluster"/> 商家聚合</span><span><i className="gm-legend-point"/> 单个商家</span><small>底图：OpenFreeMap · © OpenStreetMap contributors</small></aside></div></section>
   <section className="gm-panel gm-results"><div className="gm-section-head"><div><span className="eyebrow">DISCOVERY RESULTS</span><h3>商家发现结果</h3><p>原始数据保留在任务记录中，表格展示常用字段。</p></div><div className="gm-result-actions"><Tag type="blue">{rows.length.toLocaleString()} 条</Tag><Button kind="ghost" size="sm" renderIcon={Download} disabled={!rows.length} onClick={exportCsv}>导出 CSV</Button></div></div>
-   <Tabs selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="Google Maps 结果分类"><Tab id="gm-tab-businesses">企业列表</Tab><Tab id="gm-tab-raw">原始数据</Tab><Tab id="gm-tab-history">历史任务</Tab></TabList></Tabs>
-   {activeTab===0&&<ResultsTable rows={rows} onSelect={focusCustomer}/>}
-   {activeTab===1&&<pre className="gm-raw">{rows.length?JSON.stringify(rows,null,2):"暂无原始数据。"}</pre>}
-   {activeTab===2&&<div className="gm-history">{history.length?history.map(h=><button key={h.id} className={historyId===h.id?"gm-history-item active":"gm-history-item"} onClick={()=>openHistory(h)} disabled={busy}><span><strong>{h.title}</strong><small>{new Date(h.created_at).toLocaleString()} · {h.result_count} 条 · {statusLabel(h.status)}</small></span><span>{statusLabel(h.status)}　›</span></button>):<div className="gm-empty">暂无历史任务。</div>}</div>}
+   <Tabs className="kosmo-results-tabs" selectedIndex={activeTab} onChange={({selectedIndex})=>setActiveTab(selectedIndex)}><TabList aria-label="Google Maps 结果分类"><Tab id="gm-tab-businesses">企业列表</Tab><Tab id="gm-tab-raw">原始数据</Tab><Tab id="gm-tab-history">历史任务</Tab></TabList>
+    <TabPanels>
+     <TabPanel><ResultsTable rows={rows} onSelect={focusCustomer}/></TabPanel>
+     <TabPanel><pre className="gm-raw">{rows.length?JSON.stringify(rows,null,2):"暂无原始数据。"}</pre></TabPanel>
+     <TabPanel><div className="gm-history">{history.length?history.map(h=><button key={h.id} className={historyId===h.id?"gm-history-item active":"gm-history-item"} onClick={()=>openHistory(h)} disabled={busy}><span><strong>{h.title}</strong><small>{new Date(h.created_at).toLocaleString()} · {h.result_count} 条 · {statusLabel(h.status)}</small></span><span>{statusLabel(h.status)}　›</span></button>):<div className="gm-empty">暂无历史任务。</div>}</TabPanel>
+    </TabPanels>
+   </Tabs>
   </section>
   <section className="gm-panel gm-logs"><div className="gm-section-head"><div><span className="eyebrow">RUN ACTIVITY</span><h3>采集日志</h3><p>显示页面阶段事件与 Apify Run 原始日志；原始日志仅在 Actor 运行结束后读取。</p></div><div className="gm-log-tools"><Tag type={busy?"blue":"gray"}>{busy?"执行中":"空闲"}</Tag><Button kind="ghost" size="sm" onClick={()=>setLogs([])}>清空日志</Button></div></div><div className="gm-console" aria-live="polite">{logs.length?logs.map(l=><div className={"gm-log "+l.level} key={l.id}><time>{l.time}</time><i/><span>{l.message}</span></div>):<div className="gm-log-empty">等待任务事件。开始采集后将在此处显示执行日志。</div>}</div></section>
   <div className="gm-footnote">数据来源：Google Maps 公开商家信息 · 采集器：Apify compass/crawler-google-places · 地图底图：OpenFreeMap / OpenStreetMap。地图点仅展示 Actor 返回且包含有效经纬度的记录。</div>
