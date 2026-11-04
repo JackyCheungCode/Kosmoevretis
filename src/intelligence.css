@@ -303,3 +303,9 @@
 .gi-map-error{padding:.65rem .8rem;color:var(--cds-text-error,#da1e28);font-size:.72rem;background:var(--cds-layer-01,#f4f4f4)}
 @media(max-width:850px){.gi-gt-region-layout{grid-template-columns:minmax(0,1fr)}.gi-gt-map{height:340px}.gi-gt-region-ranking{max-height:320px}}
 @media(max-width:480px){.gi-gt-map{height:280px;min-height:240px}.gi-gt-map-legend{flex-wrap:wrap}.gi-gt-map-legend small{width:100%;margin-left:0}}
+
+/* Intelligence tabs: compact status and explicit boundary retry action */
+.gi-live-status{display:flex;justify-content:flex-end;min-height:1.25rem;margin:0 0 .5rem}
+.gi-map-error{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.gi-map-retry{flex:none;padding:.35rem .65rem;border:0;background:var(--cds-interactive,#0f62fe);color:#fff;font:inherit;font-size:.68rem;cursor:pointer}
+.gi-map-retry:hover{background:var(--cds-interactive-hover,#0353e9)}
