@@ -3,7 +3,7 @@ import {
   Button, Checkbox, ComboBox, InlineNotification, NumberInput, Tag, TextInput,
   Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer,
 } from "@carbon/react";
-import { Search, Map, Building, Globe, Star, Phone, Earth, Renew, Download } from "@carbon/icons-react";
+import { Search, Download } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
 import "./google-maps-discovery.css";
 
@@ -48,7 +48,7 @@ export default function GoogleMapsDiscovery(){
  const [session,setSession]=useState<any>(null),[ready,setReady]=useState(false),[org,setOrg]=useState(""),[orgName,setOrgName]=useState("");
  const [terms,setTerms]=useState("electronics distributor"),[country,setCountry]=useState<Option|null>(null),[city,setCity]=useState(""),[limit,setLimit]=useState(30),[language,setLanguage]=useState<Option>({id:"en",label:"English"});
  const [details,setDetails]=useState(false),[contacts,setContacts]=useState(false),[skipClosed,setSkipClosed]=useState(true);
- const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[rows,setRows]=useState<Row[]>([]),[meta,setMeta]=useState<any>(null),[history,setHistory]=useState<History[]>([]),[historyId,setHistoryId]=useState(""),[activeTab,setActiveTab]=useState(0),[logs,setLogs]=useState<Log[]>([]);
+ const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[rows,setRows]=useState<Row[]>([]),[history,setHistory]=useState<History[]>([]),[historyId,setHistoryId]=useState(""),[activeTab,setActiveTab]=useState(0),[logs,setLogs]=useState<Log[]>([]);
  const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[authError,setAuthError]=useState("");
  const mapNode=useRef<HTMLDivElement|null>(null),mapRef=useRef<any>(null),mapLoaded=useRef(false);
  const addLog=(message:string,level:Log["level"]="info")=>setLogs(old=>[...old,{id:Date.now()+Math.random(),time:new Date().toLocaleTimeString(),level,message}].slice(-150));
@@ -56,7 +56,7 @@ export default function GoogleMapsDiscovery(){
  const located=useMemo(()=>rows.filter(r=>coords(r)),[rows]);
  const websites=useMemo(()=>rows.filter(r=>val(r,["website","websiteUrl"])).length,[rows]);
  const phones=useMemo(()=>rows.filter(r=>val(r,["phone","phoneNumber","nationalPhoneNumber"])).length,[rows]);
- const avgRating=useMemo(()=>{const a=rows.map(r=>Number(val(r,["totalScore","rating","stars"]))).filter(Number.isFinite);return a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):"—";},[rows]);
+ const avgRating=useMemo(()=>{const a=rows.map(r=>val(r,["totalScore","rating","stars"])).filter(v=>v!==null).map(Number).filter(Number.isFinite);return a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):"—";},[rows]);
  useEffect(()=>{let alive=true;supabase.auth.getSession().then(({data})=>{if(alive){setSession(data.session);setReady(true);}});const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);setReady(true);});return()=>{alive=false;subscription.unsubscribe();};},[]);
  useEffect(()=>{if(!session?.user){setOrg("");return;}(async()=>{const {data:m,error:me}=await supabase.from("organization_members").select("organization_id").eq("user_id",session.user.id).limit(1).maybeSingle();if(me)throw me;if(!m)throw new Error("当前账号尚未加入企业工作区。");const {data:o,error:oe}=await supabase.from("organizations").select("id,name").eq("id",m.organization_id).single();if(oe)throw oe;setOrg(o.id);setOrgName(o.name);})().catch(e=>setError(e instanceof Error?e.message:"无法读取企业工作区。"));},[session]);
  const loadHistory=async(id:string)=>{const {data,error:e}=await supabase.functions.invoke("google-maps-discovery",{body:{action:"list_history",organization_id:id}});if(e)throw e;if(data?.error)throw new Error(data.error);setHistory(data.history||[]);};
@@ -95,19 +95,19 @@ export default function GoogleMapsDiscovery(){
   setError("");setNotice("");setHistoryId("");
   if(!termsList.length){setError("请至少输入一个搜索关键词。");return;}
   if(!org){setError("当前账号没有可用的企业工作区。");return;}
-  setBusy(true);setRows([]);setMeta(null);setActiveTab(0);setLogs([]);
+  setBusy(true);setRows([]);setActiveTab(0);setLogs([]);
   addLog("已创建 Google Maps 发现请求。");addLog("正在校验登录状态、组织权限与 Apify 连接。");addLog("Actor：compass/crawler-google-places");
   const locationQuery=[city.trim(),country?.label||""].filter(Boolean).join(", ");
   try{
    const {data,error:e}=await supabase.functions.invoke("google-maps-discovery",{body:{action:"collect",organization_id:org,search_terms:termsList,location_query:locationQuery,country_code:country?.id||"",city:city.trim(),max_results:limit,language:language.id,scrape_details:details,scrape_contacts:contacts,skip_closed:skipClosed}});
    if(e)throw e;if(data?.error)throw new Error(data.error);
-   setRows(data.results||[]);setMeta(data.actor_meta||null);addLog("Actor 已完成，Dataset 已读取。","success");
+   setRows(data.results||[]);addLog("Actor 已完成，Dataset 已读取。","success");
    for(const a of data.actor_meta?.actors||[]){addLog("完成 "+a.actor_id+" · "+a.status+" · Dataset "+a.dataset_id,"success");if(a.run_log){addLog("Apify Run 原始日志："+a.actor_id);String(a.run_log).split(/\r?\n/).filter(Boolean).slice(-100).forEach((line:string)=>addLog(line));}}
    addLog("已保存 "+(data.result_count||0)+" 条结果。","success");setNotice("发现任务完成，共返回 "+(data.result_count||0)+" 家商家。");await loadHistory(org);
   }catch(e){const msg=e instanceof Error?e.message:"Google Maps 发现任务失败。";setError(msg);addLog("任务失败："+msg,"error");}
   finally{setBusy(false);}
  };
- const openHistory=async(h:History)=>{setBusy(true);setError("");setNotice("");setHistoryId(h.id);setLogs([]);addLog("正在载入历史任务 "+h.id);try{const {data,error:e}=await supabase.functions.invoke("google-maps-discovery",{body:{action:"get_history",organization_id:org,task_id:h.id}});if(e)throw e;if(data?.error)throw new Error(data.error);const x=data.history;setRows(x.raw_items||[]);setMeta(x.actor_meta||null);for(const a of x.actor_meta?.actors||[]){addLog("历史 Actor："+a.actor_id+" · Run "+a.run_id,"success");if(a.run_log)String(a.run_log).split(/\r?\n/).filter(Boolean).slice(-100).forEach((line:string)=>addLog(line));}const s=x.input_snapshot||{};setTerms((s.search_terms||[]).join("\n"));setCity(s.city||"");setCountry(countries.find(c=>c.id===s.country_code)||null);setLimit(s.max_results||30);setNotice("已载入历史任务结果。");addLog("历史数据读取完成。","success");}catch(e){const msg=e instanceof Error?e.message:"读取历史任务失败。";setError(msg);addLog(msg,"error");}finally{setBusy(false);}};
+ const openHistory=async(h:History)=>{setBusy(true);setError("");setNotice("");setHistoryId(h.id);setLogs([]);addLog("正在载入历史任务 "+h.id);try{const {data,error:e}=await supabase.functions.invoke("google-maps-discovery",{body:{action:"get_history",organization_id:org,task_id:h.id}});if(e)throw e;if(data?.error)throw new Error(data.error);const x=data.history;setRows(x.raw_items||[]);for(const a of x.actor_meta?.actors||[]){addLog("历史 Actor："+a.actor_id+" · Run "+a.run_id,"success");if(a.run_log)String(a.run_log).split(/\r?\n/).filter(Boolean).slice(-100).forEach((line:string)=>addLog(line));}const s=x.input_snapshot||{};setTerms((s.search_terms||[]).join("\n"));setCity(s.city||"");setCountry(countries.find(c=>c.id===s.country_code)||null);setLimit(s.max_results||30);setNotice("已载入历史任务结果。");addLog("历史数据读取完成。","success");}catch(e){const msg=e instanceof Error?e.message:"读取历史任务失败。";setError(msg);addLog(msg,"error");}finally{setBusy(false);}};
  const login=async(e:FormEvent)=>{e.preventDefault();setAuthError("");const {error:e2}=await supabase.auth.signInWithPassword({email,password});if(e2)setAuthError(e2.message);};
  const exportCsv=()=>{const headers=fields.map(f=>f.label);const lines=rows.map(r=>fields.map(f=>{const v=cellValue(r,f.key);return '"'+String(v??"").replace(/"/g,'""')+'"';}));const csv=[headers.join(","),...lines.map(x=>x.join(","))].join("\r\n");const url=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="google-maps-discovery.csv";a.click();URL.revokeObjectURL(url);};
  if(!ready)return <div className="gm-boot">正在连接 Google Maps 发现工作台…</div>;
