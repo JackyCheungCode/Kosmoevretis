@@ -1,88 +1,337 @@
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  Button, Checkbox, InlineNotification, NumberInput, Search, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, TextArea, TextInput
+} from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
-import { useEffect, useState, type FormEvent } from "react";
-import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
+import "./product-center.css";
 
-type Product = { id:string; organization_id:string; name:string; brand:string|null; model:string|null; sku:string|null; category_path:string[]; description:string|null; image_url:string|null; target_markets:string[]; status:string };
-type Attribute = { id:string; name:string; slug:string; data_type:string; unit:string|null; attribute_group:string; semantic_type:string; is_variant_axis:boolean; definition_id?:string|null; variant_creation_mode?:string; include_in_analysis?:boolean; display_type?:string; product_attribute_values?: Value[] };
-type AttributeDefinition = { id:string; name:string; slug:string; data_type:string; unit:string|null; attribute_group:string; semantic_type:string; display_type:string; default_variant_creation_mode:string; include_in_analysis:boolean; product_attribute_definition_values?: DefinitionValue[] };
+type Category = { id:string; organization_id:string; parent_id:string|null; name:string; slug:string; code:string|null; description:string|null; is_active:boolean };
 type DefinitionValue = { id:string; value_text:string; value_number:number|null; unit:string|null };
-type Value = { id:string; value_text:string; value_number:number|null; normalized_unit?:string|null; unit:string|null };
-type Variant = { id:string; sku:string|null; title:string|null; model:string|null; price:number|null; currency:string|null };
-type Keyword = { id:string; keyword:string; keyword_type:string; language_code:string; market_code:string|null };
-type Monitor = { id:string; name:string; markets:string[]; platforms:string[]; cadence:string };
-
-const err = (e:unknown) => e instanceof Error ? e.message : "操作失败，请稍后重试。";
-const slug = (s:string) => s.toLowerCase().trim().replace(/[^a-z0-9\u4e00-\u9fa5]+/g,"-").replace(/^-|-$/g,"");
-const normalizeMetric = (value:number, unit:string|null) => {
-  const key=(unit||"").trim().toLowerCase();
-  const units:Record<string,{factor:number;canonical:string}> = {
-    mm:{factor:.001,canonical:"m"}, cm:{factor:.01,canonical:"m"}, m:{factor:1,canonical:"m"}, meter:{factor:1,canonical:"m"}, meters:{factor:1,canonical:"m"}, km:{factor:1000,canonical:"m"}, in:{factor:.0254,canonical:"m"}, inch:{factor:.0254,canonical:"m"}, ft:{factor:.3048,canonical:"m"},
-    mg:{factor:.001,canonical:"g"}, g:{factor:1,canonical:"g"}, kg:{factor:1000,canonical:"g"},
-    mw:{factor:.001,canonical:"W"}, w:{factor:1,canonical:"W"}, kw:{factor:1000,canonical:"W"},
-    mwh:{factor:.001,canonical:"Wh"}, wh:{factor:1,canonical:"Wh"}, kwh:{factor:1000,canonical:"Wh"},
-    mah:{factor:1,canonical:"mAh"}, ah:{factor:1000,canonical:"mAh"},
-    hz:{factor:1,canonical:"Hz"}, khz:{factor:1000,canonical:"Hz"}, mhz:{factor:1000000,canonical:"Hz"}, ghz:{factor:1000000000,canonical:"Hz"},
-    mv:{factor:.001,canonical:"V"}, v:{factor:1,canonical:"V"}
-  };
-  const mapped=units[key];
-  return mapped?{value:value*mapped.factor,unit:mapped.canonical}:{value,unit:unit||null};
+type Definition = { id:string; name:string; slug:string; data_type:string; unit:string|null; attribute_group:string; semantic_type:string; display_type:string; default_variant_creation_mode:string; include_in_analysis:boolean; product_attribute_definition_values?:DefinitionValue[] };
+type Product = {
+  id:string; name:string; brand:string|null; manufacturer:string|null; model:string|null; sku:string|null; internal_reference:string|null; barcode:string|null;
+  category_id:string|null; category_path:string[]; description:string|null; image_url:string|null; target_markets:string[]; status:string; product_type:string;
+  can_be_sold:boolean; can_be_purchased:boolean; sales_price:number|null; sales_currency:string; cost:number|null; cost_currency:string;
+  unit_of_measure:string; purchase_uom:string; sales_description:string|null; purchase_description:string|null; weight:number|null; volume:number|null;
+  country_of_origin:string|null; hs_code:string|null; website_url:string|null; lifecycle_stage:string; version:number;
 };
+type Variant = { id:string; sku:string|null; title:string|null; model:string|null; barcode:string|null; price:number|null; currency:string|null; cost:number|null; is_active:boolean };
+type CategoryTemplate = { id:string; category_id:string; definition_id:string; is_required:boolean; sort_order:number };
 
+const message = (e:unknown) => e instanceof Error ? e.message : "操作失败，请稍后重试。";
+const makeSlug = (s:string) => s.toLowerCase().trim().replace(/[^a-z0-9\u4e00-\u9fa5]+/g,"-").replace(/^-|-$/g,"");
+const money = (v:number|null|undefined,currency:string) => v==null ? "—" : new Intl.NumberFormat("en-US",{style:"currency",currency:currency||"USD",maximumFractionDigits:2}).format(v);
+const emptyProduct = () => ({
+  name:"",brand:"",manufacturer:"",model:"",sku:"",internal_reference:"",barcode:"",category_id:"",description:"",image_url:"",
+  target_markets:"Global",product_type:"physical",can_be_sold:true,can_be_purchased:true,sales_price:"",sales_currency:"USD",cost:"",cost_currency:"USD",
+  unit_of_measure:"pcs",purchase_uom:"pcs",sales_description:"",purchase_description:"",weight:"",volume:"",country_of_origin:"",hs_code:"",
+  website_url:"",lifecycle_stage:"development"
+});
+type ProductForm = ReturnType<typeof emptyProduct>;
 
 export default function ProductCenter() {
-  const [session,setSession] = useState<Session|null>(null), [ready,setReady] = useState(false);
-  const [email,setEmail] = useState(""), [password,setPassword] = useState(""), [authError,setAuthError] = useState("");
-  const [org,setOrg] = useState(""), [orgName,setOrgName] = useState(""), [error,setError] = useState("");
-  const [products,setProducts] = useState<Product[]>([]), [selected,setSelected] = useState<Product|null>(null);
-  const [attributes,setAttributes] = useState<Attribute[]>([]), [variants,setVariants] = useState<Variant[]>([]);
-  const [definitions,setDefinitions] = useState<AttributeDefinition[]>([]), [libraryOpen,setLibraryOpen] = useState(false);
-  const [definitionForm,setDefinitionForm] = useState({name:"",type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",mode:"never",analysis:true});
-  const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({}), [attachDefinitionId,setAttachDefinitionId] = useState("");
-  const [variantValues,setVariantValues] = useState<Record<string,string[]>>({}), [keywords,setKeywords] = useState<Keyword[]>([]), [monitors,setMonitors] = useState<Monitor[]>([]);
-  const [tab,setTab] = useState("attributes"), [busy,setBusy] = useState(false), [notice,setNotice] = useState("");
-  const [query,setQuery] = useState(""), [editing,setEditing] = useState(false), [importing,setImporting] = useState(false);
-  const [productForm,setProductForm] = useState({name:"",brand:"",model:"",sku:"",category:"消费电子",description:"",markets:"全球",image:""});
-  const [draftValues,setDraftValues] = useState<Record<string,string>>({});
-  const [variantForm,setVariantForm] = useState({title:"",sku:"",model:"",price:"",currency:"USD"});
-  const [keywordForm,setKeywordForm] = useState({keyword:"",type:"core",language:"en",market:""});
-  const [monitorForm,setMonitorForm] = useState({name:"全球市场监测",markets:"US, GB, DE, JP",platforms:"Amazon, Google Trends, YouTube, TikTok, Reddit",cadence:"weekly"});
-  const [csv,setCsv] = useState("name,brand,category\nUSB-C 数据线,自有品牌,电脑及手机周边\nGaN 充电器,自有品牌,充电设备");
+  const [session,setSession] = useState<any>(null);
+  const [ready,setReady] = useState(false);
+  const [org,setOrg] = useState("");
+  const [orgName,setOrgName] = useState("");
+  const [error,setError] = useState("");
+  const [notice,setNotice] = useState<{kind:"success"|"error"|"info";text:string}|null>(null);
+  const [busy,setBusy] = useState(false);
+  const [tab,setTab] = useState(0);
+  const [products,setProducts] = useState<Product[]>([]);
+  const [categories,setCategories] = useState<Category[]>([]);
+  const [definitions,setDefinitions] = useState<Definition[]>([]);
+  const [categoryTemplates,setCategoryTemplates] = useState<CategoryTemplate[]>([]);
+  const [query,setQuery] = useState("");
+  const [editing,setEditing] = useState(false);
+  const [selected,setSelected] = useState<Product|null>(null);
+  const [form,setForm] = useState<ProductForm>(emptyProduct);
+  const [categoryForm,setCategoryForm] = useState({name:"",code:"",parent_id:"",description:""});
+  const [selectedCategory,setSelectedCategory] = useState("");
+  const [selectedDefinitionIds,setSelectedDefinitionIds] = useState<string[]>([]);
+  const [definitionForm,setDefinitionForm] = useState({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
+  const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({});
+  const [variants,setVariants] = useState<Variant[]>([]);
+  const [variantForm,setVariantForm] = useState({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
+  const [login,setLogin] = useState({email:"",password:""});
+  const [authError,setAuthError] = useState("");
 
-  useEffect(()=>{ supabase.auth.getSession().then(({data})=>{setSession(data.session);setReady(true);}); const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);setReady(true);}); return ()=>subscription.unsubscribe(); },[]);
-  useEffect(()=>{ if(!session?.user){setOrg("");setProducts([]);return;} (async()=>{const {data:m,error:me}=await supabase.from("organization_members").select("organization_id").eq("user_id",session.user.id).limit(1).maybeSingle(); if(me)throw me; if(!m)throw new Error("当前账号尚未加入企业工作区。"); const {data:o,error:oe}=await supabase.from("organizations").select("id,name").eq("id",m.organization_id).single();if(oe)throw oe;setOrg(o.id);setOrgName(o.name); const {data:d,error:de}=await supabase.from("product_attribute_definitions").select("*,product_attribute_definition_values(*)").eq("organization_id",o.id).order("sort_order").order("name");if(de)throw de;setDefinitions((d||[]) as AttributeDefinition[]); const {data:p,error:pe}=await supabase.from("products").select("*").eq("organization_id",o.id).order("updated_at",{ascending:false});if(pe)throw pe;setProducts((p||[]) as Product[]);})().catch(e=>setError(err(e))); },[session]);
-  const refresh=async()=>{const {data,error}=await supabase.from("products").select("*").eq("organization_id",org).order("updated_at",{ascending:false});if(error)throw error;setProducts((data||[]) as Product[]);};
-  const openProduct=async(p:Product)=>{setSelected(p);setTab("attributes");const [a,v,k,m]=await Promise.all([supabase.from("product_attributes").select("*,product_attribute_values(*)").eq("product_id",p.id).order("sort_order"),supabase.from("product_variants").select("*").eq("product_id",p.id),supabase.from("product_keywords").select("*").eq("product_id",p.id),supabase.from("monitoring_profiles").select("*").eq("product_id",p.id)]);for(const x of [a,v,k,m])if(x.error)throw x.error;setAttributes((a.data||[]) as Attribute[]);setVariants((v.data||[]) as Variant[]);setKeywords((k.data||[]) as Keyword[]);setMonitors((m.data||[]) as Monitor[]);const {data:vv,error:ve}=await supabase.from("product_variant_values").select("variant_id,attribute_value_id").eq("product_id",p.id);if(ve)throw ve;const map:Record<string,string[]>={};(vv||[]).forEach(x=>(map[x.variant_id]||=[]).push(x.attribute_value_id));setVariantValues(map);};
-  const login=async(e:FormEvent)=>{e.preventDefault();setBusy(true);setAuthError("");const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setAuthError(error.message);setBusy(false);};
-  const newProduct=()=>{setSelected(null);setEditing(true);setProductForm({name:"",brand:"",model:"",sku:"",category:"消费电子",description:"",markets:"全球",image:""});};
-  const editProduct=()=>{if(!selected)return;setProductForm({name:selected.name,brand:selected.brand||"",model:selected.model||"",sku:selected.sku||"",category:(selected.category_path||[]).join(" / "),description:selected.description||"",markets:(selected.target_markets||[]).join(", "),image:selected.image_url||""});setEditing(true);};
-  const saveProduct=async(e:FormEvent)=>{e.preventDefault();if(!session?.user||!productForm.name.trim())return;setBusy(true);const row={organization_id:org,name:productForm.name.trim(),brand:productForm.brand||null,model:productForm.model||null,sku:productForm.sku||null,category_path:productForm.category.split("/").map(x=>x.trim()).filter(Boolean),description:productForm.description||null,image_url:productForm.image||null,target_markets:productForm.markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),updated_by:session.user.id};const result=selected?await supabase.from("products").update(row).eq("id",selected.id).select().single():await supabase.from("products").insert({...row,created_by:session.user.id}).select().single();if(result.error)setNotice(err(result.error));else{await refresh();setEditing(false);setNotice("产品档案已保存。");await openProduct(result.data as Product);}setBusy(false);};
-  const addDefinition=async(e:FormEvent)=>{e.preventDefault();if(!definitionForm.name.trim())return;const payload={organization_id:org,name:definitionForm.name.trim(),slug:slug(definitionForm.name),data_type:definitionForm.type,unit:definitionForm.unit||null,attribute_group:definitionForm.group,semantic_type:definitionForm.semantic,display_type:definitionForm.display,default_variant_creation_mode:definitionForm.mode,include_in_analysis:definitionForm.analysis,sort_order:definitions.length};const {data,error}=await supabase.from("product_attribute_definitions").insert(payload).select("*,product_attribute_definition_values(*)").single();if(error)setNotice(err(error));else{setDefinitions([...definitions,data as AttributeDefinition]);setDefinitionForm({name:"",type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",mode:"never",analysis:true});setNotice("属性模板已加入企业属性库，可被多个产品复用。");}};
-  const addDefinitionValue=async(d:AttributeDefinition)=>{const raw=(definitionValueDraft[d.id]||"").trim();if(!raw)return;const n=d.data_type==="number"||d.data_type==="dimension"?Number(raw):null;const {data,error}=await supabase.from("product_attribute_definition_values").insert({organization_id:org,definition_id:d.id,value_text:raw,value_number:n!==null&&Number.isFinite(n)?n:null,unit:d.unit,sort_order:(d.product_attribute_definition_values||[]).length}).select().single();if(error)setNotice(err(error));else{setDefinitions(prev=>prev.map(x=>x.id===d.id?{...x,product_attribute_definition_values:[...(x.product_attribute_definition_values||[]),data as DefinitionValue]}:x));setDefinitionValueDraft({...definitionValueDraft,[d.id]:""});}};
-  const attachDefinition=async(e:FormEvent)=>{e.preventDefault();if(!selected||!attachDefinitionId)return;const d=definitions.find(x=>x.id===attachDefinitionId);if(!d)return;if(attributes.some(a=>a.definition_id===d.id)){setNotice("该属性已添加到当前产品。");return;}const {data,error}=await supabase.from("product_attributes").insert({organization_id:org,product_id:selected.id,definition_id:d.id,name:d.name,slug:d.slug,data_type:d.data_type,unit:d.unit,attribute_group:d.attribute_group,semantic_type:d.semantic_type,display_type:d.display_type,variant_creation_mode:d.default_variant_creation_mode,is_variant_axis:d.default_variant_creation_mode!=="never",include_in_analysis:d.include_in_analysis,sort_order:attributes.length}).select("*").single();if(error){setNotice(err(error));return;}const rows=(d.product_attribute_definition_values||[]).map((v,i)=>({organization_id:org,product_id:selected.id,attribute_id:data.id,definition_id:d.id,definition_value_id:v.id,value_text:v.value_text,value_number:v.value_number,unit:v.unit||d.unit,sort_order:i}));let copied:Value[]=[];if(rows.length){const result=await supabase.from("product_attribute_values").insert(rows).select("*");if(result.error){await supabase.from("product_attributes").delete().eq("id",data.id);setNotice(err(result.error));return;}copied=(result.data||[]) as Value[];}setAttributes([...attributes,{...data,product_attribute_values:copied} as Attribute]);setAttachDefinitionId("");setNotice("属性已添加，模板值已复制到产品。");};
-  const updateAttributeMode=async(a:Attribute,mode:string)=>{const {error}=await supabase.from("product_attributes").update({variant_creation_mode:mode,is_variant_axis:mode!=="never"}).eq("id",a.id);if(error)setNotice(err(error));else setAttributes(prev=>prev.map(x=>x.id===a.id?{...x,variant_creation_mode:mode,is_variant_axis:mode!=="never"}:x));};
-  const toggleAttributeAnalysis=async(a:Attribute)=>{const next=!(a.include_in_analysis??true);const {error}=await supabase.from("product_attributes").update({include_in_analysis:next}).eq("id",a.id);if(error)setNotice(err(error));else setAttributes(prev=>prev.map(x=>x.id===a.id?{...x,include_in_analysis:next}:x));};
-  const addValue=async(a:Attribute)=>{const raw=(draftValues[a.id]||"").trim();if(!raw||!selected)return;const n=a.data_type==="number"||a.data_type==="dimension"?Number(raw):null;const normalized=n!==null&&Number.isFinite(n)?normalizeMetric(n,a.unit):null;const {data,error}=await supabase.from("product_attribute_values").insert({organization_id:org,product_id:selected.id,attribute_id:a.id,definition_id:a.definition_id||null,value_text:raw,value_number:n!==null&&Number.isFinite(n)?n:null,normalized_number:normalized?.value??null,normalized_unit:normalized?.unit??null,unit:a.unit}).select().single();if(error)setNotice(err(error));else{setAttributes(prev=>prev.map(x=>x.id===a.id?{...x,product_attribute_values:[...(x.product_attribute_values||[]),data as Value]}:x));setDraftValues({...draftValues,[a.id]:""});}};
-  const addVariant=async(e:FormEvent)=>{e.preventDefault();if(!selected)return;const values=Object.entries(variantValues).filter(([k,v])=>k.startsWith("new-")&&v.length).map(([k,v])=>({attribute_id:k.slice(4),attribute_value_id:v[0]}));if(!values.length){setNotice("至少选择一个规格参数值。");return;}const {data,error}=await supabase.from("product_variants").insert({organization_id:org,product_id:selected.id,title:variantForm.title||null,sku:variantForm.sku||null,model:variantForm.model||null,price:variantForm.price?Number(variantForm.price):null,currency:variantForm.currency}).select().single();if(error){setNotice(err(error));return;}const {error:ve}=await supabase.from("product_variant_values").insert(values.map(x=>({...x,organization_id:org,product_id:selected.id,variant_id:data.id})));if(ve){await supabase.from("product_variants").delete().eq("id",data.id);setNotice(err(ve));}else{setVariants([...variants,data as Variant]);setVariantValues({...variantValues,[data.id]:values.map(x=>x.attribute_value_id)});setVariantForm({title:"",sku:"",model:"",price:"",currency:"USD"});setNotice("实际规格已创建。");}};
-  const addKeyword=async(e:FormEvent)=>{e.preventDefault();if(!selected||!keywordForm.keyword.trim())return;const {data,error}=await supabase.from("product_keywords").insert({organization_id:org,product_id:selected.id,keyword:keywordForm.keyword.trim(),keyword_type:keywordForm.type,language_code:keywordForm.language,market_code:keywordForm.market.toUpperCase()||null}).select().single();if(error)setNotice(err(error));else{setKeywords([data as Keyword,...keywords]);setKeywordForm({...keywordForm,keyword:""});}};
-  const addMonitor=async(e:FormEvent)=>{e.preventDefault();if(!selected)return;const {data,error}=await supabase.from("monitoring_profiles").insert({organization_id:org,product_id:selected.id,name:monitorForm.name,markets:monitorForm.markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),platforms:monitorForm.platforms.split(/[,，]/).map(x=>x.trim()).filter(Boolean),cadence:monitorForm.cadence}).select().single();if(error)setNotice(err(error));else{setMonitors([data as Monitor,...monitors]);setNotice("监测方案已保存；自动采集调度将在情报引擎阶段接入。");}};
-  const importCsv=async(e:FormEvent)=>{e.preventDefault();if(!session?.user)return;const rows=csv.split(/\r?\n/).slice(1).filter(Boolean).map(line=>line.split(",")).filter(c=>c[0]?.trim()).map(c=>({organization_id:org,name:c[0].trim(),brand:c[1]?.trim()||null,category_path:c[2]?.trim()?[c[2].trim()]:[],created_by:session.user.id,updated_by:session.user.id}));const {error}=await supabase.from("products").insert(rows);if(error)setNotice(err(error));else{await refresh();setImporting(false);setNotice("批量导入完成。");}};
-  const removeProduct=async()=>{if(!selected||!window.confirm("确定删除产品及其全部参数、规格和监测记录？"))return;const {error}=await supabase.from("products").delete().eq("id",selected.id);if(error)setNotice(err(error));else{setSelected(null);await refresh();setNotice("产品已删除。");}};
-  if(!ready)return <div className="boot-screen">正在连接产品中心…</div>;
-  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">PRODUCT INTELLIGENCE CATALOG</div><h2>登录企业工作区</h2><p>使用已配置的企业账号访问产品档案。</p><label>邮箱<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>密码<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required/></label>{authError&&<div className="notice error">{authError}</div>}<button className="primary-button" disabled={busy}>{busy?"登录中…":"登录"}</button><small>账号由企业管理员配置，本入口不开放自助注册。</small></form>;
-  if(error)return <div className="empty-state"><h3>企业工作区不可用</h3><p>{error}</p></div>;
-  const filtered=products.filter(p=>[p.name,p.brand,p.model,...(p.category_path||[])].join(" ").toLowerCase().includes(query.toLowerCase()));
-  return <section className="product-workspace">
-    {!selected&&!editing&&!importing&&!libraryOpen&&<><div className="catalog-toolbar"><div><h2>我的产品库</h2><p>{orgName} · 企业统一产品主档案</p></div><div className="toolbar-actions"><button className="secondary-button" onClick={()=>setLibraryOpen(true)}>属性库管理 <span className="count-pill">{definitions.length}</span></button><button className="secondary-button" onClick={()=>setImporting(true)}>批量导入</button><button className="primary-button" onClick={newProduct}>＋ 创建产品</button></div></div><div className="catalog-stats"><div><strong>{products.length}</strong><span>产品总数</span></div><div><strong>{products.filter(p=>p.status==="active").length}</strong><span>监测中产品</span></div><div><strong>{products.reduce((n,p)=>n+(p.category_path?.length||0),0)}</strong><span>分类标签</span></div></div><div className="list-toolbar"><input placeholder="搜索产品名称、品牌、型号或分类…" value={query} onChange={e=>setQuery(e.target.value)}/><span>{filtered.length} 条产品</span></div>{filtered.length?<div className="product-grid">{filtered.map(p=><button className="product-card" key={p.id} onClick={()=>openProduct(p).catch(e=>setNotice(err(e)))}><div className="product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:"▣"}</div><div className="product-card-main"><strong>{p.name}</strong><span>{[p.brand,p.model].filter(Boolean).join(" · ")||"未填写品牌和型号"}</span><small>{(p.category_path||[]).join(" / ")||"未分类"}</small></div><span className="status">{p.status==="active"?"监测中":"草稿"}</span></button>)}</div>:<div className="empty-state"><div className="empty-symbol">▣</div><h3>{products.length?"没有匹配的产品":"产品库还是空的"}</h3><p>创建耳机、数据线、充电器等任意产品，再定义各自独立的参数和值。</p><button className="primary-button" onClick={newProduct}>创建第一个产品</button></div>}</>}
-    {libraryOpen&&!selected&&!editing&&!importing&&<section className="editor-panel attribute-library"><button className="back-link" onClick={()=>setLibraryOpen(false)}>← 返回产品库</button><h2>企业属性库</h2><p>在企业级维护可复用的产品属性模板；同一属性可添加到多个产品，产品侧保存独立快照。</p><form className="library-create" onSubmit={addDefinition}><label>属性名称 *<input required value={definitionForm.name} onChange={e=>setDefinitionForm({...definitionForm,name:e.target.value})} placeholder="例如：额定功率"/></label><label>数据类型<CarbonSelect value={definitionForm.type} onChange={v=>setDefinitionForm({...definitionForm,type:v})}><option value="text">文本</option><option value="number">数字</option><option value="single_select">单选</option><option value="multi_select">多选</option><option value="boolean">是 / 否</option><option value="date">日期</option><option value="dimension">尺寸 / 度量</option></CarbonSelect></label><label>单位<input value={definitionForm.unit} onChange={e=>setDefinitionForm({...definitionForm,unit:e.target.value})} placeholder="W、mAh、mm"/></label><label>属性分组<input value={definitionForm.group} onChange={e=>setDefinitionForm({...definitionForm,group:e.target.value})}/></label><label>属性语义<CarbonSelect value={definitionForm.semantic} onChange={v=>setDefinitionForm({...definitionForm,semantic:v})}><option value="specification">规格参数</option><option value="marketing">营销属性</option><option value="compliance">认证合规</option><option value="commercial">商业属性</option></CarbonSelect></label><label>前端展示<CarbonSelect value={definitionForm.display} onChange={v=>setDefinitionForm({...definitionForm,display:v})}><option value="select">下拉选择</option><option value="radio">单选框</option><option value="pills">标签按钮</option><option value="color">颜色样本</option><option value="multi_checkbox">多选框</option><option value="image">图片样本</option></CarbonSelect></label><label>变体创建模式<CarbonSelect value={definitionForm.mode} onChange={v=>setDefinitionForm({...definitionForm,mode:v})}><option value="instant">立即创建变体</option><option value="dynamic">动态创建变体</option><option value="never">不创建变体</option></CarbonSelect></label><label className="library-check"><input type="checkbox" checked={definitionForm.analysis} onChange={e=>setDefinitionForm({...definitionForm,analysis:e.target.checked})}/>用于情报分析</label><div className="form-actions"><button className="primary-button">＋ 创建属性模板</button></div></form><div className="library-list">{definitions.map(d=><article className="library-card" key={d.id}><div className="library-card-head"><div><strong>{d.name}</strong><span>{d.attribute_group} · {d.semantic_type} · {d.data_type}{d.unit?" · "+d.unit:""}</span></div><div className="tag-row"><span className="tag">{d.default_variant_creation_mode==="instant"?"立即变体":d.default_variant_creation_mode==="dynamic"?"动态变体":"不创建变体"}</span>{d.include_in_analysis&&<span className="tag blue">情报分析</span>}</div></div><div className="library-values">{(d.product_attribute_definition_values||[]).map(v=><span className="value-chip" key={v.id}>{v.value_text}{v.unit||d.unit||""}</span>)}{!d.product_attribute_definition_values?.length&&<small>暂无预设值</small>}</div><div className="add-value-row"><input placeholder="添加可选值，例如 65W、100W、140W" value={definitionValueDraft[d.id]||""} onChange={e=>setDefinitionValueDraft({...definitionValueDraft,[d.id]:e.target.value})}/><button className="secondary-button" onClick={()=>addDefinitionValue(d)}>添加属性值</button></div></article>)}</div>{!definitions.length&&<div className="empty-inline"><strong>属性库暂时为空</strong><span>创建第一个属性模板后，即可在多个产品档案中复用。</span></div>}</section>}
-    {editing&&<section className="editor-panel"><button className="back-link" onClick={()=>setEditing(false)}>← 返回产品库</button><h2>{selected?"编辑产品档案":"创建产品档案"}</h2><p>产品主档案与规格参数分开管理，支持任意品类。</p><form className="form-grid" onSubmit={saveProduct}><label className="span-2">产品名称 *<input required value={productForm.name} onChange={e=>setProductForm({...productForm,name:e.target.value})} placeholder="例如：USB-C 快充数据线"/></label><label>品牌<input value={productForm.brand} onChange={e=>setProductForm({...productForm,brand:e.target.value})}/></label><label>产品型号<input value={productForm.model} onChange={e=>setProductForm({...productForm,model:e.target.value})}/></label><label>主 SKU<input value={productForm.sku} onChange={e=>setProductForm({...productForm,sku:e.target.value})}/></label><label>产品分类<input value={productForm.category} onChange={e=>setProductForm({...productForm,category:e.target.value})} placeholder="一级 / 二级 / 三级"/></label><label>目标市场<input value={productForm.markets} onChange={e=>setProductForm({...productForm,markets:e.target.value})}/></label><label>图片 URL<input value={productForm.image} onChange={e=>setProductForm({...productForm,image:e.target.value})}/></label><label className="span-2">产品描述<textarea rows={4} value={productForm.description} onChange={e=>setProductForm({...productForm,description:e.target.value})}/></label><div className="form-actions span-2"><button type="button" className="secondary-button" onClick={()=>setEditing(false)}>取消</button><button className="primary-button" disabled={busy}>{busy?"保存中…":"保存产品档案"}</button></div></form></section>}
-    {importing&&<section className="editor-panel"><button className="back-link" onClick={()=>setImporting(false)}>← 返回产品库</button><h2>批量导入产品</h2><p>CSV 格式：name,brand,category；首行为列名。</p><form onSubmit={importCsv}><textarea rows={8} value={csv} onChange={e=>setCsv(e.target.value)}/><div className="form-actions"><button type="button" className="secondary-button" onClick={()=>setImporting(false)}>取消</button><button className="primary-button">导入</button></div></form></section>}
-    {selected&&!editing&&!importing&&<><div className="detail-toolbar"><button className="back-link" onClick={()=>setSelected(null)}>← 产品列表</button><div className="toolbar-actions"><button className="secondary-button" onClick={editProduct}>编辑档案</button><button className="secondary-button" onClick={async()=>{const next=selected.status==="active"?"draft":"active";const {error}=await supabase.from("products").update({status:next,updated_by:session?.user.id}).eq("id",selected.id);if(error)setNotice(err(error));else{setSelected({...selected,status:next});await refresh();setNotice(next==="active"?"产品监测已启用。":"产品监测已暂停。");}}}>{selected.status==="active"?"暂停监测":"启用监测"}</button><button className="danger-button" onClick={removeProduct}>删除产品</button></div></div><section className="product-summary"><div className="product-summary-thumb">{selected.image_url?<img src={selected.image_url} alt=""/>:"▣"}</div><div className="product-summary-info"><div className="eyebrow">PRODUCT MASTER RECORD</div><h2>{selected.name}</h2><p>{[selected.brand,selected.model,selected.sku].filter(Boolean).join(" · ")||"品牌、型号和 SKU 尚未填写"}</p><div className="tag-row">{(selected.category_path||[]).map(t=><span className="tag" key={t}>{t}</span>)}<span className="tag muted">{(selected.target_markets||[]).join(", ")}</span></div></div></section><div className="detail-tabs">{[["attributes","自定义参数"],["variants","规格组合 / SKU"],["keywords","监测关键词"],["monitoring","监测方案"]].map(([id,label])=><button key={id} className={tab===id?"detail-tab selected":"detail-tab"} onClick={()=>setTab(id)}>{label}</button>)}</div>
-      {tab==="attributes"&&<section className="detail-section"><div className="section-title"><div><h3>动态属性引擎</h3><p>为该产品单独定义属性、数据类型、单位、分组和值。</p></div><span>{attributes.length} 个属性</span></div><form className="inline-create attach-attribute" onSubmit={attachDefinition}><CarbonSelect value={attachDefinitionId} onChange={setAttachDefinitionId} placeholder="选择企业属性模板…">{definitions.filter(d=>!attributes.some(a=>a.definition_id===d.id)).map(d=><option key={d.id} value={d.id}>{d.name} · {d.attribute_group}</option>)}</CarbonSelect><button className="primary-button" disabled={!attachDefinitionId}>＋ 添加到产品</button><button type="button" className="secondary-button" onClick={()=>{setSelected(null);setLibraryOpen(true);}}>管理属性库</button></form><div className="attribute-list">{attributes.map(a=><article className="attribute-card" key={a.id}><div className="attribute-heading"><div><strong>{a.name}</strong><span>{a.attribute_group} · {a.semantic_type}{a.unit?" · "+a.unit:""}{a.definition_id?" · 企业共享模板":""}</span></div><span className="tag">{a.product_attribute_values?.length||0} 个值</span></div><div className="attribute-controls"><label>变体模式<CarbonSelect value={a.variant_creation_mode|| (a.is_variant_axis?"dynamic":"never")} onChange={v=>updateAttributeMode(a,v)}><option value="instant">立即创建</option><option value="dynamic">动态创建</option><option value="never">不创建变体</option></CarbonSelect></label><button className={(a.include_in_analysis??true)?"analysis-toggle active":"analysis-toggle"} onClick={()=>toggleAttributeAnalysis(a)}>{(a.include_in_analysis??true)?"✓ 用于情报分析":"不参与情报分析"}</button></div><div className="value-row">{(a.product_attribute_values||[]).map(v=><span className="value-chip" key={v.id}>{v.value_text}{v.unit||a.unit||""}</span>)}{!a.product_attribute_values?.length&&<small>尚未添加值</small>}</div><div className="add-value-row"><input placeholder="添加参数值，例如 60、100、1.2" value={draftValues[a.id]||""} onChange={e=>setDraftValues({...draftValues,[a.id]:e.target.value})}/><button className="secondary-button" onClick={()=>addValue(a)}>添加值</button></div></article>)}</div>{!attributes.length&&<div className="empty-inline"><strong>还没有自定义参数</strong><span>先添加功率、长度、接口、颜色等属性，再为每个属性录入多个值。</span></div>}</section>}
-      {tab==="variants"&&<section className="detail-section"><div className="section-title"><div><h3>实际产品规格</h3><p>只创建真实存在的组合，不强制生成全部理论排列。</p></div><span>{variants.length} 个规格</span></div><form className="variant-form" onSubmit={addVariant}><div className="form-grid"><label>规格名称<input value={variantForm.title} onChange={e=>setVariantForm({...variantForm,title:e.target.value})} placeholder="100W / 1.2m / 黑色"/></label><label>SKU<input value={variantForm.sku} onChange={e=>setVariantForm({...variantForm,sku:e.target.value})}/></label><label>型号<input value={variantForm.model} onChange={e=>setVariantForm({...variantForm,model:e.target.value})}/></label><label>售价<input type="number" min="0" step="0.01" value={variantForm.price} onChange={e=>setVariantForm({...variantForm,price:e.target.value})}/></label><label>币种<CarbonSelect value={variantForm.currency} onChange={v=>setVariantForm({...variantForm,currency:v})}><option>USD</option><option>EUR</option><option>GBP</option><option>JPY</option><option>CNY</option></CarbonSelect></label></div><div className="variant-axes"><strong>选择属性值</strong>{attributes.filter(a=>a.is_variant_axis).map(a=><label key={a.id}>{a.name}<CarbonSelect value={variantValues["new-"+a.id]?.[0]||""} onChange={v=>setVariantValues({...variantValues,["new-"+a.id]:v?[v]:[]})}><option value="">不指定</option>{(a.product_attribute_values||[]).map(v=><option key={v.id} value={v.id}>{v.value_text}{v.unit||a.unit||""}</option>)}</CarbonSelect></label>)}</div><button className="primary-button">＋ 创建实际规格</button></form>{variants.length?<div className="table-wrap"><table className="data-table"><thead><tr><th>规格名称</th><th>SKU</th><th>型号</th><th>售价</th><th>参数组合</th></tr></thead><tbody>{variants.map(v=><tr key={v.id}><td>{v.title||"未命名"}</td><td>{v.sku||"—"}</td><td>{v.model||"—"}</td><td>{v.price===null?"—":(v.currency||"USD")+" "+v.price}</td><td>{(variantValues[v.id]||[]).map(id=>attributes.flatMap(a=>a.product_attribute_values||[]).find(x=>x.id===id)?.value_text).filter(Boolean).join(" · ")||"—"}</td></tr>)}</tbody></table></div>:<div className="empty-inline"><strong>尚无实际规格</strong><span>将参数标记为规格维度并添加值，再在这里创建 SKU 组合。</span></div>}</section>}
-      {tab==="keywords"&&<section className="detail-section"><div className="section-title"><div><h3>多语言市场关键词</h3><p>核心词、功能词、场景词、竞品词和痛点词独立维护。</p></div><span>{keywords.length} 个关键词</span></div><form className="inline-create" onSubmit={addKeyword}><input required placeholder="关键词，例如 100W USB C cable" value={keywordForm.keyword} onChange={e=>setKeywordForm({...keywordForm,keyword:e.target.value})}/><CarbonSelect value={keywordForm.type} onChange={v=>setKeywordForm({...keywordForm,type:v})}><option value="core">核心词</option><option value="feature">功能词</option><option value="scenario">场景词</option><option value="competitor">竞品词</option><option value="model">型号词</option><option value="pain_point">痛点词</option><option value="long_tail">长尾词</option></CarbonSelect><CarbonSelect value={keywordForm.language} onChange={v=>setKeywordForm({...keywordForm,language:v})}><option value="en">英语</option><option value="zh">中文</option><option value="ja">日语</option><option value="de">德语</option><option value="fr">法语</option><option value="es">西班牙语</option></CarbonSelect><input placeholder="国家代码，如 US" value={keywordForm.market} onChange={e=>setKeywordForm({...keywordForm,market:e.target.value})}/><button className="primary-button">＋ 添加关键词</button></form><div className="keyword-list">{keywords.map(k=><div className="keyword-row" key={k.id}><strong>{k.keyword}</strong><span className="tag">{k.keyword_type}</span><span className="tag muted">{k.language_code.toUpperCase()} {k.market_code||""}</span><button className="text-danger" onClick={async()=>{const {error}=await supabase.from("product_keywords").delete().eq("id",k.id);if(error)setNotice(err(error));else setKeywords(keywords.filter(x=>x.id!==k.id));}}>删除</button></div>)}</div></section>}
-      {tab==="monitoring"&&<section className="detail-section"><div className="section-title"><div><h3>可复用监测方案</h3><p>保存目标国家、平台和频率，供后续统一采集引擎调用。</p></div><span>{monitors.length} 个方案</span></div><form className="monitor-form" onSubmit={addMonitor}><label>方案名称<input value={monitorForm.name} onChange={e=>setMonitorForm({...monitorForm,name:e.target.value})}/></label><label>市场 / 国家<input value={monitorForm.markets} onChange={e=>setMonitorForm({...monitorForm,markets:e.target.value})}/></label><label>数据平台<input value={monitorForm.platforms} onChange={e=>setMonitorForm({...monitorForm,platforms:e.target.value})}/></label><label>频率<CarbonSelect value={monitorForm.cadence} onChange={v=>setMonitorForm({...monitorForm,cadence:v})}><option value="daily">每日</option><option value="weekly">每周</option><option value="monthly">每月</option><option value="manual">手动</option></CarbonSelect></label><button className="primary-button">＋ 保存方案</button></form><div className="monitor-list">{monitors.map(m=><article className="monitor-card" key={m.id}><div><strong>{m.name}</strong><p>{m.markets.join(" · ")} | {m.platforms.join(" · ")}</p></div><span className="tag blue">{m.cadence}</span></article>)}</div><p className="helper-note">当前版本保存监测配置；定时采集任务将在后续情报引擎阶段接入。</p></section>}
-    </>}
-    {notice&&<div className="notice" role="status">{notice}<button onClick={()=>setNotice("")}>关闭</button></div>}
+  const load = async (organizationId:string) => {
+    const [p,c,d,t] = await Promise.all([
+      supabase.from("products").select("*").eq("organization_id",organizationId).order("updated_at",{ascending:false}),
+      supabase.from("product_categories").select("*").eq("organization_id",organizationId).order("sort_order").order("name"),
+      supabase.from("product_attribute_definitions").select("*,product_attribute_definition_values(*)").eq("organization_id",organizationId).order("sort_order").order("name"),
+      supabase.from("product_category_attribute_templates").select("*").eq("organization_id",organizationId).order("sort_order")
+    ]);
+    for (const r of [p,c,d,t]) if (r.error) throw r.error;
+    setProducts((p.data||[]) as Product[]);
+    setCategories((c.data||[]) as Category[]);
+    setDefinitions((d.data||[]) as Definition[]);
+    setCategoryTemplates((t.data||[]) as CategoryTemplate[]);
+  };
+
+  useEffect(()=>{
+    let alive=true;
+    supabase.auth.getSession().then(({data})=>{if(alive){setSession(data.session);setReady(true);}});
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);setReady(true);});
+    return ()=>{alive=false;subscription.unsubscribe();};
+  },[]);
+
+  useEffect(()=>{
+    if(!session?.user){setOrg("");setProducts([]);return;}
+    (async()=>{
+      const {data:m,error:me}=await supabase.from("organization_members").select("organization_id").eq("user_id",session.user.id).limit(1).maybeSingle();
+      if(me)throw me;
+      if(!m)throw new Error("当前账号尚未加入企业工作区。");
+      const {data:o,error:oe}=await supabase.from("organizations").select("id,name").eq("id",m.organization_id).single();
+      if(oe)throw oe;
+      setOrg(o.id);setOrgName(o.name);await load(o.id);
+    })().catch(e=>setError(message(e)));
+  },[session]);
+
+  const filtered = useMemo(()=>products.filter(p=>[p.name,p.brand,p.manufacturer,p.model,p.sku,p.internal_reference,...(p.category_path||[])].join(" ").toLowerCase().includes(query.toLowerCase())),[products,query]);
+  const categoryName = (id:string|null) => categories.find(c=>c.id===id)?.name || "未分类";
+  const categoryTree = (parent:string|null=null,depth=0):Category[] => categories.filter(c=>c.parent_id===parent).flatMap(c=>[c,...categoryTree(c.id,depth+1)]);
+  const categoryOptions = categoryTree().map(c=>({id:c.id,label:`${"　".repeat(categories.filter(x=>x.id===c.parent_id).length)}${c.name}`}));
+
+  const startNew = () => {setSelected(null);setForm(emptyProduct());setVariants([]);setEditing(true);setNotice(null);};
+  const startEdit = async (p:Product) => {
+    setSelected(p);setForm({
+      name:p.name||"",brand:p.brand||"",manufacturer:p.manufacturer||"",model:p.model||"",sku:p.sku||"",internal_reference:p.internal_reference||"",barcode:p.barcode||"",
+      category_id:p.category_id||"",description:p.description||"",image_url:p.image_url||"",target_markets:(p.target_markets||[]).join(", "),
+      product_type:p.product_type||"physical",can_be_sold:p.can_be_sold??true,can_be_purchased:p.can_be_purchased??true,
+      sales_price:p.sales_price==null?"":String(p.sales_price),sales_currency:p.sales_currency||"USD",cost:p.cost==null?"":String(p.cost),cost_currency:p.cost_currency||"USD",
+      unit_of_measure:p.unit_of_measure||"pcs",purchase_uom:p.purchase_uom||"pcs",sales_description:p.sales_description||"",purchase_description:p.purchase_description||"",
+      weight:p.weight==null?"":String(p.weight),volume:p.volume==null?"":String(p.volume),country_of_origin:p.country_of_origin||"",hs_code:p.hs_code||"",
+      website_url:p.website_url||"",lifecycle_stage:p.lifecycle_stage||"development"
+    });
+    setEditing(true);setNotice(null);
+    const {data,error}=await supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at");
+    if(error)setNotice({kind:"error",text:message(error)});else setVariants((data||[]) as Variant[]);
+  };
+
+  const saveProduct = async (event:FormEvent) => {
+    event.preventDefault();
+    if(!session?.user||!org||!form.name.trim())return;
+    setBusy(true);setNotice(null);
+    const category=categories.find(c=>c.id===form.category_id);
+    const row:any={
+      organization_id:org,name:form.name.trim(),brand:form.brand.trim()||null,manufacturer:form.manufacturer.trim()||null,model:form.model.trim()||null,
+      sku:form.sku.trim()||null,internal_reference:form.internal_reference.trim()||null,barcode:form.barcode.trim()||null,category_id:form.category_id||null,
+      category_path:category?[category.name]:[],description:form.description.trim()||null,image_url:form.image_url.trim()||null,
+      target_markets:form.target_markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),product_type:form.product_type,
+      can_be_sold:form.can_be_sold,can_be_purchased:form.can_be_purchased,sales_price:form.sales_price===""?null:Number(form.sales_price),sales_currency:form.sales_currency,
+      cost:form.cost===""?null:Number(form.cost),cost_currency:form.cost_currency,unit_of_measure:form.unit_of_measure,purchase_uom:form.purchase_uom,
+      sales_description:form.sales_description.trim()||null,purchase_description:form.purchase_description.trim()||null,
+      weight:form.weight===""?null:Number(form.weight),volume:form.volume===""?null:Number(form.volume),
+      country_of_origin:form.country_of_origin.trim()||null,hs_code:form.hs_code.trim()||null,website_url:form.website_url.trim()||null,lifecycle_stage:form.lifecycle_stage,
+      updated_by:session.user.id
+    };
+    const result=selected
+      ?await supabase.from("products").update(row).eq("id",selected.id).select("*").single()
+      :await supabase.from("products").insert({...row,created_by:session.user.id}).select("*").single();
+    if(result.error){setNotice({kind:"error",text:message(result.error)});setBusy(false);return;}
+    if(!selected&&form.category_id){
+      const assigned=categoryTemplates.filter(x=>x.category_id===form.category_id);
+      for(const link of assigned){
+        const d=definitions.find(x=>x.id===link.definition_id);if(!d)continue;
+        const {data:a,error:ae}=await supabase.from("product_attributes").insert({
+          organization_id:org,product_id:result.data.id,definition_id:d.id,name:d.name,slug:d.slug,data_type:d.data_type,unit:d.unit,
+          attribute_group:d.attribute_group,semantic_type:d.semantic_type,display_type:d.display_type,
+          variant_creation_mode:d.default_variant_creation_mode,is_variant_axis:d.default_variant_creation_mode!=="never",
+          include_in_analysis:d.include_in_analysis,is_required:link.is_required,sort_order:link.sort_order
+        }).select("*").single();
+        if(ae){setNotice({kind:"error",text:`产品已创建，但初始化属性失败：${message(ae)}`});continue;}
+        const values=(d.product_attribute_definition_values||[]).map((v,i)=>({
+          organization_id:org,product_id:result.data.id,attribute_id:a.id,definition_id:d.id,definition_value_id:v.id,
+          value_text:v.value_text,value_number:v.value_number,unit:v.unit||d.unit,sort_order:i
+        }));
+        if(values.length){const {error:ve}=await supabase.from("product_attribute_values").insert(values);if(ve)setNotice({kind:"error",text:`产品已创建，但复制属性值失败：${message(ve)}`});}
+      }
+    }
+    await load(org);setSelected(result.data as Product);setEditing(false);setBusy(false);
+    setNotice({kind:"success",text:selected?"产品模板已更新。":"产品模板已创建，分类属性模板已自动应用。"});
+  };
+
+  const createCategory = async (event:FormEvent) => {
+    event.preventDefault();if(!categoryForm.name.trim()||!org)return;
+    setBusy(true);
+    const {data,error}=await supabase.from("product_categories").insert({
+      organization_id:org,parent_id:categoryForm.parent_id||null,name:categoryForm.name.trim(),
+      slug:makeSlug(categoryForm.name),code:categoryForm.code.trim()||null,description:categoryForm.description.trim()||null,sort_order:categories.length
+    }).select("*").single();
+    if(error)setNotice({kind:"error",text:message(error)});
+    else{setCategories(prev=>[...prev,data as Category]);setCategoryForm({name:"",code:"",parent_id:"",description:""});setNotice({kind:"success",text:"产品分类已创建。"});}
+    setBusy(false);
+  };
+
+  const saveCategoryAttributes = async (event:FormEvent) => {
+    event.preventDefault();if(!selectedCategory||!org)return;
+    setBusy(true);
+    const del=await supabase.from("product_category_attribute_templates").delete().eq("category_id",selectedCategory);
+    if(del.error){setNotice({kind:"error",text:message(del.error)});setBusy(false);return;}
+    if(selectedDefinitionIds.length){
+      const rows=selectedDefinitionIds.map((id,index)=>({organization_id:org,category_id:selectedCategory,definition_id:id,sort_order:index}));
+      const ins=await supabase.from("product_category_attribute_templates").insert(rows);
+      if(ins.error){setNotice({kind:"error",text:message(ins.error)});setBusy(false);return;}
+    }
+    const {data,error}=await supabase.from("product_category_attribute_templates").select("*").eq("organization_id",org).order("sort_order");
+    if(error)setNotice({kind:"error",text:message(error)});else{setCategoryTemplates((data||[]) as CategoryTemplate[]);setNotice({kind:"success",text:"分类属性模板已保存。"});}
+    setBusy(false);
+  };
+
+  const createDefinition = async (event:FormEvent) => {
+    event.preventDefault();if(!definitionForm.name.trim()||!org)return;
+    setBusy(true);
+    const {data,error}=await supabase.from("product_attribute_definitions").insert({
+      organization_id:org,name:definitionForm.name.trim(),slug:makeSlug(definitionForm.name),data_type:definitionForm.data_type,
+      unit:definitionForm.unit.trim()||null,attribute_group:definitionForm.group,semantic_type:definitionForm.semantic,
+      display_type:definitionForm.display,default_variant_creation_mode:definitionForm.variant_mode,
+      include_in_analysis:true,sort_order:definitions.length
+    }).select("*,product_attribute_definition_values(*)").single();
+    if(error)setNotice({kind:"error",text:message(error)});
+    else{setDefinitions(prev=>[...prev,data as Definition]);setDefinitionForm({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});setNotice({kind:"success",text:"属性已加入企业属性库。"});}
+    setBusy(false);
+  };
+
+  const addDefinitionValue = async (d:Definition) => {
+    const raw=(definitionValueDraft[d.id]||"").trim();if(!raw)return;
+    const numeric=["number","dimension"].includes(d.data_type)?Number(raw):null;
+    const {data,error}=await supabase.from("product_attribute_definition_values").insert({
+      organization_id:org,definition_id:d.id,value_text:raw,
+      value_number:numeric!==null&&Number.isFinite(numeric)?numeric:null,unit:d.unit,sort_order:(d.product_attribute_definition_values||[]).length
+    }).select("*").single();
+    if(error)setNotice({kind:"error",text:message(error)});
+    else{setDefinitions(prev=>prev.map(x=>x.id===d.id?{...x,product_attribute_definition_values:[...(x.product_attribute_definition_values||[]),data as DefinitionValue]}:x));setDefinitionValueDraft(prev=>({...prev,[d.id]:""}));}
+  };
+
+  const createVariant = async (event:FormEvent) => {
+    event.preventDefault();if(!selected||!org)return;
+    setBusy(true);
+    const {data,error}=await supabase.from("product_variants").insert({
+      organization_id:org,product_id:selected.id,title:variantForm.title.trim()||null,sku:variantForm.sku.trim()||null,
+      model:variantForm.model.trim()||null,barcode:variantForm.barcode.trim()||null,price:variantForm.price===""?null:Number(variantForm.price),
+      currency:variantForm.currency,cost:variantForm.cost===""?null:Number(variantForm.cost)
+    }).select("*").single();
+    if(error)setNotice({kind:"error",text:message(error)});
+    else{setVariants(prev=>[...prev,data as Variant]);setVariantForm({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});setNotice({kind:"success",text:"实际销售变体已创建。"});}
+    setBusy(false);
+  };
+
+  const doLogin = async (event:FormEvent) => {
+    event.preventDefault();setBusy(true);setAuthError("");
+    const {error}=await supabase.auth.signInWithPassword(login);
+    if(error)setAuthError(error.message);
+    setBusy(false);
+  };
+
+  if(!ready)return <div className="pc-loading">正在连接企业产品主数据…</div>;
+  if(!session)return <form className="pc-login" onSubmit={doLogin}><div className="pc-kicker">PRODUCT MASTER DATA</div><h2>登录企业工作区</h2><p>使用企业账号访问产品主档案、分类与属性库。</p><TextInput id="pc-email" type="email" labelText="邮箱" value={login.email} onChange={e=>setLogin(p=>({...p,email:e.target.value}))} required/><TextInput id="pc-password" type="password" labelText="密码" value={login.password} onChange={e=>setLogin(p=>({...p,password:e.target.value}))} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError}/>}<Button type="submit" disabled={busy}>{busy?"登录中…":"登录"}</Button><small>账号由企业管理员配置，不开放自助注册。</small></form>;
+  if(error)return <div className="pc-empty"><h3>产品工作区不可用</h3><p>{error}</p></div>;
+
+  const selectedCategory=categories.find(c=>c.id===selectedCategoryId);
+  return <section className="pc-workspace">
+    <div className="pc-heading"><div><div className="pc-kicker">PRODUCT MASTER / ODOO-STYLE CATALOG</div><h2>产品中心</h2><p>{orgName} · 统一产品主档案，供市场情报、报价与合同流程复用</p></div><div className="pc-heading-actions"><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></div></div>
+    {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.kind==="success"?"已保存":notice.kind==="error"?"操作失败":"提示"} subtitle={notice.text} onCloseButtonClick={()=>setNotice(null)}/>}
+    <Tabs selectedIndex={tab} onChange={({selectedIndex})=>setTab(selectedIndex)}>
+      <TabList aria-label="产品中心模块"><Tab>产品管理</Tab><Tab>产品分类</Tab><Tab>属性管理</Tab></TabList>
+      <TabPanels>
+        <TabPanel>
+          {editing?<form className="pc-editor" onSubmit={saveProduct}>
+            <div className="pc-panel-heading"><div><button type="button" className="pc-back" onClick={()=>{setEditing(false);setSelected(null);}}>← 返回产品目录</button><h3>{selected?"编辑产品模板":"创建产品模板"}</h3><p>产品模板代表产品家族；实际可销售 SKU 在变体中独立管理。</p></div><Tag type="blue">{selected?`版本 v${selected.version||1}`:"新建模板"}</Tag></div>
+            <div className="pc-form-section"><h4>01 · 基础信息</h4><div className="pc-form-grid">
+              <TextInput id="pc-name" labelText="产品名称 *" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} required/>
+              <label className="pc-field"><span>产品类型</span><CarbonSelect value={form.product_type} onChange={v=>setForm(p=>({...p,product_type:v}))}><option value="physical">可库存商品</option><option value="service">服务</option><option value="combo">组合商品</option></CarbonSelect></label>
+              <TextInput id="pc-brand" labelText="品牌" value={form.brand} onChange={e=>setForm(p=>({...p,brand:e.target.value}))}/>
+              <TextInput id="pc-manufacturer" labelText="制造商" value={form.manufacturer} onChange={e=>setForm(p=>({...p,manufacturer:e.target.value}))}/>
+              <TextInput id="pc-model" labelText="型号 / 系列" value={form.model} onChange={e=>setForm(p=>({...p,model:e.target.value}))}/>
+              <TextInput id="pc-reference" labelText="内部参考编号" value={form.internal_reference} onChange={e=>setForm(p=>({...p,internal_reference:e.target.value}))}/>
+              <TextInput id="pc-sku" labelText="主 SKU（无变体时使用）" value={form.sku} onChange={e=>setForm(p=>({...p,sku:e.target.value}))}/>
+              <TextInput id="pc-barcode" labelText="条码 / GTIN" value={form.barcode} onChange={e=>setForm(p=>({...p,barcode:e.target.value}))}/>
+              <label className="pc-field"><span>产品分类</span><CarbonSelect value={form.category_id} onChange={v=>setForm(p=>({...p,category_id:v}))} placeholder="选择产品分类"><option value="">未分类</option>{categoryOptions.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</CarbonSelect></label>
+              <label className="pc-field"><span>产品生命周期</span><CarbonSelect value={form.lifecycle_stage} onChange={v=>setForm(p=>({...p,lifecycle_stage:v}))}><option value="development">开发中</option><option value="pre_launch">上市准备</option><option value="launched">已发布</option><option value="active">在售</option><option value="discontinued">已停产</option></CarbonSelect></label>
+              <TextInput id="pc-image" labelText="产品图片 URL" value={form.image_url} onChange={e=>setForm(p=>({...p,image_url:e.target.value}))}/>
+              <TextInput id="pc-website" labelText="官方产品链接" value={form.website_url} onChange={e=>setForm(p=>({...p,website_url:e.target.value}))}/>
+              <div className="pc-span-2"><TextArea id="pc-description" labelText="产品描述 / 内部备注" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))} rows={3}/></div>
+            </div></div>
+            <div className="pc-form-section"><h4>02 · 销售与采购</h4><div className="pc-checks"><Checkbox id="pc-sell" labelText="可销售" checked={form.can_be_sold} onChange={(_,d)=>setForm(p=>({...p,can_be_sold:d.checked}))}/><Checkbox id="pc-buy" labelText="可采购" checked={form.can_be_purchased} onChange={(_,d)=>setForm(p=>({...p,can_be_purchased:d.checked}))}/></div><div className="pc-form-grid">
+              <NumberInput id="pc-price" label="销售价格" min={0} step={0.01} value={form.sales_price} onChange={(_,d)=>setForm(p=>({...p,sales_price:String(d.value??"")}))}/>
+              <label className="pc-field"><span>销售币种</span><CarbonSelect value={form.sales_currency} onChange={v=>setForm(p=>({...p,sales_currency:v}))}><option value="USD">USD · 美元</option><option value="EUR">EUR · 欧元</option><option value="GBP">GBP · 英镑</option><option value="JPY">JPY · 日元</option><option value="CNY">CNY · 人民币</option></CarbonSelect></label>
+              <NumberInput id="pc-cost" label="成本" min={0} step={0.01} value={form.cost} onChange={(_,d)=>setForm(p=>({...p,cost:String(d.value??"")}))}/>
+              <label className="pc-field"><span>成本币种</span><CarbonSelect value={form.cost_currency} onChange={v=>setForm(p=>({...p,cost_currency:v}))}><option value="USD">USD · 美元</option><option value="EUR">EUR · 欧元</option><option value="CNY">CNY · 人民币</option></CarbonSelect></label>
+              <TextInput id="pc-uom" labelText="销售计量单位" value={form.unit_of_measure} onChange={e=>setForm(p=>({...p,unit_of_measure:e.target.value}))}/>
+              <TextInput id="pc-puom" labelText="采购计量单位" value={form.purchase_uom} onChange={e=>setForm(p=>({...p,purchase_uom:e.target.value}))}/>
+              <div className="pc-span-2"><TextArea id="pc-sales-desc" labelText="销售描述（报价单可复用）" value={form.sales_description} onChange={e=>setForm(p=>({...p,sales_description:e.target.value}))} rows={2}/></div>
+              <div className="pc-span-2"><TextArea id="pc-purchase-desc" labelText="采购描述" value={form.purchase_description} onChange={e=>setForm(p=>({...p,purchase_description:e.target.value}))} rows={2}/></div>
+            </div></div>
+            <div className="pc-form-section"><h4>03 · 库存与物流</h4><div className="pc-form-grid">
+              <NumberInput id="pc-weight" label="重量（kg）" min={0} step={0.001} value={form.weight} onChange={(_,d)=>setForm(p=>({...p,weight:String(d.value??"")}))}/>
+              <NumberInput id="pc-volume" label="体积（m³）" min={0} step={0.0001} value={form.volume} onChange={(_,d)=>setForm(p=>({...p,volume:String(d.value??"")}))}/>
+              <TextInput id="pc-origin" labelText="原产国 / 地区" value={form.country_of_origin} onChange={e=>setForm(p=>({...p,country_of_origin:e.target.value}))}/>
+              <TextInput id="pc-hs" labelText="HS 编码" value={form.hs_code} onChange={e=>setForm(p=>({...p,hs_code:e.target.value}))}/>
+              <TextInput id="pc-markets" labelText="目标市场（逗号分隔）" value={form.target_markets} onChange={e=>setForm(p=>({...p,target_markets:e.target.value}))}/>
+            </div></div>
+            <div className="pc-form-actions"><Button kind="secondary" type="button" onClick={()=>setEditing(false)}>取消</Button><Button kind="primary" type="submit" disabled={busy}>{busy?"保存中…":"保存产品模板"}</Button></div>
+          </form>:selected?<div className="pc-detail">
+            <div className="pc-panel-heading"><div><button className="pc-back" onClick={()=>setSelected(null)}>← 返回产品目录</button><h3>{selected.name}</h3><p>{selected.brand||"未设置品牌"} · {selected.model||"未设置型号"} · {categoryName(selected.category_id)}</p></div><div className="pc-heading-actions"><Tag type="blue">模板 v{selected.version||1}</Tag><Button kind="primary" onClick={()=>startEdit(selected)}>编辑模板</Button></div></div>
+            <div className="pc-product-facts"><div><span>内部参考</span><strong>{selected.internal_reference||"—"}</strong></div><div><span>主 SKU</span><strong>{selected.sku||"由变体定义"}</strong></div><div><span>销售价格</span><strong>{money(selected.sales_price,selected.sales_currency)}</strong></div><div><span>生命周期</span><strong>{selected.lifecycle_stage}</strong></div></div>
+            <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品变体 / Product Variants</h4><p>变体是可销售的实际规格组合，每个变体拥有独立 SKU、条码和商业价格。</p></div><Tag>{variants.length} 个变体</Tag></div>
+              <form className="pc-variant-form" onSubmit={createVariant}>
+                <TextInput id="pc-v-title" labelText="变体名称 / 规格组合" value={variantForm.title} onChange={e=>setVariantForm(p=>({...p,title:e.target.value}))}/>
+                <TextInput id="pc-v-sku" labelText="SKU" value={variantForm.sku} onChange={e=>setVariantForm(p=>({...p,sku:e.target.value}))}/>
+                <TextInput id="pc-v-model" labelText="型号" value={variantForm.model} onChange={e=>setVariantForm(p=>({...p,model:e.target.value}))}/>
+                <TextInput id="pc-v-barcode" labelText="条码" value={variantForm.barcode} onChange={e=>setVariantForm(p=>({...p,barcode:e.target.value}))}/>
+                <NumberInput id="pc-v-price" label="销售价格" min={0} step={0.01} value={variantForm.price} onChange={(_,d)=>setVariantForm(p=>({...p,price:String(d.value??"")}))}/>
+                <label className="pc-field"><span>币种</span><CarbonSelect value={variantForm.currency} onChange={v=>setVariantForm(p=>({...p,currency:v}))}><option value="USD">USD</option><option value="EUR">EUR</option><option value="CNY">CNY</option></CarbonSelect></label>
+                <NumberInput id="pc-v-cost" label="成本" min={0} step={0.01} value={variantForm.cost} onChange={(_,d)=>setVariantForm(p=>({...p,cost:String(d.value??"")}))}/>
+                <Button type="submit" disabled={busy}>新增变体</Button>
+              </form>
+              {variants.length?<div className="pc-table-wrap"><table className="pc-table"><thead><tr><th>变体</th><th>SKU</th><th>型号</th><th>条码</th><th>销售价</th><th>成本</th></tr></thead><tbody>{variants.map(v=><tr key={v.id}><td>{v.title||"默认变体"}</td><td>{v.sku||"—"}</td><td>{v.model||"—"}</td><td>{v.barcode||"—"}</td><td>{money(v.price,v.currency||"USD")}</td><td>{money(v.cost,v.currency||"USD")}</td></tr>)}</tbody></table></div>:<div className="pc-empty-inline">尚未创建实际销售变体。可先添加默认 SKU，后续再配置属性组合。</div>}
+            </section>
+            <section className="pc-form-section"><h4>产品属性摘要</h4><p>分类：{categoryName(selected.category_id)}。分类绑定的属性模板会在创建产品时复制到产品属性实例中；变体轴可在属性管理中配置。</p></section>
+          </div>:<><div className="pc-catalog-stats"><div><span>产品模板</span><strong>{products.length}</strong></div><div><span>分类</span><strong>{categories.length}</strong></div><div><span>属性定义</span><strong>{definitions.length}</strong></div><div><span>已发布产品</span><strong>{products.filter(p=>p.status==="active"||p.lifecycle_stage==="active").length}</strong></div></div>
+            <div className="pc-list-toolbar"><Search size="lg" labelText="搜索产品" placeholder="名称、品牌、型号、SKU 或内部编号" value={query} onChange={e=>setQuery(e.target.value)}/><span>{filtered.length} 条记录</span></div>
+            {filtered.length?<div className="pc-product-list">{filtered.map(p=><button key={p.id} className="pc-product-row" onClick={()=>startEdit(p).catch(e=>setNotice({kind:"error",text:message(e)}))}><div className="pc-product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:<span>▣</span>}</div><div className="pc-product-main"><strong>{p.name}</strong><span>{p.brand||"未设置品牌"} · {p.model||"未设置型号"}</span><small>{categoryName(p.category_id)} · {p.internal_reference||p.sku||"未设置编码"}</small></div><div className="pc-product-price"><strong>{money(p.sales_price,p.sales_currency||"USD")}</strong><span>{p.can_be_sold?"可销售":"不销售"}</span></div><span className="pc-row-arrow">›</span></button>)}</div>:<div className="pc-empty"><div className="pc-empty-icon">▣</div><h3>{query?"没有匹配的产品":"产品主档案尚为空"}</h3><p>创建产品模板后，可按分类自动载入属性，并在模板下维护实际 SKU 变体。</p><Button kind="primary" onClick={startNew}>创建第一个产品</Button></div>}
+          </>}
+        </TabPanel>
+        <TabPanel>
+          <div className="pc-management-grid">
+            <section className="pc-form-section"><div className="pc-section-head"><div><h3>产品分类</h3><p>建立独立的多级产品分类；分类与属性是不同的主数据。</p></div><Tag>{categories.length} 个分类</Tag></div>
+              <form className="pc-create-category" onSubmit={createCategory}>
+                <TextInput id="pc-cat-name" labelText="分类名称 *" value={categoryForm.name} onChange={e=>setCategoryForm(p=>({...p,name:e.target.value}))} required/>
+                <TextInput id="pc-cat-code" labelText="分类编码" value={categoryForm.code} onChange={e=>setCategoryForm(p=>({...p,code:e.target.value}))}/>
+                <label className="pc-field"><span>上级分类</span><CarbonSelect value={categoryForm.parent_id} onChange={v=>setCategoryForm(p=>({...p,parent_id:v}))} placeholder="顶级分类"><option value="">顶级分类</option>{categoryTree().map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</CarbonSelect></label>
+                <TextInput id="pc-cat-description" labelText="分类说明" value={categoryForm.description} onChange={e=>setCategoryForm(p=>({...p,description:e.target.value}))}/>
+                <Button type="submit" disabled={busy}>创建分类</Button>
+              </form>
+              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+Math.max(0,categories.filter(x=>x.id===c.parent_id).length)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategory(c.id);setSelectedDefinitionIds(categoryTemplates.filter(x=>x.category_id===c.id).map(x=>x.definition_id));}}>配置属性 →</Button></div>)}</div>
+            </section>
+            <section className="pc-form-section"><div className="pc-section-head"><div><h3>分类属性模板</h3><p>为所选分类指定默认属性。创建该分类产品时自动初始化。</p></div></div>
+              {selectedCategory?<form onSubmit={saveCategoryAttributes}><div className="pc-selected-category">{categoryName(selectedCategory)}</div><div className="pc-check-list">{definitions.map(d=><Checkbox key={d.id} id={`pc-cat-def-${d.id}`} labelText={d.name} checked={selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>setSelectedDefinitionIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id))}/>)}</div><Button type="submit" disabled={busy}>保存分类属性模板</Button></form>:<div className="pc-empty-inline">从左侧分类列表选择「配置属性」。</div>}
+            </section>
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <div className="pc-management-grid pc-attributes-layout">
+            <section className="pc-form-section"><div className="pc-section-head"><div><h3>创建属性</h3><p>企业级统一属性库；不同产品分类可复用相同属性定义。</p></div></div>
+              <form className="pc-create-attribute" onSubmit={createDefinition}>
+                <TextInput id="pc-attr-name" labelText="属性名称 *" value={definitionForm.name} onChange={e=>setDefinitionForm(p=>({...p,name:e.target.value}))} required/>
+                <label className="pc-field"><span>数据类型</span><CarbonSelect value={definitionForm.data_type} onChange={v=>setDefinitionForm(p=>({...p,data_type:v}))}><option value="text">文本</option><option value="number">数值</option><option value="single_select">单选</option><option value="multi_select">多选</option><option value="boolean">布尔值</option><option value="date">日期</option><option value="dimension">带单位数值</option></CarbonSelect></label>
+                <TextInput id="pc-attr-unit" labelText="计量单位" value={definitionForm.unit} onChange={e=>setDefinitionForm(p=>({...p,unit:e.target.value}))}/>
+                <label className="pc-field"><span>属性分组</span><CarbonSelect value={definitionForm.group} onChange={v=>setDefinitionForm(p=>({...p,group:v}))}><option value="规格参数">规格参数</option><option value="外观设计">外观设计</option><option value="功能特性">功能特性</option><option value="合规认证">合规认证</option><option value="商业信息">商业信息</option></CarbonSelect></label>
+                <label className="pc-field"><span>变体生成方式</span><CarbonSelect value={definitionForm.variant_mode} onChange={v=>setDefinitionForm(p=>({...p,variant_mode:v}))}><option value="never">不生成变体</option><option value="dynamic">动态生成</option><option value="instant">立即生成</option></CarbonSelect></label>
+                <label className="pc-field"><span>显示方式</span><CarbonSelect value={definitionForm.display} onChange={v=>setDefinitionForm(p=>({...p,display:v}))}><option value="pills">标签按钮</option><option value="select">下拉选择</option><option value="radio">单选按钮</option><option value="color">颜色</option><option value="multi_checkbox">多选框</option><option value="image">图片</option></CarbonSelect></label>
+                <Button type="submit" disabled={busy}>创建属性</Button>
+              </form>
+            </section>
+            <section className="pc-form-section"><div className="pc-section-head"><div><h3>属性库</h3><p>维护属性允许值、单位和变体规则。</p></div><Tag>{definitions.length} 项</Tag></div>
+              <div className="pc-definition-list">{definitions.map(d=><article className="pc-definition" key={d.id}><div className="pc-definition-heading"><div><strong>{d.name}</strong><span>{d.attribute_group} · {d.data_type}{d.unit?` · ${d.unit}`:""}</span></div><Tag type={d.default_variant_creation_mode==="never"?"gray":"blue"}>{d.default_variant_creation_mode==="never"?"非变体属性":d.default_variant_creation_mode==="dynamic"?"动态变体":"立即变体"}</Tag></div><div className="pc-definition-values">{(d.product_attribute_definition_values||[]).map(v=><span key={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</span>)}{!(d.product_attribute_definition_values||[]).length&&<small>尚未定义允许值</small>}</div><div className="pc-add-value"><TextInput id={`pc-value-${d.id}`} labelText="添加属性值" hideLabel value={definitionValueDraft[d.id]||""} onChange={e=>setDefinitionValueDraft(p=>({...p,[d.id]:e.target.value}))} placeholder="输入属性值"/><Button kind="tertiary" size="sm" onClick={()=>addDefinitionValue(d)}>添加</Button></div></article>)}</div>
+            </section>
+          </div>
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
+    <div className="pc-footer-note">产品模板与 SKU 变体分层管理 · 企业属性库统一复用 · 分类模板自动初始化 · 商业字段为报价与合同预留</div>
   </section>;
 }
