@@ -1,0 +1,5 @@
+insert into public.research_task_executions
+(task_id,organization_id,created_by,attempt_number,actor_id,actor_run_id,status,input_snapshot,dataset_id,key_value_store_id,raw_items,kv_records,result_count,actor_meta,error_message,started_at,completed_at,created_at)
+select id,organization_id,created_by,1,actor_id,actor_run_id,status,input_snapshot,dataset_id,key_value_store_id,raw_items,kv_records,result_count,actor_meta,error_message,started_at,completed_at,created_at
+from public.market_trend_tasks
+on conflict (task_id,attempt_number) do nothing;
