@@ -49,7 +49,7 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
   {!payload&&!busy&&<div className="trade-empty">提交后将在这里展示官方税则、国际贸易统计、B-READY 指标与港口运行数据。不同来源独立返回，单一来源不可用不会阻断其他分析。</div>}
   {busy&&<InlineLoading description="正在连接免费官方数据源…" />}
   {payload&&<><div className="trade-compliance-result"><strong>本次合规核查范围</strong><span>{(payload.compliance_scope||complianceScope).map(id=>complianceTopics.find(topic=>topic.id===id)?.title||id).join("、")||"未选择"}</span><small>范围配置已随本次请求提交；当前数据接口尚未完成制裁名单、出口管制清单及产品认证法规的自动核验，因此不生成合规结论。</small></div><div className="trade-result-meta"><span>数据生成时间：{new Date(payload.generated_at).toLocaleString("zh-CN")}</span><span>每个来源分别显示获取状态，不将估算值混同官方数据。</span></div>
-   <Tabs className="gi-ai-tabs trade-tabs"><TabList aria-label="贸易分析结果分类"><Tab>关税与贸易</Tab><Tab>运输与物流</Tab><Tab>市场环境</Tab></TabList><TabPanels><TabPanel><div className="trade-results-grid">
+   <div className="gi-ai-tabs trade-tabs"><Tabs><TabList aria-label="贸易分析结果分类"><Tab>关税与贸易</Tab><Tab>运输与物流</Tab><Tab>市场环境</Tab></TabList><TabPanels><TabPanel><div className="trade-results-grid">
     <ResultSection title="关税与 HTS 商品归类" source="USITC · 美国官方协调关税表" status={results.tariff?.status||"unavailable"} error={results.tariff?.error}><DataRows items={safeArray(results.tariff?.data?.items)} kind="tariff"/></ResultSection>
     <ResultSection title="国际贸易流向" source="UN Comtrade · 官方贸易统计（公共预览）" status={results.trade?.status||"unavailable"} error={results.trade?.error||results.trade?.data?.note}><DataRows items={results.trade?.data?.items||[]} kind="trade"/></ResultSection>
 
@@ -58,7 +58,7 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
 </div></TabPanel><TabPanel><div className="trade-results-grid">
     <ResultSection title="宏观市场环境" source="World Bank · World Development Indicators" status={results.market?.status||"unavailable"} error={results.market?.error||results.market?.data?.note}><DataRows items={results.market?.data?.items||[]} kind="market"/></ResultSection>
     <ResultSection title="营商环境与市场准入" source="World Bank Data Catalog · B-READY 2024" status={results.bready?.status||"unavailable"} error={results.bready?.error||results.bready?.data?.note}><DataRows items={results.bready?.data?.items||[]} kind="bready"/></ResultSection>
-</div></TabPanel></TabPanels></Tabs><div className="trade-source-foot">数据来源与限制：USITC 为美国 HTS 税则查询，目前仅返回美国税则条目，尚未计算按原产国适用的附加税、优惠税率或贸易救济税；UN Comtrade 公共预览每次最多 500 条，年度数据有发布滞后；B-READY 反映制度、公共服务与效率，不等于实时运营成本；港口拥堵指标不是船舶等待时间；运价仅为可用航线的参考报价，不是承运人最终合同价格。</div>
+</div></TabPanel></TabPanels></Tabs></div><div className="trade-source-foot">数据来源与限制：USITC 为美国 HTS 税则查询，目前仅返回美国税则条目，尚未计算按原产国适用的附加税、优惠税率或贸易救济税；UN Comtrade 公共预览每次最多 500 条，年度数据有发布滞后；B-READY 反映制度、公共服务与效率，不等于实时运营成本；港口拥堵指标不是船舶等待时间；运价仅为可用航线的参考报价，不是承运人最终合同价格。</div>
   </>}
  </div>;
 }
