@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import CarbonSelect from "./components/CarbonSelect";
+import "./intelligence.css";
 import { supabase } from "./lib/supabase";
 
 type Source = { id:string; slug:string; channel:string; name:string; logo_url:string; website_url:string; description:string; market_codes:string[]; status:string; sort_order:number };
