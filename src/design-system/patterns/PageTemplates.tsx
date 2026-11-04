@@ -19,8 +19,10 @@ export function IntelligencePageTemplate({ title, description, eyebrow, actions,
     <PageFrame className="kosmo-template kosmo-template--intelligence">
       <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} headingLevel={headingLevel} />
       <section className="kosmo-template__source" aria-label="分析源配置">{sourceConfiguration}</section>
-      {navigation && <nav className="kosmo-template__navigation" aria-label="页面内容导航">{navigation}</nav>}
-      <div className="kosmo-template__content">{children}</div>
+      <section className="kosmo-template__results" aria-label="采集结果工作区">
+        {navigation && <nav className="kosmo-template__navigation kosmo-results-tabs" aria-label="页面内容导航">{navigation}</nav>}
+        <div className="kosmo-template__content">{children}</div>
+      </section>
       {metadata && <footer className="kosmo-template__metadata">{metadata}</footer>}
     </PageFrame>
   );
