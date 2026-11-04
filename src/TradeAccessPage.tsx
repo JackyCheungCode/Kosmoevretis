@@ -17,9 +17,9 @@ export default function TradeAccessPage(){
  const terms=useMemo(()=>keywords.split(/[\n,，;；]+/).map(x=>x.trim()).filter(Boolean),[keywords]);
  const accessToken=session?.access_token||"";
  if(!session)return <div className="trade-page-auth"><h2>请先登录企业工作区</h2><p>登录后可使用企业产品档案和贸易情报数据源。</p></div>;
- return <div className="trade-page">
-  <section className="trade-page-source">
-   <div className="trade-page-source-head"><div><span className="eyebrow">01 / TRADE ANALYSIS SCOPE</span><h2>配置贸易分析对象</h2><p>选择产品或输入关键词，并指定目标市场。此页面独立于全球情报中心运行。</p></div><span className="trade-page-badge">独立分析工作区</span></div>
+ return <section className="global-intelligence trade-page">
+  <section className="analysis-source trade-page-source">
+   <div className="analysis-source-heading trade-page-source-head"><div><span className="eyebrow">01 / TRADE ANALYSIS SCOPE</span><h2>配置贸易分析对象</h2><p>选择产品或输入关键词，并指定目标市场。此页面独立于全球情报中心运行。</p></div><span className="trade-page-badge">独立分析工作区</span></div>
    {error&&<div className="trade-page-error">{error}</div>}
    <div className="trade-page-form">
     <label>企业产品档案<CarbonSelect value={productId} onChange={setProductId} placeholder="不选择产品，直接输入关键词"><option value="">不选择产品</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}{p.brand?" · "+p.brand:""}{p.model?" · "+p.model:""}</option>)}</CarbonSelect></label>
@@ -30,5 +30,5 @@ export default function TradeAccessPage(){
    <p className="trade-page-help">{loading?"正在读取企业产品档案…":"产品信息来自产品中心；HS 编码可留空，系统不会将 AI 推测编码当作正式归类结果。"}</p>
   </section>
   <TradeAccessAnalysis productName={selectedProduct?.name||""} keywords={terms.length?terms:selectedProduct?[selectedProduct.name]:[]} markets={[market]} hsCode={hsCode} accessToken={accessToken}/>
- </div>;
+ </section>;
 }
