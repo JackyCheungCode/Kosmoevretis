@@ -42,7 +42,18 @@ The shared shell is implemented in `src/app/AppShell.tsx` and styled in the shar
 - Main content: page background, shared content max width, and consistent gutters.
 - Mobile navigation: overlay navigation with an accessible close action and backdrop.
 
-## Shared page composition\n\n`src/components/ui/PageHeader.tsx` provides the shared page-title pattern. It standardizes eyebrow, title, description, and optional metadata/action placement while allowing feature pages to retain their existing semantic class names during migration. Its layout contract is styled in `src/styles/page-layout.scss` and consumes the shared typography, color, and spacing aliases.\n\nUse this primitive for top-level feature pages instead of re-creating a page header in each feature. Keep page-specific content and task controls within the feature; do not turn the shared header into a page-specific toolbar.\n\n## Responsive grid
+## Shared page composition
+
+`src/components/ui/PageHeader.tsx` provides the shared page-title pattern. It standardizes eyebrow, title, description, and optional metadata/action placement while allowing feature pages to retain their existing semantic class names during migration. Its layout contract is styled in `src/styles/page-layout.scss` and consumes the shared typography, color, and spacing aliases.
+
+Use this primitive for top-level feature pages instead of re-creating a page header in each feature. Keep page-specific content and task controls within the feature; do not turn the shared header into a page-specific toolbar.
+
+
+## Component primitives
+
+`src/styles/component-primitives.scss` provides shared composition classes for surfaces, section headings, action groups, horizontally scrollable data regions, and empty states. These primitives use Carbon layer and spacing tokens. Feature pages should adopt them rather than recreating bordered cards or bespoke data wrappers. The surface variants are intentionally borderless: use background contrast and spacing for hierarchy, and reserve borders for actual input affordances or dense data separation.
+
+## Responsive grid
 
 Use Carbon 2x grid breakpoints as the reference:
 
