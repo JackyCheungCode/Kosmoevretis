@@ -65,20 +65,19 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  audit:{title:"安全与审计",desc:"查看配置变更、密钥管理和权限操作的审计信息。",eyebrow:"PLATFORM GOVERNANCE"}
 };
 export default function Settings(){
- const [active,setActive]=useState("providers");const [search,setSearch]=useState("");const [notice,setNotice]=useState<string|null>(null);const [mobileOpen,setMobileOpen]=useState(false);
+ const [active,setActive]=useState("providers");const [search,setSearch]=useState("");const [notice,setNotice]=useState<string|null>(null);
  const selected=pageMeta[active];const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
- const choose=(id:string)=>{setActive(id);setMobileOpen(false);setNotice(null);};
+ const choose=(id:string)=>{setActive(id);setNotice(null);};
  const body=()=>{switch(active){case"providers":return <SettingsBackend/>;case"actors":return <Actors/>;case"channels":return <Channels/>;case"runs":return <><Heading eyebrow="COLLECTION OBSERVABILITY" title="采集运行记录" description="统一查看业务模块发起的采集任务、执行状态、数据集和错误信息。"/><Pending>采集任务调度与运行记录服务尚未接入；当前不会展示虚构的任务或运行数据。</Pending></>;case"ai-providers":return <AiProviders/>;case"models":return <Models/>;case"routes":return <Routes/>;case"prompts":return <Prompts/>;default:return <SystemPage page={active}/>;}};
  return <section className="module settings-center settings-workspace">
   <div className="settings-page-heading"><div className="eyebrow">KOSMOEVRETIS / PLATFORM ADMINISTRATION</div><h2>配置管理中心</h2><p>像管理业务应用一样，统一管理连接、采集、AI 能力与平台治理。</p></div>
   <div className="settings-workspace-layout">
-   <aside className={mobileOpen?"settings-local-nav is-open":"settings-local-nav"}>
+   <aside className="settings-local-nav">
     <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
     {filtered.map(g=><div className="settings-nav-group" key={g.title}><div className="settings-nav-group-title">{g.title}</div>{g.items.map(([id,label,icon])=><button key={id} type="button" className={active===id?"settings-nav-item is-active":"settings-nav-item"} onClick={()=>choose(id)}>{(() => { const Icon = navIconMap[icon]; return <Icon size={16} aria-hidden="true"/>; })()}{label}</button>)}</div>)}
    </aside>
-   {mobileOpen&&<button className="settings-nav-backdrop" aria-label="关闭设置菜单" onClick={()=>setMobileOpen(false)}/>}
    <main className="settings-workspace-content">
-    <div className="settings-content-toolbar"><div><div className="settings-breadcrumb">{selected.eyebrow} / {selected.title}</div><h3>{selected.title}</h3><p>{selected.desc}</p></div><Button kind="ghost" className="settings-mobile-nav-trigger" onClick={()=>setMobileOpen(x=>!x)}>设置菜单</Button></div>
+    <div className="settings-content-toolbar"><div><div className="settings-breadcrumb">{selected.eyebrow} / {selected.title}</div><h3>{selected.title}</h3><p>{selected.desc}</p></div></div>
     {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
     {body()}
    </main>
