@@ -42,6 +42,12 @@ async function supabasePatch(base: string, headers: Record<string, string>, id: 
   });
   if (!response.ok) throw new Error("无法更新 Supabase 研究任务：" + (await response.text()).slice(0, 400));
 }
+async function supabasePatchExecution(base: string, headers: Record<string, string>, taskId: string, patch: Record<string, unknown>) {
+  const response = await fetch(base + "/rest/v1/research_task_executions?task_id=eq." + encodeURIComponent(taskId) + "&attempt_number=eq.1", {
+    method: "PATCH", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify(patch)
+  });
+  if (!response.ok) throw new Error("无法更新研究执行记录：" + (await response.text()).slice(0, 400));
+}
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }) => {
   const auth = await authenticate(request, env);
   if ("error" in auth) return auth.error;
@@ -62,6 +68,8 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
     headers: { ...auth.headers, Prefer: "return=representation" },
     body: JSON.stringify([{
       organization_id: organizationId, created_by: auth.user.id, actor_id: env.APIFY_ACTOR_ID || actorDefault,
+      task_type: "google_trends",
+      title: String(body.title || (isTrending ? "Google Trends 热门趋势" : "市场趋势：" + keywords.slice(0, 5).join("、"))).slice(0, 200),
       status: "queued", input_snapshot: { ...body, keywords, actorInput: input }, raw_items: []
     }])
   });
@@ -69,6 +77,18 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const inserted = await safeJson(taskInsert);
   const task = inserted?.[0];
   if (!task?.id) return json({ error: "研究任务创建成功，但未返回任务 ID。" }, 500);
+  const executionInsert = await fetch(auth.base + "/rest/v1/research_task_executions", {
+    method: "POST", headers: { ...auth.headers, Prefer: "return=minimal" },
+    body: JSON.stringify([{
+      task_id: task.id, organization_id: organizationId, created_by: auth.user.id,
+      attempt_number: 1, actor_id: env.APIFY_ACTOR_ID || actorDefault, status: "queued",
+      input_snapshot: { ...body, keywords, actorInput: input }
+    }])
+  });
+  if (!executionInsert.ok) {
+    await supabasePatch(auth.base, auth.headers, task.id, { status: "failed", error_message: "无法创建任务执行记录。", completed_at: new Date().toISOString() });
+    return json({ error: "无法创建任务执行记录，已停止启动 Actor。" }, 500);
+  }
 
   const runResponse = await fetch("https://api.apify.com/v2/acts/" + actorId + "/runs", {
     method: "POST",
@@ -78,15 +98,23 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const runPayload = await safeJson(runResponse);
   if (!runResponse.ok || !runPayload?.data?.id) {
     const message = runPayload?.error?.message || runPayload?.message || "Apify rejected the Actor input (HTTP " + runResponse.status + ").";
-    await supabasePatch(auth.base, auth.headers, task.id, { status: "failed", error_message: String(message).slice(0, 1200), completed_at: new Date().toISOString() });
+    const failure = { status: "failed", error_message: String(message).slice(0, 1200), completed_at: new Date().toISOString() };
+    await Promise.all([
+      supabasePatch(auth.base, auth.headers, task.id, failure),
+      supabasePatchExecution(auth.base, auth.headers, task.id, failure)
+    ]);
     return json({ error: String(message).slice(0, 1200), taskId: task.id }, 502);
   }
-  await supabasePatch(auth.base, auth.headers, task.id, {
+  const started = {
     actor_run_id: runPayload.data.id, dataset_id: runPayload.data.defaultDatasetId || null,
     status: runPayload.data.status === "READY" ? "queued" : "running",
     started_at: runPayload.data.startedAt || new Date().toISOString(),
     actor_meta: { actorId: env.APIFY_ACTOR_ID || actorDefault, buildNumber: runPayload.data.buildNumber || null }
-  });
+  };
+  await Promise.all([
+    supabasePatch(auth.base, auth.headers, task.id, started),
+    supabasePatchExecution(auth.base, auth.headers, task.id, started)
+  ]);
   return json({ taskId: task.id, runId: runPayload.data.id, status: runPayload.data.status }, 202);
 };
 
@@ -112,7 +140,12 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   const state = String(run.status || "RUNNING");
   if (["READY", "RUNNING"].includes(state)) {
     const status = state === "READY" ? "queued" : "running";
-    if (task.status !== status) await supabasePatch(auth.base, auth.headers, task.id, { status });
+    if (task.status !== status) {
+      await Promise.all([
+        supabasePatch(auth.base, auth.headers, task.id, { status }),
+        supabasePatchExecution(auth.base, auth.headers, task.id, { status })
+      ]);
+    }
     return json({ task: { ...task, status } });
   }
   const datasetId = run.defaultDatasetId || task.dataset_id;
@@ -185,6 +218,9 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
     actor_meta: { ...(task.actor_meta || {}), runStatus: state, usageTotalUsd: run.usageTotalUsd ?? null, stats: run.stats || {}, finishedAt: run.finishedAt || null },
     completed_at: run.finishedAt || new Date().toISOString()
   };
-  await supabasePatch(auth.base, auth.headers, task.id, patch);
+  await Promise.all([
+    supabasePatch(auth.base, auth.headers, task.id, patch),
+    supabasePatchExecution(auth.base, auth.headers, task.id, patch)
+  ]);
   return json({ task: { ...task, ...patch } });
 };
