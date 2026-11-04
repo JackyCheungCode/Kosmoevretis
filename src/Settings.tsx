@@ -29,7 +29,7 @@ const taskGroups = [
  {title:"客户发现与语言服务",tasks:[["客户发现","客户匹配、线索分类与评分"],["翻译与本地化","多语言翻译与市场表达适配"],["向量检索","Embedding 与语义检索"]]}
 ];
 const navIconMap = { plug: Plug, workflow: WorkflowAutomation, database: DataBase, activity: Activity, brain: Ai, boxes: Model, route: Flow, document: Document, building: Building, users: UserMultiple, globe: Earth, bell: Notification, shield: Security, clipboard: Document } as const;
-function Heading({eyebrow,title,description}:{eyebrow:string;title:string;description:string}){return <header className="settings-section-heading"><div className="eyebrow">{eyebrow}</div><h3>{title}</h3><p>{description}</p></header>}
+function Heading(_props:{eyebrow:string;title:string;description:string}){return null;}
 function Group({title,description,children}:{title:string;description:string;children:React.ReactNode}){return <section className="settings-catalog-group"><div className="settings-catalog-group-heading"><div><h4>{title}</h4><p>{description}</p></div></div><div className="settings-catalog-items">{children}</div></section>}
 function Resource({item,action}:{item:Item;action?:React.ReactNode}){return <Tile className="settings-catalog-item"><div className="settings-catalog-item-head"><div className="settings-catalog-identity">{item.domain||item.mark?<BrandLogo name={item.name} domain={item.domain} mark={item.mark}/>:<DataBase size={20} aria-label="资源"/>}<div className="settings-catalog-name"><strong>{item.name}</strong>{item.meta&&<span>{item.meta}</span>}</div></div>{item.status&&<Tag type={item.statusType||"gray"}>{item.status}</Tag>}</div><p className="settings-catalog-description">{item.description}</p>{action&&<div className="settings-catalog-actions">{action}</div>}</Tile>}
 function Pending({children="对应服务端接口尚未接入；当前不会伪造配置状态或运行数据。"}:{children?:string}){return <InlineNotification kind="info" lowContrast title="接口尚未接入" subtitle={children} hideCloseButton/>}
@@ -77,7 +77,7 @@ export default function Settings(){
     {filtered.map(g=><div className="settings-nav-group" key={g.title}><div className="settings-nav-group-title">{g.title}</div>{g.items.map(([id,label,icon])=><button key={id} type="button" className={active===id?"settings-nav-item is-active":"settings-nav-item"} onClick={()=>choose(id)}>{(() => { const Icon = navIconMap[icon]; return <Icon size={16} aria-hidden="true"/>; })()}{label}</button>)}</div>)}
    </aside>
    <main className="settings-workspace-content">
-    <div className="settings-content-toolbar"><div><div className="settings-breadcrumb">{selected.eyebrow} / {selected.title}</div><h3>{selected.title}</h3><p>{selected.desc}</p></div></div>
+    <div className="settings-content-toolbar"><div><div className="settings-breadcrumb">{selected.eyebrow} / {selected.title}</div><h3>{selected.title}</h3></div></div>
     {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
     {body()}
    </main>
