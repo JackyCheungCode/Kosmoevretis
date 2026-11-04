@@ -146,7 +146,7 @@ function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any
  const values=series.map((row:any)=>({label:String(row.date||new Date(Number(row.timestamp||0)*1000).toLocaleDateString()),value:Number(row[result?.keyword]??row.value??0)}));
  const max=Math.max(1,...values.map(x=>x.value));
  return <section className="gi-live-results">
-  <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>真实搜索趋势数据</h2><p>数据由 Apify Google Trends Actor 实时采集，指标为 Google Trends 相对搜索兴趣指数（0–100），不是搜索量或销量。</p></div><span className="gi-status ready">{loading?"正在采集…":meta?"真实数据":"等待采集"}</span></div>
+  <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>真实搜索趋势数据</h2><p>数据由 Apify Google Trends Actor 实时采集，指标为 Google Trends 相对搜索兴趣指数（0–100），不是搜索量或销量。</p></div><span className="gi-status ready">{loading?"正在采集…":meta?.status==="failed"?"采集失败":meta?"真实数据":"等待采集"}</span></div>
   {loading&&<div className="gi-warning">正在调用 Google Trends Actor。采集完成后会自动保存原始数据和任务记录，请勿关闭页面。</div>}
   {meta&&<div className="gi-kpi-grid"><div><small>返回结果组</small><strong>{meta.result_count??results.length}</strong></div><div><small>Actor 运行 ID</small><strong>{meta.actor_run_id||"—"}</strong></div><div><small>采集来源</small><strong>surefetch/google-trends</strong></div><div><small>运行状态</small><strong>{meta.status||"succeeded"}</strong></div></div>}
   {results.length>0&&<>
@@ -159,7 +159,7 @@ function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any
    </div>
    <details className="gi-raw-evidence"><summary>查看 Actor 原始返回数据（完整 JSON）</summary><pre>{JSON.stringify(result,null,2)}</pre></details>
   </>}
-  {!loading&&!results.length&&<div className="gi-warning">尚无本次真实采集结果。请在上方配置关键词、目标市场和时间范围后点击“开始分析”。</div>}
+  {!loading&&!results.length&&<div className="gi-warning">{meta?.status==="failed"?meta.error:"尚无本次真实采集结果。请在上方配置关键词、目标市场和时间范围后点击“开始分析”。"}</div>}
   {history.length>0&&<article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>历史采集记录</h4><p>已保存到组织工作区，可用于后续历史对比。</p></div></div><div className="gi-bars">{history.map((x:any)=><div className="gi-bar-row" key={x.id}><span>{x.title}</span><div><i style={{width:(x.status==="succeeded"?100:0)+"%"}}/></div><b>{x.status} · {x.result_count}</b></div>)}</div></article>}
  </section>;
 }
@@ -167,5 +167,5 @@ function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any
 export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context,liveResults=[],liveMeta=null,history=[],collectionLoading=false}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string;liveResults?:any[];liveMeta?:any|null;history?:any[];collectionLoading?:boolean}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);
- return <>{liveResults.length||collectionLoading?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>}</>;
+ return <>{liveResults.length||collectionLoading||liveMeta?<LiveGoogleTrends results={liveResults} meta={liveMeta} history={history} loading={collectionLoading}/>:<><IntelligenceTabContent data={data} activeTab={activeTab} analyzed={analyzed} loading={loading}/>{loadError&&<div className="gi-warning">{loadError}</div>}<AIAnalysisPanel data={data} accessToken={accessToken} context={context} activeTab={activeTab}/></>}</>;
 }
