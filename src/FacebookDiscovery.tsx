@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
-  Button, ComboBox, InlineNotification, NumberInput, Tag, TextInput,
+  Button, InlineNotification, NumberInput, Tag, TextInput,
   Tabs, TabList, Tab, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,
   TableContainer,
 } from "@carbon/react";
@@ -115,14 +115,19 @@ export default function FacebookDiscovery() {
  };
  const openHistory=async(row:HistoryRow)=>{setError("");setNotice("");setHistoryId(row.id);setBusy(true);clearLogs();addLog("正在读取历史任务 "+row.id);try{const {data,error:invokeError}=await supabase.functions.invoke("facebook-discovery",{body:{action:"get_history",organization_id:organizationId,task_id:row.id}});if(invokeError)throw invokeError;if(data?.error)throw new Error(data.error);const h=data.history;setResults(Array.isArray(h.raw_items)?h.raw_items:[]);setMeta(h.actor_meta||null);const snapshot=h.input_snapshot||{};const nextType=snapshot.search_type||"people";setType(nextType);setActiveTab(modes.findIndex(x=>x.id===nextType));setTerms((snapshot.search_terms||[]).join("\n"));addLog("历史任务数据已载入。","success");setNotice("已载入历史采集结果。");}catch(e){const message=e instanceof Error?e.message:"无法读取历史记录。";setError(message);addLog(message,"error");}finally{setBusy(false);}};
  const login=async(e:FormEvent)=>{e.preventDefault();setAuthError("");const {error:loginError}=await supabase.auth.signInWithPassword({email,password});if(loginError)setAuthError(loginError.message);};
- const selectedMode=modes.find(m=>m.id===type)||modes[0];
  if(!ready)return <div className="fb-boot">正在连接客户发现工作台…</div>;
  if(!session)return <form className="fb-login" onSubmit={login}><h2>登录企业工作区</h2><TextInput id="fb-login-email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)}/><TextInput id="fb-login-password" type="password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)}/>{authError&&<InlineNotification kind="error" title="登录失败" subtitle={authError} hideCloseButton/>}<Button type="submit">登录</Button></form>;
  return <section className="facebook-discovery">
   <div className="fb-channel-heading"><div><span className="eyebrow">01 / FACEBOOK DISCOVERY</span><h2>Facebook 公开信息发现</h2><p>按对象类型检索公开个人资料、企业主页、帖子、视频、地点、活动及群组。采集结果保留来源 Actor 与原始字段。</p></div><Tag type="green">{organizationName||"企业工作区"}</Tag></div>
   <section className="fb-config-panel">
    <div className="fb-section-head"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div><span>一个渠道，多种公开对象</span></div>
-   <div className="fb-dropdown-wrap"><ComboBox id="fb-discovery-object" titleText="发现对象" placeholder="请选择发现对象" items={modes} itemToString={item=>item?.label||""} selectedItem={selectedMode} onChange={({selectedItem})=>{if(selectedItem){setType(selectedItem.id);setResults([]);setMeta(null);setError("");setNotice("");}}} itemToElement={item=>{const Icon=item.icon;return <div className="fb-dropdown-item"><Icon size={20}/><span><strong>{item.label}</strong><small>{item.description}</small></span></div>;}} /></div>
+   <div className="fb-object-grid" role="group" aria-label="选择 Facebook 发现对象">
+    {modes.map(mode=>{const Icon=mode.icon;const selected=type===mode.id;return <button type="button" key={mode.id} className={selected?"fb-object-card selected":"fb-object-card"} aria-pressed={selected} onClick={()=>{if(type!==mode.id){setType(mode.id);setResults([]);setMeta(null);setError("");setNotice("");}}}>
+     <span className="fb-object-card-icon"><Icon size={22}/></span>
+     <span className="fb-object-card-copy"><strong>{mode.label}</strong><small>{mode.description}</small></span>
+     <span className="fb-object-card-check" aria-hidden="true">{selected?"✓":""}</span>
+    </button>;})}
+   </div>
     <div className="fb-form-grid">
     <div className="fb-field fb-keywords"><TextInput id="fb-search-terms" labelText="搜索关键词" placeholder={"例如：wireless earbuds manufacturer\n支持多个关键词，使用换行或逗号分隔"} value={terms} onChange={e=>setTerms(e.target.value)}/><small>{termList.length} 个关键词 · 每个关键词独立搜索</small></div>
     <div className="fb-field"><label>每次最多返回结果</label><NumberInput id="fb-max-results" label="每次最多返回结果" hideLabel min={1} max={200} value={maxResults} onChange={(_e,{value})=>setMaxResults(Number(value)||50)}/></div>
