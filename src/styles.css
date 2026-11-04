@@ -275,3 +275,170 @@
 .analysis-toggle.active{background:#edf5ff;color:#0043ce}
 @media(max-width:900px){.library-create{grid-template-columns:repeat(2,minmax(0,1fr))}.library-list{grid-template-columns:1fr}}
 @media(max-width:671px){.library-create{grid-template-columns:1fr}.attach-attribute{grid-template-columns:1fr}.attach-attribute button{width:100%}.library-card-head{flex-direction:column}}
+
+
+ 
+/* Responsive layout system — shared mobile rules for all workspaces */
+@media (max-width: 671px) {
+  .content {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 4.25rem .75rem 1.5rem;
+  }
+  .page-head {
+    gap: .65rem;
+    margin: .65rem 0 1rem;
+  }
+  .page-head h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    letter-spacing: -.025em;
+  }
+  .page-head p {
+    max-width: none;
+    font-size: .875rem;
+    line-height: 1.55;
+  }
+  .page-head .scope {
+    padding: .4rem .55rem;
+    font-size: .68rem;
+  }
+  .module {
+    width: 100%;
+    min-width: 0;
+    padding: 1rem;
+  }
+  .module > .eyebrow {
+    font-size: .68rem;
+    line-height: 1.45;
+    letter-spacing: .075em;
+    overflow-wrap: anywhere;
+  }
+  .module > h2 {
+    margin-top: .4rem;
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+  .module > p {
+    max-width: none;
+    margin-top: .55rem;
+    font-size: .875rem;
+    line-height: 1.55;
+  }
+  .module > .cds--tabs {
+    margin-top: 1rem;
+    min-width: 0;
+  }
+  .module .cds--tab-list {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
+  }
+  .module .cds--tab {
+    flex: 0 0 auto;
+    min-width: max-content;
+    min-height: 2.75rem;
+    padding-inline: .8rem;
+    font-size: .875rem;
+    white-space: nowrap;
+  }
+  .module .cds--tab-content {
+    min-width: 0;
+    padding-top: .5rem;
+  }
+  .module .intelligence-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: .85rem 0 .25rem;
+  }
+  .module .results-heading {
+    gap: .4rem;
+    margin-bottom: .85rem;
+  }
+  .module .results-heading h2,
+  .module .results-heading h3 {
+    margin: .15rem 0;
+    font-size: 1.2rem;
+    line-height: 1.35;
+    font-weight: 500;
+    overflow-wrap: break-word;
+    word-break: keep-all;
+  }
+  .module .results-heading p {
+    max-width: none;
+    font-size: .84rem;
+    line-height: 1.55;
+  }
+  .module .source-settings-note {
+    gap: .55rem;
+    margin-top: 1rem;
+    padding: .875rem;
+  }
+  .module .source-settings-note strong {
+    font-size: .875rem;
+    line-height: 1.4;
+  }
+  .module .source-settings-note span {
+    font-size: .8rem;
+    line-height: 1.5;
+  }
+  .module .library-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .module .library-card {
+    padding: .875rem;
+  }
+  .module .library-card-head {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: .5rem;
+  }
+  .module .library-card-head strong {
+    font-size: .875rem;
+    line-height: 1.4;
+  }
+  .module .analysis-submit-row {
+    gap: .65rem;
+  }
+  .module .analysis-submit-row > span {
+    font-size: .75rem;
+    line-height: 1.5;
+  }
+  .module .analysis-submit-row .cds--btn {
+    width: 100%;
+    max-width: none;
+  }
+  .module .cds--accordion__title {
+    font-size: .875rem;
+  }
+  .module .cds--accordion__content {
+    font-size: .84rem;
+    line-height: 1.55;
+  }
+  .module .cds--accordion__content p,
+  .module .cds--accordion__content li {
+    font-size: .84rem;
+    line-height: 1.55;
+  }
+  .module .cds--text-input,
+  .module .cds--password-input,
+  .module .cds--text-input__field-wrapper {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+@media (min-width: 672px) and (max-width: 1055px) {
+  .content {
+    min-width: 0;
+    padding-inline: 1.25rem;
+  }
+  .module {
+    min-width: 0;
+    padding: 1.5rem;
+  }
+}
