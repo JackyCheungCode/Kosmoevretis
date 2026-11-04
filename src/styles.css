@@ -644,3 +644,54 @@
  .settings-workspace .settings-catalog-items{grid-template-columns:minmax(0,1fr)}
  .settings-workspace .settings-toolbar{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Settings center responsive correction and Carbon card directory */
+.settings-workspace{width:100%;max-width:none;min-width:0;overflow:visible}
+.settings-workspace .settings-page-heading{min-width:0}
+.settings-workspace .settings-workspace-layout{width:100%;grid-template-columns:248px minmax(0,1fr)}
+.settings-workspace .settings-workspace-content{min-width:0;width:100%;max-width:100%}
+.settings-workspace .settings-catalog-group{min-width:0}
+.settings-workspace .settings-catalog-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;gap:1rem;background:transparent}
+.settings-workspace .settings-catalog-item{min-width:0;height:100%;border:0;background:var(--cds-layer-01)!important}
+.settings-workspace .settings-catalog-item-head,.settings-workspace .settings-catalog-identity{min-width:0}
+.settings-workspace .settings-catalog-name{min-width:0;overflow-wrap:anywhere}
+.settings-workspace .settings-catalog-name strong{display:block;overflow-wrap:anywhere;word-break:normal}
+.settings-workspace .settings-catalog-description{overflow-wrap:anywhere;word-break:normal}
+.settings-workspace .provider-directory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;background:transparent}
+.settings-workspace .provider-directory-item{min-width:0;padding:.25rem .75rem;background:var(--cds-layer-01);border:0}
+.settings-workspace .provider-directory-item .cds--accordion__heading{background:transparent}
+.settings-workspace .provider-directory-item .cds--accordion__content{padding:0 .25rem 1rem}
+.settings-workspace .provider-directory-row{align-items:flex-start}
+.settings-workspace .provider-identity{flex:1;min-width:0}
+.settings-workspace .provider-directory-name{overflow-wrap:anywhere}
+.settings-workspace .settings-nav-item{min-width:0}
+.settings-workspace .settings-nav-item svg{flex:none}
+.settings-workspace .settings-mobile-nav-trigger{gap:.4rem}
+@media(max-width:1023px){
+ .settings-workspace .settings-workspace-layout{display:block}
+ .settings-workspace .settings-local-nav{position:fixed;z-index:1002;inset:0 auto 0 0;width:min(86vw,340px);max-height:100dvh;overflow-y:auto;transform:translateX(-110%);transition:transform .2s ease;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+ .settings-workspace .settings-local-nav.is-open{transform:translateX(0)}
+ .settings-workspace .settings-nav-backdrop{position:fixed;inset:0;z-index:1001;width:100%;border:0;background:rgba(0,0,0,.38)}
+ .settings-workspace .settings-mobile-nav-trigger{display:inline-flex;flex:0 0 auto}
+ .settings-workspace .settings-content-toolbar{align-items:center;gap:.75rem}
+ .settings-workspace .settings-workspace-content{padding:0;width:100%}
+ .settings-workspace .settings-page-heading{margin-bottom:1.25rem}
+}
+@media(max-width:600px){
+ .settings-workspace{padding:1.25rem!important}
+ .settings-workspace .settings-page-heading h2{font-size:1.5rem}
+ .settings-workspace .settings-page-heading p{font-size:.8125rem;line-height:1.5}
+ .settings-workspace .settings-content-toolbar{align-items:flex-start}
+ .settings-workspace .settings-content-toolbar>div{min-width:0;flex:1}
+ .settings-workspace .settings-content-toolbar h3{font-size:1.125rem}
+ .settings-workspace .settings-content-toolbar p{font-size:.8rem}
+ .settings-workspace .settings-catalog-items,.settings-workspace .provider-directory{grid-template-columns:minmax(0,1fr)}
+ .settings-workspace .settings-catalog-group{padding:.875rem}
+ .settings-workspace .settings-catalog-item{padding:1rem!important}
+ .settings-workspace .provider-directory-item{padding:.25rem .5rem}
+ .settings-workspace .provider-directory-row{align-items:center;gap:.5rem}
+ .settings-workspace .provider-directory-row .cds--tag{flex:none}
+ .settings-workspace .settings-route-fields{grid-template-columns:minmax(0,1fr)}
+ .settings-workspace .settings-context-note{align-items:flex-start}
+}
