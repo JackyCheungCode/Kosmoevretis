@@ -48,7 +48,7 @@ export default function ProductCenter() {
   const [selected,setSelected] = useState<Product|null>(null);
   const [form,setForm] = useState<ProductForm>(emptyProduct);
   const [categoryForm,setCategoryForm] = useState({name:"",code:"",parent_id:"",description:""});
-  const [selectedCategory,setSelectedCategory] = useState("");
+  const [selectedCategoryId,setSelectedCategoryId] = useState("");
   const [selectedDefinitionIds,setSelectedDefinitionIds] = useState<string[]>([]);
   const [definitionForm,setDefinitionForm] = useState({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
   const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({});
@@ -167,12 +167,12 @@ export default function ProductCenter() {
   };
 
   const saveCategoryAttributes = async (event:FormEvent) => {
-    event.preventDefault();if(!selectedCategory||!org)return;
+    event.preventDefault();if(!selectedCategoryId||!org)return;
     setBusy(true);
-    const del=await supabase.from("product_category_attribute_templates").delete().eq("category_id",selectedCategory);
+    const del=await supabase.from("product_category_attribute_templates").delete().eq("category_id",selectedCategoryId);
     if(del.error){setNotice({kind:"error",text:message(del.error)});setBusy(false);return;}
     if(selectedDefinitionIds.length){
-      const rows=selectedDefinitionIds.map((id,index)=>({organization_id:org,category_id:selectedCategory,definition_id:id,sort_order:index}));
+      const rows=selectedDefinitionIds.map((id,index)=>({organization_id:org,category_id:selectedCategoryId,definition_id:id,sort_order:index}));
       const ins=await supabase.from("product_category_attribute_templates").insert(rows);
       if(ins.error){setNotice({kind:"error",text:message(ins.error)});setBusy(false);return;}
     }
@@ -230,7 +230,8 @@ export default function ProductCenter() {
   if(!session)return <form className="pc-login" onSubmit={doLogin}><div className="pc-kicker">PRODUCT MASTER DATA</div><h2>登录企业工作区</h2><p>使用企业账号访问产品主档案、分类与属性库。</p><TextInput id="pc-email" type="email" labelText="邮箱" value={login.email} onChange={e=>setLogin(p=>({...p,email:e.target.value}))} required/><TextInput id="pc-password" type="password" labelText="密码" value={login.password} onChange={e=>setLogin(p=>({...p,password:e.target.value}))} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError}/>}<Button type="submit" disabled={busy}>{busy?"登录中…":"登录"}</Button><small>账号由企业管理员配置，不开放自助注册。</small></form>;
   if(error)return <div className="pc-empty"><h3>产品工作区不可用</h3><p>{error}</p></div>;
 
-  const selectedCategory=categories.find(c=>c.id===selectedCategoryId);
+  const selectedCategoryRecord=categories.find(c=>c.id===selectedCategoryId);
+  const openProduct = async (p:Product) => { setSelected(p); setEditing(false); setNotice(null); const {data,error}=await supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at"); if(error) throw error; setVariants((data||[]) as Variant[]); };
   return <section className="pc-workspace">
     <div className="pc-heading"><div><div className="pc-kicker">PRODUCT MASTER / ODOO-STYLE CATALOG</div><h2>产品中心</h2><p>{orgName} · 统一产品主档案，供市场情报、报价与合同流程复用</p></div><div className="pc-heading-actions"><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></div></div>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.kind==="success"?"已保存":notice.kind==="error"?"操作失败":"提示"} subtitle={notice.text} onCloseButtonClick={()=>setNotice(null)}/>}
@@ -292,7 +293,7 @@ export default function ProductCenter() {
             <section className="pc-form-section"><h4>产品属性摘要</h4><p>分类：{categoryName(selected.category_id)}。分类绑定的属性模板会在创建产品时复制到产品属性实例中；变体轴可在属性管理中配置。</p></section>
           </div>:<><div className="pc-catalog-stats"><div><span>产品模板</span><strong>{products.length}</strong></div><div><span>分类</span><strong>{categories.length}</strong></div><div><span>属性定义</span><strong>{definitions.length}</strong></div><div><span>已发布产品</span><strong>{products.filter(p=>p.status==="active"||p.lifecycle_stage==="active").length}</strong></div></div>
             <div className="pc-list-toolbar"><Search size="lg" labelText="搜索产品" placeholder="名称、品牌、型号、SKU 或内部编号" value={query} onChange={e=>setQuery(e.target.value)}/><span>{filtered.length} 条记录</span></div>
-            {filtered.length?<div className="pc-product-list">{filtered.map(p=><button key={p.id} className="pc-product-row" onClick={()=>startEdit(p).catch(e=>setNotice({kind:"error",text:message(e)}))}><div className="pc-product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:<span>▣</span>}</div><div className="pc-product-main"><strong>{p.name}</strong><span>{p.brand||"未设置品牌"} · {p.model||"未设置型号"}</span><small>{categoryName(p.category_id)} · {p.internal_reference||p.sku||"未设置编码"}</small></div><div className="pc-product-price"><strong>{money(p.sales_price,p.sales_currency||"USD")}</strong><span>{p.can_be_sold?"可销售":"不销售"}</span></div><span className="pc-row-arrow">›</span></button>)}</div>:<div className="pc-empty"><div className="pc-empty-icon">▣</div><h3>{query?"没有匹配的产品":"产品主档案尚为空"}</h3><p>创建产品模板后，可按分类自动载入属性，并在模板下维护实际 SKU 变体。</p><Button kind="primary" onClick={startNew}>创建第一个产品</Button></div>}
+            {filtered.length?<div className="pc-product-list">{filtered.map(p=><button key={p.id} className="pc-product-row" onClick={()=>openProduct(p).catch(e=>setNotice({kind:"error",text:message(e)}))}><div className="pc-product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:<span>▣</span>}</div><div className="pc-product-main"><strong>{p.name}</strong><span>{p.brand||"未设置品牌"} · {p.model||"未设置型号"}</span><small>{categoryName(p.category_id)} · {p.internal_reference||p.sku||"未设置编码"}</small></div><div className="pc-product-price"><strong>{money(p.sales_price,p.sales_currency||"USD")}</strong><span>{p.can_be_sold?"可销售":"不销售"}</span></div><span className="pc-row-arrow">›</span></button>)}</div>:<div className="pc-empty"><div className="pc-empty-icon">▣</div><h3>{query?"没有匹配的产品":"产品主档案尚为空"}</h3><p>创建产品模板后，可按分类自动载入属性，并在模板下维护实际 SKU 变体。</p><Button kind="primary" onClick={startNew}>创建第一个产品</Button></div>}
           </>}
         </TabPanel>
         <TabPanel>
@@ -308,7 +309,7 @@ export default function ProductCenter() {
               <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+Math.max(0,categories.filter(x=>x.id===c.parent_id).length)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategory(c.id);setSelectedDefinitionIds(categoryTemplates.filter(x=>x.category_id===c.id).map(x=>x.definition_id));}}>配置属性 →</Button></div>)}</div>
             </section>
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>分类属性模板</h3><p>为所选分类指定默认属性。创建该分类产品时自动初始化。</p></div></div>
-              {selectedCategory?<form onSubmit={saveCategoryAttributes}><div className="pc-selected-category">{categoryName(selectedCategory)}</div><div className="pc-check-list">{definitions.map(d=><Checkbox key={d.id} id={`pc-cat-def-${d.id}`} labelText={d.name} checked={selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>setSelectedDefinitionIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id))}/>)}</div><Button type="submit" disabled={busy}>保存分类属性模板</Button></form>:<div className="pc-empty-inline">从左侧分类列表选择「配置属性」。</div>}
+              {selectedCategoryRecord?<form onSubmit={saveCategoryAttributes}><div className="pc-selected-category">{selectedCategoryRecord.name}</div><div className="pc-check-list">{definitions.map(d=><Checkbox key={d.id} id={`pc-cat-def-${d.id}`} labelText={d.name} checked={selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>setSelectedDefinitionIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id))}/>)}</div><Button type="submit" disabled={busy}>保存分类属性模板</Button></form>:<div className="pc-empty-inline">从左侧分类列表选择「配置属性」。</div>}
             </section>
           </div>
         </TabPanel>
