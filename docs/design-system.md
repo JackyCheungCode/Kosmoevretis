@@ -85,7 +85,7 @@ The AppShell switches to compact desktop navigation below 1056px and to an overl
 - [ ] Typography uses Carbon type tokens and IBM Plex Sans.
 - [ ] AppShell dimensions and responsive transitions are shared.
 - [ ] Page-specific CSS does not redefine global shell behavior.
-- [ ] Keyboard focus and reduced-motion behavior remain accessible.
+- [ ] Keyboard focus and reduced-motion behavior remain accessible. Focus-visible styling is centralized in `src/styles/global.scss`, including native disclosure summaries.
 
 ## Shell breakpoint ownership
 
