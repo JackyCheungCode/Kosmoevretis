@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
 import "./intelligence.css";
 import { supabase } from "./lib/supabase";
@@ -88,21 +89,52 @@ export function IntelligenceTabContent({data,activeTab,analyzed,loading}:{data:D
 }
 
 export function AIAnalysisPanel({data,accessToken,context,activeTab}:{data:DemoData|null;accessToken:string;context:string;activeTab:string}) {
- const [mode,setMode]=useState("all"),[singleTab,setSingleTab]=useState(activeTab),[customTabs,setCustomTabs]=useState(["bestsellers","search","consumer"]),[question,setQuestion]=useState(""),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const [provider,setProvider]=useState("cloudflare-workers-ai"),[model,setModel]=useState("@cf/meta/llama-3.3-70b-instruct-fp8-fast"),[mode,setMode]=useState("all"),[singleTab,setSingleTab]=useState(activeTab),[customTabs,setCustomTabs]=useState(["bestsellers","search","consumer"]),[question,setQuestion]=useState(""),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const tabOptions=[["overview","情报总览"],["bestsellers","全球热销榜"],["search","搜索趋势"],["social","社交媒体趋势"],["consumer","消费者洞察"],["competitors","品牌与竞品"],["categories","品类分析"],["markets","国家市场"]];
  useEffect(()=>{setSingleTab(activeTab);},[activeTab]);
- const run=async()=>{if(!data){setError("演示数据集尚未加载。");return;}setBusy(true);setError("");try{const response=await fetch("/api/intelligence-ai",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+accessToken},body:JSON.stringify({mode,tab:singleTab,tabs:customTabs,question,context,dataset:data})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 分析暂不可用");setAnswer(payload.answer||"AI 未返回可展示内容。");}catch(e){setError(e instanceof Error?e.message:"AI 分析失败，请稍后重试。");}finally{setBusy(false);}};
+ const run=async()=>{if(!data){setError("演示数据集尚未加载。");return;}if(provider!=="cloudflare-workers-ai"){setError("当前 AI 服务尚未配置，请选择已接入的服务。");return;}if(mode==="custom"&&!customTabs.length){setError("请至少选择一个情报维度。");return;}setBusy(true);setError("");try{const response=await fetch("/api/intelligence-ai",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+accessToken},body:JSON.stringify({provider,model,mode,tab:singleTab,tabs:customTabs,question,context,dataset:data})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 分析暂不可用");setAnswer(payload.answer||"AI 未返回可展示内容。");}catch(e){setError(e instanceof Error?e.message:"AI 分析失败，请稍后重试。");}finally{setBusy(false);}};
  const sample=mode==="single"?(data?.ai_reports.tabs[singleTab]||data?.ai_reports.all):mode==="custom"?data?.ai_reports.all:data?.ai_reports.all;
- return <section className="gi-ai-section" id="ai-intelligence-analysis"><div className="gi-section-head"><div><span className="eyebrow">05 / AI INTELLIGENCE</span><h2>AI 分析与商业洞察</h2><p>可综合全部情报、分析单个 Tab，或组合多个维度；结论可追溯到当前数据集。</p></div><span className="gi-ai-model">Cloudflare Workers AI</span></div>
-  <div className="gi-ai-layout"><div className="gi-ai-controls"><div className="gi-mode-switch">{[["all","全部结果"],["single","单个 Tab"],["custom","组合分析"]].map(x=><button type="button" key={x[0]} className={mode===x[0]?"active":""} onClick={()=>setMode(x[0])}>{x[1]}</button>)}</div>
-   {mode==="single"&&<label className="gi-ai-field">选择分析板块<CarbonSelect value={singleTab} onChange={setSingleTab}>{tabOptions.map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</CarbonSelect></label>}
-   {mode==="custom"&&<div className="gi-ai-field"><strong>选择参与分析的 Tab</strong><div className="gi-ai-checks">{tabOptions.map(x=><label key={x[0]}><input type="checkbox" checked={customTabs.includes(x[0])} onChange={e=>setCustomTabs(v=>e.target.checked?[...v,x[0]]:v.filter(k=>k!==x[0]))}/>{x[1]}</label>)}</div></div>}
-   <label className="gi-ai-field">补充研究问题（可选）<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></label>
-   <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken}>{busy?"AI 正在分析…":"开始 AI 分析"}</button><small>实时分析会调用 Cloudflare Workers AI，产生模型用量；仅发送本次选择的数据摘要与问题。</small>
-  </div><div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>当前样本全部为模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。</p><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
+ const modelOptions=[
+  {value:"@cf/meta/llama-3.3-70b-instruct-fp8-fast",label:"Meta Llama 3.3 70B · 推荐",description:"均衡的综合分析能力，当前默认模型"},
+  {value:"@cf/meta/llama-4-scout-17b-16e-instruct",label:"Meta Llama 4 Scout 17B",description:"新一代多模态模型，适合复杂语义理解"},
+  {value:"@cf/openai/gpt-oss-120b",label:"OpenAI GPT-OSS 120B",description:"高能力开源推理模型"},
+  {value:"@cf/openai/gpt-oss-20b",label:"OpenAI GPT-OSS 20B",description:"响应更轻量的通用模型"},
+  {value:"@cf/moonshotai/kimi-k2.6",label:"Moonshot Kimi K2.6",description:"长上下文与复杂推理"},
+  {value:"@cf/zai-org/glm-5.3",label:"Z.ai GLM 5.3",description:"面向复杂任务的推理模型"}
+ ];
+ const selectedModel=modelOptions.find(item=>item.value===model)||modelOptions[0];
+ return <section className="gi-ai-section" id="ai-intelligence-analysis">
+  <div className="gi-section-head"><div><span className="eyebrow">05 / AI INTELLIGENCE</span><h2>AI 分析与商业洞察</h2><p>先选择 AI 服务与模型，再确定分析范围和研究问题；分析结果对应本次实际调用的模型。</p></div><span className="gi-ai-model">Cloudflare Workers AI · {selectedModel.label}</span></div>
+  <div className="gi-ai-layout"><div className="gi-ai-controls">
+   <section className="gi-ai-step">
+    <div className="gi-ai-step-head"><span className="gi-ai-step-index">01</span><div><strong>选择 AI 服务与模型</strong><small>选择本次分析使用的推理服务和模型。</small></div></div>
+    <div className="gi-ai-model-grid">
+     <label className="gi-ai-field">AI 服务<CarbonSelect value={provider} onChange={v=>{setProvider(v);setAnswer("");}}><option value="cloudflare-workers-ai">Cloudflare Workers AI · 已接入</option><option value="openai" disabled>OpenAI API · 待配置密钥</option><option value="anthropic" disabled>Anthropic API · 待配置密钥</option><option value="google" disabled>Google Gemini API · 待配置密钥</option></CarbonSelect></label>
+     <label className="gi-ai-field">选择模型<CarbonSelect value={model} onChange={v=>{setModel(v);setAnswer("");}}>{modelOptions.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</CarbonSelect></label>
+    </div>
+    <small className="gi-ai-provider-hint">{selectedModel.description}。其他直连服务商尚未配置 API Key，暂不可选；模型通过 Cloudflare Workers AI 执行。</small>
+   </section>
+   <section className="gi-ai-step">
+    <div className="gi-ai-step-head"><span className="gi-ai-step-index">02</span><div><strong>选择分析范围</strong><small>单选一种分析方式，切换时保留已填写的研究条件。</small></div></div>
+    <Tabs className="gi-ai-tabs" selectedIndex={Math.max(0,["all","single","custom"].indexOf(mode))} onChange={({selectedIndex})=>setMode(["all","single","custom"][selectedIndex]||"all")}>
+     <TabList aria-label="AI 分析范围"><Tab>全部结果</Tab><Tab>单个 Tab</Tab><Tab>组合分析</Tab></TabList>
+     <TabPanels>
+      <TabPanel><div className="gi-ai-tab-description">综合分析全部 8 个情报维度，生成市场概况、机会判断、竞争态势与行动建议。</div></TabPanel>
+      <TabPanel><label className="gi-ai-field">选择分析板块<CarbonSelect value={singleTab} onChange={setSingleTab}>{tabOptions.map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</CarbonSelect></label></TabPanel>
+      <TabPanel><div className="gi-ai-field"><strong>选择参与分析的情报维度</strong><div className="gi-ai-checks">{tabOptions.map(x=><label key={x[0]}><input type="checkbox" checked={customTabs.includes(x[0])} onChange={e=>setCustomTabs(v=>e.target.checked?[...v,x[0]]:v.filter(k=>k!==x[0]))}/>{x[1]}</label>)}</div><small>已选择 {customTabs.length} / 8 个维度</small></div></TabPanel>
+     </TabPanels>
+    </Tabs>
+   </section>
+   <section className="gi-ai-step">
+    <div className="gi-ai-step-head"><span className="gi-ai-step-index">03</span><div><strong>补充研究问题</strong><small>可选，描述希望 AI 重点回答的商业问题。</small></div></div>
+    <label className="gi-ai-field">研究问题<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="例如：哪个国家值得优先进入？产品应该如何差异化？"/></label>
+   </section>
+   <button className="primary-button gi-ai-run" type="button" onClick={run} disabled={busy||!accessToken||!model}>{busy?"AI 正在分析…":"开始 AI 分析"}</button>
+   <small className="gi-ai-run-note">调用 Cloudflare Workers AI 会产生模型用量；仅发送本次选择的数据摘要与研究问题。当前演示数据会在分析结论中明确标注。</small>
+  </div>
+  <div className="gi-ai-result"><div className="gi-ai-result-head"><div><span className="eyebrow">AI INTERPRETATION</span><h3>{answer?"AI 分析结果":"演示分析报告"}</h3></div><span className="gi-demo-tag">{answer?"模型生成":"DEMO SAMPLE"}</span></div>{error&&<div className="gi-warning">{error}</div>}<div className="gi-ai-answer">{answer||sample||"等待分析数据。"}</div><div className="gi-ai-evidence"><strong>证据说明</strong><p>当前样本全部为模拟数据；平台排名、搜索兴趣、互动样本和 AI 推断不可替代真实销量或经验证的市场数据。</p><span>本次模型：{selectedModel.label} · {provider==="cloudflare-workers-ai"?"Cloudflare Workers AI":"未配置服务"}</span><span>分析上下文：{context||"当前情报任务"}</span></div></div></div>
  </section>;
 }
-
 export function IntelligenceDataExperience({organizationId,activeTab,analyzed,accessToken,context}:{organizationId:string|null;activeTab:string;analyzed:boolean;accessToken:string;context:string}) {
  const [data,setData]=useState<DemoData|null>(null),[loading,setLoading]=useState(false),[loadError,setLoadError]=useState("");
  useEffect(()=>{if(!organizationId){setData(null);return;}let live=true;setLoading(true);supabase.from("intelligence_demo_datasets").select("dataset").eq("organization_id",organizationId).eq("slug","wireless-headphones-global-demo-v1").maybeSingle().then(({data,error})=>{if(!live)return;if(error){setLoadError(error.message);setData(null);}else{setLoadError("");setData((data?.dataset||null) as DemoData|null);}setLoading(false);});return()=>{live=false;};},[organizationId]);

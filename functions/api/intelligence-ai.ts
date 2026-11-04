@@ -18,6 +18,8 @@ interface PagesContext {
   env: Env;
 }
 const allowedTabs = new Set(["overview","bestsellers","search","social","consumer","competitors","categories","markets"]);
+const defaultModel = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+const allowedModels = new Set([defaultModel,"@cf/meta/llama-4-scout-17b-16e-instruct","@cf/openai/gpt-oss-120b","@cf/openai/gpt-oss-20b","@cf/moonshotai/kimi-k2.6","@cf/zai-org/glm-5.3"]);
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
@@ -33,6 +35,10 @@ export async function onRequestPost({ request, env }: PagesContext): Promise<Res
     });
     if (!authResponse.ok) return json({ error: "登录状态已失效，请重新登录。" }, 401);
     const payload = await request.json() as Record<string, unknown>;
+    const provider = typeof payload.provider === "string" ? payload.provider : "cloudflare-workers-ai";
+    if (provider !== "cloudflare-workers-ai") return json({ error: "当前仅接入 Cloudflare Workers AI，其他服务商尚未配置。" }, 400);
+    const model = typeof payload.model === "string" ? payload.model : defaultModel;
+    if (!allowedModels.has(model)) return json({ error: "所选模型不在当前可用模型列表中。" }, 400);
     const mode = typeof payload.mode === "string" ? payload.mode : "all";
     if (!["all","single","custom"].includes(mode)) return json({ error: "不支持的分析模式。" }, 400);
     const dataset = payload.dataset;
@@ -76,7 +82,7 @@ export async function onRequestPost({ request, env }: PagesContext): Promise<Res
       "情报数据 JSON：",
       datasetText
     ].join("\n\n");
-    const result = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+    const result = await env.AI.run(model, {
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
       max_tokens: 1800,
       temperature: 0.2
@@ -84,7 +90,7 @@ export async function onRequestPost({ request, env }: PagesContext): Promise<Res
     const output = result as { response?: unknown };
     const answer = typeof output?.response === "string" ? output.response : "";
     if (!answer) return json({ error: "模型未返回可展示内容，请稍后重试。" }, 502);
-    return json({ answer, model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", evidence_type: "demo" });
+    return json({ answer, provider, model, evidence_type: "demo" });
   } catch (error) {
     const message = error instanceof Error ? error.message : "AI 分析服务暂不可用。";
     return json({ error: message }, 500);

@@ -123,3 +123,28 @@
 
 @media(max-width:900px){.gi-source-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.gi-source-grid{grid-template-columns:1fr}.gi-source-actions{align-items:flex-start}.gi-section-head{gap:.5rem}.gi-source-card{min-height:3.7rem}}
+
+
+/* AI analysis: Carbon tabs and explicit three-step model workflow */
+.gi-ai-step{padding:.85rem 0;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6)}
+.gi-ai-step:last-of-type{border-bottom:0}
+.gi-ai-step-head{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.65rem}
+.gi-ai-step-index{display:grid;width:1.45rem;height:1.45rem;flex:none;place-items:center;background:var(--cds-layer-02,#e0e0e0);color:var(--cds-text-secondary,#525252);font-size:.65rem;font-weight:600;font-variant-numeric:tabular-nums}
+.gi-ai-step-head>div{display:flex;min-width:0;flex-direction:column;gap:.15rem}
+.gi-ai-step-head strong{font-size:.76rem;font-weight:600;color:var(--cds-text-primary,#161616)}
+.gi-ai-step-head small,.gi-ai-provider-hint{font-size:.64rem;line-height:1.5;color:var(--cds-text-secondary,#6f6f6f)}
+.gi-ai-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.gi-ai-model-grid .gi-ai-field{min-width:0;margin:0}
+.gi-ai-provider-hint{display:block;margin-top:.55rem}
+.gi-ai-tabs{min-width:0;margin-top:.15rem}
+.gi-ai-tabs .cds--tab-list{border-bottom:1px solid var(--cds-border-subtle,#c6c6c6)}
+.gi-ai-tabs .cds--tab{min-height:2.5rem;padding-inline:.7rem;font-size:.7rem}
+.gi-ai-tabs .cds--tab--selected{color:var(--cds-text-primary,#161616)}
+.gi-ai-tabs .cds--tab-content{padding:.7rem 0 0;outline:0}
+.gi-ai-tabs .cds--tab-panel{padding:0;outline:0}
+.gi-ai-tab-description{font-size:.69rem;line-height:1.6;color:var(--cds-text-secondary,#525252)}
+.gi-ai-tabs .gi-ai-field{margin:0}
+.gi-ai-tabs .gi-ai-checks{margin-top:.35rem}
+.gi-ai-tabs .gi-ai-field>small{font-size:.63rem;color:var(--cds-text-secondary,#6f6f6f)}
+.gi-ai-run-note{display:block;margin-top:.35rem;font-size:.63rem;line-height:1.5;color:var(--cds-text-secondary,#6f6f6f)}
+@media(max-width:671px){.gi-ai-model-grid{grid-template-columns:1fr}.gi-ai-tabs .cds--tab{padding-inline:.45rem;font-size:.65rem}}
