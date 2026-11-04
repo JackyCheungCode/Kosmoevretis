@@ -57,6 +57,10 @@ Use this primitive for top-level feature pages instead of re-creating a page hea
 
 `src/styles/intelligence-pages.scss` is the shared layout and component styling layer for enterprise profile editing, the four-step enterprise workflow, AI model allocation and execution, and analysis result reporting. It is loaded after the global and shared primitive styles. Keep these page styles on Carbon semantic aliases and the shared spacing scale; preserve feature-owned data and task behavior when adjusting presentation.
 
+## AI work center
+
+The task list and research-task detail share `src/features/ai-work-center/ai-work-center.scss`. Use the semantic layer and spacing aliases for status summaries, filters, task metadata, execution history, result previews, and raw-data panels. Keep Carbon status tags and controls as the interaction primitives; use borders only for dense table or timeline separation. Preserve task loading, polling, retry, bulk archive/trash/restore, and export behavior when changing presentation.
+
 ## Responsive grid
 
 Use Carbon 2x grid breakpoints as the reference:
