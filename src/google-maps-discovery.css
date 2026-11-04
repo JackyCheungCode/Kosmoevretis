@@ -2,7 +2,7 @@
 .gm-customer-link{padding:0;border:0;background:transparent;color:var(--cds-link-primary);font:inherit;text-align:left;cursor:pointer}.gm-customer-link:hover{text-decoration:underline}.gm-customer-link:focus-visible{outline:2px solid var(--cds-focus);outline-offset:2px}
 
 /* Carbon white result surface and consistent native tabs. */
-.gm-results { background:var(--cds-layer-02); }
+.gm-results { background:var(--cds-layer-01); }
 .gm-results .cds--tabs { min-width:0; margin:0; }
 .gm-results .cds--tab-list { display:flex; flex-wrap:nowrap; max-width:100%; overflow-x:auto; background:transparent; border-bottom:1px solid var(--cds-border-subtle); }
 .gm-results .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
