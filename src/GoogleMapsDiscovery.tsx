@@ -151,7 +151,7 @@ export default function GoogleMapsDiscovery(){
     <TabPanels>
      <TabPanel><ResultsTable rows={rows} onSelect={focusCustomer}/></TabPanel>
      <TabPanel><pre className="gm-raw">{rows.length?JSON.stringify(rows,null,2):"暂无原始数据。"}</pre></TabPanel>
-     <TabPanel><div className="gm-history">{history.length?history.map(h=><button key={h.id} className={historyId===h.id?"gm-history-item active":"gm-history-item"} onClick={()=>openHistory(h)} disabled={busy}><span><strong>{h.title}</strong><small>{new Date(h.created_at).toLocaleString()} · {h.result_count} 条 · {statusLabel(h.status)}</small></span><span>{statusLabel(h.status)}　›</span></button>):<div className="gm-empty">暂无历史任务。</div>}</TabPanel>
+     <TabPanel><div className="gm-history">{history.length?history.map(h=><button key={h.id} className={historyId===h.id?"gm-history-item active":"gm-history-item"} onClick={()=>openHistory(h)} disabled={busy}><span><strong>{h.title}</strong><small>{new Date(h.created_at).toLocaleString()} · {h.result_count} 条 · {statusLabel(h.status)}</small></span><span>{statusLabel(h.status)}　›</span></button>):<div className="gm-empty">暂无历史任务。</div>}</div></TabPanel>
     </TabPanels>
    </Tabs>
   </section>
