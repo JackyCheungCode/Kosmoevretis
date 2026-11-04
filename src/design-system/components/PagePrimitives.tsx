@@ -78,14 +78,10 @@ export function ErrorState({ title = "暂时无法完成操作", description, ac
   onRetry?: () => void;
 }) {
   return (
-    <InlineNotification
-      kind="error"
-      lowContrast
-      title={title}
-      subtitle={description}
-      hideCloseButton
-      actions={onRetry ? <Button kind="ghost" size="sm" onClick={onRetry}>{actionLabel}</Button> : undefined}
-    />
+    <div className="kosmo-error-state">
+      <InlineNotification kind="error" lowContrast title={title} subtitle={description} hideCloseButton />
+      {onRetry && <Button kind="ghost" size="sm" onClick={onRetry}>{actionLabel}</Button>}
+    </div>
   );
 }
 

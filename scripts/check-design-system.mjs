@@ -19,11 +19,11 @@ async function walk(directory) {
     else if (allowedExtensions.has(extname(entry.name))) {
       const source = await readFile(path, "utf8");
       const relative = path.replaceAll("\\", "/").split("/src/pages/").at(-1);
-      if (/<select\b/i.test(source)) violations.push(`${relative}: use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.`);
+      if (/<select\b/i.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.");
       if (extname(entry.name) === ".css") {
-        if (/(^|[;{\\s])#[0-9a-f]{3,8}(?![\\w-])/i.test(source)) violations.push(`${relative}: hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.`);
-        if (/(^|[;{\\s])rgba?\\(/i.test(source)) violations.push(`${relative}: hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.`);
-        if (/(^|[,}])\\s*(html|body|:root|\\.cds--[\\w-]+)\\b/m.test(source)) violations.push(`${relative}: page CSS must not override global or Carbon component selectors.`);
+        if (/(^|[;{\s])#[0-9a-f]{3,8}(?![\w-])/i.test(source)) violations.push(relative + ": hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.");
+        if (/(^|[;{\s])rgba?\(/i.test(source)) violations.push(relative + ": hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.");
+        if (/(^|[,}])\s*(html|body|:root|\.cds--[\w-]+)\b/m.test(source)) violations.push(relative + ": page CSS must not override global or Carbon component selectors.");
       }
     }
   }
@@ -31,7 +31,7 @@ async function walk(directory) {
 
 await walk(root.pathname);
 if (violations.length) {
-  console.error("Design-system guard failed:\\n" + violations.map(item => ` - ${item}`).join("\\n"));
+  console.error("Design-system guard failed:\n" + violations.map(item => " - " + item).join("\n"));
   process.exitCode = 1;
 } else {
   console.log("Design-system guard passed: no page-local native selects, hard-coded colors, or global/Carbon overrides.");
