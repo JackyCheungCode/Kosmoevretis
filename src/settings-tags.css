@@ -1,0 +1,21 @@
+/* Settings-center Carbon Tag layout overrides.
+ * Keep these after shared application styles so responsive sizing remains
+ * predictable without changing Carbon's Tag color variants.
+ */
+@media(max-width:671px){
+  .provider-card-head .cds--tag{flex:none}
+}
+.settings-center .settings-catalog-item .cds--tag{flex:0 0 auto}
+@media(max-width:600px){
+  .settings-workspace .provider-directory-row .cds--tag{flex:none}
+}
+.settings-workspace .provider-directory-row .cds--tag{flex:0 0 auto;max-width:fit-content}
+@media(max-width:767px){
+  .settings-workspace .provider-directory-row .cds--tag{font-size:.625rem;padding-inline:.35rem}
+  .settings-workspace .provider-directory-row .cds--tag{
+    flex:0 0 auto!important;
+    max-width:fit-content!important;
+    margin:0!important;
+    font-size:.6rem!important;
+  }
+}
