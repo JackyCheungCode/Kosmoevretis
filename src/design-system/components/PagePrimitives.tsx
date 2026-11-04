@@ -6,14 +6,16 @@ export type PageHeaderProps = {
   description?: string;
   eyebrow?: string;
   actions?: ReactNode;
+  headingLevel?: 1 | 2;
 };
 
-export function PageHeader({ title, description, eyebrow, actions }: PageHeaderProps) {
+export function PageHeader({ title, description, eyebrow, actions, headingLevel = 1 }: PageHeaderProps) {
+  const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   return (
     <header className="kosmo-page-header">
       <div className="kosmo-page-header__copy">
         {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
-        <h1 className="kosmo-page-header__title">{title}</h1>
+        <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
         {description && <p className="kosmo-page-header__description">{description}</p>}
       </div>
       {actions && <div className="kosmo-page-header__actions">{actions}</div>}
