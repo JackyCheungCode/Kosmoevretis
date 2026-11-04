@@ -23,6 +23,31 @@
   letter-spacing: .06em;
 }
 
+ Kosmoevretis AppShell: IBM Carbon v11 UI Shell, Gray 10. */
+.kosmo-app-shell {
+  --kosmo-shell-header-height: 3rem;
+  min-height: 100vh;
+  background: var(--cds-background);
+}
+
+.kosmo-header.cds--header {
+  height: var(--kosmo-shell-header-height);
+  background: var(--cds-background-inverse);
+  color: var(--cds-text-inverse);
+  border-bottom: 0;
+  z-index: 9000;
+}
+
+.kosmo-header .cds--header__name {
+  display: inline-flex;
+  align-items: center;
+  width: var(--kosmo-shell-sidebar-width);
+  max-width: none;
+  padding-inline: var(--kosmo-space-5);
+  font-weight: 600;
+  letter-spacing: .06em;
+}
+
 .kosmo-header .cds--header__name--prefix {
   display: inline-grid;
   width: 1.75rem;
@@ -177,3 +202,4 @@
     transition: none;
   }
 }
+\n/* Keep Carbon navigation labels and their icons aligned consistently. */\n.kosmo-side-nav .kosmo-nav-item-content {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--kosmo-space-3);\n  min-width: 0;\n}\n.kosmo-side-nav .kosmo-nav-item-content > svg {\n  flex: 0 0 1rem;\n  fill: currentColor;\n}\n.kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {\n  color: var(--cds-interactive);\n}\n
