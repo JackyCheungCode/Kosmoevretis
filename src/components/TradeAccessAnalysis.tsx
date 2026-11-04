@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "../trade-access.css";
 import { Button, InlineNotification, Tag, TextInput, Dropdown, InlineLoading } from "@carbon/react";
 
-type Props={productName:string;keywords:string[];markets:string[];hsCode:string};
+type Props={productName:string;keywords:string[];markets:string[];hsCode:string;accessToken:string};
 type Payload={generated_at:string;results:Record<string,any>;sources:any[]};
 const originOptions=[{id:"CN",text:"中国"},{id:"VN",text:"越南"},{id:"IN",text:"印度"},{id:"TW",text:"中国台湾"},{id:"KR",text:"韩国"}];
 const modeOptions=[{id:"ocean",text:"海运"},{id:"air",text:"空运"}];
@@ -22,11 +22,11 @@ function DataRows({items,kind}:{items:any[];kind:string}){
  if(kind==="ports")return <div className="trade-port-grid">{items.flatMap((g:any)=>safeArray(g.payload?.data?.results||g.payload?.results||g.payload?.data||g.payload).map((r:any,i:number)=><article className="trade-port-card" key={g.market+"-"+i}><strong>{r.port||r.port_name||"港口"}</strong><Tag type={r.congestion==="high"?"red":r.congestion==="moderate"?"warm-gray":"green"}>{r.congestion||"状态未知"}</Tag><small>{r.country||g.country} · 更新 {r.as_of||"日期未提供"}</small><small>相对基线：{r.metrics?.ratio_vs_baseline??"—"}</small></article>))}</div>;
  return <pre className="trade-json">{JSON.stringify(items,null,2)}</pre>;
 }
-export default function TradeAccessAnalysis({productName,keywords,markets,hsCode}:Props){
+export default function TradeAccessAnalysis({productName,keywords,markets,hsCode,accessToken}:Props){
  const [origin,setOrigin]=useState("CN"),[originCity,setOriginCity]=useState("Shanghai"),[zip,setZip]=useState(""),[mode,setMode]=useState("ocean"),[payload,setPayload]=useState<Payload|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const marketLabel=markets.map(x=>marketNames[x]||x).join("、");
  const cityOptions=(originCities[origin]||[]).map(x=>({id:x,text:x}));
- const analyze=async()=>{setBusy(true);setError("");try{const response=await fetch("/api/trade-intelligence",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keywords,hsCode,markets,originCountry:origin,originCity,destinationZip:zip,freightMode:mode})});const data=await response.json();if(!response.ok)throw new Error(data.error||"贸易情报请求失败");setPayload(data);}catch(e){setError(e instanceof Error?e.message:"贸易情报请求失败");}finally{setBusy(false);}};
+ const analyze=async()=>{setBusy(true);setError("");try{const response=await fetch("/api/trade-intelligence",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},body:JSON.stringify({keywords,hsCode,markets,originCountry:origin,originCity,destinationZip:zip,freightMode:mode})});const data=await response.json();if(!response.ok)throw new Error(data.error||"贸易情报请求失败");setPayload(data);}catch(e){setError(e instanceof Error?e.message:"贸易情报请求失败");}finally{setBusy(false);}};
  const results=payload?.results||{};
  return <div className="trade-access">
   <div className="trade-access-intro"><div><span className="eyebrow">TRADE & MARKET ACCESS</span><h2>贸易与市场准入</h2><p>复用当前产品、关键词与目标市场，评估关税、贸易流向、运输环境和营商条件。</p></div><Tag type="green">免费数据源优先</Tag></div>
