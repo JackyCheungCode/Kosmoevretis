@@ -30,6 +30,8 @@ export function ResearchTaskDetailPage() {
   const [data, setData] = useState<DetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [retrying, setRetrying] = useState(false);
   const task = data?.task;
 
   const load = useCallback(async (silent = false) => {
@@ -59,12 +61,29 @@ export function ResearchTaskDetailPage() {
   if (loading) return <div className="awc-loading"><InlineLoading description="正在读取任务详情…" /></div>;
   if (error || !task) return <section className="awc-detail"><Button kind="ghost" renderIcon={ArrowLeft} onClick={() => navigate("/ai-work-center")}>返回任务中心</Button><div style={{ marginTop: 20 }}><InlineNotification kind="error" title="无法打开任务" subtitle={error || "任务不存在或无权访问。"} /></div></section>;
 
+  const retry = async () => {
+    if (!session?.access_token || !workspace?.id || !task) return;
+    if (!window.confirm("基于当前任务的原始输入重新执行？本次将创建新的执行记录，不覆盖历史结果。")) return;
+    setRetrying(true); setError(""); setNotice("");
+    try {
+      const response = await fetch("/api/research-tasks/retry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        body: JSON.stringify({ taskId: task.id, organizationId: workspace.id })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "重试失败。");
+      setNotice("已创建第 " + payload.attempt + " 次执行，Actor 正在启动。");
+      await load();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "重试失败。"); }
+    finally { setRetrying(false); }
+  };
   const exportJson = () => download("kosmoevretis-task-" + task.id + ".json", JSON.stringify({ task, executions }, null, 2), "application/json;charset=utf-8");
   const exportCsv = () => download("kosmoevretis-task-" + task.id + "-results.csv", toCsv(rawItems), "text/csv;charset=utf-8");
 
   return <section className="awc-detail">
     <Button kind="ghost" size="sm" renderIcon={ArrowLeft} onClick={() => navigate("/ai-work-center")}>返回任务中心</Button>
-    <header className="awc-detail-header">
+    {error && <InlineNotification kind="error" lowContrast title="操作失败" subtitle={error} onCloseButtonClick={() => setError("")} />}\n    {notice && <InlineNotification kind="success" lowContrast title="任务已重新提交" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}\n    <header className="awc-detail-header">
       <div><div className="awc-eyebrow">RESEARCH TASK DETAIL</div><h1>{task.title || "研究任务"}</h1><p>{taskTypeLabel[task.task_type] || task.task_type} · 创建于 {dateLabel(task.created_at)} · ID {task.id}</p></div>
       <div className="awc-detail-actions"><Button kind="tertiary" size="sm" renderIcon={Renew} onClick={() => void load()}>刷新状态</Button><Button kind="tertiary" size="sm" renderIcon={Download} onClick={exportJson}>导出 JSON</Button><Button kind="tertiary" size="sm" renderIcon={Download} disabled={!rawItems.length} onClick={exportCsv}>导出 CSV</Button></div>
     </header>
