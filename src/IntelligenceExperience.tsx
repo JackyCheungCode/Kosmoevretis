@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
 import "./intelligence.css";
@@ -180,7 +180,7 @@ function GoogleTrendsRegionMap({regions,geo,keyword}:{regions:any[];geo:string;k
  else{
   const countryResp=await fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson");if(!countryResp.ok)throw new Error("国家边界数据加载失败");const countries=await countryResp.json();
   const feature=(countries.features||[]).find((f:any)=>String(f.properties?.["ISO3166-1-Alpha-2"]||f.properties?.ISO_A2||"").toUpperCase()===geo.toUpperCase());
-  const iso3=feature?.properties?.ISO3166-1-Alpha-3||feature?.properties?.ISO_A3||feature?.properties?.ADM0_A3;
+  const iso3=feature?.properties?.["ISO3166-1-Alpha-3"]||feature?.properties?.ISO_A3||feature?.properties?.ADM0_A3;
   if(!iso3)throw new Error("无法识别所选国家的行政区边界代码");
   const meta=await fetch("https://www.geoboundaries.org/api/current/gbOpen/"+iso3+"/ADM1/");if(!meta.ok)throw new Error("该国家的省／州边界暂不可用");const boundaryMeta=await meta.json();const url=boundaryMeta.gjDownloadURL||boundaryMeta.geojson;if(!url)throw new Error("该国家暂无可用的省／州边界");const boundary=await fetch(url);if(!boundary.ok)throw new Error("省／州边界下载失败");geojson=await boundary.json();
  }
