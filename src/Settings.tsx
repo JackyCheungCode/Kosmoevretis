@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import SettingsBackend from "./SettingsBackend";
 import {
   Accordion, AccordionItem, Button, Checkbox, InlineNotification,
   PasswordInput, Tab, TabList, TabPanel, TabPanels, Tabs, Tag,
@@ -103,16 +104,7 @@ function ApiSettings({ credentials, setCredentials, explain }: { credentials:Rec
     <Tabs defaultSelectedIndex={0}>
       <TabList aria-label="API 与数据源配置"><Tab>服务商连接</Tab><Tab>Actor 注册中心</Tab><Tab>数据渠道</Tab><Tab>运行记录</Tab></TabList>
       <TabPanels>
-        <TabPanel><div className="intelligence-panel">
-          <div className="results-heading"><h3>Apify 账号连接</h3><p>配置一次账号授权，即可供电商、搜索、社交媒体和社区等多个业务模块调用不同 Actor。</p></div>
-          <div className="source-settings-note">
-            <PasswordInput id="settings-apify-token" labelText="Apify API Token" placeholder="输入 Apify API Token" value={credentials.apify || ""} onChange={event=>setCredentials(current=>({...current,apify:event.target.value}))} />
-            <div className="analysis-submit-row"><span>凭证状态：未验证 · 不会写入浏览器持久存储</span><Button kind="primary" onClick={explain}>保存并测试连接</Button></div>
-          </div>
-          <div className="results-heading"><h3>其他服务商</h3><p>可逐步扩展官方 API、第三方数据服务和语言服务。</p></div>
-          <ProviderFields credentials={credentials} setCredentials={setCredentials} explain={explain} />
-          <Pending />
-        </div></TabPanel>
+        <TabPanel><SettingsBackend /></TabPanel>
         <TabPanel><div className="intelligence-panel"><ActorRegistry filter={filter} setFilter={setFilter} explain={explain} /><Pending /></div></TabPanel>
         <TabPanel><div className="intelligence-panel"><Heading eyebrow="SOURCE CHANNELS" title="数据渠道目录" description="按业务渠道组织数据来源。渠道关联服务商连接和一个或多个连接器，不在此重复保存凭证。" /><ChannelCatalog /></div></TabPanel>
         <TabPanel><div className="intelligence-panel"><Heading eyebrow="COLLECTION RUNS" title="采集运行记录" description="统一查看由各业务模块发起的 Actor 任务、执行状态、数据集和错误信息。" /><Pending>采集任务调度与运行记录服务尚未接入；当前不会展示虚构的任务或运行数据。</Pending></div></TabPanel>
