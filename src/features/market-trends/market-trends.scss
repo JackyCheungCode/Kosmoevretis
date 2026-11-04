@@ -491,10 +491,10 @@
 .mt-history-empty { display: flex; align-items: center; justify-content: center; gap: var(--app-space-03); padding: var(--app-space-06); color: var(--app-color-text-secondary); }
 .market-trends-page .ep-page-footer { margin-top: var(--app-space-06); padding-top: var(--app-space-04); border-top: 1px solid var(--app-color-border-subtle); }
 
-@media (max-width: 1050px) {
+@media (max-width: 1055px) {
   .mt-workspace-grid { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 720px) {
+@media (max-width: 671px) {
   .market-trends-page { padding-inline: 0; padding-bottom: var(--app-space-06); }
   .mt-workspace-grid { gap: var(--app-space-04); margin-top: var(--app-space-04); }
   .mt-config-panel, .mt-results-panel { padding: var(--app-space-04); }
