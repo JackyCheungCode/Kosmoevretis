@@ -15,8 +15,9 @@
   gap: var(--kosmo-space-1);
   width: 100%;
   min-width: 0;
-  min-height: 5.25rem;
-  height: auto;
+  min-height: 6rem;
+  height: 6rem;
+  max-height: 6rem;
   max-width: 100%;
   padding: var(--kosmo-space-3);
   color: var(--cds-text-primary);
@@ -46,13 +47,20 @@
   min-width: 0;
   overflow-wrap: anywhere;
   white-space: normal;
+  overflow: hidden;
 }
 
 .kosmo-collection-mode-grid__item strong {
   font-size: var(--cds-body-compact-01-font-size);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
 .kosmo-collection-mode-grid__item span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   color: var(--cds-text-secondary);
   font-size: var(--cds-helper-text-01-font-size);
   line-height: 1.4;
