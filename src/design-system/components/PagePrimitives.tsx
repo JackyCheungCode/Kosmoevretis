@@ -23,19 +23,21 @@ export function PageHeader({ title, description, eyebrow, actions, headingLevel 
   );
 }
 
-export function PageSection({ title, description, actions, children, className = "" }: {
+export function PageSection({ title, description, actions, children, className = "", headingLevel = 2 }: {
   title?: string;
   description?: string;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
+  headingLevel?: 2 | 3;
 }) {
+  const HeadingTag = headingLevel === 3 ? "h3" : "h2";
   return (
     <section className={["kosmo-page-section", className].filter(Boolean).join(" ")}>
       {(title || description || actions) && (
         <div className="kosmo-page-section__header">
           <div className="kosmo-page-section__copy">
-            {title && <h2 className="kosmo-page-section__title">{title}</h2>}
+            {title && <HeadingTag className="kosmo-page-section__title">{title}</HeadingTag>}
             {description && <p className="kosmo-page-section__description">{description}</p>}
           </div>
           {actions && <div className="kosmo-page-section__actions">{actions}</div>}
