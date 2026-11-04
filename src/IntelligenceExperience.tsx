@@ -143,7 +143,7 @@ function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any
  const regions=Array.isArray(result?.interest_by_region)?result.interest_by_region:[];
  const related=result?.related_queries||{};
  const rows=Array.isArray(related.rising)?related.rising:Array.isArray(related.top)?related.top:[];
- const values=series.map((row:any)=>({label:String(row.date||new Date(Number(row.timestamp||0)*1000).toLocaleDateString()),value:Number(row[result?.keyword]??row.value??0)}));
+ const values: {label:string;value:number}[]=series.map((row:any)=>({label:String(row.date||new Date(Number(row.timestamp||0)*1000).toLocaleDateString()),value:Number(row[result?.keyword]??row.value??0)}));
  const max=Math.max(1,...values.map(x=>x.value));
  return <section className="gi-live-results">
   <div className="gi-section-head"><div><span className="eyebrow">LIVE / GOOGLE TRENDS</span><h2>真实搜索趋势数据</h2><p>数据由 Apify Google Trends Actor 实时采集，指标为 Google Trends 相对搜索兴趣指数（0–100），不是搜索量或销量。</p></div><span className="gi-status ready">{loading?"正在采集…":meta?.status==="failed"?"采集失败":meta?"真实数据":"等待采集"}</span></div>
@@ -152,7 +152,7 @@ function LiveGoogleTrends({results,meta,history,loading}:{results:any[];meta:any
   {results.length>0&&<>
    {results.length>1&&<div className="gi-filter-row"><label>关键词结果<select value={selected} onChange={e=>setSelected(Number(e.target.value))}>{results.map((x,i)=><option key={i} value={i}>{x.keyword||"关键词 "+(i+1)}</option>)}</select></label></div>}
    <div className="gi-chart-grid"><article className="gi-chart-card wide"><div className="gi-card-head"><div><h4>{result.keyword} · 搜索兴趣时间序列</h4><p>{result.geo||"全球"} · {result.time_range} · Google Trends 指数</p></div></div>
-    {values.length?<div className="gi-live-series">{values.map((x,i)=><div key={i} title={x.label}><span>{x.label}</span><div><i style={{height:(x.value/max*100)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>Actor 未返回时间序列数据。可在下方查看完整原始结果。</p>}
+    {values.length?<div className="gi-live-series">{values.map((x:{label:string;value:number},i:number)=><div key={i} title={x.label}><span>{x.label}</span><div><i style={{height:(x.value/max*100)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>Actor 未返回时间序列数据。可在下方查看完整原始结果。</p>}
    </article>
    <article className="gi-chart-card"><div className="gi-card-head"><div><h4>地区搜索兴趣</h4><p>地区内相对兴趣指数</p></div></div>{regions.length?<div className="gi-bars">{regions.slice(0,15).map((x:any,i:number)=><div className="gi-bar-row" key={i}><span>{x.region||x.geoCode}</span><div><i style={{width:(Number(x.value)||0)+"%"}}/></div><b>{x.value}</b></div>)}</div>:<p>当前结果没有地区分布数据。</p>}</article>
    <article className="gi-chart-card"><div className="gi-card-head"><div><h4>相关搜索查询</h4><p>Actor 返回的关联查询</p></div></div>{rows.length?<div className="gi-bars">{rows.slice(0,20).map((x:any,i:number)=><div className="gi-bar-row" key={i}><span>{x.query||x.keyword||JSON.stringify(x)}</span><div><i style={{width:(Number(x.value)||0)+"%"}}/></div><b>{x.value??"—"}</b></div>)}</div>:<p>当前结果没有相关查询数据。</p>}</article>
