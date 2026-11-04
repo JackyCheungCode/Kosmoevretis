@@ -49,10 +49,11 @@ export default function TradeAccessAnalysis({productName,keywords,markets,hsCode
    <Tabs><TabList aria-label="贸易分析结果分类" contained><Tab>关税与贸易</Tab><Tab>运输与物流</Tab><Tab>市场环境</Tab></TabList><TabPanels><TabPanel><div className="trade-results-grid">
     <ResultSection title="关税与 HTS 商品归类" source="USITC · 美国官方协调关税表" status={results.tariff?.status||"unavailable"} error={results.tariff?.error}><DataRows items={safeArray(results.tariff?.data?.items)} kind="tariff"/></ResultSection>
     <ResultSection title="国际贸易流向" source="UN Comtrade · 官方贸易统计（公共预览）" status={results.trade?.status||"unavailable"} error={results.trade?.error||results.trade?.data?.note}><DataRows items={results.trade?.data?.items||[]} kind="trade"/></ResultSection>
-    <ResultSection title="营商环境与市场准入" source="World Bank Data Catalog · B-READY 2024" status={results.bready?.status||"unavailable"} error={results.bready?.error||results.bready?.data?.note}><DataRows items={results.bready?.data?.items||[]} kind="bready"/></ResultSection>
-</div></TabPanel><TabPanel><div className="trade-results-grid">    <ResultSection title="海运 / 空运参考报价" source="FreightPulse · Warp 参考报价" status={results.freight?.status||"unavailable"} error={results.freight?.error}><DataRows items={results.freight?.data?[results.freight.data]:[]} kind="freight"/>{results.freight?.status==="success"&&<pre className="trade-json">{JSON.stringify(results.freight.data,null,2)}</pre>}</ResultSection>
+
 </div></TabPanel><TabPanel><div className="trade-results-grid">    <ResultSection title="港口拥堵与运输环境" source="FreightPulse · IMF PortWatch AIS" status={results.ports?.status||"unavailable"} error={results.ports?.error||results.ports?.data?.note}><DataRows items={results.ports?.data?.items||[]} kind="ports"/></ResultSection>
-</div></TabPanel></TabPanels></Tabs>数据来源与限制：USITC 为美国 HTS 税则查询，目前仅返回美国税则条目，尚未计算按原产国适用的附加税、优惠税率或贸易救济税；UN Comtrade 公共预览每次最多 500 条，年度数据有发布滞后；B-READY 反映制度、公共服务与效率，不等于实时运营成本；港口拥堵指标不是船舶等待时间；运价仅为可用航线的参考报价，不是承运人最终合同价格。</div>
+    <ResultSection title="海运 / 空运参考报价" source="FreightPulse · Warp 参考报价" status={results.freight?.status||"unavailable"} error={results.freight?.error}><DataRows items={results.freight?.data?[results.freight.data]:[]} kind="freight"/>{results.freight?.status==="success"&&<pre className="trade-json">{JSON.stringify(results.freight.data,null,2)}</pre>}</ResultSection>
+</div></TabPanel><TabPanel><div className="trade-results-grid">
+</div></TabPanel></TabPanels></Tabs>数据来源与限制：USITC 为美国 HTS 税则查询，目前仅返回美国税则条目，尚未计算按原产国适用的附加税、优惠税率或贸易救济税；UN Comtrade 公共预览每次最多 500 条，年度数据有发布滞后；B-READY 反映制度、公共服务与效率，不等于实时运营成本；港口拥堵指标不是船舶等待时间；运价仅为可用航线的参考报价，不是承运人最终合同价格。
   </>}
  </div>;
 }
