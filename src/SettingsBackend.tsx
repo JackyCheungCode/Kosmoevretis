@@ -7,7 +7,7 @@ const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 
 const apiProviders = [
   { key: "apify", name: "Apify", domain: "apify.com", group: "数据采集与网页抓取", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
-  { key: "dataforseo", name: "DataForSEO", domain: "dataforseo.com", group: "SEO 与网站分析", description: "OnPage 全站爬取、技术 SEO 检查与页面级数据。", credentialLabel: "DataForSEO API Login / Password", placeholder: "分别输入 API Login 和 API Password" },
+  { key: "dataforseo", name: "DataForSEO", domain: "dataforseo.com", group: "SEO 与网站分析", description: "OnPage 全站爬取、技术 SEO 检查与页面级数据。", credentialLabel: "DataForSEO API Key / Authorization Token", placeholder: "粘贴 DataForSEO API Key（Base64 凭证）" },
   { key: "google_pagespeed", name: "Google PageSpeed Insights", domain: "developers.google.com", group: "SEO 与网站分析", description: "Lighthouse 性能、SEO、无障碍与最佳实践检测。", credentialLabel: "PageSpeed API Key", placeholder: "输入 Google PageSpeed API Key" },
   { key: "octoparse", name: "Octoparse", domain: "octoparse.com", group: "数据采集与网页抓取", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
   { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", group: "数据采集与网页抓取", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
@@ -35,8 +35,7 @@ export default function SettingsBackend() {
   const [sessionReady, setSessionReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [credentials, setCredentials] = useState<Record<string, string>>({});
-  const [dataForSeoLogin, setDataForSeoLogin] = useState("");
-  const [dataForSeoPassword, setDataForSeoPassword] = useState("");
+  const [dataForSeoApiKey, setDataForSeoApiKey] = useState("");
   const [savedProviders, setSavedProviders] = useState<ApiState["providers"]>([]);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error" | "info"; title: string; message: string } | null>(null);
@@ -97,7 +96,7 @@ export default function SettingsBackend() {
   const saveProvider = async (providerKey: string) => {
     const definition = apiProviders.find(item => item.key === providerKey);
     const credential = providerKey === "dataforseo"
-      ? (dataForSeoLogin.trim() && dataForSeoPassword ? dataForSeoLogin.trim() + ":" + dataForSeoPassword : "")
+      ? dataForSeoApiKey.trim()
       : credentials[providerKey]?.trim();
     if (!definition || !credential) {
       setNotice({ kind: "error", title: "缺少 API 凭证", message: "请先输入 " + (definition?.credentialLabel || "API Key") + "。" });
@@ -113,7 +112,7 @@ export default function SettingsBackend() {
         is_enabled: true,
       });
       setCredentials(current => ({ ...current, [providerKey]: "" }));
-      if (providerKey === "dataforseo") { setDataForSeoLogin(""); setDataForSeoPassword(""); }
+      if (providerKey === "dataforseo") setDataForSeoApiKey("");
       if (providerKey === "apify") {
         const result = await invoke("test_apify") as { actor_username?: string; plan?: string };
         await load();
@@ -186,14 +185,14 @@ export default function SettingsBackend() {
               </div>}>
                 <div className="provider-detail">
                   <div className="provider-detail-description">{definition.description}</div>
-                  {definition.key === "dataforseo" ? <div className="settings-form-grid">
-                    <TextInput id="settings-dataforseo-login" labelText="API Login"
-                      placeholder="DataForSEO API Login" value={dataForSeoLogin}
-                      onChange={event => setDataForSeoLogin(event.target.value)} />
-                    <PasswordInput id="settings-dataforseo-password" labelText="API Password"
-                      placeholder={saved?.credential_hint ? "留空则保留当前凭证" : "DataForSEO API Password"}
-                      value={dataForSeoPassword} onChange={event => setDataForSeoPassword(event.target.value)} />
-                  </div> : <PasswordInput
+                  {definition.key === "dataforseo" ? <PasswordInput
+                    id="settings-dataforseo-api-key"
+                    labelText="API Key / Authorization Token"
+                    placeholder={saved?.credential_hint ? "留空则保留当前凭证" : "粘贴 API Access 中的 Base64 凭证"}
+                    helperText="支持 Base64 编码的 login:password；也兼容直接填写 login:password。"
+                    value={dataForSeoApiKey}
+                    onChange={event => setDataForSeoApiKey(event.target.value)}
+                  /> : <PasswordInput
                     id={"settings-provider-" + definition.key}
                     labelText={definition.credentialLabel}
                     placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
@@ -205,7 +204,7 @@ export default function SettingsBackend() {
                     {isApify && saved?.last_tested_at && <span>上次测试：{new Date(saved.last_tested_at).toLocaleString()}</span>}
                   </div>
                   <div className="analysis-submit-row">
-                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : definition.key === "dataforseo" ? "API Login 与 Password 会合并后在服务端加密保存。" : "凭证通过服务端加密保存；可在本组下方执行连接测试。"}</span>
+                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : definition.key === "dataforseo" ? "只需粘贴 DataForSEO API Access 提供的 Base64 凭证；系统会在服务端解析并加密保存。" : "凭证通过服务端加密保存；可在本组下方执行连接测试。"}</span>
                     <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
                       {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
                     </Button>
