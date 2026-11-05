@@ -107,7 +107,7 @@ export function AIAnalysisPanel({accessToken,context,activeTab,taskId,organizati
  ];
  const selectedModel=modelOptions.find(item=>item.value===model)||modelOptions[0];
  return <section className="gi-ai-section" id="ai-intelligence-analysis">
-  <div className="gi-section-head"><div><span className="eyebrow">05 / AI INTELLIGENCE</span><h2>AI 分析与商业洞察</h2><p>AI 只读取本次任务已保存的真实采集证据；不再把演示数据作为市场事实。</p></div><span className="gi-ai-model">Cloudflare Workers AI · {selectedModel.label}</span></div>
+  <div className="gi-section-head"><div><span className="eyebrow">05 / AI 分析</span><h2>AI 分析与商业洞察</h2><p>AI 只读取本次任务已保存的真实采集证据；不再把演示数据作为市场事实。</p></div><span className="gi-ai-model">Cloudflare Workers AI · {selectedModel.label}</span></div>
   <div className="gi-ai-layout"><div className="gi-ai-controls">
    <section className="gi-ai-step">
     <div className="gi-ai-step-head"><span className="gi-ai-step-index">01</span><div><strong>选择 AI 服务与模型</strong><small>选择本次分析使用的推理服务和模型。</small></div></div>
