@@ -4,6 +4,7 @@ import { Search, Settings } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import { EmptyState, IntelligencePageTemplate, PageSection } from "../design-system";
 import { supabase } from "../lib/supabase";
+import "./seo-analysis.css";
 
 const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 const markets = [{id:"US",label:"美国"},{id:"GB",label:"英国"},{id:"DE",label:"德国"},{id:"JP",label:"日本"},{id:"GLOBAL",label:"全球"}];
@@ -145,7 +146,7 @@ export default function SeoAnalysis() {
             </AccordionItem>
           </Accordion>
         </>}
-        {!report&&task.status!=="running"&&<EmptyState title="本次任务没有生成完整报告" description={task.error_message||"请检查服务凭证和第三方任务状态后重试。"/>}
+        {!report&&task.status!=="running"&&<EmptyState title="本次任务没有生成完整报告" description={task.error_message||"请检查服务凭证和第三方任务状态后重试。"} />
       </div>}
     </PageSection>
     <PageSection title="历史诊断记录" description="查看当前组织最近 30 次网站 SEO 诊断。">
