@@ -41,6 +41,7 @@ import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
 import LoginPage from "./auth/LoginPage";
+import "./social-platform-workspace.css";
 
 type Viewport = "desktop" | "tablet" | "mobile";
 
@@ -52,6 +53,37 @@ const validPaths = new Set([
   "/settings/locale", "/settings/notifications", "/settings/governance",
   "/settings/audit", "/settings/design-system",
 ]);
+
+
+type SocialPlatform = "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
+const socialPlatformItems = [
+  { id: "x" as const, label: "X", icon: LogoX },
+  { id: "reddit" as const, label: "Reddit", icon: Forum },
+  { id: "pinterest" as const, label: "Pinterest", icon: LogoPinterest },
+  { id: "tiktok" as const, label: "TikTok", icon: Music },
+  { id: "youtube" as const, label: "YouTube", icon: LogoYoutube },
+];
+function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
+  const navigate = useNavigate();
+  return (
+    <div className="social-platform-workspace">
+      <nav className="social-platform-navigation" aria-label="社交平台分类">
+        <div className="social-platform-nav-heading">社交平台</div>
+        {socialPlatformItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button key={item.id} type="button" className="social-platform-nav-item"
+              aria-current={platform === item.id ? "page" : undefined}
+              onClick={() => navigate("/platform-data/" + item.id)}>
+              <Icon size={16} aria-hidden="true" /><span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+      <div className="social-platform-content"><PlatformDataCollection platform={platform} /></div>
+    </div>
+  );
+}
 
 function AppShell() {
   const { session, signOut } = useAuth();
@@ -261,15 +293,13 @@ function AppShell() {
                 {renderMenuItem(navItems[2])}
               </SideNavMenu>
               <SideNavMenu title="平台数据采集" defaultExpanded renderIcon={DataBase}>
-                {renderMenuItem(navItems[3])}
-                {renderMenuItem(navItems[4])}
-                {renderMenuItem(navItems[5])}
-                {renderMenuItem(navItems[6])}
-                {renderMenuItem(navItems[7])}
-                {renderMenuItem(navItems[8])}
-                {renderMenuItem(navItems[9])}
-                {renderMenuItem(navItems[10])}
-                {renderMenuItem(navItems[11])}
+                <SideNavMenu title="社交平台" defaultExpanded renderIcon={Forum}>
+                  {renderMenuItem(navItems[7])}
+                  {renderMenuItem(navItems[8])}
+                  {renderMenuItem(navItems[9])}
+                  {renderMenuItem(navItems[10])}
+                  {renderMenuItem(navItems[11])}
+                </SideNavMenu>
               </SideNavMenu>
               <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
                 {renderMenuItem(navItems[12])}
@@ -304,11 +334,11 @@ function AppShell() {
         {path === "/leads/linkedin" && <LinkedInDiscovery />}
         {path === "/leads/instagram" && <InstagramDiscovery />}
         {path === "/leads/google-maps" && <GoogleMapsDiscovery />}
-        {path === "/platform-data/x" && <PlatformDataCollection platform="x" />}
-        {path === "/platform-data/reddit" && <PlatformDataCollection platform="reddit" />}
-        {path === "/platform-data/pinterest" && <PlatformDataCollection platform="pinterest" />}
-        {path === "/platform-data/tiktok" && <PlatformDataCollection platform="tiktok" />}
-        {path === "/platform-data/youtube" && <PlatformDataCollection platform="youtube" />}
+        {path === "/platform-data/x" && <SocialPlatformWorkspace platform="x" />}
+        {path === "/platform-data/reddit" && <SocialPlatformWorkspace platform="reddit" />}
+        {path === "/platform-data/pinterest" && <SocialPlatformWorkspace platform="pinterest" />}
+        {path === "/platform-data/tiktok" && <SocialPlatformWorkspace platform="tiktok" />}
+        {path === "/platform-data/youtube" && <SocialPlatformWorkspace platform="youtube" />}
         {isSettings && <SettingsPage />}
       </main>
     </div>
