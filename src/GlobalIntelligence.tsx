@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
-import { Button, InlineNotification, PasswordInput, Checkbox, Search, Tabs, TabList, Tab, TabPanels, TabPanel, TextArea, TextInput } from "@carbon/react";
+import { Button, InlineNotification, PasswordInput, Checkbox, Search, TextArea, TextInput } from "@carbon/react";
+import { CarbonTabs } from "./design-system/components";
 import CarbonSelect from "./components/CarbonSelect";
 import { DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
 
@@ -115,10 +116,12 @@ export default function GlobalIntelligence(){
   <section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / 情报分析结果</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
    {task&&<div className="analysis-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="context-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
    {error&&<InlineNotification kind="error" lowContrast title="分析未完成" subtitle={error} hideCloseButton/>}<div className="analysis-submit-row"><span>配置完成后提交分析条件；切换下方 Tab 不会重置当前条件。</span><Button kind="primary" type="button" onClick={startAnalysis}>开始分析 <span aria-hidden="true">→</span></Button></div>
-   <div className="intelligence-tabs"><Tabs selectedIndex={Math.max(0,tabs.findIndex(tab=>tab.id===activeTab))} onChange={({selectedIndex})=>setActiveTab(tabs[selectedIndex]?.id||"overview")}>
-    <TabList aria-label="情报分析维度">{tabs.map(tab=><Tab key={tab.id}>{tab.label}</Tab>)}</TabList>
-    <TabPanels>{tabs.map(tab=><TabPanel key={tab.id}><div className="intelligence-panel">{activeTab===tab.id&&<IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting}/>}</div></TabPanel>)}</TabPanels>
-   </Tabs></div>
+   <div className="intelligence-tabs"><CarbonTabs
+    ariaLabel="情报分析维度"
+    activeTabId={activeTab}
+    onChange={setActiveTab}
+    items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting}/></div>}))}
+   /></div>
   </section>
  </section>;
 }

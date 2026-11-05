@@ -1,3 +1,6 @@
+export { CarbonTabs } from "./CarbonTabs";
+export type { CarbonTabsItem, CarbonTabsProps } from "./CarbonTabs";
+
 export { FormField } from "./FormField";
 export type { FormFieldProps } from "./FormField";
 
