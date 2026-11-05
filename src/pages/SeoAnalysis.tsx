@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, InlineNotification, NumberInput, Select, SelectItem, TextInput } from "@carbon/react";
-import { Globe, Search } from "@carbon/icons-react";
+import { Search } from "@carbon/icons-react";
 import { EmptyState, IntelligencePageTemplate, PageSection } from "../design-system";
 
 export default function SeoAnalysis() {
@@ -53,7 +53,7 @@ export default function SeoAnalysis() {
         subtitle="当前已建立页面入口与分析配置框架。DataForSEO、PageSpeed 连接和异步诊断任务接入后，将开放正式分析。"
         hideCloseButton
       />
-      <Button kind="primary" renderIcon={Search} disabled={!/^https?:\/\//i.test(url.trim())}>
+      <Button kind="primary" renderIcon={Search} disabled>
         分析服务接入后开放
       </Button>
     </section>
