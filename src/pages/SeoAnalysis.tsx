@@ -95,9 +95,9 @@ export default function SeoAnalysis() {
         onChange={({selectedItem})=>setMarket(selectedItem?.id||"US")} />
       <div className="seo-analysis-config-grid">
         <NumberInput id="seo-max-pages" label="最大分析页面数" min={1} max={200} value={maxPages}
-          onChange={(_e,s)=>setMaxPages(Number(s.value)||500)} />
+          onChange={(_e,s)=>setMaxPages(Number(s.value)||80)} />
         <NumberInput id="seo-pagespeed-limit" label="PageSpeed 代表性页面数" min={1} max={10} value={pagespeedLimit}
-          onChange={(_e,s)=>setPagespeedLimit(Number(s.value)||10)} />
+          onChange={(_e,s)=>setPagespeedLimit(Number(s.value)||5)} />
       </div>
       <InlineNotification kind="info" lowContrast title="第三方检测与费用提示"
         subtitle="先由 Context.dev Map URLs 发现页面，再深度采集最多 200 页；PageSpeed 对最多 10 个代表性页面分别检测 Mobile 与 Desktop。第三方服务可能计费，PageSpeed 不代表全站逐页性能。" hideCloseButton />
