@@ -318,7 +318,7 @@ Deno.serve(async (req: Request) => {
       if (insertError) throw insertError;
       try {
         const submitted = await dataForSeoRequest(credentials.login, credentials.password, "/v3/on_page/task_post", [{
-          target: new URL(target).hostname.replace(/^www\\./i, ""), max_crawl_pages: maxPages,
+          target: (new URL(target).hostname.toLowerCase().startsWith("www.") ? new URL(target).hostname.slice(4) : new URL(target).hostname), max_crawl_pages: maxPages,
           start_url: target, max_crawl_depth: 10, load_resources: true, enable_javascript: false,
           store_raw_html: false, enable_browser_rendering: false,
         }]);
