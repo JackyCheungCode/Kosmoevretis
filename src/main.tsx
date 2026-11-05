@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "@carbon/styles/css/styles.css";
-import "./design-tokens.css";
+import "./design-tokens.scss";
 import "./styles.css";
 import "./settings-center.css";
 import "./components/carbon-select.css";

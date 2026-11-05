@@ -1,4 +1,6 @@
-/* Kosmoevretis foundation tokens — aliases of IBM Carbon v11 semantic tokens. */
+@use "@carbon/react/scss/spacing" as carbon-spacing;
+
+/* Kosmoevretis foundation tokens — Carbon v11 Sass spacing + semantic theme aliases. */
 :root {
   color-scheme: light;
 
@@ -12,32 +14,32 @@
   --kosmo-color-interactive: var(--cds-interactive);
   --kosmo-color-focus: var(--cds-focus);
 
-  /* Canonical Carbon 2x spacing aliases: 2, 4, 8, 12, 16, 24, 32, 40, 48, 64, 80, 96px. */
-  --kosmo-spacing-01: var(--cds-spacing-01);
-  --kosmo-spacing-02: var(--cds-spacing-02);
-  --kosmo-spacing-03: var(--cds-spacing-03);
-  --kosmo-spacing-04: var(--cds-spacing-04);
-  --kosmo-spacing-05: var(--cds-spacing-05);
-  --kosmo-spacing-06: var(--cds-spacing-06);
-  --kosmo-spacing-07: var(--cds-spacing-07);
-  --kosmo-spacing-08: var(--cds-spacing-08);
-  --kosmo-spacing-09: var(--cds-spacing-09);
-  --kosmo-spacing-10: var(--cds-spacing-10);
-  --kosmo-spacing-11: var(--cds-spacing-11);
-  --kosmo-spacing-12: var(--cds-spacing-12);
+  /* Carbon spacing Sass tokens are emitted as runtime semantic aliases. */
+  --kosmo-spacing-01: #{carbon-spacing.$spacing-01};
+  --kosmo-spacing-02: #{carbon-spacing.$spacing-02};
+  --kosmo-spacing-03: #{carbon-spacing.$spacing-03};
+  --kosmo-spacing-04: #{carbon-spacing.$spacing-04};
+  --kosmo-spacing-05: #{carbon-spacing.$spacing-05};
+  --kosmo-spacing-06: #{carbon-spacing.$spacing-06};
+  --kosmo-spacing-07: #{carbon-spacing.$spacing-07};
+  --kosmo-spacing-08: #{carbon-spacing.$spacing-08};
+  --kosmo-spacing-09: #{carbon-spacing.$spacing-09};
+  --kosmo-spacing-10: #{carbon-spacing.$spacing-10};
+  --kosmo-spacing-11: #{carbon-spacing.$spacing-11};
+  --kosmo-spacing-12: #{carbon-spacing.$spacing-12};
 
   /* Backward-compatible aliases. New code should use semantic tokens or --kosmo-spacing-*. */
-  --kosmo-space-1: var(--cds-spacing-02);
-  --kosmo-space-2: var(--cds-spacing-03);
-  --kosmo-space-3: var(--cds-spacing-04);
-  --kosmo-space-4: var(--cds-spacing-05);
-  --kosmo-space-5: var(--cds-spacing-06);
-  --kosmo-space-6: var(--cds-spacing-07);
-  --kosmo-space-7: var(--cds-spacing-08);
-  --kosmo-space-8: var(--cds-spacing-09);
-  --kosmo-space-9: var(--cds-spacing-10);
-  --kosmo-space-10: var(--cds-spacing-11);
-  --kosmo-space-11: var(--cds-spacing-12);
+  --kosmo-space-1: var(--kosmo-spacing-02);
+  --kosmo-space-2: var(--kosmo-spacing-03);
+  --kosmo-space-3: var(--kosmo-spacing-04);
+  --kosmo-space-4: var(--kosmo-spacing-05);
+  --kosmo-space-5: var(--kosmo-spacing-06);
+  --kosmo-space-6: var(--kosmo-spacing-07);
+  --kosmo-space-7: var(--kosmo-spacing-08);
+  --kosmo-space-8: var(--kosmo-spacing-09);
+  --kosmo-space-9: var(--kosmo-spacing-10);
+  --kosmo-space-10: var(--kosmo-spacing-11);
+  --kosmo-space-11: var(--kosmo-spacing-12);
 
   /* Carbon 2x Grid and shell geometry. */
   --kosmo-grid-breakpoint-xs: 320px;

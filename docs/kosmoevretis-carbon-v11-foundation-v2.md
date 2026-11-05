@@ -16,9 +16,9 @@
 - Header inverse 层不等于全站 Gray 100。
 
 ## Tokens
-- `src/design-tokens.css` 的颜色和间距只映射 Carbon CSS custom properties。
+- `src/design-tokens.scss` 的颜色和间距只映射 Carbon CSS custom properties。
 - Carbon spacing scale：2 / 4 / 8 / 12 / 16 / 24 / 32 / 40 / 48 / 64 / 80 / 96px。
-- `--kosmo-spacing-01..12` 与 Carbon spacing tokens 一一映射。
+- `--kosmo-spacing-01..12` 由 `@carbon/react/scss/spacing` 官方 Sass tokens 编译输出，避免假设 Carbon spacing tokens 存在运行时 CSS 自定义属性。
 - `--kosmo-space-1..11` 仅保留为旧代码兼容别名，新代码不得继续扩展旧命名。
 - 业务尺寸可保留为 Kosmoevretis 专属 tokens，但不得复制 Carbon 颜色、字号、行高、阴影和交互 token。
 
