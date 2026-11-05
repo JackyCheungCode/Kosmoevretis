@@ -248,7 +248,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     if (mode === "reviews" && inputList.some(value => /^https?:\/\//i.test(value)) && inputList.some(value => !/^https?:\/\//i.test(value))) {
       setError("评论模式请只输入关键词，或只输入商品 URL，不要混合两种输入。"); return;
     }
-    if (mode === "keyword" && !domain) { setError("请选择目标市场。"); return; }
+    if ((mode === "keyword" || (mode === "reviews" && !inputList.every(value => /^https?:\\/\\//i.test(value)))) && !domain) { setError("请选择目标市场。"); return; }
     if (!organizationId) { setError("当前账号没有可用的企业工作区。"); return; }
     setLoading(true); setTaskStatus("running"); setActiveTab("overview");
     addLog("已创建电商发现请求。"); addLog("正在校验企业权限与 Apify 连接状态。");
@@ -305,7 +305,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
         setMode(id as Mode); setError(""); setNotice(""); setRows([]); setActiveTab("overview");
       }} />
       <div className="ec-form-grid">
-        {mode === "keyword" && config.domains.length > 0 && <div className="ec-field">
+        {(mode === "keyword" || (mode === "reviews" && config.supportsKeyword)) && config.domains.length > 0 && <div className="ec-field">
           <Dropdown id="ec-marketplace" titleText="目标市场 / 站点" label="选择市场" items={config.domains}
             itemToString={(item: Option | null) => item?.text || ""} selectedItem={config.domains.find(item => item.id === domain) || config.domains[0]}
             onChange={({ selectedItem }) => setDomain(selectedItem?.id || config.domain)} />
