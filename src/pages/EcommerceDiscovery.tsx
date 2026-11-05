@@ -303,7 +303,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
           <small>Actor 将在所选站点执行关键词检索。</small>
         </div>}
         <div className="ec-field ec-input-field">
-          <TextArea id="ec-input-values" labelText={mode === "keyword" ? "商品搜索关键词" : mode === "details" ? "商品详情 URL" : mode === "listing" ? (platform === "shopify" ? "店铺 / 商品分类 URL" : "商品分类 / 列表 URL") : mode === "reviews" ? "评论关键词或商品 URL" : "店铺 / 卖家主页 URL"}
+          <TextArea id="ec-input-values" labelText={mode === "keyword" ? "商品搜索关键词" : mode === "details" ? "商品详情 URL" : mode === "listing" ? (platform === "shopify" ? "店铺 / 商品分类 URL" : "商品分类 / 列表 URL") : mode === "reviews" ? (config.supportsKeyword ? "评论关键词或商品 URL" : "商品评论 URL") : "店铺 / 卖家主页 URL"}
             placeholder={mode === "keyword" ? "例如：wireless earbuds\n每行一个关键词，可输入多个关键词" : mode === "details" ? "https://www.amazon.com/dp/...\n每行一个商品 URL" : mode === "listing" ? "https://www.example.com/category/...\n每行一个分类或列表 URL" : mode === "reviews" ? "输入评论关键词，或每行一个商品 URL" : "https://www.ebay.com/usr/...\n每行一个卖家或店铺 URL"}
             value={inputText} onChange={event => setInputText(event.target.value)} rows={4} />
           <small>{inputList.length} 个输入 · {mode === "keyword" ? "每个关键词独立搜索" : "每行一个 URL / 关键词"}</small>
