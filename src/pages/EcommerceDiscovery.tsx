@@ -191,7 +191,14 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
 
   const invoke = useCallback(async (body: Record<string, unknown>) => {
     const { data, error: invokeError } = await supabase.functions.invoke("ecommerce-discovery", { body: { ...body, organization_id: organizationId } });
-    if (invokeError) throw invokeError;
+    if (invokeError) {
+      const response = (invokeError as { context?: Response }).context;
+      if (response instanceof Response) {
+        const payload = await response.clone().json().catch(() => null) as { error?: string } | null;
+        if (payload?.error) throw new Error(payload.error);
+      }
+      throw invokeError;
+    }
     if (data?.error) throw new Error(data.error);
     return data;
   }, [organizationId]);
