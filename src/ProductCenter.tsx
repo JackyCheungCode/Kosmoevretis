@@ -100,9 +100,11 @@ export default function ProductCenter() {
   const filtered = useMemo(()=>products.filter(p=>[p.name,p.brand,p.manufacturer,p.model,p.sku,p.internal_reference,...(p.category_path||[])].join(" ").toLowerCase().includes(query.toLowerCase())),[products,query]);
   const categoryName = (id:string|null) => categories.find(c=>c.id===id)?.name || "未分类";
   const categoryTree = (parent:string|null=null):Category[] => categories.filter(c=>c.parent_id===parent).flatMap(c=>[c,...categoryTree(c.id)]);
+  const categoryPath = (id:string|null) => { const path:string[]=[]; const seen=new Set<string>(); let current=categories.find(c=>c.id===id); while(current&&!seen.has(current.id)){seen.add(current.id);path.unshift(current.name);current=current.parent_id?categories.find(c=>c.id===current!.parent_id):undefined;} return path; };
+  const categoryDepth = (id:string) => { let depth=0; const seen=new Set<string>(); let current=categories.find(c=>c.id===id); while(current?.parent_id&&!seen.has(current.id)){seen.add(current.id);depth+=1;current=categories.find(c=>c.id===current!.parent_id);} return depth; };
   const categoryOptions = categoryTree().map(c=>({id:c.id,label:`${"　".repeat(categories.filter(x=>x.id===c.parent_id).length)}${c.name}`}));
 
-  const startNew = () => {setSelected(null);setForm(emptyProduct());setVariants([]);setEditing(true);setNotice(null);};
+  const startNew = () => {setSelected(null);setForm(emptyProduct());setVariants([]);setProductAttributes([]);setVariantAttributeValues([]);setVariantAxisSelection({});setVariantForm({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});setEditing(true);setNotice(null);};
   const startEdit = async (p:Product) => {
     setSelected(p);setForm({
       name:p.name||"",brand:p.brand||"",manufacturer:p.manufacturer||"",model:p.model||"",sku:p.sku||"",internal_reference:p.internal_reference||"",barcode:p.barcode||"",
@@ -126,7 +128,7 @@ export default function ProductCenter() {
     const row:any={
       organization_id:org,name:form.name.trim(),brand:form.brand.trim()||null,manufacturer:form.manufacturer.trim()||null,model:form.model.trim()||null,
       sku:form.sku.trim()||null,internal_reference:form.internal_reference.trim()||null,barcode:form.barcode.trim()||null,category_id:form.category_id||null,
-      category_path:category?[category.name]:[],description:form.description.trim()||null,image_url:form.image_url.trim()||null,
+      category_path:category?categoryPath(category.id):[],description:form.description.trim()||null,image_url:form.image_url.trim()||null,
       target_markets:form.target_markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),product_type:form.product_type,
       can_be_sold:form.can_be_sold,can_be_purchased:form.can_be_purchased,sales_price:form.sales_price===""?null:Number(form.sales_price),sales_currency:form.sales_currency,
       cost:form.cost===""?null:Number(form.cost),cost_currency:form.cost_currency,unit_of_measure:form.unit_of_measure,purchase_uom:form.purchase_uom,
@@ -210,14 +212,18 @@ export default function ProductCenter() {
   };
 
   const addDefinitionValue = async (d:Definition) => {
-    const raw=(definitionValueDraft[d.id]||"").trim();if(!raw)return;
+    const raw=(definitionValueDraft[d.id]||"").trim();if(!raw||!org)return;
     const numeric=["number","dimension"].includes(d.data_type)?Number(raw):null;
-    const {data,error}=await supabase.from("product_attribute_definition_values").insert({
-      organization_id:org,definition_id:d.id,value_text:raw,
-      value_number:numeric!==null&&Number.isFinite(numeric)?numeric:null,unit:d.unit,sort_order:(d.product_attribute_definition_values||[]).length
-    }).select("*").single();
-    if(error)setNotice({kind:"error",text:message(error)});
-    else{setDefinitions(prev=>prev.map(x=>x.id===d.id?{...x,product_attribute_definition_values:[...(x.product_attribute_definition_values||[]),data as DefinitionValue]}:x));setDefinitionValueDraft(prev=>({...prev,[d.id]:""}));}
+    if(numeric!==null&&!Number.isFinite(numeric)){setNotice({kind:"error",text:"该属性要求输入有效数字。"});return;}
+    setBusy(true);setNotice(null);
+    try {
+      const {data,error}=await supabase.from("product_attribute_definition_values").insert({
+        organization_id:org,definition_id:d.id,value_text:raw,value_number:numeric,unit:d.unit,sort_order:(d.product_attribute_definition_values||[]).length
+      }).select("*").single();
+      if(error)throw error;
+      setDefinitions(prev=>prev.map(x=>x.id===d.id?{...x,product_attribute_definition_values:[...(x.product_attribute_definition_values||[]),data as DefinitionValue]}:x));
+      setDefinitionValueDraft(prev=>({...prev,[d.id]:""}));setNotice({kind:"success",text:"属性值已加入企业属性库。"});
+    } catch(e){setNotice({kind:"error",text:message(e)});} finally {setBusy(false);}
   };
 
   const updateProductAttributeMode = async (attribute:ProductAttribute,mode:string) => {
@@ -239,26 +245,29 @@ export default function ProductCenter() {
     if(!selected||!org)return;
     const raw=(attributeValueDraft[attribute.id]||"").trim();
     if(!raw)return;
+    const numeric=["number","dimension"].includes(attribute.data_type)?Number(raw):null;
+    if(numeric!==null&&!Number.isFinite(numeric)){setNotice({kind:"error",text:"「"+attribute.name+"」要求输入有效数字。"});return;}
     setBusy(true);setNotice(null);
-    const {data,error}=await supabase.from("product_attribute_values").insert({
-      organization_id:org,product_id:selected.id,attribute_id:attribute.id,value_text:raw,
-      value_number:["number","dimension"].includes(attribute.data_type)&&Number.isFinite(Number(raw))?Number(raw):null,unit:attribute.unit,sort_order:(attribute.product_attribute_values||[]).length
-    }).select("id,value_text,unit").single();
-    if(error)setNotice({kind:"error",text:message(error)});
-    else{
+    try {
+      const {data,error}=await supabase.from("product_attribute_values").insert({
+        organization_id:org,product_id:selected.id,attribute_id:attribute.id,value_text:raw,value_number:numeric,unit:attribute.unit,sort_order:(attribute.product_attribute_values||[]).length
+      }).select("id,value_text,unit").single();
+      if(error)throw error;
       setProductAttributes(prev=>prev.map(item=>item.id===attribute.id
         ?{...item,product_attribute_values:[...(item.product_attribute_values||[]),data as {id:string;value_text:string;unit:string|null}]}
         :item));
       setAttributeValueDraft(prev=>({...prev,[attribute.id]:""}));
       setNotice({kind:"success",text:"「"+attribute.name+"」已新增属性值。"});
-    }
-    setBusy(false);
+    } catch(e){setNotice({kind:"error",text:message(e)});} finally {setBusy(false);}
   };
 
   const createVariant = async (event:FormEvent) => {
     event.preventDefault();if(!selected||!org)return;
     const axes=productAttributes.filter(attribute=>attribute.variant_creation_mode!=="never");
     const missingAxis=axes.find(attribute=>!variantAxisSelection[attribute.id]);
+    const requestedSku=variantForm.sku.trim();
+    if(requestedSku&&variants.some(item=>(item.sku||"").toLocaleLowerCase()===requestedSku.toLocaleLowerCase())){setNotice({kind:"error",text:"该 SKU 编码已存在，请使用唯一编码。"});return;}
+    for(const [label,value] of [["销售价格",variantForm.price],["成本",variantForm.cost]] as const){if(value!==""&&(!Number.isFinite(Number(value))||Number(value)<0)){setNotice({kind:"error",text:label+"必须是大于或等于 0 的有效数字。"});return;}}
     if(missingAxis){setNotice({kind:"error",text:"请先选择「"+missingAxis.name+"」的规格值，再创建 SKU。"});return;}
     setBusy(true);setNotice(null);
     const {data,error}=await supabase.from("product_variants").insert({
@@ -272,7 +281,7 @@ export default function ProductCenter() {
       attribute_value_id:variantAxisSelection[attribute.id]
     }));
     if(links.length){
-      const {error:linkError}=await supabase.from("product_variant_values").insert(links);
+      const {data:linkedValues,error:linkError}=await supabase.from("product_variant_values").insert(links).select("id,variant_id,attribute_id,attribute_value_id");
       if(linkError){
         const rollback=await supabase.from("product_variants").delete().eq("id",data.id);
         setNotice({kind:"error",text:rollback.error
@@ -280,7 +289,7 @@ export default function ProductCenter() {
           :"规格关联失败，已撤销本次 SKU 创建："+message(linkError)});
         setBusy(false);return;
       }
-      setVariantAttributeValues(prev=>[...prev,...links.map((link,index)=>({id:data.id+"-"+index,variant_id:data.id,attribute_id:link.attribute_id,attribute_value_id:link.attribute_value_id}))]);
+      setVariantAttributeValues(prev=>[...prev,...((linkedValues||[]) as VariantAttributeValue[])]);
     }
     setVariants(prev=>[...prev,data as Variant]);
     setVariantAxisSelection({});
@@ -302,14 +311,16 @@ export default function ProductCenter() {
 
   const selectedCategoryRecord=categories.find(c=>c.id===selectedCategoryId);
   const openProduct = async (p:Product) => {
-    setSelected(p);setEditing(false);setNotice(null);
-    const [variantResult,attributeResult,variantValuesResult]=await Promise.all([
-      supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at"),
-      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",p.id).order("sort_order"),
-      supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",p.id)
-    ]);
-    if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;if(variantValuesResult.error)throw variantValuesResult.error;
-    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);setVariantAxisSelection({});
+    setBusy(true);setSelected(p);setEditing(false);setNotice(null);
+    try {
+      const [variantResult,attributeResult,variantValuesResult]=await Promise.all([
+        supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at"),
+        supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,value_number,unit)").eq("product_id",p.id).order("sort_order"),
+        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",p.id)
+      ]);
+      if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;if(variantValuesResult.error)throw variantValuesResult.error;
+      setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);setVariantAxisSelection({});
+    } catch(e){setSelected(null);setNotice({kind:"error",text:"产品详情加载失败："+message(e)});} finally {setBusy(false);}
   };
   return <section className="pc-workspace">
     <div className="pc-heading"><div><div className="pc-kicker">PRODUCT MASTER / ODOO-STYLE CATALOG</div><h2>产品中心</h2><p>{orgName} · 统一产品主档案，供市场情报、报价与合同流程复用</p></div><div className="pc-heading-actions"><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></div></div>
@@ -319,7 +330,7 @@ export default function ProductCenter() {
       <TabPanels>
         <TabPanel>
           {editing?<form className="pc-editor" onSubmit={saveProduct}>
-            <div className="pc-panel-heading"><div><button type="button" className="pc-back" onClick={()=>{setEditing(false);setSelected(null);}}>← 返回产品目录</button><h3>{selected?"编辑产品模板":"创建产品模板"}</h3><p>产品模板代表产品家族；实际可销售 SKU 在变体中独立管理。</p></div><Tag type="blue">{selected?`版本 v${selected.version||1}`:"新建模板"}</Tag></div>
+            <div className="pc-panel-heading"><div><button type="button" className="pc-back" onClick={()=>{setEditing(false);setSelected(null);setVariants([]);setProductAttributes([]);setVariantAttributeValues([]);setVariantAxisSelection({});}}>← 返回产品目录</button><h3>{selected?"编辑产品模板":"创建产品模板"}</h3><p>产品模板代表产品家族；实际可销售 SKU 在变体中独立管理。</p></div><Tag type="blue">{selected?`版本 v${selected.version||1}`:"新建模板"}</Tag></div>
             <div className="pc-form-section"><h4>01 · 基础信息</h4><div className="pc-form-grid">
               <TextInput id="pc-name" labelText="产品名称 *" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} required/>
               <FormField className="pc-field" label="产品类型" htmlFor="pc-product-type"><CarbonSelect id="pc-product-type" value={form.product_type} onChange={v=>setForm(p=>({...p,product_type:v}))}><option value="physical">可库存商品</option><option value="service">服务</option><option value="combo">组合商品</option></CarbonSelect></FormField>
@@ -354,7 +365,7 @@ export default function ProductCenter() {
             </div></div>
             <div className="pc-form-actions"><Button kind="secondary" type="button" onClick={()=>setEditing(false)}>取消</Button><Button kind="primary" type="submit" disabled={busy}>{busy?"保存中…":"保存产品模板"}</Button></div>
           </form>:selected?<div className="pc-detail">
-            <div className="pc-panel-heading"><div><button className="pc-back" onClick={()=>setSelected(null)}>← 返回产品目录</button><h3>{selected.name}</h3><p>{selected.brand||"未设置品牌"} · {selected.model||"未设置型号"} · {categoryName(selected.category_id)}</p></div><div className="pc-heading-actions"><Tag type="blue">模板 v{selected.version||1}</Tag><Button kind="primary" onClick={()=>startEdit(selected)}>编辑模板</Button></div></div>
+            <div className="pc-panel-heading"><div><button type="button" className="pc-back" onClick={()=>{setSelected(null);setVariants([]);setProductAttributes([]);setVariantAttributeValues([]);setVariantAxisSelection({});}}>← 返回产品目录</button><h3>{selected.name}</h3><p>{selected.brand||"未设置品牌"} · {selected.model||"未设置型号"} · {categoryName(selected.category_id)}</p></div><div className="pc-heading-actions"><Tag type="blue">模板 v{selected.version||1}</Tag><Button kind="primary" onClick={()=>startEdit(selected)}>编辑模板</Button></div></div>
             <div className="pc-product-facts"><div><span>内部参考</span><strong>{selected.internal_reference||"—"}</strong></div><div><span>主 SKU</span><strong>{selected.sku||"由变体定义"}</strong></div><div><span>销售价格</span><strong>{money(selected.sales_price,selected.sales_currency)}</strong></div><div><span>生命周期</span><strong>{selected.lifecycle_stage}</strong></div></div>
             <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品变体 / Product Variants</h4><p>变体是可销售的实际规格组合，每个变体拥有独立 SKU、条码和商业价格。</p></div><Tag>{variants.length} 个变体</Tag></div>
               {productAttributes.some(a=>a.variant_creation_mode!=="never")&&<div className="pc-axis-selector"><div><strong>变体属性组合</strong><span>每个启用的变体轴都需要选择一个规格值；所选值会与新 SKU 一起保存。</span></div><div className="pc-axis-grid">{productAttributes.filter(a=>a.variant_creation_mode!=="never").map(a=><FormField className="pc-field" key={a.id} label={`${a.name}${a.unit?`（${a.unit}）`:""}`} htmlFor={`pc-axis-${a.id}`}><CarbonSelect id={`pc-axis-${a.id}`} value={variantAxisSelection[a.id]||""} onChange={v=>setVariantAxisSelection(prev=>({...prev,[a.id]:v}))} placeholder="选择属性值">{(a.product_attribute_values||[]).map(v=><option key={v.id} value={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</option>)}</CarbonSelect></FormField>)}</div></div>}
@@ -386,7 +397,7 @@ export default function ProductCenter() {
                 <TextInput id="pc-cat-description" labelText="分类说明" value={categoryForm.description} onChange={e=>setCategoryForm(p=>({...p,description:e.target.value}))}/>
                 <Button type="submit" disabled={busy}>创建分类</Button>
               </form>
-              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+Math.max(0,categories.filter(x=>x.id===c.parent_id).length)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategoryId(c.id);setSelectedDefinitionIds(categoryTemplates.filter(x=>x.category_id===c.id).map(x=>x.definition_id));}}>配置属性 →</Button></div>)}</div>
+              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+categoryDepth(c.id)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategoryId(c.id);setSelectedDefinitionIds(categoryTemplates.filter(x=>x.category_id===c.id).map(x=>x.definition_id));}}>配置属性 →</Button></div>)}</div>
             </section>
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>分类属性模板</h3><p>为所选分类指定默认属性。创建该分类产品时自动初始化。</p></div></div>
               {selectedCategoryRecord?<form onSubmit={saveCategoryAttributes}><div className="pc-selected-category">{selectedCategoryRecord.name}</div><div className="pc-check-list">{definitions.map(d=><Checkbox key={d.id} id={`pc-cat-def-${d.id}`} labelText={d.name} checked={selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>setSelectedDefinitionIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id))}/>)}</div><Button type="submit" disabled={busy}>保存分类属性模板</Button></form>:<div className="pc-empty-inline">从左侧分类列表选择「配置属性」。</div>}
