@@ -31,3 +31,11 @@ create table if not exists public.seo_worker_config (
 alter table public.seo_worker_config enable row level security;
 revoke all on public.seo_worker_config from anon, authenticated;
 grant all on public.seo_worker_config to service_role;
+
+create policy "deny direct access to seo worker config"
+  on public.seo_worker_config for all to anon, authenticated
+  using (false) with check (false);
+
+create index if not exists market_trend_tasks_seo_worker_queue_idx
+  on public.market_trend_tasks(created_at)
+  where task_type = 'seo_audit' and status in ('queued','running') and deleted_at is null;
