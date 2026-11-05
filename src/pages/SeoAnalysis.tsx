@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Accordion, AccordionItem, Button, Dropdown, InlineNotification, NumberInput, ProgressBar, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, TextInput, Tile } from "@carbon/react";
 import { Search, Settings, Renew } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
-import { EmptyState, IntelligencePageTemplate, PageSection } from "../design-system";
+import { EmptyState, IntelligencePageTemplate } from "../design-system";
 import { supabase } from "../lib/supabase";
 import "./seo-analysis.css";
 
@@ -66,8 +66,15 @@ export default function SeoAnalysis() {
   };
 
   const meta=task?.actor_meta||{},report=meta.report,pages=task?.raw_items||meta.pages||[],events=meta.events||[];
-  const scrapeQueue=meta.scrape_queue||[],speedQueue=meta.pagespeed_queue||[],speedResults=meta.pagespeed_results||[],mobileDone=speedResults.filter((x:any)=>x.strategy==="mobile").length,desktopDone=speedResults.filter((x:any)=>x.strategy==="desktop").length;
+  const scrapeQueue=meta.scrape_queue||[],speedQueue=meta.pagespeed_queue||[],speedResults=meta.pagespeed_results||[];
+  const speedSucceeded=(strategy:string)=>speedResults.filter((x:any)=>x.strategy===strategy&&!x.error&&x.scores).length;
+  const speedFailed=(strategy:string)=>speedResults.filter((x:any)=>x.strategy===strategy&&!!x.error).length;
+  const speedPlanned=(strategy:string)=>speedResults.filter((x:any)=>x.strategy===strategy).length+speedQueue.filter((x:any)=>x.strategy===strategy).length;
+  const mobileDone=speedSucceeded("mobile"),desktopDone=speedSucceeded("desktop");
+  const mobileFailed=speedFailed("mobile"),desktopFailed=speedFailed("desktop");
   const discovered=Number(meta.discovered_count||meta.map_urls?.length||0),audited=Number(task?.result_count||pages.length||0);
+  const pagespeedSuccessPages=new Set(speedResults.filter((x:any)=>!x.error&&x.scores).map((x:any)=>x.url)).size;
+  const pagespeedPlannedPages=new Set([...speedResults,...speedQueue].map((x:any)=>x.url)).size;
   const stage=meta.stage||"mapping";
   const progress=Number(meta.progress_percent??(task?.status==="succeeded"||task?.status==="partial"?100:task?.status==="failed"?100:2));
   const staleMs=meta.last_progress_at?Date.now()-new Date(meta.last_progress_at).getTime():0;
@@ -93,7 +100,7 @@ export default function SeoAnalysis() {
   return <IntelligencePageTemplate title="独立站智能诊断" description="网站技术 SEO、内容质量、结构化数据与性能诊断工作台。" eyebrow="WEBSITE SEO INTELLIGENCE" sourceConfiguration={config}>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} hideCloseButton/>}
 
-    <PageSection title="诊断任务控制台" description="查看任务属性、当前阶段、执行进度和后台活动。">
+    <section className="seo-console-section" aria-labelledby="seo-task-console-title"><div className="seo-section-heading"><h2 id="seo-task-console-title">诊断任务控制台</h2><p>查看任务属性、当前阶段、执行进度和后台活动。</p></div>
       {!task?<EmptyState title="尚未选择诊断任务" description="配置网站与分析范围后启动任务；提交后这里会显示任务编号和实时执行情况。"/>:
       <div className="seo-task-console">
         <div className="seo-task-title-row">
@@ -107,11 +114,15 @@ export default function SeoAnalysis() {
           <div><span>最近进展</span><strong>{dateText(meta.last_progress_at||task.updated_at)}</strong></div>
         </div>
         <div className="seo-progress-block"><div className="seo-progress-heading"><strong>执行进度</strong><strong>{progress}%</strong></div><ProgressBar label="诊断任务执行进度" value={progress} max={100} />
-          <div className="seo-task-counters">
-            <div><strong>{discovered}</strong><span>发现 URL</span></div>
-            <div><strong>{audited}</strong><span>已审计页面</span></div>
-            <div><strong>{scrapeQueue.length}</strong><span>待采集页面</span></div>
-            <div><strong>{mobileDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Mobile 已完成</span></div><div><strong>{desktopDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Desktop 已完成</span></div><div><strong>{(meta.page_errors||[]).length}</strong><span>页面采集失败</span></div><div><strong>{speedQueue.length}</strong><span>待检测策略</span></div>
+          <div className="seo-task-metrics" aria-label="任务统计指标">
+            <div className="seo-task-metric"><span>发现 URL</span><strong>{discovered}</strong></div>
+            <div className="seo-task-metric"><span>已审计页面</span><strong>{audited}</strong></div>
+            <div className="seo-task-metric"><span>待采集页面</span><strong>{scrapeQueue.length}</strong></div>
+            <div className="seo-task-metric"><span>Mobile 成功</span><strong>{mobileDone}/{speedPlanned("mobile")}</strong><small>{mobileFailed} 项失败</small></div>
+            <div className="seo-task-metric"><span>Desktop 成功</span><strong>{desktopDone}/{speedPlanned("desktop")}</strong><small>{desktopFailed} 项失败</small></div>
+            <div className="seo-task-metric"><span>页面采集失败</span><strong>{(meta.page_errors||[]).length}</strong></div>
+            <div className="seo-task-metric"><span>待检测策略</span><strong>{speedQueue.length}</strong></div>
+            <div className="seo-task-metric"><span>状态读取时间</span><strong className="seo-metric-time">{dateText(lastRefresh||undefined)}</strong></div>
           </div>
         </div>
         {task.status==="running"&&<div className="seo-stage-track">
@@ -122,27 +133,31 @@ export default function SeoAnalysis() {
         {task.error_message&&<InlineNotification kind="warning" lowContrast title="任务存在未完成项" subtitle={task.error_message} hideCloseButton/>}
         <div className="seo-task-actions"><span>状态读取时间：{dateText(lastRefresh||undefined)}</span><Button kind="ghost" size="sm" renderIcon={Renew} disabled={busy} onClick={()=>task.status==="running"?poll(task.id):openHistory(task.id)}>刷新任务状态</Button></div>
       </div>}
-    </PageSection>
+    </section>
 
-    <PageSection title="执行日志与阶段追踪" description="只展示后台实际写入的事件；每条记录均包含发生时间和执行结果。">
+    <section className="seo-console-section" aria-labelledby="seo-event-title"><div className="seo-section-heading"><h2 id="seo-event-title">执行日志与阶段追踪</h2><p>只展示后台实际写入的事件；每条记录均包含发生时间和执行结果。</p></div>
       {!task?<EmptyState title="暂无执行日志" description="启动诊断任务后，后台事件会显示在这里。"/>:
         <div className="seo-event-list">
           {!events.length?<InlineNotification kind="info" lowContrast title="等待后台事件" subtitle="任务已选中，等待第一次状态同步。" hideCloseButton/>:
             [...events].reverse().map((event:any)=><div className="seo-event-row" key={event.id||event.created_at+event.message}>
-              <span className={"seo-event-indicator "+(event.type==="error"?"is-error":event.type==="warning"?"is-warning":event.type==="success"?"is-success":"")}/>
-              <div className="seo-event-content"><div><strong>{event.message}</strong><Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"成功":event.type==="error"?"失败":event.type==="warning"?"警告":"信息"}</Tag></div>
-                <time>{dateText(event.created_at)}</time>
-                {event.details&&Object.keys(event.details).length>0&&<details><summary>查看事件详情</summary><pre>{JSON.stringify(event.details,null,2)}</pre></details>}
-              </div>
+              <div className="seo-event-status"><Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"Success":event.type==="error"?"Failed":event.type==="warning"?"Warning":"Info"}</Tag></div>
+              <div className="seo-event-content"><strong>{event.message}</strong><span>{event.stage?stageText(event.stage):"后台事件"}</span></div>
+              <time className="seo-event-time">{dateText(event.created_at)}</time>
+              <div className="seo-event-action">{event.details&&Object.keys(event.details).length>0?<details><summary>查看详情</summary><pre>{JSON.stringify(event.details,null,2)}</pre></details>:<span>—</span>}</div>
             </div>)}
         </div>}
-    </PageSection>
+    </section>
 
-    <PageSection title="诊断结果中心" description="按分析维度查看报告；任务完成或部分完成后显示完整诊断结果。">
+    <section className="seo-console-section" aria-labelledby="seo-results-title"><div className="seo-section-heading"><h2 id="seo-results-title">诊断结果中心</h2><p>按分析维度查看报告；任务完成或部分完成后显示完整诊断结果。</p></div>
       {!task?<EmptyState title="暂无诊断结果" description="选择或创建诊断任务后，报告会显示在这里。"/>:!report?
         <EmptyState title={task.status==="running"?"报告正在生成":"本次任务尚未生成报告"} description={task.error_message||"等待页面审计和 PageSpeed 阶段完成。"}/>:
         <div className="seo-report-workspace">
-          <div className="seo-report-summary"><div><span>综合健康度</span><strong>{scoreText(report.overall_score)}</strong></div><div><span>数据覆盖率</span><strong>{report.coverage_percent||0}%</strong></div><div><span>发现 / 审计页面</span><strong>{report.discovered_pages} / {report.audited_pages}</strong></div><div><span>PageSpeed 页面</span><strong>{report.pagespeed_samples}</strong></div></div>
+          <div className="seo-report-summary">
+            <div><span>综合健康度</span><strong>{scoreText(report.overall_score)}</strong></div>
+            <div><span>评分维度覆盖率</span><strong>{typeof report.coverage_percent==="number"?report.coverage_percent+"%":"暂无数据"}</strong><small>按可用评分维度权重计算</small></div>
+            <div><span>页面审计覆盖</span><strong>{report.discovered_pages??discovered} / {report.audited_pages??audited}</strong><small>{(report.discovered_pages??discovered)>0?Math.round((report.audited_pages??audited)/(report.discovered_pages??discovered)*100)+"% 页面审计覆盖":"暂无页面数据"}</small></div>
+            <div><span>PageSpeed 有效页面</span><strong>{pagespeedSuccessPages}/{pagespeedPlannedPages}</strong><small>{speedResults.filter((x:any)=>!!x.error).length} 项检测失败</small></div>
+          </div>
           <Tabs><TabList aria-label="诊断结果分析维度" contained>
             <Tab>综合概览</Tab><Tab>技术 SEO</Tab><Tab>页面内容</Tab><Tab>结构化数据</Tab><Tab>PageSpeed</Tab><Tab>AI 搜索可读性</Tab><Tab>优化建议</Tab><Tab>页面明细</Tab>
           </TabList><TabPanels>
@@ -156,15 +171,21 @@ export default function SeoAnalysis() {
             <TabPanel><Accordion><AccordionItem title={"页面审计数据（"+pages.length+"）"}><div className="seo-detail-list">{pages.map((p:any,i:number)=><article key={p.url||i}><strong>{p.url||"未知页面"}</strong><span>HTTP {p.status_code??"—"} · {p.audit?.issues?.length||0} 项问题</span><p>Title：{p.audit?.title||"未返回"} · Description：{p.audit?.description?"已设置":"未设置"}</p></article>)}</div></AccordionItem><AccordionItem title="PageSpeed 原始检测记录"><div className="seo-detail-list">{speedResults.map((s:any,i:number)=><article key={s.url+s.strategy+i}><strong>{s.url} · {s.strategy}</strong><pre>{JSON.stringify(s,null,2)}</pre></article>)}</div></AccordionItem></Accordion></TabPanel>
           </TabPanels></Tabs>
         </div>}
-    </PageSection>
+    </section>
 
-    <PageSection title="历史诊断任务" description="独立管理当前组织最近 30 次诊断记录；查看历史任务不会覆盖后台其他任务。">
+    <section className="seo-console-section" aria-labelledby="seo-history-title"><div className="seo-section-heading"><h2 id="seo-history-title">历史诊断任务</h2><p>独立管理最近 30 次诊断记录；查看历史任务不会覆盖后台其他任务。</p></div>
       {!history.length?<EmptyState title="暂无历史诊断" description="完成首次网站诊断后，任务会保存在这里。"/>:
-        <div className="seo-analysis-history">{history.map(item=><Tile key={item.id} className={"seo-analysis-history-item "+(task?.id===item.id?"is-selected":"")}>
-          <div className="seo-history-main"><strong>{item.title}</strong><span>任务 ID：{item.id}</span><span>{dateText(item.created_at)} · {item.result_count||0} 个已审计页面 · {item.actor_meta?.pagespeed_results?.length||0} 项 PageSpeed · {elapsedText(item.started_at||item.created_at,item.completed_at)}</span></div>
-          <Tag type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag>
-          <Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button>
-        </Tile>)}</div>}
-    </PageSection>
+        <div className="seo-history-list">
+          <div className="seo-history-header"><span>诊断目标</span><span>任务 ID</span><span>任务状态</span><span>创建时间</span><span>已审计页面</span><span>操作</span></div>
+          {history.map(item=><div key={item.id} className={"seo-history-row "+(task?.id===item.id?"is-selected":"")}>
+            <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>
+            <span className="seo-history-id">{item.id}</span>
+            <span><Tag type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></span>
+            <time>{dateText(item.created_at)}</time>
+            <strong className="seo-history-count">{item.result_count??0}</strong>
+            <Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button>
+          </div>)}
+        </div>}
+    </section>
   </IntelligencePageTemplate>;
 }
