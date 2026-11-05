@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
-import { Button, Checkbox, Column, Grid, InlineNotification, PasswordInput, Search, Tag, TextArea, TextInput } from "@carbon/react";
+import { Button, Checkbox, InlineNotification, PasswordInput, Search, Tag, TextArea, TextInput } from "@carbon/react";
 import { CarbonTabs } from "./design-system/components";
 import CarbonSelect from "./components/CarbonSelect";
 import { DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
@@ -22,7 +22,8 @@ const tabs:Tab[]=[
 {id:"consumer",label:"消费者洞察"},
 {id:"competitors",label:"品牌与竞品"},
 {id:"categories",label:"品类分析"},
-{id:"markets",label:"国家市场"}];
+{id:"markets",label:"国家市场"},
+{id:"ai",label:"AI 分析"}];
 const isoCodes="AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ").filter(x=>!["CN","HK","MO","TW"].includes(x));
 const displayNames=new Intl.DisplayNames(["zh-CN"],{type:"region"});
 const flagFor=(code:string)=>String.fromCodePoint(...code.toUpperCase().split("").map(c=>127397+c.charCodeAt(0)));
@@ -160,8 +161,9 @@ export default function GlobalIntelligence(){
  const login=async(e:React.FormEvent)=>{e.preventDefault();setAuthError("");const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setAuthError(error.message);};
  if(!ready)return <div className="boot-screen">正在连接全球情报中心…</div>;
  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">全球情报中心</div><h2>登录企业工作区</h2><p>登录后选择产品档案，或直接输入关键词开展市场研究。</p><TextInput id="gi-login-email" type="email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)} required/><PasswordInput id="gi-login-password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError} hideCloseButton/>}<Button kind="primary" type="submit">登录</Button></form>;
- return <Grid fullWidth className="gi-page-grid"><Column sm={4} md={8} lg={16}><section className="global-intelligence">
+ return <section className="global-intelligence">
   <div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div>
+  <section className="gi-setup" aria-label="分析源配置">
   <section className="analysis-source">
    <div className="analysis-source-heading"><div><span className="eyebrow">01 / 分析来源</span><h2>分析对象与关键词</h2><p>选择企业产品并复用参数规格，或直接输入关键词；可使用 DeepL 生成多语言关键词。</p></div><span className="source-note">产品档案自动同步</span></div>
    <div className="source-grid"><div className="source-main">
@@ -171,9 +173,9 @@ export default function GlobalIntelligence(){
     {selectedProduct&&<div className="parameter-area"><div className="parameter-heading"><div><strong>产品参数与规格</strong><span>默认选中全部已配置值，可按需取消或组合</span></div><span>{selectedCount} 个值已选</span></div>{loading?<div className="inline-loading">正在读取产品参数…</div>:attributes.length===0?<div className="inline-empty">该产品尚未配置参数，可直接分析整个产品。</div>:<div className="parameter-list">{attributes.map(a=><div className="parameter-row" key={a.id}><div className="parameter-name">{a.name}{a.unit?<small>单位：{a.unit}</small>:null}</div><div className="parameter-values">{(a.product_attribute_values||[]).map(v=><label className="parameter-chip" key={v.id}><Checkbox id={`parameter-${a.id}-${v.id}`} labelText={`${v.value_text}${v.unit||""}`} checked={(selectedValues[a.id]||[]).includes(v.id)} onChange={()=>toggleValue(a.id,v.id)}/><span>{v.value_text}{v.unit||""}</span></label>)}{!(a.product_attribute_values||[]).length&&<small className="muted">未配置参数值</small>}</div><Button kind="ghost" size="sm" type="button" onClick={()=>selectAllValues(a.id,a.product_attribute_values||[])}>全选</Button></div>)}</div>}</div>}
     {selectedProduct&&variants.length>0&&<div className="variant-selection"><div className="parameter-heading"><div><strong>SKU / 实际规格组合</strong><span>默认选中全部已建立规格，可按需筛选</span></div><span>{selectedVariants.length} / {variants.length} 个已选</span></div><div className="variant-selection-list">{variants.map(v=><label className="variant-selection-item" key={v.id}><Checkbox id={`variant-${v.id}`} labelText={`${v.title||v.model||"未命名规格"} · ${[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}`} checked={selectedVariants.includes(v.id)} onChange={()=>{setSelectedVariants(current=>current.includes(v.id)?current.filter(x=>x!==v.id):[...current,v.id]);resetAnalysis();}}/><span><strong>{v.title||v.model||"未命名规格"}</strong><small>{[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}</small></span></label>)}</div></div>}
     <div className="keyword-area"><label className="field-label" htmlFor="analysis-keywords">分析关键词 <span>可选，支持多个</span></label><TextArea id="analysis-keywords" labelText="分析关键词" hideLabel value={keywords} onChange={e=>{setKeywords(e.target.value);resetAnalysis();}} placeholder={"例如：GaN charger、fast charging、travel adapter\n多个关键词可用逗号或换行分隔"} rows={3}/><small>可与产品组合，用于补充竞品词、场景词、需求词或技术词。</small></div>
-    <div className="translation-panel"><div className="translation-head"><div><strong>DeepL 多语言关键词</strong><span>根据所选市场推荐语言，可手动添加其他语言</span></div><Button kind="secondary" type="button" onClick={translate} disabled={translating}>{translating?"翻译中…":"DeepL 翻译"}</Button></div>
+    <div className="translation-panel"><div className="translation-head"><div><strong>DeepL 多语言关键词</strong><span>根据所选市场推荐语言，可手动添加其他语言</span></div><Button kind="tertiary" type="button" onClick={translate} disabled={translating}>{translating?"翻译中…":"DeepL 翻译"}</Button></div>
      <div className="language-chips">{targetLanguages.map(lang=><span className="language-chip" key={lang}><Tag type="blue">{languageNames[lang]||lang}</Tag><Button kind="ghost" size="sm" type="button" aria-label={"移除"+lang} onClick={()=>{setTargetLanguages(current=>current.filter(x=>x!==lang));resetAnalysis();}}>×</Button></span>)}</div>
-     <div className="add-language-row"><CarbonSelect value={extraLanguage} onChange={setExtraLanguage}>{extraLanguages.map(lang=><option key={lang} value={lang}>{languageNames[lang]||lang}</option>)}</CarbonSelect><Button kind="secondary" type="button" onClick={()=>{setTargetLanguages(current=>current.includes(extraLanguage)?current:[...current,extraLanguage]);resetAnalysis();}}>添加语言</Button></div>
+     <div className="add-language-row"><CarbonSelect value={extraLanguage} onChange={setExtraLanguage}>{extraLanguages.map(lang=><option key={lang} value={lang}>{languageNames[lang]||lang}</option>)}</CarbonSelect><Button kind="tertiary" type="button" onClick={()=>{setTargetLanguages(current=>current.includes(extraLanguage)?current:[...current,extraLanguage]);resetAnalysis();}}>添加语言</Button></div>
      {targetLanguages.map(lang=><div className="translation-field" key={lang}><span>{languageNames[lang]||lang}</span><TextArea id={"translation-"+lang} labelText={languageNames[lang]||lang} hideLabel rows={2} value={translations[lang]||""} onChange={e=>{setTranslations(current=>({...current,[lang]:e.target.value}));resetAnalysis();}} placeholder="翻译结果将在这里显示，也可以手动编辑"/></div>)}
      {translationStatus&&<div className="translation-status">{translationStatus}</div>}<small className="translation-footnote">DeepL 密钥仅在服务端使用。启用前需在 Cloudflare Pages 项目中配置 DEEPL_AUTH_KEY Secret。</small>
     </div>
@@ -185,6 +187,7 @@ export default function GlobalIntelligence(){
    </div><div className="market-map-panel"><div className="map-heading"><strong>全球市场分布</strong><span>OpenStreetMap · 点击国家可选择</span></div><WorldMarketMap selected={selectedMarkets} onToggle={toggleMarket}/></div></div>
   </section>
   <DataSourceSelector organizationId={organizationId} selectedMarkets={selectedMarkets} selectedSourceIds={selectedSourceIds} onChange={ids=>{setSelectedSourceIds(ids);resetAnalysis();}} onLoadDemo={()=>{setKeywords("AI 主动降噪无线耳机, ANC headphones");setSelectedMarkets(["US","JP","DE","GB"]);resetAnalysis();}}/>
+  </section>
   <section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / 情报分析结果</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
    {task&&<div className="analysis-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="context-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
    {sourceRuns.length>0&&<div className="gi-source-run-list" aria-live="polite">{sourceRuns.map((source:any)=><div className="gi-source-run-item" key={source.id||source.source_id}><div><strong>{source.name||source.source_slug}</strong><small>{source.error_message||((source.result_count??0)+" 条")}</small></div><Tag type={source.status==="succeeded"?"green":source.status==="failed"?"red":source.status==="running"?"blue":"cool-gray"} size="sm">{source.status==="succeeded"?"已完成":source.status==="failed"?"失败":source.status==="running"?"执行中":source.status==="queued"?"排队中":source.status==="partial"?"部分完成":source.status||"待处理"}</Tag></div>)}</div>}
@@ -196,5 +199,5 @@ export default function GlobalIntelligence(){
     items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}
    /></div>
   </section>
- </section></Column></Grid>;
+ </section>;
 }
