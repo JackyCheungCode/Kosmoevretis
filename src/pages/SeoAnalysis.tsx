@@ -109,16 +109,16 @@ export default function SeoAnalysis() {
     </section>
   );
 
-  return <IntelligencePageTemplate title="独立站智能诊断" description="网站技术 SEO、内容质量、结构化数据与性能诊断工作台。" eyebrow="WEBSITE SEO INTELLIGENCE" sourceConfiguration={config}>
+  return <IntelligencePageTemplate title="独立站智能诊断" description="网站技术 SEO、内容质量、结构化数据与性能诊断工作台。" eyebrow="网站 SEO 情报" sourceConfiguration={config}>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} hideCloseButton/>}
 
     <section className="seo-board seo-board--console" aria-labelledby="seo-task-console-title">
-      <header className="seo-board-heading"><div><span className="seo-board-index cds--type-label-01">01 / TASK OVERVIEW</span><h2 className="cds--type-heading-compact-02" id="seo-task-console-title">诊断任务控制台</h2><p className="cds--type-body-compact-01">集中查看任务状态、执行进度与关键采集指标。</p></div>{task&&<Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>}</header>
+      <header className="seo-board-heading"><div><span className="seo-board-index cds--type-label-01">01 / 任务总览</span><h2 className="cds--type-heading-compact-02" id="seo-task-console-title">诊断任务控制台</h2><p className="cds--type-body-compact-01">集中查看任务状态、执行进度与关键采集指标。</p></div>{task&&<Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>}</header>
       {!task?<EmptyState title="尚未选择诊断任务" description="配置网站与分析范围后启动任务；提交后这里会显示任务编号和实时执行情况。"/>:
       <div className="seo-console-layout">
         <div className="seo-console-main">
           <div className="seo-task-identity"><div className="seo-task-title"><strong>{task.title}</strong><span>任务 ID　{task.id}</span></div><Button kind="tertiary" size="sm" renderIcon={Renew} disabled={busy} onClick={()=>task.status==="running"||task.status==="queued"?poll(task.id):openHistory(task.id)}>刷新状态</Button></div>
-          <div className="seo-progress-panel"><div className="seo-progress-heading"><div><span className="seo-overline cds--type-label-01">CURRENT PROGRESS</span><strong>执行进度</strong></div><strong className="seo-progress-value">{progress}%</strong></div><ProgressBar label="诊断任务执行进度" value={progress} max={100}/><div className="seo-progress-foot"><span>{stageText(stage)}</span><span>{task.status==="running"?"后台任务正在持续执行":statusText(task.status)}</span></div></div>
+          <div className="seo-progress-panel"><div className="seo-progress-heading"><div><span className="seo-overline cds--type-label-01">当前进度</span><strong>执行进度</strong></div><strong className="seo-progress-value">{progress}%</strong></div><ProgressBar label="诊断任务执行进度" value={progress} max={100}/><div className="seo-progress-foot"><span>{stageText(stage)}</span><span>{task.status==="running"?"后台任务正在持续执行":statusText(task.status)}</span></div></div>
           <div className="seo-metric-grid" aria-label="任务统计指标">
             <Tile className="seo-metric-card"><span>发现 URL</span><strong>{discovered}</strong><small>网站结构发现</small></Tile>
             <Tile className="seo-metric-card"><span>已审计页面</span><strong>{audited}</strong><small>已返回审计结果</small></Tile>
@@ -171,7 +171,7 @@ export default function SeoAnalysis() {
         </div>}
     </section>
 
-    <section className="seo-board seo-board--history" aria-labelledby="seo-history-title"><header className="seo-board-heading"><div><span className="seo-board-index">04 / TASK HISTORY</span><h2 className="cds--type-heading-compact-02" id="seo-history-title">历史诊断任务</h2><p className="cds--type-body-compact-01">回看最近诊断任务，重新打开历史报告，不影响正在运行的后台任务。</p></div><div className="seo-log-count">{history.length}<span>条记录</span></div></header>
+    <section className="seo-board seo-board--history" aria-labelledby="seo-history-title"><header className="seo-board-heading"><div><span className="seo-board-index">04 / 历史任务</span><h2 className="cds--type-heading-compact-02" id="seo-history-title">历史诊断任务</h2><p className="cds--type-body-compact-01">回看最近诊断任务，重新打开历史报告，不影响正在运行的后台任务。</p></div><div className="seo-log-count">{history.length}<span>条记录</span></div></header>
       {!history.length?<EmptyState title="暂无历史诊断" description="完成首次网站诊断后，任务会保存在这里。"/>:
         <CarbonDataTable label="历史诊断任务" headers={["诊断目标","任务 ID","任务状态","创建时间","已审计页面","操作"]} rows={history.map(item=>[
           <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>,
