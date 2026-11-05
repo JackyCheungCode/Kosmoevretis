@@ -66,7 +66,7 @@ function audit(p:any){
  const canonical=h.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)/i)?.[1]||"",robots=h.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)/i)?.[1]||"";
  const imgs=[...h.matchAll(/<img\b([^>]*)>/gi)],missing=imgs.filter(x=>!/\balt\s*=/.test(x[1])).length,links=[...h.matchAll(/<a\b[^>]+href=["']([^"']+)/gi)].map(x=>x[1]);
  const internal=links.filter(x=>x.startsWith("/")||(()=>{try{return new URL(x,p.url).hostname===new URL(p.url).hostname}catch{return false}})()).length;
- const words=md.replace(/[#>*_\-\[\]()]/g," ").split(/\s+/).filter(x=>x.length>1).length,sd=structured(h),issues:any[]=[];
+ const words=md.replace(/[#>*_\-\[\]()]/g," ").split(/\s+/).filter(x=>x.length>1).length,headings=(md.match(/^#{1,6}\\s+/gm)||[]).length,questionHeadings=(md.match(/^#{1,6}\\s+[^\\n]*[?？]/gm)||[]).length,lists=(md.match(/^\\s*[-*+]\\s+/gm)||[]).length,tables=(md.match(/^\\s*\\|.*\\|\\s*$/gm)||[]).length,sd=structured(h),issues:any[]=[];
  const add=(severity:string,category:string,titleText:string,evidence:string,action:string)=>issues.push({severity,category,title:titleText,url:p.url,evidence,action});
  if(!title)add("high","技术 SEO","页面缺少 Title","未发现 title 标签","为页面添加唯一且准确描述主题的标题。");
  else if(title.length>60)add("medium","内容 SEO","Title 长度偏长","当前长度 "+title.length+" 字符","将核心主题前置并精简标题。");
@@ -74,7 +74,7 @@ function audit(p:any){
  if(h1.length!==1)add("medium","内容 SEO","H1 层级异常","检测到 "+h1.length+" 个 H1","确保页面有且仅有一个清晰的主标题。");
  if(/noindex/i.test(robots))add("high","索引与抓取","页面设置 noindex","robots="+robots,"确认页面是否应该从搜索索引中排除。");
  if(imgs.length&&missing)add("medium","图片 SEO","图片缺少 Alt 文本",missing+" / "+imgs.length+" 张图片未设置 alt","为有信息价值的图片添加准确替代文本。");
- if(words<120)add("low","内容质量","页面可提取正文较少","约 "+words+" 个词","确认页面是否缺少解释产品、服务或主题的主体内容。");
+ if(words<120)add("low","内容质量","页面可提取正文较少","约 "+words+" 个词","确认页面是否缺少解释产品、服务或主题的主体内容。");\n if(words>250&&headings<2)add("medium","AI 搜索可读性","正文缺少清晰的分节结构","可识别标题 "+headings+" 个","使用准确的 H2/H3 分节表达主题、实体、属性与问题答案，帮助搜索系统提取内容。");
  if(!internal)add("medium","站内链接","未识别到站内链接","当前采集 HTML 未识别到内部链接","为相关页面建立上下文内链。");
  if(sd.json_ld_blocks&&sd.json_ld_valid<sd.json_ld_blocks)add("high","结构化数据","JSON-LD 存在解析错误","有效 "+sd.json_ld_valid+" / "+sd.json_ld_blocks,"修复 JSON-LD JSON 语法后再校验。");
  if(!sd.json_ld_blocks&&!sd.microdata_items&&!sd.rdfa_items)add("low","结构化数据","未发现结构化数据","未检测到 JSON-LD、Microdata 或 RDFa","根据页面真实内容选择 Schema.org 类型。");
@@ -94,12 +94,12 @@ function report(pages:any[],speeds:any[],root:string,discovered:number){
  const avg=(xs:any[])=>{const v=xs.filter(x=>typeof x==="number"&&Number.isFinite(x));return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null};
  const technical=avg(audits.map(a=>a?Math.max(0,100-a.issues.filter((x:any)=>["技术 SEO","索引与抓取"].includes(x.category)).length*15):null));
  const content=avg(audits.map(a=>a?Math.max(0,100-a.issues.filter((x:any)=>["内容 SEO","内容质量","图片 SEO"].includes(x.category)).length*12):null));
- const structuredScore=avg(audits.map(a=>a?(a.structured_data.json_ld_blocks||a.structured_data.microdata_items||a.structured_data.rdfa_items?(a.structured_data.json_ld_valid===a.structured_data.json_ld_blocks?85:45):50):null));
+ const structuredScore=avg(audits.map(a=>a?(a.structured_data.json_ld_blocks||a.structured_data.microdata_items||a.structured_data.rdfa_items?(a.structured_data.json_ld_valid===a.structured_data.json_ld_blocks?85:45):50):null)),aiReadability=avg(audits.map(a=>a?.ai_search_readability));
  const perf=avg(speeds.map(s=>s.scores?.performance)),seo=avg(speeds.map(s=>s.scores?.seo));
  const weighted=[[technical,.25],[content,.20],[structuredScore,.15],[perf,.25],[seo,.15]].filter(x=>x[0]!==null),coverage=Math.round(weighted.reduce((a,x)=>a+x[1],0)*100);
  const overall=weighted.length?Math.round(weighted.reduce((a,x)=>a+x[0]*x[1],0)/weighted.reduce((a,x)=>a+x[1],0)):null,unique=new Map<string,any>();
  for(const x of issues)unique.set(x.category+"|"+x.title+"|"+x.url,x);
- return {target:root,discovered_pages:discovered,audited_pages:pages.length,pagespeed_samples:new Set(speeds.map(x=>x.url)).size,coverage_percent:coverage,overall_score:overall,scores:{technical_seo:technical,content,structured_data:structuredScore,performance:perf,search_seo:seo},recommendations:[...unique.values()].sort((a,b)=>({high:0,medium:1,low:2}[a.severity]??3)-({high:0,medium:1,low:2}[b.severity]??3)).slice(0,150),generated_at:now(),methodology:"报告依据 Context.dev 实际发现与采集的页面内容、结构化数据解析结果及 Google PageSpeed Insights 实测结果。结构化数据为规则预检，不等于 Google Rich Results Test 最终资格判定；PageSpeed 仅覆盖所选代表性页面。评分为平台诊断指标，不是 Google 排名分数。"};
+ return {target:root,discovered_pages:discovered,audited_pages:pages.length,pagespeed_samples:new Set(speeds.map(x=>x.url)).size,coverage_percent:coverage,overall_score:overall,scores:{technical_seo:technical,content,structured_data:structuredScore,ai_search_readability:aiReadability,performance:perf,search_seo:seo},recommendations:[...unique.values()].sort((a,b)=>({high:0,medium:1,low:2}[a.severity]??3)-({high:0,medium:1,low:2}[b.severity]??3)).slice(0,150),generated_at:now(),methodology:"报告依据 Context.dev 实际发现与采集的页面内容、结构化数据解析结果及 Google PageSpeed Insights 实测结果。结构化数据为规则预检，不等于 Google Rich Results Test 最终资格判定；PageSpeed 仅覆盖所选代表性页面。评分为平台诊断指标，不是 Google 排名分数。"};
 }
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:cors});if(req.method!=="POST")return reply({error:"Method not allowed"},405);
