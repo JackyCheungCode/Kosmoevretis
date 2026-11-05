@@ -51,7 +51,8 @@ export default function SeoAnalysis() {
   useEffect(()=>{
     if(!activeId) return;
     let stopped=false;
-    const run=async()=>{if(stopped)return;try{await poll(activeId);}catch(e){if(!stopped)setNotice({kind:"error",title:"刷新任务失败",message:e instanceof Error?e.message:"请稍后重试。"});}};
+    let inFlight=false;
+    const run=async()=>{if(stopped||inFlight)return;inFlight=true;try{await poll(activeId);}catch(e){if(!stopped)setNotice({kind:"error",title:"刷新任务失败",message:e instanceof Error?e.message:"请稍后重试。"});}finally{inFlight=false;}};
     void run();
     const timer=window.setInterval(()=>void run(),9000);
     return()=>{stopped=true;window.clearInterval(timer);};
