@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { FormLabel } from "@carbon/react";
 
 export type FormFieldProps = {
   label: string;
@@ -13,8 +12,8 @@ export type FormFieldProps = {
 
 /**
  * Shared field framing for Carbon form controls.
- * Keep the actual input/select component native to Carbon so its keyboard,
- * validation and focus behavior remain owned by Carbon.
+ * The associated native label uses Carbon's public label class; input
+ * behavior, keyboard handling and focus remain owned by Carbon controls.
  */
 export function FormField({
   label,
@@ -27,10 +26,10 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div className={["kosmo-form-field", invalidText ? "is-invalid" : "", className].filter(Boolean).join(" ")}>
-      <FormLabel htmlFor={htmlFor}>
+      <label className="cds--label" htmlFor={htmlFor}>
         {label}
         {required && <span className="kosmo-form-field__required" aria-hidden="true"> *</span>}
-      </FormLabel>
+      </label>
       <div className="kosmo-form-field__control">{children}</div>
       {invalidText ? (
         <div className="kosmo-form-field__message kosmo-form-field__message--error" role="alert">
