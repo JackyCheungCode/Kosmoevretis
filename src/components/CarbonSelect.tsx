@@ -12,11 +12,17 @@ type Props = {
 };
 
 function OptionLabel({ label }: { label: string }) {
-  const match = label.match(/^(\\p{Regional_Indicator}{2})\\s+(.*)$/u);
-  return match ? (
+  const characters = Array.from(label);
+  const firstCode = characters[0]?.codePointAt(0) ?? 0;
+  const secondCode = characters[1]?.codePointAt(0) ?? 0;
+  const isFlag = firstCode >= 0x1f1e6 && firstCode <= 0x1f1ff &&
+    secondCode >= 0x1f1e6 && secondCode <= 0x1f1ff;
+  const flag = characters.slice(0, 2).join("");
+  const text = characters.slice(2).join("").trimStart();
+  return isFlag ? (
     <span className="carbon-select-flag-label">
-      <span className="carbon-select-flag-circle">{match[1]}</span>
-      <span>{match[2]}</span>
+      <span className="carbon-select-flag-circle">{flag}</span>
+      <span>{text}</span>
     </span>
   ) : <>{label}</>;
 }
