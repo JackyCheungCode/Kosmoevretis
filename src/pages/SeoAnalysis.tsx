@@ -83,7 +83,7 @@ export default function SeoAnalysis() {
   const scores=useMemo(()=>[
     ["综合健康度",report?.overall_score],["技术 SEO",report?.scores?.technical_seo],
     ["页面性能",report?.scores?.performance],["内容质量",report?.scores?.content],
-    ["索引与 SEO",report?.scores?.indexability],["无障碍",report?.scores?.accessibility],
+    ["结构化数据",report?.scores?.structured_data],["搜索 SEO",report?.scores?.search_seo],
   ] as [string,number|null|undefined][],[report]);
 
   const config=(
