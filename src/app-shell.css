@@ -102,7 +102,7 @@
   max-width: var(--kosmo-content-max-width);
   min-height: 100vh;
   margin-left: var(--kosmo-shell-sidebar-width);
-  padding: calc(var(--kosmo-shell-header-height) + 2.25rem) var(--kosmo-space-7) var(--kosmo-space-6);
+  padding: 0 var(--kosmo-space-7) var(--kosmo-space-6);
 }
 
 .kosmo-side-nav-tablet-expanded.cds--side-nav {
@@ -200,7 +200,7 @@
   .kosmo-main.content {
     width: 100%;
     margin-left: 0;
-    padding: calc(var(--kosmo-shell-header-height) + 2.25rem) var(--kosmo-space-4) var(--kosmo-space-6);
+    padding: 0 var(--kosmo-space-4) var(--kosmo-space-6);
   }
 }
 
@@ -224,7 +224,7 @@
 .kosmo-account-signout:focus-visible{outline:2px solid var(--cds-focus,#0f62fe);outline-offset:-2px}
 @media(max-width:671px){.kosmo-account-menu{margin-right:.5rem}}
 
-.kosmo-main--template-page { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-6)); min-width: 0; }
+.kosmo-main--template-page { min-width: 0; }
 .kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
 @media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
 @media (max-width: 671px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }

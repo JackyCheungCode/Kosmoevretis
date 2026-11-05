@@ -1,7 +1,6 @@
 /* Kosmoevretis foundation tokens — aliases of IBM Carbon v11 semantic tokens. */
 :root {
   color-scheme: light;
-  font-family: var(--cds-font-family-sans, "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif);
 
   /* Carbon Gray 10 application canvas and layered surfaces. */
   --kosmo-color-background: var(--cds-background);
@@ -69,7 +68,6 @@ body {
   margin: 0;
   color: var(--kosmo-color-text);
   background: var(--kosmo-color-background);
-  font-family: var(--cds-font-family-sans, "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif);
 }
 
 :focus-visible {

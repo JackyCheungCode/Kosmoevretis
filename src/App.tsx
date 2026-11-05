@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Header,
+  Content,
   Theme,
   HeaderMenuButton,
   HeaderName,
@@ -459,7 +460,7 @@ function AppShell() {
         </SideNavItems>
       </SideNav>
 
-      <main id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
+      <Content id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         {!isTemplatePage && <>
         <div className="eyebrow">Kosmoevretis / 全球情报中心</div>
         <div className="page-head">
@@ -493,7 +494,7 @@ function AppShell() {
         {(path === "/social-discovery" || path.startsWith("/social-discovery/") || legacySocialPlatform !== null) && <SocialPlatformWorkspace platform={(path.startsWith("/social-discovery/") ? path.split("/")[2] : legacySocialPlatform || "facebook") as SocialPlatform} />}
         {(path === "/ecommerce-discovery" || path.startsWith("/ecommerce-discovery/")) && <EcommercePlatformWorkspace platform={(path.startsWith("/ecommerce-discovery/") ? path.split("/")[2] : "amazon") as EcommercePlatformId} />}
         {isSettings && <SettingsPage />}
-      </main>
+      </Content>
     </div>
   );
 }
