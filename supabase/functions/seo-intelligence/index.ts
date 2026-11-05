@@ -118,7 +118,7 @@ Deno.serve(async req=>{
    const meta={...(task.actor_meta||{})} as Record<string,any>;
    if(meta.stage==="scraping"){
     const key=await credential(admin,org,"context_dev"),queue=Array.isArray(meta.scrape_queue)?meta.scrape_queue:[];
-    for(let i=0;i<2&&queue.length;i++){const next=queue.shift();try{const p=await scrape(key,next.url);p.audit=audit(p);meta.pages.push(p)}catch(e){meta.page_errors.push({url:next.url,error:e instanceof Error?e.message:"页面采集失败"})}}
+    for(let i=0;i<2&&queue.length;i++){const next=queue.shift();try{const p=await scrape(key,next.url);p.audit=audit(p);delete p.html;delete p.markdown;meta.pages.push(p)}catch(e){meta.page_errors.push({url:next.url,error:e instanceof Error?e.message:"页面采集失败"})}}
     meta.scrape_queue=queue;if(!queue.length){const urls=coreUrls(meta.map_urls||[],String(task.input_snapshot.target),Number(task.input_snapshot.pagespeed_limit||5));meta.pagespeed_queue=urls.flatMap(x=>[{url:x.url,strategy:"mobile"},{url:x.url,strategy:"desktop"}]);meta.stage="pagespeed"}
    }
    if(meta.stage==="pagespeed"){
