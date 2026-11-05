@@ -449,7 +449,7 @@ export default function ProductCenter() {
     if(confirmVariantDeleteId!==variant.id){setConfirmVariantDeleteId(variant.id);return;}
     setBusy(true);setNotice(null);
     try{
-      const {data:links,error:linksError}=await supabase.from("product_variant_values").select("*")
+      const {error:linksError}=await supabase.from("product_variant_values").select("id")
         .eq("variant_id",variant.id).eq("organization_id",org);
       if(linksError)throw linksError;
       const {error:deleteError}=await supabase.from("product_variants").delete()
