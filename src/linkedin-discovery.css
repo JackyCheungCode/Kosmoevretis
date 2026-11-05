@@ -6,3 +6,16 @@
 .li-results .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
 .li-results .cds--tab-content { padding:1rem 0 0; }
 .li-results .cds--tab-panel { padding:0; }
+
+
+.li-results,.li-table,.li-console{min-width:0;max-width:100%}
+.li-table{overscroll-behavior-x:contain;scrollbar-width:thin}
+.li-table table{width:max-content;min-width:48rem}
+.li-results .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
+.li-console{overscroll-behavior:contain;scrollbar-width:thin}
+@media(max-width:560px){
+ .li-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .li-object{min-width:0;align-items:flex-start;padding:var(--kosmo-space-3)}
+ .li-log{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-space-2)}
+}
+@media(max-width:360px){.li-object-grid{grid-template-columns:minmax(0,1fr)}}
