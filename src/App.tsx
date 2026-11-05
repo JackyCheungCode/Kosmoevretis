@@ -155,7 +155,7 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   );
 }
 
-const ecommercePlatformItems: { id: EcommercePlatformId; label: string }[] = [
+const ecommercePlatformItems: { id: EcommercePlatformId; label: string; mark: string }[] = [
   { id: "amazon", label: "Amazon", mark: "a" },
   { id: "walmart", label: "Walmart", mark: "✳" },
   { id: "ebay", label: "eBay", mark: "ebay" },
