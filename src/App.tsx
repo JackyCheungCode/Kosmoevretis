@@ -28,6 +28,7 @@ import {
   Music,
   Logout,
   DataBase,
+  ShoppingCart,
   Menu,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -39,6 +40,7 @@ import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
 import PlatformDataCollection from "./pages/PlatformDataCollection";
+import EcommerceDiscovery, { type EcommercePlatform } from "./pages/EcommerceDiscovery";
 import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
@@ -54,6 +56,9 @@ const validPaths = new Set([
   "/social-discovery/tiktok", "/social-discovery/youtube",
   "/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram",
   "/platform-data/x", "/platform-data/reddit", "/platform-data/pinterest", "/platform-data/tiktok", "/platform-data/youtube",
+  "/ecommerce-discovery", "/ecommerce-discovery/amazon", "/ecommerce-discovery/walmart", "/ecommerce-discovery/ebay",
+  "/ecommerce-discovery/aliexpress", "/ecommerce-discovery/temu", "/ecommerce-discovery/etsy",
+  "/ecommerce-discovery/shopify", "/ecommerce-discovery/mercado-libre", "/ecommerce-discovery/rakuten",
   "/products", "/settings/providers", "/settings/actors", "/settings/channels", "/settings/runs",
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
@@ -61,6 +66,7 @@ const validPaths = new Set([
 ]);
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
+type EcommercePlatformId = EcommercePlatform;
 const socialPlatformItems = [
   { id: "facebook" as const, label: "Facebook", icon: LogoFacebook },
   { id: "instagram" as const, label: "Instagram", icon: LogoInstagram },
@@ -138,13 +144,79 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   );
 }
 
+const ecommercePlatformItems: { id: EcommercePlatformId; label: string }[] = [
+  { id: "amazon", label: "Amazon" },
+  { id: "walmart", label: "Walmart" },
+  { id: "ebay", label: "eBay" },
+  { id: "aliexpress", label: "AliExpress" },
+  { id: "temu", label: "Temu" },
+  { id: "etsy", label: "Etsy" },
+  { id: "shopify", label: "Shopify" },
+  { id: "mercado-libre", label: "Mercado Libre" },
+  { id: "rakuten", label: "Rakuten" },
+];
+
+function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformId }) {
+  const navigate = useNavigate();
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const navRef = React.useRef<HTMLElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (!mobileNavOpen) return;
+    navRef.current?.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileNavOpen]);
+  const selectPlatform = (id: EcommercePlatformId) => {
+    navigate("/ecommerce-discovery/" + id);
+    if (mobileNavOpen) triggerRef.current?.focus();
+    setMobileNavOpen(false);
+  };
+  return (
+    <div className="social-platform-workspace-shell">
+      <Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu}
+        aria-label="打开电商平台导航" aria-expanded={mobileNavOpen} aria-controls="ecommerce-platform-nav">
+        其他平台发现
+      </Button>
+      <div className="social-platform-workspace">
+        <div className="settings-navigation-shell social-platform-navigation-shell">
+          {mobileNavOpen && <button type="button" className="settings-nav-backdrop" aria-label="关闭电商平台导航"
+            onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }} />}
+          <nav id="ecommerce-platform-nav" ref={navRef}
+            className={mobileNavOpen ? "settings-local-nav is-open social-platform-navigation" : "settings-local-nav social-platform-navigation"}
+            aria-label="电商平台发现分类" role="group">
+            <div className="settings-nav-group">
+              <div className="settings-nav-group-title">电商平台发现</div>
+              {ecommercePlatformItems.map(item => (
+                <button key={item.id} type="button" className="settings-nav-item social-platform-nav-item"
+                  aria-current={platform === item.id ? "page" : undefined}
+                  onClick={() => selectPlatform(item.id)}>
+                  <ShoppingCart size={16} aria-hidden="true" />
+                  <span className="settings-nav-label">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        </div>
+        <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
+      </div>
+    </div>
+  );
+}
+
 function AppShell() {
   const { session, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
-  const isTemplatePage = path.startsWith("/social-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
+  const isTemplatePage = path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -232,6 +304,7 @@ function AppShell() {
     { id: "intelligence", label: "情报总览", href: "/intelligence", icon: Dashboard, active: path === "/intelligence" },
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
+    { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
@@ -345,9 +418,10 @@ function AppShell() {
               </SideNavMenu>
               <SideNavMenu title="平台数据采集" defaultExpanded renderIcon={DataBase}>
                 {renderMenuItem(navItems[3])}
+                {renderMenuItem(navItems[4])}
               </SideNavMenu>
               <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
-                {renderMenuItem(navItems[4])}
+                {renderMenuItem(navItems[5])}
               </SideNavMenu>
             </>
           )}
@@ -385,6 +459,7 @@ function AppShell() {
         
         
         {(path === "/social-discovery" || path.startsWith("/social-discovery/") || legacySocialPlatform !== null) && <SocialPlatformWorkspace platform={(path.startsWith("/social-discovery/") ? path.split("/")[2] : legacySocialPlatform || "facebook") as SocialPlatform} />}
+        {(path === "/ecommerce-discovery" || path.startsWith("/ecommerce-discovery/")) && <EcommercePlatformWorkspace platform={(path.startsWith("/ecommerce-discovery/") ? path.split("/")[2] : "amazon") as EcommercePlatformId} />}
         {isSettings && <SettingsPage />}
       </main>
     </div>
