@@ -34,7 +34,7 @@ function inspect(relative, source) {
       violations.push(relative + ": Carbon Content must own the single Header offset.");
     }
   }
-  if (relative === "src/styles.css" && /(^|[,}])\\s*\\.content\\s*\\{/m.test(source)) {
+  if (relative === "src/styles.css" && /(^|[,}])\s*\.content\s*\{/m.test(source)) {
     violations.push(relative + ": generic .content layout rules are not allowed; use Carbon Content and scoped page containers.");
   }
   if (relative === "src/design-tokens.scss") {
