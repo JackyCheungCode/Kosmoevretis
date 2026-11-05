@@ -1,6 +1,5 @@
-/* Kosmoevretis AppShell — IBM Carbon v11, Gray 10. */
+/* Kosmoevretis AppShell — IBM Carbon v11 UI Shell + 2x Grid. */
 .kosmo-app-shell {
-  --kosmo-shell-header-height: 3rem;
   min-height: 100vh;
   background: var(--cds-background);
 }
@@ -18,14 +17,16 @@
   align-items: center;
   width: var(--kosmo-shell-sidebar-width);
   max-width: none;
-  padding-inline: var(--kosmo-space-5);
+  padding-inline: var(--kosmo-spacing-05) var(--kosmo-spacing-07);
   color: var(--cds-text-primary);
+  font-size: var(--cds-heading-compact-01-font-size);
+  line-height: var(--cds-heading-compact-01-line-height);
   font-weight: 600;
-  letter-spacing: .06em;
+  letter-spacing: 0;
 }
 
 .kosmo-header .cds--header__name:hover {
-  background: var(--cds-layer-hover-01);
+  background: var(--cds-background-hover);
   color: var(--cds-text-primary);
 }
 
@@ -36,14 +37,14 @@
 .kosmo-header-context {
   align-self: center;
   color: var(--cds-text-secondary);
-  font-size: var(--cds-label-01-font-size);
-  letter-spacing: 0;
+  font-size: var(--cds-body-compact-01-font-size);
+  line-height: var(--cds-body-compact-01-line-height);
   white-space: nowrap;
 }
 
 .kosmo-header-menu-button.cds--header__menu-trigger {
   display: none;
-  color: var(--cds-text-primary);
+  color: var(--cds-icon-primary);
 }
 
 .kosmo-side-nav.cds--side-nav {
@@ -52,31 +53,28 @@
   bottom: 0;
   left: 0;
   width: var(--kosmo-shell-sidebar-width);
-  background: var(--cds-layer-01);
-  border-right: 0;
+  background: var(--cds-background);
+  border-inline-end: 0;
   z-index: 8000;
-}
-
-.kosmo-side-nav .cds--side-nav__items {
-  padding-block: var(--kosmo-space-5);
 }
 
 .kosmo-side-nav .cds--side-nav__submenu {
   color: var(--cds-text-secondary);
-  font-size: .75rem;
+  font-size: var(--cds-body-compact-01-font-size);
+  line-height: var(--cds-body-compact-01-line-height);
   font-weight: 600;
-  letter-spacing: .02em;
+  letter-spacing: 0;
 }
 
 .kosmo-side-nav .cds--side-nav__link,
 .kosmo-side-nav .cds--side-nav__submenu {
-  min-height: 2.75rem;
+  min-height: 2rem;
 }
 
 .kosmo-side-nav .kosmo-nav-item-content {
   display: inline-flex;
   align-items: center;
-  gap: var(--kosmo-space-3);
+  gap: var(--kosmo-spacing-03);
   min-width: 0;
 }
 
@@ -87,23 +85,41 @@
 
 .kosmo-side-nav .cds--side-nav__link[aria-current="page"],
 .kosmo-side-nav .cds--side-nav__link--current {
-  background: var(--cds-layer-02);
-  border-inline-start: 3px solid var(--cds-interactive);
+  background: var(--cds-layer-selected);
+  border-inline-start: 4px solid var(--cds-border-interactive);
   color: var(--cds-text-primary);
 }
 
 .kosmo-side-nav .cds--side-nav__link[aria-current="page"] .kosmo-nav-item-content > svg {
-  color: var(--cds-interactive);
+  color: var(--cds-icon-primary);
 }
 
-.kosmo-main {
+/* Carbon Content owns the header offset; Carbon Grid owns the page gutters. */
+.kosmo-main.cds--content {
   box-sizing: border-box;
   width: calc(100% - var(--kosmo-shell-sidebar-width));
   max-width: var(--kosmo-content-max-width);
-  min-height: 100vh;
+  min-height: calc(100vh - var(--kosmo-shell-header-height));
+  margin-top: var(--kosmo-shell-header-height);
   margin-left: var(--kosmo-shell-sidebar-width);
-  padding-inline: var(--kosmo-space-7);
-  padding-bottom: var(--kosmo-space-6);
+  padding: 0;
+}
+
+.kosmo-content-grid.cds--css-grid {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.kosmo-main--template-page {
+  min-width: 0;
+}
+
+.kosmo-main--template-page > .kosmo-content-grid,
+.kosmo-main--template-page .kosmo-template {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .kosmo-side-nav-tablet-expanded.cds--side-nav {
@@ -114,7 +130,7 @@
 @media (min-width: 672px) and (max-width: 1055px) {
   .kosmo-header .cds--header__name {
     width: var(--kosmo-shell-sidebar-collapsed-width);
-    padding-inline: .625rem;
+    padding-inline: var(--kosmo-spacing-03);
   }
 
   .kosmo-header-context {
@@ -125,21 +141,18 @@
     display: flex;
   }
 
-  .kosmo-side-nav.cds--side-nav {
-    width: var(--kosmo-shell-sidebar-collapsed-width);
-  }
-
+  .kosmo-side-nav.cds--side-nav,
   .kosmo-side-nav.cds--side-nav.cds--side-nav--rail {
     width: var(--kosmo-shell-sidebar-collapsed-width);
   }
 
-  .kosmo-side-nav .cds--side-nav__item {
+  .kosmo-side-nav .cds--side-nav__item,
+  .kosmo-side-nav .cds--side-nav__link {
     width: var(--kosmo-shell-sidebar-collapsed-width);
   }
 
   .kosmo-side-nav .cds--side-nav__link {
     justify-content: center;
-    width: var(--kosmo-shell-sidebar-collapsed-width);
     padding-inline: 0;
   }
 
@@ -158,24 +171,23 @@
 
   .kosmo-side-nav-tablet-expanded .kosmo-nav-item-content {
     justify-content: flex-start;
-    gap: var(--kosmo-space-3);
+    gap: var(--kosmo-spacing-03);
   }
 
   .kosmo-side-nav-tablet-expanded .kosmo-nav-item-content > span {
     display: inline;
   }
 
-  .kosmo-main {
+  .kosmo-main.cds--content {
     width: calc(100% - var(--kosmo-shell-sidebar-collapsed-width));
     margin-left: var(--kosmo-shell-sidebar-collapsed-width);
-    padding-inline: var(--kosmo-space-5);
   }
 }
 
 @media (max-width: 671px) {
   .kosmo-header .cds--header__name {
     width: auto;
-    padding-inline: var(--kosmo-space-3);
+    padding-inline: var(--kosmo-spacing-03);
   }
 
   .kosmo-header-menu-button.cds--header__menu-trigger {
@@ -192,17 +204,37 @@
     width: min(var(--kosmo-shell-sidebar-mobile-width), 84vw);
     max-width: 17.5rem;
     z-index: 9100;
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior: contain;
   }
 
   .kosmo-side-nav.cds--side-nav:not(.cds--side-nav--expanded) {
     width: 0;
   }
 
-  .kosmo-main {
+  .kosmo-side-nav .cds--side-nav__items {
+    padding-bottom: calc(var(--kosmo-spacing-07) + env(safe-area-inset-bottom));
+  }
+
+  .kosmo-main.cds--content {
     width: 100%;
     margin-left: 0;
-    padding-inline: var(--kosmo-space-4);
-    padding-bottom: var(--kosmo-space-6);
+    min-height: calc(100vh - var(--kosmo-shell-header-height));
+  }
+
+  .kosmo-header-menu-button:focus-visible,
+  .kosmo-header .cds--header__name:focus-visible {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+  }
+
+  .kosmo-account-dropdown {
+    max-width: calc(100vw - 2rem);
+    right: var(--kosmo-spacing-02);
+  }
+
+  .kosmo-account-menu {
+    margin-right: var(--kosmo-spacing-02);
   }
 }
 
@@ -213,28 +245,87 @@
   }
 }
 
+/* Authenticated account control. */
+.kosmo-account-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: var(--kosmo-spacing-05);
+}
 
-/* Authenticated account control */
-.kosmo-account-menu{position:relative;display:flex;align-items:center;margin-left:auto;margin-right:1rem}
-.kosmo-account-avatar{display:grid;place-items:center;width:2rem;height:2rem;padding:0;overflow:hidden;border:0;border-radius:50%;background:var(--cds-layer-accent-01,#e0e0e0);color:var(--cds-text-primary,#161616);font:600 .8rem/1 IBM Plex Sans,Arial,sans-serif;cursor:pointer}
-.kosmo-account-avatar:hover,.kosmo-account-avatar:focus-visible{outline:2px solid var(--cds-focus,#0f62fe);outline-offset:2px}
-.kosmo-account-avatar img{width:100%;height:100%;object-fit:cover}
-.kosmo-account-dropdown{position:absolute;top:calc(100% + .75rem);right:0;z-index:10000;width:14rem;padding:.5rem 0;background:var(--cds-layer-01,#f4f4f4);border:1px solid var(--cds-border-subtle,#c6c6c6)}
-.kosmo-account-email{padding:.75rem 1rem;color:var(--cds-text-secondary,#525252);font-size:.75rem;overflow-wrap:anywhere;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6)}
-.kosmo-account-signout{display:flex;align-items:center;gap:.75rem;width:100%;min-height:2.75rem;padding:.5rem 1rem;border:0;background:transparent;color:var(--cds-text-primary,#161616);font:400 .875rem/1.25 IBM Plex Sans,Arial,sans-serif;text-align:left;cursor:pointer}
-.kosmo-account-signout:hover{background:var(--cds-layer-hover-01,#e8e8e8)}
-.kosmo-account-signout:focus-visible{outline:2px solid var(--cds-focus,#0f62fe);outline-offset:-2px}
-@media(max-width:671px){.kosmo-account-menu{margin-right:.5rem}}
+.kosmo-account-avatar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cds-layer-accent-01);
+  color: var(--cds-text-primary);
+  font-family: var(--cds-font-family-sans);
+  font-size: var(--cds-body-compact-01-font-size);
+  line-height: var(--cds-body-compact-01-line-height);
+  font-weight: 600;
+  cursor: pointer;
+}
 
-.kosmo-main--template-page { min-width: 0; }
-.kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
+.kosmo-account-avatar:hover,
+.kosmo-account-avatar:focus-visible {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: 2px;
+}
 
+.kosmo-account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-/* Mobile shell navigation: keep the drawer inside the viewport and respect device safe areas. */
-@media(max-width:671px){
- .kosmo-header.cds--header{padding-top:env(safe-area-inset-top)}
- .kosmo-side-nav.cds--side-nav{padding-bottom:env(safe-area-inset-bottom);overscroll-behavior:contain}
- .kosmo-side-nav .cds--side-nav__items{padding-bottom:calc(var(--kosmo-space-6) + env(safe-area-inset-bottom))}
- .kosmo-header-menu-button:focus-visible,.kosmo-header .cds--header__name:focus-visible{outline:2px solid var(--cds-focus);outline-offset:-2px}
- .kosmo-account-dropdown{max-width:calc(100vw - 2rem);right:var(--kosmo-space-2)}
+.kosmo-account-dropdown {
+  position: absolute;
+  top: calc(100% + var(--kosmo-spacing-03));
+  right: 0;
+  z-index: 10000;
+  width: 14rem;
+  padding-block: var(--kosmo-spacing-02);
+  background: var(--cds-layer-01);
+  border: 1px solid var(--cds-border-subtle);
+}
+
+.kosmo-account-email {
+  padding: var(--kosmo-spacing-04) var(--kosmo-spacing-05);
+  color: var(--cds-text-secondary);
+  font-size: var(--cds-label-01-font-size);
+  line-height: var(--cds-label-01-line-height);
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--cds-border-subtle);
+}
+
+.kosmo-account-signout {
+  display: flex;
+  align-items: center;
+  gap: var(--kosmo-spacing-03);
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--kosmo-spacing-03) var(--kosmo-spacing-05);
+  border: 0;
+  background: transparent;
+  color: var(--cds-text-primary);
+  font-family: var(--cds-font-family-sans);
+  font-size: var(--cds-body-compact-01-font-size);
+  line-height: var(--cds-body-compact-01-line-height);
+  text-align: left;
+  cursor: pointer;
+}
+
+.kosmo-account-signout:hover {
+  background: var(--cds-layer-hover-01);
+}
+
+.kosmo-account-signout:focus-visible {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
 }

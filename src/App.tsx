@@ -2,6 +2,8 @@ import React from "react";
 import {
   Header,
   Content,
+  Grid,
+  Column,
   Theme,
   HeaderMenuButton,
   HeaderName,
@@ -461,6 +463,8 @@ function AppShell() {
       </SideNav>
 
       <Content id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
+        <Grid fullWidth className="kosmo-content-grid">
+          <Column sm={4} md={8} lg={16}>
         {!isTemplatePage && <>
         <div className="eyebrow">Kosmoevretis / 全球情报中心</div>
         <div className="page-head">
@@ -494,6 +498,8 @@ function AppShell() {
         {(path === "/social-discovery" || path.startsWith("/social-discovery/") || legacySocialPlatform !== null) && <SocialPlatformWorkspace platform={(path.startsWith("/social-discovery/") ? path.split("/")[2] : legacySocialPlatform || "facebook") as SocialPlatform} />}
         {(path === "/ecommerce-discovery" || path.startsWith("/ecommerce-discovery/")) && <EcommercePlatformWorkspace platform={(path.startsWith("/ecommerce-discovery/") ? path.split("/")[2] : "amazon") as EcommercePlatformId} />}
         {isSettings && <SettingsPage />}
+          </Column>
+        </Grid>
       </Content>
     </div>
   );
