@@ -7,7 +7,8 @@ const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 
 const apiProviders = [
   { key: "apify", name: "Apify", domain: "apify.com", group: "数据采集与网页抓取", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
-  { key: "context_dev", name: "Context.dev", domain: "context.dev", group: "SEO 与网站分析", description: "全站 URL 发现、页面内容采集与 AI SEO 诊断数据源。", credentialLabel: "Context.dev API Key", placeholder: "输入 Context.dev API Key" },\n  { key: "dataforseo", name: "DataForSEO（旧版）", domain: "dataforseo.com", group: "SEO 与网站分析", description: "旧版 OnPage 服务配置；新版 SEO 诊断不再依赖此服务。", credentialLabel: "DataForSEO API Key / Authorization Token", placeholder: "粘贴 DataForSEO API Key（Base64 凭证）" },
+  { key: "context_dev", name: "Context.dev", domain: "context.dev", group: "SEO 与网站分析", description: "全站 URL 发现、页面内容采集与 AI SEO 诊断数据源。", credentialLabel: "Context.dev API Key", placeholder: "输入 Context.dev API Key" },
+  { key: "dataforseo", name: "DataForSEO（旧版）", domain: "dataforseo.com", group: "SEO 与网站分析", description: "旧版 OnPage 服务配置；新版 SEO 诊断不再依赖此服务。", credentialLabel: "DataForSEO API Key / Authorization Token", placeholder: "粘贴 DataForSEO API Key（Base64 凭证）" },
   { key: "google_pagespeed", name: "Google PageSpeed Insights", domain: "developers.google.com", group: "SEO 与网站分析", description: "Lighthouse 性能、SEO、无障碍与最佳实践检测。", credentialLabel: "PageSpeed API Key", placeholder: "输入 Google PageSpeed API Key" },
   { key: "octoparse", name: "Octoparse", domain: "octoparse.com", group: "数据采集与网页抓取", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
   { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", group: "数据采集与网页抓取", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
