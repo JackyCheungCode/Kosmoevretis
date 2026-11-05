@@ -229,3 +229,13 @@
 .kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
 @media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
 @media (max-width: 671px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }
+
+
+/* Mobile shell navigation: keep the drawer inside the viewport and respect device safe areas. */
+@media(max-width:671px){
+ .kosmo-header.cds--header{padding-top:env(safe-area-inset-top)}
+ .kosmo-side-nav.cds--side-nav{padding-bottom:env(safe-area-inset-bottom);overscroll-behavior:contain}
+ .kosmo-side-nav .cds--side-nav__items{padding-bottom:calc(var(--kosmo-space-6) + env(safe-area-inset-bottom))}
+ .kosmo-header-menu-button:focus-visible,.kosmo-header .cds--header__name:focus-visible{outline:2px solid var(--cds-focus);outline-offset:-2px}
+ .kosmo-account-dropdown{max-width:calc(100vw - 2rem);right:var(--kosmo-space-2)}
+}
