@@ -53,6 +53,7 @@ export default function ProductCenter() {
   const [categoryForm,setCategoryForm] = useState({name:"",code:"",parent_id:"",description:""});
   const [selectedCategoryId,setSelectedCategoryId] = useState("");
   const [selectedDefinitionIds,setSelectedDefinitionIds] = useState<string[]>([]);
+  const [selectedRequiredIds,setSelectedRequiredIds] = useState<string[]>([]);
   const [definitionForm,setDefinitionForm] = useState({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
   const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({});
   const [variants,setVariants] = useState<Variant[]>([]);
@@ -99,8 +100,20 @@ export default function ProductCenter() {
 
   const filtered = useMemo(()=>products.filter(p=>[p.name,p.brand,p.manufacturer,p.model,p.sku,p.internal_reference,...(p.category_path||[])].join(" ").toLowerCase().includes(query.toLowerCase())),[products,query]);
   const categoryName = (id:string|null) => categories.find(c=>c.id===id)?.name || "未分类";
-  const categoryTree = (parent:string|null=null):Category[] => categories.filter(c=>c.parent_id===parent).flatMap(c=>[c,...categoryTree(c.id)]);
-  const categoryOptions = categoryTree().map(c=>({id:c.id,label:`${"　".repeat(categories.filter(x=>x.id===c.parent_id).length)}${c.name}`}));
+  const categoryPathFor = (categoryId:string|null) => {
+    const path:string[]=[];const seen=new Set<string>();let current=categories.find(item=>item.id===categoryId);
+    while(current&&!seen.has(current.id)){
+      seen.add(current.id);path.unshift(current.name);
+      current=categories.find(item=>item.id===current?.parent_id);
+    }
+    return path;
+  };
+  const categoryDepth = (categoryId:string) => Math.max(0,categoryPathFor(categoryId).length-1);
+  const categoryTree = (parent:string|null=null,visited=new Set<string>()):Category[] =>
+    categories.filter(c=>c.parent_id===parent&&!visited.has(c.id)).flatMap(c=>{
+      const next=new Set(visited);next.add(c.id);return [c,...categoryTree(c.id,next)];
+    });
+  const categoryOptions = categoryTree().map(c=>({id:c.id,label:"　".repeat(categoryDepth(c.id))+c.name}));
 
   const startNew = () => {setSelected(null);setForm(emptyProduct());setVariants([]);setEditing(true);setNotice(null);};
   const startEdit = async (p:Product) => {
@@ -121,51 +134,71 @@ export default function ProductCenter() {
   const saveProduct = async (event:FormEvent) => {
     event.preventDefault();
     if(!session?.user||!org||!form.name.trim())return;
-    setBusy(true);setNotice(null);
-    const category=categories.find(c=>c.id===form.category_id);
-    const row:any={
-      organization_id:org,name:form.name.trim(),brand:form.brand.trim()||null,manufacturer:form.manufacturer.trim()||null,model:form.model.trim()||null,
-      sku:form.sku.trim()||null,internal_reference:form.internal_reference.trim()||null,barcode:form.barcode.trim()||null,category_id:form.category_id||null,
-      category_path:category?[category.name]:[],description:form.description.trim()||null,image_url:form.image_url.trim()||null,
-      target_markets:form.target_markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),product_type:form.product_type,
-      can_be_sold:form.can_be_sold,can_be_purchased:form.can_be_purchased,sales_price:form.sales_price===""?null:Number(form.sales_price),sales_currency:form.sales_currency,
-      cost:form.cost===""?null:Number(form.cost),cost_currency:form.cost_currency,unit_of_measure:form.unit_of_measure,purchase_uom:form.purchase_uom,
-      sales_description:form.sales_description.trim()||null,purchase_description:form.purchase_description.trim()||null,
-      weight:form.weight===""?null:Number(form.weight),volume:form.volume===""?null:Number(form.volume),
-      country_of_origin:form.country_of_origin.trim()||null,hs_code:form.hs_code.trim()||null,website_url:form.website_url.trim()||null,lifecycle_stage:form.lifecycle_stage,
-      updated_by:session.user.id
-    };
-    const result=selected
-      ?await supabase.from("products").update(row).eq("id",selected.id).select("*").single()
-      :await supabase.from("products").insert({...row,created_by:session.user.id}).select("*").single();
-    if(result.error){setNotice({kind:"error",text:message(result.error)});setBusy(false);return;}
-    if(!selected&&form.category_id){
-      const assigned=categoryTemplates.filter(x=>x.category_id===form.category_id);
-      for(const link of assigned){
-        const d=definitions.find(x=>x.id===link.definition_id);if(!d)continue;
-        const {data:a,error:ae}=await supabase.from("product_attributes").insert({
-          organization_id:org,product_id:result.data.id,definition_id:d.id,name:d.name,slug:d.slug,data_type:d.data_type,unit:d.unit,
-          attribute_group:d.attribute_group,semantic_type:d.semantic_type,display_type:d.display_type,
-          variant_creation_mode:d.default_variant_creation_mode,is_variant_axis:d.default_variant_creation_mode!=="never",
-          include_in_analysis:d.include_in_analysis,is_required:link.is_required,sort_order:link.sort_order
-        }).select("*").single();
-        if(ae){setNotice({kind:"error",text:`产品已创建，但初始化属性失败：${message(ae)}`});continue;}
-        const values=(d.product_attribute_definition_values||[]).map((v,i)=>({
-          organization_id:org,product_id:result.data.id,attribute_id:a.id,definition_id:d.id,definition_value_id:v.id,
-          value_text:v.value_text,value_number:v.value_number,unit:v.unit||d.unit,sort_order:i
-        }));
-        if(values.length){const {error:ve}=await supabase.from("product_attribute_values").insert(values);if(ve)setNotice({kind:"error",text:`产品已创建，但复制属性值失败：${message(ve)}`});}
+    const numericFields:[string,string][]=[["销售价格",form.sales_price],["成本",form.cost],["重量",form.weight],["体积",form.volume]];
+    for(const field of numericFields){
+      if(field[1]!==""&&(!Number.isFinite(Number(field[1]))||Number(field[1])<0)){
+        setNotice({kind:"error",text:field[0]+"必须是大于或等于 0 的有效数字。"});return;
       }
     }
-    await load(org);setSelected(result.data as Product);setEditing(false);
-    const [variantResult,attributeResult,variantValuesResult]=await Promise.all([
-      supabase.from("product_variants").select("*").eq("product_id",result.data.id).order("created_at"),
-      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",result.data.id).order("sort_order"),
-      supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",result.data.id)
-    ]);
-    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);setVariantAxisSelection({});
-    setBusy(false);
-    setNotice({kind:"success",text:selected?"产品模板已更新。":"产品模板已创建，分类属性模板已自动应用。"});
+    setBusy(true);setNotice(null);
+    try{
+      const row={
+        organization_id:org,name:form.name.trim(),brand:form.brand.trim()||null,manufacturer:form.manufacturer.trim()||null,
+        model:form.model.trim()||null,sku:form.sku.trim()||null,internal_reference:form.internal_reference.trim()||null,
+        barcode:form.barcode.trim()||null,category_id:form.category_id||null,category_path:categoryPathFor(form.category_id),
+        description:form.description.trim()||null,image_url:form.image_url.trim()||null,
+        target_markets:form.target_markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),product_type:form.product_type,
+        can_be_sold:form.can_be_sold,can_be_purchased:form.can_be_purchased,
+        sales_price:form.sales_price===""?null:Number(form.sales_price),sales_currency:form.sales_currency,
+        cost:form.cost===""?null:Number(form.cost),cost_currency:form.cost_currency,unit_of_measure:form.unit_of_measure,
+        purchase_uom:form.purchase_uom,sales_description:form.sales_description.trim()||null,
+        purchase_description:form.purchase_description.trim()||null,weight:form.weight===""?null:Number(form.weight),
+        volume:form.volume===""?null:Number(form.volume),country_of_origin:form.country_of_origin.trim()||null,
+        hs_code:form.hs_code.trim()||null,website_url:form.website_url.trim()||null,lifecycle_stage:form.lifecycle_stage,
+        updated_by:session.user.id,version:selected?(selected.version||1)+1:1
+      };
+      const result=selected
+        ?await supabase.from("products").update(row).eq("id",selected.id).eq("organization_id",org).select("*").single()
+        :await supabase.from("products").insert({...row,created_by:session.user.id}).select("*").single();
+      if(result.error)throw result.error;
+      if(form.category_id){
+        const assigned=categoryTemplates.filter(item=>item.category_id===form.category_id);
+        const {data:existing,error:existingError}=await supabase.from("product_attributes").select("definition_id").eq("product_id",result.data.id);
+        if(existingError)throw existingError;
+        const existingIds=new Set((existing||[]).map(item=>item.definition_id).filter(Boolean));
+        for(const link of assigned){
+          if(existingIds.has(link.definition_id))continue;
+          const definition=definitions.find(item=>item.id===link.definition_id);if(!definition)continue;
+          const {data:attribute,error:attributeError}=await supabase.from("product_attributes").insert({
+            organization_id:org,product_id:result.data.id,definition_id:definition.id,name:definition.name,slug:definition.slug,
+            data_type:definition.data_type,unit:definition.unit,attribute_group:definition.attribute_group,
+            semantic_type:definition.semantic_type,display_type:definition.display_type,
+            variant_creation_mode:definition.default_variant_creation_mode,
+            is_variant_axis:definition.default_variant_creation_mode!=="never",include_in_analysis:definition.include_in_analysis,
+            is_required:link.is_required,sort_order:link.sort_order
+          }).select("*").single();
+          if(attributeError)throw attributeError;
+          const values=(definition.product_attribute_definition_values||[]).map((value,index)=>({
+            organization_id:org,product_id:result.data.id,attribute_id:attribute.id,definition_id:definition.id,
+            definition_value_id:value.id,value_text:value.value_text,value_number:value.value_number,
+            unit:value.unit||definition.unit,sort_order:index
+          }));
+          if(values.length){const {error:valueError}=await supabase.from("product_attribute_values").insert(values);if(valueError)throw valueError;}
+        }
+      }
+      await load(org);
+      const [vr,ar,lr]=await Promise.all([
+        supabase.from("product_variants").select("*").eq("product_id",result.data.id).eq("organization_id",org).order("created_at"),
+        supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,value_number,unit)").eq("product_id",result.data.id).eq("organization_id",org).order("sort_order"),
+        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",result.data.id).eq("organization_id",org)
+      ]);
+      if(vr.error)throw vr.error;if(ar.error)throw ar.error;if(lr.error)throw lr.error;
+      setSelected(result.data as Product);setEditing(false);setVariants((vr.data||[]) as Variant[]);
+      setProductAttributes((ar.data||[]) as ProductAttribute[]);setVariantAttributeValues((lr.data||[]) as VariantAttributeValue[]);
+      setVariantAxisSelection({});
+      setNotice({kind:"success",text:selected?"产品档案已更新，版本号已递增。":"产品档案已创建，分类属性模板已自动应用。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
   };
 
   const createCategory = async (event:FormEvent) => {
@@ -182,17 +215,26 @@ export default function ProductCenter() {
 
   const saveCategoryAttributes = async (event:FormEvent) => {
     event.preventDefault();if(!selectedCategoryId||!org)return;
-    setBusy(true);
-    const del=await supabase.from("product_category_attribute_templates").delete().eq("category_id",selectedCategoryId);
-    if(del.error){setNotice({kind:"error",text:message(del.error)});setBusy(false);return;}
-    if(selectedDefinitionIds.length){
-      const rows=selectedDefinitionIds.map((id,index)=>({organization_id:org,category_id:selectedCategoryId,definition_id:id,sort_order:index}));
-      const ins=await supabase.from("product_category_attribute_templates").insert(rows);
-      if(ins.error){setNotice({kind:"error",text:message(ins.error)});setBusy(false);return;}
-    }
-    const {data,error}=await supabase.from("product_category_attribute_templates").select("*").eq("organization_id",org).order("sort_order");
-    if(error)setNotice({kind:"error",text:message(error)});else{setCategoryTemplates((data||[]) as CategoryTemplate[]);setNotice({kind:"success",text:"分类属性模板已保存。"});}
-    setBusy(false);
+    setBusy(true);setNotice(null);
+    try{
+      const current=categoryTemplates.filter(item=>item.category_id===selectedCategoryId);
+      const rows=selectedDefinitionIds.map((id,index)=>({
+        organization_id:org,category_id:selectedCategoryId,definition_id:id,
+        is_required:selectedRequiredIds.includes(id),sort_order:index
+      }));
+      if(rows.length){
+        const {error}=await supabase.from("product_category_attribute_templates").upsert(rows,{onConflict:"category_id,definition_id"});
+        if(error)throw error;
+      }
+      for(const item of current.filter(item=>!selectedDefinitionIds.includes(item.definition_id))){
+        const {error}=await supabase.from("product_category_attribute_templates").delete().eq("id",item.id).eq("organization_id",org);
+        if(error)throw error;
+      }
+      const {data,error}=await supabase.from("product_category_attribute_templates").select("*").eq("organization_id",org).order("sort_order");
+      if(error)throw error;setCategoryTemplates((data||[]) as CategoryTemplate[]);
+      setNotice({kind:"success",text:"分类属性模板已保存，采用增量更新避免先清空原有关联。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
   };
 
   const createDefinition = async (event:FormEvent) => {
