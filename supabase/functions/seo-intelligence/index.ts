@@ -66,7 +66,7 @@ function audit(p:any){
  const canonical=h.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)/i)?.[1]||"",robots=h.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)/i)?.[1]||"";
  const imgs=[...h.matchAll(/<img\b([^>]*)>/gi)],missing=imgs.filter(x=>!/\balt\s*=/.test(x[1])).length,links=[...h.matchAll(/<a\b[^>]+href=["']([^"']+)/gi)].map(x=>x[1]);
  const internal=links.filter(x=>x.startsWith("/")||(()=>{try{return new URL(x,p.url).hostname===new URL(p.url).hostname}catch{return false}})()).length;
- const words=md.replace(/[#>*_\-\[\]()]/g," ").split(/\s+/).filter(x=>x.length>1).length,headings=(md.match(/^#{1,6}\\s+/gm)||[]).length,questionHeadings=(md.match(/^#{1,6}\\s+[^\\n]*[?？]/gm)||[]).length,lists=(md.match(/^\\s*[-*+]\\s+/gm)||[]).length,tables=(md.match(/^\\s*\\|.*\\|\\s*$/gm)||[]).length,sd=structured(h),issues:any[]=[];
+ const words=md.replace(/[#>*_\-\[\]()]/g," ").split(/\s+/).filter(x=>x.length>1).length,headings=(md.match(/^#{1,6}\s+/gm)||[]).length,questionHeadings=(md.match(/^#{1,6}\s+[^\n]*[?？]/gm)||[]).length,lists=(md.match(/^\s*[-*+]\s+/gm)||[]).length,tables=(md.match(/^\s*\\|.*\\|\s*$/gm)||[]).length,sd=structured(h),issues:any[]=[];
  const add=(severity:string,category:string,titleText:string,evidence:string,action:string)=>issues.push({severity,category,title:titleText,url:p.url,evidence,action});
  if(!title)add("high","技术 SEO","页面缺少 Title","未发现 title 标签","为页面添加唯一且准确描述主题的标题。");
  else if(title.length>60)add("medium","内容 SEO","Title 长度偏长","当前长度 "+title.length+" 字符","将核心主题前置并精简标题。");
@@ -74,12 +74,13 @@ function audit(p:any){
  if(h1.length!==1)add("medium","内容 SEO","H1 层级异常","检测到 "+h1.length+" 个 H1","确保页面有且仅有一个清晰的主标题。");
  if(/noindex/i.test(robots))add("high","索引与抓取","页面设置 noindex","robots="+robots,"确认页面是否应该从搜索索引中排除。");
  if(imgs.length&&missing)add("medium","图片 SEO","图片缺少 Alt 文本",missing+" / "+imgs.length+" 张图片未设置 alt","为有信息价值的图片添加准确替代文本。");
- if(words<120)add("low","内容质量","页面可提取正文较少","约 "+words+" 个词","确认页面是否缺少解释产品、服务或主题的主体内容。");\n if(words>250&&headings<2)add("medium","AI 搜索可读性","正文缺少清晰的分节结构","可识别标题 "+headings+" 个","使用准确的 H2/H3 分节表达主题、实体、属性与问题答案，帮助搜索系统提取内容。");
+ if(words<120)add("low","内容质量","页面可提取正文较少","约 "+words+" 个词","确认页面是否缺少解释产品、服务或主题的主体内容。");
+ if(words>250&&headings<2)add("medium","AI 搜索可读性","正文缺少清晰的分节结构","可识别标题 "+headings+" 个","使用准确的 H2/H3 分节表达主题、实体、属性与问题答案，帮助搜索系统提取内容。");
  if(!internal)add("medium","站内链接","未识别到站内链接","当前采集 HTML 未识别到内部链接","为相关页面建立上下文内链。");
  if(sd.json_ld_blocks&&sd.json_ld_valid<sd.json_ld_blocks)add("high","结构化数据","JSON-LD 存在解析错误","有效 "+sd.json_ld_valid+" / "+sd.json_ld_blocks,"修复 JSON-LD JSON 语法后再校验。");
  if(!sd.json_ld_blocks&&!sd.microdata_items&&!sd.rdfa_items)add("low","结构化数据","未发现结构化数据","未检测到 JSON-LD、Microdata 或 RDFa","根据页面真实内容选择 Schema.org 类型。");
- const eligible=sd.types.map(type=>({type,recognized:["Product","Organization","LocalBusiness","Article","BlogPosting","BreadcrumbList","WebSite","WebPage","Event","Recipe","JobPosting","VideoObject","Review","AggregateRating","FAQPage","HowTo"].includes(type),note:"发现该 Schema 类型；仍需按 Google 对应类型必填属性、内容政策和页面可见内容进一步核验。"}));
- return {url:p.url,title,description:desc,h1,canonical,robots,word_count:words,image_count:imgs.length,images_missing_alt:missing,link_count:links.length,internal_link_count:internal,structured_data:{...sd,eligibility_checks:eligible},issues,fetched_at:p.fetched_at};
+ const aiSearchScore=Math.min(100,35+Math.min(25,headings*5)+Math.min(15,lists*3)+Math.min(10,tables*5)+Math.min(10,questionHeadings*5)+(sd.types.length?10:0));
+ return {url:p.url,title,description:desc,h1,canonical,robots,word_count:words,heading_count:headings,question_heading_count:questionHeadings,list_count:lists,table_count:tables,ai_search_readability:aiSearchScore,image_count:imgs.length,images_missing_alt:missing,link_count:links.length,internal_link_count:internal,structured_data:sd,issues,fetched_at:p.fetched_at};
 }
 async function psi(url:string,key:string,strategy:"mobile"|"desktop"){
  const u=new URL("https://www.googleapis.com/pagespeedonline/v5/runPagespeed");u.searchParams.set("url",url);u.searchParams.set("key",key);u.searchParams.set("strategy",strategy);
