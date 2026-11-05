@@ -166,16 +166,16 @@ Deno.serve(async (req: Request) => {
       if (!keywords.length) return fail("请至少输入一个分析关键词。");
       if (!markets.length) return fail("请至少选择一个目标市场。");
       if (!["30d", "90d", "12m", "5y"].includes(period)) return fail("不支持的分析时间范围。");
+      const { data: sources, error: sourceError } = await admin.from("intelligence_data_sources")
+        .select("id,slug,name,channel").in("id", sourceIds).eq("is_active", true);
+      if (sourceError) throw sourceError;
+      if (!sources?.length || sources.length !== sourceIds.length) return fail("部分数据源不存在或已停用，请刷新后重试。");
       if (sources.some(source => source.slug !== "google-news")) {
         const { data: provider, error: providerError } = await admin.from("platform_provider_connections")
           .select("is_enabled,status").eq("organization_id", organizationId).eq("provider_key", "apify").maybeSingle();
         if (providerError) throw providerError;
         if (!provider?.is_enabled || provider.status !== "verified") return fail("所选平台需要 Apify。请先到设置中心完成凭证配置与连接测试；Google News RSS 无需 Apify。");
       }
-      const { data: sources, error: sourceError } = await admin.from("intelligence_data_sources")
-        .select("id,slug,name,channel").in("id", sourceIds).eq("is_active", true);
-      if (sourceError) throw sourceError;
-      if (!sources?.length || sources.length !== sourceIds.length) return fail("部分数据源不存在或已停用，请刷新后重试。");
       const unsupported = sources.filter(source => !adapters[source.slug]);
       if (unsupported.length) return fail("以下数据源尚未接入实时采集接口：" + unsupported.map(source => source.name).join("、"));
       const productId = body.product_id && uuidPattern.test(String(body.product_id)) ? String(body.product_id) : null;
