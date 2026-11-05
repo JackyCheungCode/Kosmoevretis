@@ -128,6 +128,14 @@ export default function ProductCenter() {
     return path;
   };
   const categoryDepth = (categoryId:string) => Math.max(0,categoryPathFor(categoryId).length-1);
+  const isCategoryDescendant = (candidateId:string,ancestorId:string) => {
+    const seen=new Set<string>();let current=categories.find(item=>item.id===candidateId);
+    while(current&&!seen.has(current.id)){
+      if(current.id===ancestorId)return true;
+      seen.add(current.id);current=categories.find(item=>item.id===current?.parent_id);
+    }
+    return false;
+  };
   const categoryTree = (parent:string|null=null,visited=new Set<string>()):Category[] =>
     categories.filter(c=>c.parent_id===parent&&!visited.has(c.id)).flatMap(c=>{
       const next=new Set(visited);next.add(c.id);return [c,...categoryTree(c.id,next)];
@@ -230,7 +238,7 @@ export default function ProductCenter() {
 
   const saveCategory = async (event:FormEvent) => {
     event.preventDefault();if(!categoryForm.name.trim()||!org)return;
-    if(editingCategoryId&&(categoryForm.parent_id===editingCategoryId||categoryPathFor(categoryForm.parent_id).includes(categories.find(c=>c.id===editingCategoryId)?.name||""))){
+    if(editingCategoryId&&categoryForm.parent_id&&isCategoryDescendant(categoryForm.parent_id,editingCategoryId)){
       setNotice({kind:"error",text:"不能将分类移动到自身或自己的下级分类中。"});return;
     }
     setBusy(true);setNotice(null);
@@ -765,7 +773,7 @@ export default function ProductCenter() {
             <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品属性与变体规则</h4><p>管理此产品实际使用的属性值，并决定哪些属性参与 SKU 组合。</p></div><Tag>{productAttributes.length} 项属性</Tag></div>{productAttributes.length?<div className="pc-product-attribute-list">{productAttributes.map(a=><article className="pc-product-attribute" key={a.id}><div className="pc-product-attribute-heading"><div><strong>{a.name}{a.unit?"（"+a.unit+"）":""}</strong><span>{(a.product_attribute_values||[]).length} 个可选值</span></div><FormField className="pc-field" label="变体规则" htmlFor={"pc-attribute-mode-"+a.id}><CarbonSelect id={"pc-attribute-mode-"+a.id} value={a.variant_creation_mode} onChange={value=>updateProductAttributeMode(a,value)}><option value="never">普通属性（不生成 SKU）</option><option value="dynamic">动态变体轴</option><option value="instant">立即变体轴</option></CarbonSelect></FormField></div><div className="pc-definition-values">{(a.product_attribute_values||[]).map(v=><span className="pc-definition-value" key={v.id}>{v.value_text}{v.unit?" "+v.unit:""}<button type="button" aria-label={"删除属性值 "+v.value_text} disabled={busy} onClick={()=>deleteProductAttributeValue(a,v)}>{confirmProductValueDeleteId===v.id?"确认?":"×"}</button></span>)}</div><form className="pc-add-value" onSubmit={event=>{event.preventDefault();addProductAttributeValue(a);}}><TextInput id={"pc-attribute-value-"+a.id} labelText={"新增「"+a.name+"」属性值"} placeholder="输入属性值" value={attributeValueDraft[a.id]||""} onChange={event=>setAttributeValueDraft(prev=>({...prev,[a.id]:event.target.value}))}/><Button type="submit" kind="secondary" disabled={busy||!(attributeValueDraft[a.id]||"").trim()}>添加属性值</Button></form></article>)}</div>:<div className="pc-empty-inline">分类「{categoryName(selected.category_id)}」尚未配置属性模板。可先在「属性管理」建立属性，再配置分类模板。</div>}</section>
           </div>:<><div className="pc-catalog-stats"><div><span>产品模板</span><strong>{products.length}</strong></div><div><span>分类</span><strong>{categories.length}</strong></div><div><span>属性定义</span><strong>{definitions.length}</strong></div><div><span>已发布产品</span><strong>{products.filter(p=>p.status==="active"||p.lifecycle_stage==="active").length}</strong></div></div>
             <div className="pc-list-toolbar"><Search size="lg" labelText="搜索产品" placeholder="名称、品牌、型号、SKU 或内部编号" value={query} onChange={e=>setQuery(e.target.value)}/><FormField className="pc-field pc-status-filter" label="产品状态" htmlFor="pc-status-filter"><CarbonSelect id="pc-status-filter" value={statusFilter} onChange={setStatusFilter}><option value="all">全部状态</option><option value="draft">草稿</option><option value="active">已发布</option><option value="archived">已归档</option></CarbonSelect></FormField><span>{filtered.length} 条记录</span></div>
-            {filtered.length?<div className="pc-product-list">{filtered.map(p=><button key={p.id} className="pc-product-row" onClick={()=>openProduct(p).catch(e=>setNotice({kind:"error",text:message(e)}))}><div className="pc-product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:<span>▣</span>}</div><div className="pc-product-main"><strong>{p.name}</strong><span>{p.brand||"未设置品牌"} · {p.model||"未设置型号"}</span><small>{categoryName(p.category_id)} · {p.internal_reference||p.sku||"未设置编码"}</small></div><div className="pc-product-price"><strong>{money(p.sales_price,p.sales_currency||"USD")}</strong><span>{p.status==="archived"?"已归档":p.status==="active"?"已发布":"草稿"} · {p.can_be_sold?"可销售":"不销售"}</span></div><span className="pc-row-arrow">›</span></button>)}</div>:<div className="pc-empty"><div className="pc-empty-icon">▣</div><h3>{query?"没有匹配的产品":"产品主档案尚为空"}</h3><p>创建产品模板后，可按分类自动载入属性，并在模板下维护实际 SKU 变体。</p><Button kind="primary" onClick={startNew}>创建第一个产品</Button></div>}
+            {filtered.length?<div className="pc-product-list">{filtered.map(p=><button key={p.id} className="pc-product-row" onClick={()=>openProduct(p).catch(e=>setNotice({kind:"error",text:message(e)}))}><div className="pc-product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:<span>▣</span>}</div><div className="pc-product-main"><strong>{p.name}</strong><span>{p.brand||"未设置品牌"} · {p.model||"未设置型号"}</span><small>{(p.category_path||categoryPathFor(p.category_id)).join(" / ")||"未分类"} · {p.internal_reference||p.sku||"未设置编码"}</small></div><div className="pc-product-price"><strong>{money(p.sales_price,p.sales_currency||"USD")}</strong><span>{p.status==="archived"?"已归档":p.status==="active"?"已发布":"草稿"} · {p.can_be_sold?"可销售":"不销售"}</span></div><span className="pc-row-arrow">›</span></button>)}</div>:<div className="pc-empty"><div className="pc-empty-icon">▣</div><h3>{query?"没有匹配的产品":"产品主档案尚为空"}</h3><p>创建产品模板后，可按分类自动载入属性，并在模板下维护实际 SKU 变体。</p><Button kind="primary" onClick={startNew}>创建第一个产品</Button></div>}
           </>}
         </TabPanel>
         <TabPanel>
