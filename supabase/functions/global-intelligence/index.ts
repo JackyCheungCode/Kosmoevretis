@@ -38,7 +38,7 @@ const newsLocales: Record<string,{hl:string;gl:string;ceid:string}> = {
   FR:{hl:"fr-FR",gl:"FR",ceid:"FR:fr"},ES:{hl:"es-ES",gl:"ES",ceid:"ES:es"},IT:{hl:"it-IT",gl:"IT",ceid:"IT:it"},
   BR:{hl:"pt-BR",gl:"BR",ceid:"BR:pt-419"},MX:{hl:"es-419",gl:"MX",ceid:"MX:es-419"},CN:{hl:"zh-CN",gl:"CN",ceid:"CN:zh-Hans"},
 };
-const decodeXml = (value:string) => value.replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g,"$1").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").trim();
+const decodeXml = (value:string) => value.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").trim();
 const readXmlTag = (xml:string,tag:string) => { const match=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)</"+tag+">","i"));return match?decodeXml(match[1]):""; };
 async function collectGoogleNews(keywords:string[],markets:string[]) {
   const targets=markets.slice(0,8);
@@ -49,8 +49,8 @@ async function collectGoogleNews(keywords:string[],markets:string[]) {
     const response=await fetch("https://news.google.com/rss/search?"+params.toString(),{headers:{Accept:"application/rss+xml, application/xml, text/xml","User-Agent":"KosmoevretisGlobalIntelligence/1.0"}});
     if(!response.ok)throw new Error(market+" Google News RSS 请求失败（HTTP "+response.status+"）。");
     const xml=await response.text();
-    const items=[...xml.matchAll(/<item\\b[\\s\\S]*?<\\/item>/gi)].slice(0,40).map(match=>{
-      const block=match[0],sourceTag=block.match(/<source\\b[^>]*url=["']([^"']+)["'][^>]*>/i);
+    const items=[...xml.matchAll(/<item\b[\s\S]*?<\/item>/gi)].slice(0,40).map(match=>{
+      const block=match[0],sourceTag=block.match(/<source\b[^>]*url=["']([^"']+)["'][^>]*>/i);
       return {
         title:readXmlTag(block,"title"),url:readXmlTag(block,"link"),description:readXmlTag(block,"description"),
         published_at:readXmlTag(block,"pubDate"),publisher:readXmlTag(block,"source"),
