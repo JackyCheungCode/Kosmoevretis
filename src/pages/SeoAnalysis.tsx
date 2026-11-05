@@ -112,7 +112,7 @@ export default function SeoAnalysis() {
             <div><strong>{discovered}</strong><span>发现 URL</span></div>
             <div><strong>{audited}</strong><span>已审计页面</span></div>
             <div><strong>{scrapeQueue.length}</strong><span>待采集页面</span></div>
-            <div><strong>{mobileDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Mobile 已完成</span></div><div><strong>{desktopDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Desktop 已完成</span></div>
+            <div><strong>{mobileDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Mobile 已完成</span></div><div><strong>{desktopDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Desktop 已完成</span></div><div><strong>{(meta.page_errors||[]).length}</strong><span>页面采集失败</span></div><div><strong>{speedQueue.length}</strong><span>待检测策略</span></div>
           </div>
         </div>
         {task.status==="running"&&<div className="seo-stage-track">
@@ -162,7 +162,7 @@ export default function SeoAnalysis() {
     <PageSection title="历史诊断任务" description="独立管理当前组织最近 30 次诊断记录；查看历史任务不会覆盖后台其他任务。">
       {!history.length?<EmptyState title="暂无历史诊断" description="完成首次网站诊断后，任务会保存在这里。"/>:
         <div className="seo-analysis-history">{history.map(item=><Tile key={item.id} className={"seo-analysis-history-item "+(task?.id===item.id?"is-selected":"")}>
-          <div className="seo-history-main"><strong>{item.title}</strong><span>任务 ID：{item.id}</span><span>{dateText(item.created_at)} · {item.result_count||0} 个已审计页面 · {elapsedText(item.created_at,item.completed_at)}</span></div>
+          <div className="seo-history-main"><strong>{item.title}</strong><span>任务 ID：{item.id}</span><span>{dateText(item.created_at)} · {item.result_count||0} 个已审计页面 · {item.actor_meta?.pagespeed_results?.length||0} 项 PageSpeed · {elapsedText(item.started_at||item.created_at,item.completed_at)}</span></div>
           <Tag type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag>
           <Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button>
         </Tile>)}</div>}
