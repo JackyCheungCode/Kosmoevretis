@@ -126,7 +126,7 @@ export default function GoogleMapsDiscovery(){
  if(!session)return <form className="gm-login" onSubmit={login}><h2>登录企业工作区</h2><TextInput id="gm-email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)}/><TextInput id="gm-password" labelText="密码" type="password" value={password} onChange={e=>setPassword(e.target.value)}/>{authError&&<InlineNotification kind="error" title="登录失败" subtitle={authError} hideCloseButton/>}<Button type="submit">登录</Button></form>;
  return <section className="google-maps-discovery">
   <PageHeader title="Google Maps 企业发现" description="通过全球地图搜索企业与门店，采集公开商家档案，并将地理位置与企业结果联动展示。" actions={<Tag type="blue">{orgName||"企业工作区"}</Tag>} />
-  <section className="gm-panel gm-config"><div className="gm-section-head"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3><p>使用 Apify Google Maps Scraper，按关键词和地理范围搜索公开商家。</p></div></div>
+  <section className="gm-panel gm-config"><div className="gm-section-head discovery-object-heading"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div><span>全球商家与门店公开信息</span></div>
    <div className="gm-form-grid">
     <div className="gm-field gm-wide"><TextInput id="gm-terms" labelText="搜索关键词（支持多个）" placeholder="例如：electronics distributor, computer accessories wholesaler" value={terms} onChange={e=>setTerms(e.target.value)}/><small>{termsList.length} 个关键词 · 使用逗号或换行分隔</small></div>
     <div className="gm-field"><ComboBox id="gm-country" titleText="国家 / 地区" placeholder="选择国家或地区" items={countries} itemToString={x=>x?.label||""} selectedItem={country} onChange={({selectedItem})=>{const next=selectedItem||null;setCountry(next);if(city&&(!next||cityCountryCode(city)!==next.id))setCity("");}}/></div>
