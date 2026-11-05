@@ -248,7 +248,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     if (mode === "reviews" && inputList.some(value => /^https?:\/\//i.test(value)) && inputList.some(value => !/^https?:\/\//i.test(value))) {
       setError("评论模式请只输入关键词，或只输入商品 URL，不要混合两种输入。"); return;
     }
-    if ((mode === "keyword" || (mode === "reviews" && !inputList.every(value => /^https?:\\/\\//i.test(value)))) && !domain) { setError("请选择目标市场。"); return; }
+    if ((mode === "keyword" || (mode === "reviews" && !inputList.every(value => /^https?:\/\//i.test(value)))) && !domain) { setError("请选择目标市场。"); return; }
     if (!organizationId) { setError("当前账号没有可用的企业工作区。"); return; }
     setLoading(true); setTaskStatus("running"); setActiveTab("overview");
     addLog("已创建电商发现请求。"); addLog("正在校验企业权限与 Apify 连接状态。");
