@@ -119,11 +119,15 @@ async function recordEvent(admin:any,task:any,meta:Record<string,any>,type:strin
  meta.events.push(event);meta.events=meta.events.slice(-500);meta.last_progress_at=event.created_at;
  const {error}=await admin.from("seo_task_events").insert({task_id:task.id,organization_id:task.organization_id,event_type:type,stage:meta.stage,message,details,duration_ms:durationMs??null});
  if(error)throw error;
+ const {error:checkpointError}=await admin.from("market_trend_tasks").update({actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now()}).eq("id",task.id);
+ if(checkpointError)throw checkpointError;
 }
 async function advanceTask(admin:any,task:any){
  const meta={...(task.actor_meta||{})} as Record<string,any>;
  if(meta.worker_lock_until&&new Date(meta.worker_lock_until).getTime()>Date.now())return {skipped:true};
- meta.worker_lock_until=new Date(Date.now()+110000).toISOString();
+ meta.worker_lock_until=new Date(Date.now()+145000).toISOString();
+ const {error:lockError}=await admin.from("market_trend_tasks").update({actor_meta:meta,updated_at:now()}).eq("id",task.id);
+ if(lockError)throw lockError;
  const save=async(status=task.status,extra:Record<string,unknown>={})=>{
   delete meta.worker_lock_until;
   const {error}=await admin.from("market_trend_tasks").update({status,actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now(),...extra}).eq("id",task.id);
