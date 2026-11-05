@@ -124,7 +124,7 @@ export default function SettingsBackend() {
         });
       } else {
         await load();
-        setNotice({ kind: "success", title: definition.name + " 凭证已安全保存", message: "凭证已通过服务端加密保存。该服务商的实时连通性测试接口尚未接入。" });
+        setNotice({ kind: "success", title: definition.name + " 凭证已安全保存", message: providerKey === "context_dev" || providerKey === "google_pagespeed" ? "凭证已通过服务端加密保存；可在本组下方测试实际 API 连通性。" : "凭证已通过服务端加密保存。" });
       }
     } catch (error) {
       setNotice({ kind: "error", title: definition.name + " 配置失败", message: error instanceof Error ? error.message : "请检查凭证和服务配置。" });
