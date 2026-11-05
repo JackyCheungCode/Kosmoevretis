@@ -57,7 +57,7 @@
 ## 5. 自动检查
 
 npm run design-system:check 扫描 src/pages，并显式纳入设置中心根目录页面与样式：
-- 每个新页面必须使用 IntelligencePageTemplate、DataListPageTemplate、ConfigurationPageTemplate 或 AnalysisPageTemplate 之一。
+- 每个新页面必须采用 Carbon 官方组件和页面级布局；现有模板可作为可选业务模式，不得成为阻止 Carbon 原生结构的强制门槛。
 - 禁止浏览器原生 select。
 - 禁止页面 CSS 硬编码 HEX/RGB 颜色。
 - 禁止页面 CSS 覆盖全局元素和 Carbon 内部类。
@@ -67,7 +67,7 @@ npm run design-system:check 扫描 src/pages，并显式纳入设置中心根目
 ## 6. 新页面交付门槛
 
 新页面必须：
-- 使用一个已批准页面模板或说明为何不适用。
+- 优先使用 Carbon 官方 UI Shell、Grid 和组件；可复用已符合 Carbon 的项目模板，不符合时允许先重构模板。
 - 复用共享组件与 Carbon 控件。
 - 覆盖加载、空、错误、成功等适用状态。
 - 通过 TypeScript、生产构建和设计系统检查。
@@ -77,7 +77,7 @@ npm run design-system:check 扫描 src/pages，并显式纳入设置中心根目
 
 ## 7. 设置中心专项约束
 
-- 设置中心使用 `ConfigurationPageTemplate`，页面内容标题通过 `PageSection` 表达；不得再创建平行的页面框架或重复标题工具栏。
+- 设置中心优先采用 Carbon 官方导航、表单和内容布局；现有 `ConfigurationPageTemplate` 可重构，不得为保留旧模板而牺牲 Carbon 结构。
 - 设置分类导航使用真实路由链接（React Router `NavLink`），当前项必须输出 `aria-current="page"`；不得使用按钮模拟页面导航。
 - 桌面和平板使用配置模板的侧栏布局；手机端改为可访问的覆盖式导航，支持 Escape 关闭、遮罩关闭和焦点恢复。
 - 设置中心样式统一放在 `src/settings-center.css`，使用 Carbon/Kosmo tokens；不得覆盖 Carbon 内部类、使用 `!important` 或重复追加响应式补丁。

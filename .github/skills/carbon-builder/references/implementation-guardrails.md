@@ -195,7 +195,7 @@ Before finalizing a Web Components implementation:
 - Keep overlay/floating UI (modals, side panels, tooltips, toasts) out of normal page Grid flow.
 - Breadcrumb current item must use `isCurrentPage` and must not include `href`.
 - Icon-only interactive controls must include descriptive `iconDescription`.
-- **UIShell Header + Content (conditional guidance):** When building a new application that actually adopts Carbon UIShell, account for its fixed Header using the documented `Content` composition. This rule does not apply to Kosmoevretis: preserve its existing AppShell and content offsets; do not add a parallel `Content` wrapper or a second 48px offset.
+- **UIShell Header + Content (conditional guidance):** When building a new application that actually adopts Carbon UIShell, account for its fixed Header using the documented `Content` composition. For Kosmoevretis, use Carbon's `Content` composition with the existing UI Shell and let Carbon own the standard Header offset; remove legacy duplicate offsets rather than preserving them.
 
 ### Layer System
 

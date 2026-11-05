@@ -23,8 +23,9 @@ function inspect(relative, source) {
     if (/\b(?:seo-event-row|seo-detail-list|seo-history-list)\b/.test(source)) violations.push(relative + ": tabular data must not be simulated with page-specific list/grid layouts.");
   }
   if ((relative.startsWith("src/pages/") || relative === "src/Settings.tsx") && /\.(tsx|ts)$/.test(relative) &&
-      !/(Intelligence|DataList|Configuration|Analysis)PageTemplate/.test(source)) {
-    violations.push(relative + ": page must use an approved page template from src/design-system.");
+      !/from\s+["']@carbon\/react["']/.test(source) &&
+      !/from\s+["'][^"']*design-system/.test(source)) {
+    violations.push(relative + ": page must use Carbon React components or an approved shared Carbon design-system primitive.");
   }
   if (relative.endsWith(".css")) {
     if (/(?:^|[;{}])\s*[^:;{}]+\s*:[^;{}]*#[0-9a-f]{3,8}\b/im.test(source)) violations.push(relative + ": hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.");
@@ -54,5 +55,5 @@ if (violations.length) {
   console.error("Design-system guard failed:\n" + violations.map(item => " - " + item).join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("Design-system guard passed: page templates, Carbon controls, token colors, and scoped CSS are enforced for src/pages and Settings.");
+  console.log("Design-system guard passed: Carbon React/shared primitives, Carbon controls, token colors, and scoped CSS are enforced for src/pages and Settings.");
 }
