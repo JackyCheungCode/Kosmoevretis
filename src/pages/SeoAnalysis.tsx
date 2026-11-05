@@ -10,7 +10,7 @@ const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 const markets = [{id:"US",label:"美国"},{id:"GB",label:"英国"},{id:"DE",label:"德国"},{id:"JP",label:"日本"},{id:"GLOBAL",label:"全球"}];
 type Task = {id:string;title:string;status:string;result_count:number;actor_meta?:Record<string,any>;input_snapshot?:Record<string,any>;raw_items?:any[];error_message?:string|null;created_at?:string;updated_at?:string;started_at?:string;completed_at?:string};
 const dateText = (v?:string) => v ? new Date(v).toLocaleString() : "—";
-const statusText = (v?:string) => ({running:"执行中",succeeded:"已完成",partial:"部分完成",failed:"失败",queued:"排队中"} as Record<string,string>)[v||""] || "等待提交";
+const statusText = (v?:string) => ({running:"后台执行中",succeeded:"已完成",partial:"部分完成",failed:"失败",queued:"排队中"} as Record<string,string>)[v||""] || "等待提交";
 const stageText = (v?:string) => ({mapping:"网站结构发现",scraping:"页面采集与 SEO 审计",pagespeed:"PageSpeed 性能检测",completed:"报告生成完成",failed:"执行失败"} as Record<string,string>)[v||""] || "准备任务";
 const scoreText = (v:any) => typeof v === "number" ? v + "/100" : "暂无数据";
 const elapsedText = (start?:string,end?:string) => { if(!start)return "—";const ms=Math.max(0,new Date(end||Date.now()).getTime()-new Date(start).getTime());const sec=Math.floor(ms/1000);return sec<60?sec+" 秒":Math.floor(sec/60)+" 分 "+sec%60+" 秒"; };
@@ -35,13 +35,13 @@ export default function SeoAnalysis() {
     if(data?.error)throw new Error(data.error);
     return data;
   },[]);
-  const loadHistory = useCallback(async () => {const data=await invoke("list_history");setHistory(data.history||[]);},[invoke]);
+  const loadHistory = useCallback(async () => {const data=await invoke("list_history");const items=data.history||[];setHistory(items);return items;},[invoke]);
   const poll = useCallback(async (id:string) => {
     const data=await invoke("poll_task",{task_id:id});
-    if(data.task){setTask(data.task);setLastRefresh(new Date().toISOString());setPollError(null);if(data.task.status!=="running"){setActiveId(null);await loadHistory();}}
+    if(data.task){setTask(data.task);setLastRefresh(new Date().toISOString());setPollError(null);if(!["queued","running"].includes(data.task.status)){setActiveId(null);await loadHistory();}}
   },[invoke,loadHistory]);
 
-  useEffect(()=>{loadHistory().catch(e=>setNotice({kind:"error",title:"读取历史记录失败",message:e.message}));},[loadHistory]);
+  useEffect(()=>{loadHistory().then(async items=>{const active=items.find((item:Task)=>["queued","running"].includes(item.status));if(active){const detail=await invoke("get_history",{task_id:active.id});setTask(detail.task);setActiveId(active.id);}}).catch(e=>setNotice({kind:"error",title:"恢复任务或读取历史失败",message:e.message}));},[loadHistory,invoke]);
   useEffect(()=>{
     if(!activeId)return;
     let stopped=false,inFlight=false;
@@ -55,13 +55,13 @@ export default function SeoAnalysis() {
     setBusy(true);setNotice(null);setPollError(null);
     try{
       const data=await invoke("start",{url:parsed.toString(),market,max_pages:maxPages,pagespeed_limit:pagespeedLimit});
-      setTask({id:data.task_id,title:"独立站诊断："+parsed.hostname,status:"running",result_count:0,created_at:new Date().toISOString(),actor_meta:{stage:"scraping",events:[]}});
-      setActiveId(data.task_id);setNotice({kind:"success",title:"诊断任务已创建",message:"任务已写入后台。页面将持续读取真实任务阶段与执行事件。"});await loadHistory();
+      setTask({id:data.task_id,title:"独立站诊断："+parsed.hostname,status:"queued",result_count:0,created_at:new Date().toISOString(),actor_meta:{stage:"mapping",progress_percent:2,events:[]}});
+      setActiveId(data.task_id);setNotice({kind:"success",title:"诊断任务已进入后台队列",message:"任务由后台调度器独立推进；关闭页面或刷新浏览器不会中断采集。"});await loadHistory();
     }catch(e){setNotice({kind:"error",title:"无法启动诊断",message:e instanceof Error?e.message:"请检查服务凭证与输入参数。"});}
     finally{setBusy(false);}
   };
   const openHistory = async (id:string) => {
-    setBusy(true);try{const data=await invoke("get_history",{task_id:id});setTask(data.task);setActiveId(data.task.status==="running"?id:null);setPollError(null);}
+    setBusy(true);try{const data=await invoke("get_history",{task_id:id});setTask(data.task);setActiveId(["queued","running"].includes(data.task.status)?id:null);setPollError(null);}
     catch(e){setNotice({kind:"error",title:"读取报告失败",message:e instanceof Error?e.message:"请稍后重试。"});}finally{setBusy(false);}
   };
 
@@ -70,7 +70,7 @@ export default function SeoAnalysis() {
   const discovered=Number(meta.discovered_count||meta.map_urls?.length||0),audited=Number(task?.result_count||pages.length||0);
   const speedTotal=Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)*2;
   const stage=meta.stage||"mapping";
-  const progress=task?.status==="succeeded"||task?.status==="partial"?100:stage==="pagespeed"?Math.min(95,Math.round(65+(speedResults.length/Math.max(1,speedTotal))*30)):stage==="scraping"?Math.min(64,Math.round(10+(audited/Math.max(1,Number(task?.input_snapshot?.max_pages||maxPages)))*54)):5;
+  const progress=Number(meta.progress_percent??(task?.status==="succeeded"||task?.status==="partial"?100:task?.status==="failed"?100:2));
   const staleMs=meta.last_progress_at?Date.now()-new Date(meta.last_progress_at).getTime():0;
   const stale=task?.status==="running"&&staleMs>90000;
   const scores=useMemo(()=>[["综合健康度",report?.overall_score],["技术 SEO",report?.scores?.technical_seo],["页面性能",report?.scores?.performance],["内容质量",report?.scores?.content],["结构化数据",report?.scores?.structured_data],["AI 搜索可读性",report?.scores?.ai_search_readability],["搜索 SEO",report?.scores?.search_seo]] as [string,number|null|undefined][],[report]);
@@ -112,7 +112,7 @@ export default function SeoAnalysis() {
             <div><strong>{discovered}</strong><span>发现 URL</span></div>
             <div><strong>{audited}</strong><span>已审计页面</span></div>
             <div><strong>{scrapeQueue.length}</strong><span>待采集页面</span></div>
-            <div><strong>{speedResults.length}/{speedTotal}</strong><span>PageSpeed 检测</span></div>
+            <div><strong>{speedResults.length}/{speedTotal}</strong><span>PageSpeed 检测（Mobile / Desktop）</span></div><div><strong>{(meta.page_errors||[]).length}</strong><span>页面采集失败</span></div>
           </div>
         </div>
         {task.status==="running"&&<div className="seo-stage-track">
@@ -121,7 +121,7 @@ export default function SeoAnalysis() {
         {stale&&<InlineNotification kind="warning" lowContrast title="任务可能停滞" subtitle={"后台已超过 "+Math.floor(staleMs/1000)+" 秒没有新的进展事件。页面正在重新确认任务状态；这不代表任务已经失败。"} hideCloseButton/>}
         {pollError&&<InlineNotification kind="error" lowContrast title="任务状态刷新失败" subtitle={pollError+"。请检查网络后重试刷新。"} hideCloseButton/>}
         {task.error_message&&<InlineNotification kind="warning" lowContrast title="任务存在未完成项" subtitle={task.error_message} hideCloseButton/>}
-        <div className="seo-task-actions"><span>前端最近刷新：{dateText(lastRefresh||undefined)}</span><Button kind="ghost" size="sm" renderIcon={Renew} disabled={busy} onClick={()=>task.status==="running"?poll(task.id):openHistory(task.id)}>刷新任务状态</Button></div>
+        <div className="seo-task-actions"><span>状态读取时间：{dateText(lastRefresh||undefined)}</span><Button kind="ghost" size="sm" renderIcon={Renew} disabled={busy} onClick={()=>task.status==="running"?poll(task.id):openHistory(task.id)}>刷新任务状态</Button></div>
       </div>}
     </PageSection>
 
