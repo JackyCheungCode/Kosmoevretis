@@ -43,7 +43,7 @@ const readXmlTag = (xml:string,tag:string) => { const match=xml.match(new RegExp
 async function collectGoogleNews(keywords:string[],markets:string[]) {
   const targets=markets.slice(0,8);
   const results=await Promise.allSettled(targets.map(async market=>{
-    const locale=newsLocales[market]||{hl:"en-US",gl:market.slice(0,2)||"US",ceid:(market.slice(0,2)||"US")+":en"};
+    const locale=newsLocales[market==="CN-MAINLAND"?"CN":market]||{hl:"en-US",gl:market.slice(0,2)||"US",ceid:(market.slice(0,2)||"US")+":en"};
     const query=keywords.map(term=>'"'+term.replace(/"/g,"")+'"').join(" OR ");
     const params=new URLSearchParams({q:query,hl:locale.hl,gl:locale.gl,ceid:locale.ceid});
     const response=await fetch("https://news.google.com/rss/search?"+params.toString(),{headers:{Accept:"application/rss+xml, application/xml, text/xml","User-Agent":"KosmoevretisGlobalIntelligence/1.0"}});
@@ -282,7 +282,7 @@ Deno.serve(async (req: Request) => {
             }
             if(child.status==="running")throw new Error(market+" 电商采集仍在执行，请稍后查看子任务。");
             if(child.status==="failed")throw new Error(market+" 电商采集失败："+String(child.error_message||"Actor 未返回结果。"));
-            return {market,marketplace:marketDomains[market],task_id:childTaskId,status:child.status||"succeeded",results:(Array.isArray(child.results)?child.results:[]).map((item:any)=>({...item,market_code:market})),actor_meta:child.actor_meta||null};
+            return {market,marketplace:marketDomains[market],task_id:childTaskId,status:child.status||"succeeded",results:(Array.isArray(child.results)?child.results:[]).map((item:any)=>({...item,market_code:market})),actor_meta:child.actor_meta?{run_id:child.actor_meta.run_id||child.actor_meta.actor_run_id||null,dataset_id:child.actor_meta.dataset_id||null,usage_total_usd:child.actor_meta.usage_total_usd??null}:null};
           }));
           const fulfilled=marketRuns.filter((run):run is PromiseFulfilledResult<any>=>run.status==="fulfilled");
           const rejected=marketRuns.filter((run):run is PromiseRejectedResult=>run.status==="rejected").map(run=>run.reason instanceof Error?run.reason.message:"电商市场采集失败。");
@@ -358,16 +358,18 @@ Deno.serve(async (req: Request) => {
         .eq("task_id", taskId).eq("organization_id", organizationId);
       if (rowsError) throw rowsError;
       const sourceRuns = rows || [];
-      const succeeded = sourceRuns.filter(row => row.status === "succeeded" || row.status === "partial");
+      const succeeded = sourceRuns.filter(row => row.status === "succeeded");
+      const partial = sourceRuns.filter(row => row.status === "partial");
       const failed = sourceRuns.filter(row => row.status === "failed" || row.status === "unsupported");
+      const pending = sourceRuns.some(row => row.status === "queued" || row.status === "running");
       const count = sourceRuns.reduce((total, row) => total + Number(row.result_count || 0), 0);
-      const status = succeeded.length && failed.length ? "partial" : succeeded.length ? "succeeded" : "failed";
+      const status = pending ? "running" : succeeded.length && !partial.length && !failed.length ? "succeeded" : succeeded.length || partial.length ? "partial" : "failed";
       const completedAt = new Date().toISOString();
       const { error: updateError } = await admin.from("market_trend_tasks").update({
         status, result_count: count,
         actor_meta: { pipeline_version: "1.0", source_runs: sourceRuns, evidence_count: count },
-        error_message: status === "failed" ? "所有已选数据源均未能返回结果。" : null,
-        completed_at: completedAt, updated_at: completedAt,
+        error_message: status === "failed" ? "所有已选数据源均未能返回结果。" : failed.length ? failed.map(row => row.source_slug + "：" + (row.error_message || "采集失败")).join("；") : null,
+        completed_at: pending ? null : completedAt, updated_at: completedAt,
       }).eq("id", taskId);
       if (updateError) throw updateError;
       return reply({ task_id: taskId, status, result_count: count, sources: sourceRuns });
