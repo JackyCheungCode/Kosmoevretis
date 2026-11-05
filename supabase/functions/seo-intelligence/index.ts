@@ -53,9 +53,12 @@ async function scrape(key:string,url:string){
 }
 function structured(html:string){
  const blocks:any[]=[];for(const m of html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)){try{blocks.push(JSON.parse(m[1].trim()))}catch{blocks.push({_parse_error:true})}}
- const micro=(html.match(/\bitemscope\b/gi)||[]).length,rdfa=(html.match(/\btypeof\s*=/gi)||[]).length,types:string[]=[];
- const walk=(x:any)=>{if(!x||typeof x!=="object")return;const t=x["@type"];if(Array.isArray(t))types.push(...t.map(String));else if(t)types.push(String(t));if(Array.isArray(x))x.forEach(walk);else Object.values(x).forEach(walk)};
- blocks.forEach(walk);return {json_ld_blocks:blocks.length,json_ld_valid:blocks.filter(x=>!x?._parse_error).length,microdata_items:micro,rdfa_items:rdfa,types:[...new Set(types)],json_ld:blocks};
+ const micro=(html.match(/\bitemscope\b/gi)||[]).length,rdfa=(html.match(/\btypeof\s*=/gi)||[]).length,types:string[]=[],nodes:any[]=[];
+ const walk=(x:any)=>{if(!x||typeof x!=="object")return;const t=x["@type"];if(Array.isArray(t)){types.push(...t.map(String));nodes.push(x)}else if(t){types.push(String(t));nodes.push(x)}if(Array.isArray(x))x.forEach(walk);else Object.values(x).forEach(walk)};
+ blocks.forEach(walk);
+ const rules:Record<string,{required:string[],recommended?:string[]}>={Product:{required:["name"],recommended:["image","offers|review|aggregateRating"]},Article:{required:["headline","image","datePublished","author"]},BlogPosting:{required:["headline","image","datePublished","author"]},Organization:{required:["name"],recommended:["url","logo"]},LocalBusiness:{required:["name","address"],recommended:["telephone","openingHours"]},BreadcrumbList:{required:["itemListElement"]},Event:{required:["name","startDate","location"]},Recipe:{required:["name","image","author"]},JobPosting:{required:["title","description","datePosted","hiringOrganization","jobLocation"]},VideoObject:{required:["name","thumbnailUrl","uploadDate"]},FAQPage:{required:["mainEntity"]}};
+ const eligibility=nodes.map(node=>{const type=String(Array.isArray(node["@type"])?node["@type"][0]:node["@type"]),rule=rules[type];if(!rule)return {type,recognized:false,precheck:"该类型未配置专用必填字段规则",missing_required:[],missing_recommended:[]};const has=(field:string)=>field.includes("|")?field.split("|").some(k=>node[k]!==undefined&&node[k]!==null&&node[k]!==""):node[field]!==undefined&&node[field]!==null&&node[field]!=="";return {type,recognized:true,missing_required:rule.required.filter(x=>!has(x)),missing_recommended:(rule.recommended||[]).filter(x=>!has(x)),precheck:rule.required.every(has)?"基础必填字段预检通过":"缺少基础必填字段"}});
+ return {json_ld_blocks:blocks.length,json_ld_valid:blocks.filter(x=>!x?._parse_error).length,microdata_items:micro,rdfa_items:rdfa,types:[...new Set(types)],eligibility_checks:eligibility,json_ld:blocks};
 }
 function audit(p:any){
  const h=p.html||"",md=p.markdown||"",title=(h.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||p.title||"").replace(/<[^>]+>/g,"").trim();
