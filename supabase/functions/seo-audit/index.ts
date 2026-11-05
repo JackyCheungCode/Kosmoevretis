@@ -73,9 +73,31 @@ async function parseTarget(value: unknown) {
   return url.toString().replace(/\/$/, "");
 }
 function splitDataForSeo(value: string) {
-  const i = value.indexOf(":");
-  if (i < 1 || i === value.length - 1) throw new Error("DataForSEO 凭证格式无效，请在设置中分别填写 API Login 和 API Password。");
-  return { login: value.slice(0, i), password: value.slice(i + 1) };
+  const input = value.trim().replace(/^Basic\\s+/i, "");
+  const parsePair = (pair: string) => {
+    const separator = pair.indexOf(":");
+    if (separator < 1 || separator === pair.length - 1) return null;
+    return { login: pair.slice(0, separator), password: pair.slice(separator + 1) };
+  };
+
+  // Backward compatibility for credentials previously stored as login:password.
+  const direct = parsePair(input);
+  if (direct) return direct;
+
+  // DataForSEO's API Access screen supplies Base64(login:password), used as
+  // the single Authorization token in integrations. Base64 is encoding, not encryption.
+  try {
+    const normalized = input.replace(/-/g, "+").replace(/_/g, "/").replace(/\\s+/g, "");
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(normalized)) throw new Error("invalid base64");
+    const decoded = new TextDecoder("utf-8", { fatal: true }).decode(
+      Uint8Array.from(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")), c => c.charCodeAt(0)),
+    );
+    const pair = parsePair(decoded);
+    if (pair) return pair;
+  } catch {
+    // Do not include the supplied credential in errors or logs.
+  }
+  throw new Error("DataForSEO API Key 格式无效。请粘贴 API Access 页面提供的 Base64 凭证（login:password 编码值），或填写 login:password；普通账号密码或其他平台的 ssa_ Token 不能直接用于 DataForSEO Basic Auth。");
 }
 async function dataForSeoRequest(login: string, password: string, path: string, body?: unknown) {
   const headers: Record<string, string> = { Authorization: "Basic " + btoa(login + ":" + password) };
