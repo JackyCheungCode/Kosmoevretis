@@ -112,55 +112,41 @@ export default function SeoAnalysis() {
   return <IntelligencePageTemplate title="独立站智能诊断" description="网站技术 SEO、内容质量、结构化数据与性能诊断工作台。" eyebrow="WEBSITE SEO INTELLIGENCE" sourceConfiguration={config}>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} hideCloseButton/>}
 
-    <section className="seo-console-section" aria-labelledby="seo-task-console-title"><div className="seo-section-heading"><h2 id="seo-task-console-title">诊断任务控制台</h2><p>查看任务属性、当前阶段、执行进度和后台活动。</p></div>
+    <section className="seo-board seo-board--console" aria-labelledby="seo-task-console-title">
+      <header className="seo-board-heading"><div><span className="seo-board-index">01 / TASK OVERVIEW</span><h2 id="seo-task-console-title">诊断任务控制台</h2><p>集中查看任务状态、执行进度与关键采集指标。</p></div>{task&&<Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>}</header>
       {!task?<EmptyState title="尚未选择诊断任务" description="配置网站与分析范围后启动任务；提交后这里会显示任务编号和实时执行情况。"/>:
-      <div className="seo-task-console">
-        <div className="seo-task-title-row">
-          <div className="seo-task-title"><strong>{task.title}</strong><span>任务 ID：{task.id}</span></div>
-          <Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>
-        </div>
-        <div className="seo-task-attributes">
-          <div><span>创建时间</span><strong>{dateText(task.created_at)}</strong></div>
-          <div><span>当前阶段</span><strong>{stageText(stage)}</strong></div>
-          <div><span>任务耗时</span><strong>{elapsedText(task.started_at||task.created_at,task.completed_at)}</strong></div>
-          <div><span>最近进展</span><strong>{dateText(meta.last_progress_at||task.updated_at)}</strong></div>
-        </div>
-        <div className="seo-progress-block"><div className="seo-progress-heading"><strong>执行进度</strong><strong>{progress}%</strong></div><ProgressBar label="诊断任务执行进度" value={progress} max={100} />
-          <div className="seo-task-metrics" aria-label="任务统计指标">
-            <Tile className="seo-metric-card"><span>发现 URL</span><strong>{discovered}</strong></Tile>
-            <Tile className="seo-metric-card"><span>已审计页面</span><strong>{audited}</strong></Tile>
-            <Tile className="seo-metric-card"><span>待采集页面</span><strong>{scrapeQueue.length}</strong></Tile>
-            <Tile className="seo-metric-card"><span>Mobile 成功</span><strong>{mobileDone}/{speedPlanned("mobile")}</strong><small>{mobileFailed} 项失败</small></Tile>
-            <Tile className="seo-metric-card"><span>Desktop 成功</span><strong>{desktopDone}/{speedPlanned("desktop")}</strong><small>{desktopFailed} 项失败</small></Tile>
-            <Tile className="seo-metric-card"><span>页面采集失败</span><strong>{(meta.page_errors||[]).length}</strong></Tile>
-            <Tile className="seo-metric-card"><span>待检测策略</span><strong>{speedQueue.length}</strong></Tile>
-            <Tile className="seo-metric-card"><span>状态读取时间</span><strong className="seo-metric-time">{dateText(lastRefresh||undefined)}</strong></Tile>
+      <div className="seo-console-layout">
+        <div className="seo-console-main">
+          <div className="seo-task-identity"><div className="seo-task-title"><strong>{task.title}</strong><span>任务 ID　{task.id}</span></div><Button kind="tertiary" size="sm" renderIcon={Renew} disabled={busy} onClick={()=>task.status==="running"||task.status==="queued"?poll(task.id):openHistory(task.id)}>刷新状态</Button></div>
+          <div className="seo-progress-panel"><div className="seo-progress-heading"><div><span className="seo-overline">CURRENT PROGRESS</span><strong>执行进度</strong></div><strong className="seo-progress-value">{progress}%</strong></div><ProgressBar label="诊断任务执行进度" value={progress} max={100}/><div className="seo-progress-foot"><span>{stageText(stage)}</span><span>{task.status==="running"?"后台任务正在持续执行":statusText(task.status)}</span></div></div>
+          <div className="seo-metric-grid" aria-label="任务统计指标">
+            <Tile className="seo-metric-card"><span>发现 URL</span><strong>{discovered}</strong><small>网站结构发现</small></Tile>
+            <Tile className="seo-metric-card"><span>已审计页面</span><strong>{audited}</strong><small>已返回审计结果</small></Tile>
+            <Tile className="seo-metric-card"><span>Mobile 检测成功</span><strong>{mobileDone}<i> / {speedPlanned("mobile")}</i></strong><small>{mobileFailed} 项失败</small></Tile>
+            <Tile className="seo-metric-card"><span>Desktop 检测成功</span><strong>{desktopDone}<i> / {speedPlanned("desktop")}</i></strong><small>{desktopFailed} 项失败</small></Tile>
+            <Tile className="seo-metric-card"><span>待采集页面</span><strong>{scrapeQueue.length}</strong><small>等待页面审计</small></Tile>
+            <Tile className="seo-metric-card"><span>页面采集失败</span><strong>{(meta.page_errors||[]).length}</strong><small>以后台返回记录为准</small></Tile>
           </div>
         </div>
-        {task.status==="running"&&<ProgressIndicator currentIndex={Math.max(0,["mapping","scraping","pagespeed","completed"].indexOf(stage))} spaceEqually>
-          <ProgressStep label="网站结构发现" />
-          <ProgressStep label="页面采集与 SEO 审计" />
-          <ProgressStep label="PageSpeed 性能检测" />
-          <ProgressStep label="报告生成完成" />
-        </ProgressIndicator>}
-        {stale&&<InlineNotification kind="warning" lowContrast title="任务可能停滞" subtitle={"后台已超过 "+Math.floor(staleMs/1000)+" 秒没有新的进展事件。页面正在重新确认任务状态；这不代表任务已经失败。"} hideCloseButton/>}
-        {pollError&&<InlineNotification kind="error" lowContrast title="任务状态刷新失败" subtitle={pollError+"。请检查网络后重试刷新。"} hideCloseButton/>}
-        {task.error_message&&<InlineNotification kind="warning" lowContrast title="任务存在未完成项" subtitle={task.error_message} hideCloseButton/>}
-        <div className="seo-task-actions"><span>状态读取时间：{dateText(lastRefresh||undefined)}</span><Button kind="ghost" size="sm" renderIcon={Renew} disabled={busy} onClick={()=>task.status==="running"?poll(task.id):openHistory(task.id)}>刷新任务状态</Button></div>
+        <aside className="seo-console-aside"><div className="seo-aside-heading"><span className="seo-overline">TASK DETAILS</span><strong>任务信息</strong></div><dl className="seo-task-details">
+          <div><dt>创建时间</dt><dd>{dateText(task.created_at)}</dd></div><div><dt>开始时间</dt><dd>{dateText(task.started_at)}</dd></div><div><dt>任务耗时</dt><dd>{elapsedText(task.started_at||task.created_at,task.completed_at)}</dd></div><div><dt>最近进展</dt><dd>{dateText(meta.last_progress_at||task.updated_at)}</dd></div><div><dt>待检测策略</dt><dd>{speedQueue.length}</dd></div><div><dt>状态同步</dt><dd>{dateText(lastRefresh||undefined)}</dd></div>
+        </dl></aside>
+        {task.status==="running"&&<div className="seo-stage-strip"><div className="seo-aside-heading"><span className="seo-overline">PIPELINE</span><strong>诊断阶段</strong></div><ProgressIndicator currentIndex={Math.max(0,["mapping","scraping","pagespeed","completed"].indexOf(stage))} spaceEqually><ProgressStep label="网站结构发现"/><ProgressStep label="页面采集与 SEO 审计"/><ProgressStep label="PageSpeed 性能检测"/><ProgressStep label="报告生成完成"/></ProgressIndicator></div>}
+        {(stale||pollError||task.error_message)&&<div className="seo-console-alerts">{stale&&<InlineNotification kind="warning" lowContrast title="任务可能停滞" subtitle={"后台已超过 "+Math.floor(staleMs/1000)+" 秒没有新的进展事件。这不代表任务已经失败。"} hideCloseButton/>}{pollError&&<InlineNotification kind="error" lowContrast title="任务状态刷新失败" subtitle={pollError+"。请检查网络后重试刷新。"} hideCloseButton/>}{task.error_message&&<InlineNotification kind="warning" lowContrast title="任务存在未完成项" subtitle={task.error_message} hideCloseButton/>}</div>}
       </div>}
     </section>
 
-    <section className="seo-console-section" aria-labelledby="seo-event-title"><div className="seo-section-heading"><h2 id="seo-event-title">执行日志与阶段追踪</h2><p>只展示后台实际写入的事件；每条记录均包含发生时间和执行结果。</p></div>
-      {!task?<EmptyState title="暂无执行日志" description="启动诊断任务后，后台事件会显示在这里。"/>:!events.length?
-        <InlineNotification kind="info" lowContrast title="等待后台事件" subtitle="任务已选中，等待第一次状态同步。" hideCloseButton/>:
-        <CarbonDataTable label="后台执行日志" headers={["执行结果","事件内容","执行阶段","发生时间","详情"]} rows={[...events].reverse().map((event:any)=>[
-          <Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"Success":event.type==="error"?"Failed":event.type==="warning"?"Warning":"Info"}</Tag>,
-          event.message||"—",event.stage?stageText(event.stage):"后台事件",dateText(event.created_at),
-          event.details&&Object.keys(event.details).length>0?<Accordion><AccordionItem title="查看详情"><pre>{JSON.stringify(event.details,null,2)}</pre></AccordionItem></Accordion>:"—"
-        ])}/>}
+    <section className="seo-board seo-board--logs" aria-labelledby="seo-event-title">
+      <header className="seo-board-heading"><div><span className="seo-board-index">02 / EXECUTION LOG</span><h2 id="seo-event-title">执行日志与阶段追踪</h2><p>按事件时间查看后台实际写入的执行记录、阶段变化与异常详情。</p></div><div className="seo-log-count">{events.length}<span>条事件</span></div></header>
+      {!task?<EmptyState title="暂无执行日志" description="启动诊断任务后，后台事件会显示在这里。"/>:!events.length?<InlineNotification kind="info" lowContrast title="等待后台事件" subtitle="任务已选中，等待后台写入第一条执行记录。" hideCloseButton/>:
+      <div className="seo-log-workspace"><div className="seo-log-summary"><div><span>最新事件</span><strong>{dateText([...events].sort((x:any,y:any)=>new Date(y.created_at||0).getTime()-new Date(x.created_at||0).getTime())[0]?.created_at)}</strong></div><div><span>异常事件</span><strong>{events.filter((x:any)=>x.type==="error").length}</strong></div><div><span>警告事件</span><strong>{events.filter((x:any)=>x.type==="warning").length}</strong></div></div>
+        <Tabs type="contained"><TabList aria-label="执行日志筛选"><Tab>全部事件（{events.length}）</Tab><Tab>成功（{events.filter((x:any)=>x.type==="success").length}）</Tab><Tab>警告（{events.filter((x:any)=>x.type==="warning").length}）</Tab><Tab>失败（{events.filter((x:any)=>x.type==="error").length}）</Tab></TabList><TabPanels>
+          {(["all","success","warning","error"] as const).map(filter=>{const list=[...events].filter((event:any)=>filter==="all"||event.type===filter).reverse();return <TabPanel key={filter}><CarbonDataTable label="后台执行日志" headers={["执行结果","事件内容","执行阶段","发生时间","详情"]} rows={list.map((event:any)=>[<Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"成功":event.type==="error"?"失败":event.type==="warning"?"警告":"信息"}</Tag>,event.message||"—",event.stage?stageText(event.stage):"后台事件",dateText(event.created_at),event.details&&Object.keys(event.details).length>0?<Accordion><AccordionItem title="查看详情"><pre>{JSON.stringify(event.details,null,2)}</pre></AccordionItem></Accordion>:"—"])}/></TabPanel>;})}
+        </TabPanels></Tabs>
+      </div>}
     </section>
 
-    <section className="seo-console-section" aria-labelledby="seo-results-title"><div className="seo-section-heading"><h2 id="seo-results-title">诊断结果中心</h2><p>按分析维度查看报告；任务完成或部分完成后显示完整诊断结果。</p></div>
+    <section className="seo-board seo-board--results" aria-labelledby="seo-results-title"><header className="seo-board-heading"><div><span className="seo-board-index">03 / REPORT CENTER</span><h2 id="seo-results-title">诊断结果中心</h2><p>以评分概览和维度化数据表呈现本次诊断结果。</p></div></header>
       {!task?<EmptyState title="暂无诊断结果" description="选择或创建诊断任务后，报告会显示在这里。"/>:!report?
         <EmptyState title={task.status==="running"?"报告正在生成":"本次任务尚未生成报告"} description={task.error_message||"等待页面审计和 PageSpeed 阶段完成。"}/>:
         <div className="seo-report-workspace">
@@ -170,7 +156,7 @@ export default function SeoAnalysis() {
             <Tile className="seo-summary-card"><span>页面审计覆盖</span><strong>{report.discovered_pages??discovered} / {report.audited_pages??audited}</strong><small>{(report.discovered_pages??discovered)>0?Math.round((report.audited_pages??audited)/(report.discovered_pages??discovered)*100)+"% 页面审计覆盖":"暂无页面数据"}</small></Tile>
             <Tile className="seo-summary-card"><span>PageSpeed 有效页面</span><strong>{pagespeedSuccessPages}/{pagespeedPlannedPages}</strong><small>{speedResults.filter((x:any)=>!!x.error).length} 项检测失败</small></Tile>
           </div>
-          <Tabs><TabList aria-label="诊断结果分析维度" contained>
+          <Tabs type="contained"><TabList aria-label="诊断结果分析维度">
             <Tab>综合概览</Tab><Tab>技术 SEO</Tab><Tab>页面内容</Tab><Tab>结构化数据</Tab><Tab>PageSpeed</Tab><Tab>AI 搜索可读性</Tab><Tab>优化建议</Tab><Tab>页面明细</Tab>
           </TabList><TabPanels>
             <TabPanel><div className="seo-score-grid">{scores.map(([label,value])=><Tile key={label} className="seo-score-tile"><span>{label}</span><strong>{scoreText(value)}</strong></Tile>)}</div><InlineNotification kind="info" lowContrast title="评分方法与覆盖范围" subtitle={report.methodology} hideCloseButton/></TabPanel>
@@ -185,7 +171,7 @@ export default function SeoAnalysis() {
         </div>}
     </section>
 
-    <section className="seo-console-section" aria-labelledby="seo-history-title"><div className="seo-section-heading"><h2 id="seo-history-title">历史诊断任务</h2><p>独立管理最近 30 次诊断记录；查看历史任务不会覆盖后台其他任务。</p></div>
+    <section className="seo-board seo-board--history" aria-labelledby="seo-history-title"><header className="seo-board-heading"><div><span className="seo-board-index">04 / TASK HISTORY</span><h2 id="seo-history-title">历史诊断任务</h2><p>回看最近诊断任务，重新打开历史报告，不影响正在运行的后台任务。</p></div><div className="seo-log-count">{history.length}<span>条记录</span></div></header>
       {!history.length?<EmptyState title="暂无历史诊断" description="完成首次网站诊断后，任务会保存在这里。"/>:
         <CarbonDataTable label="历史诊断任务" headers={["诊断目标","任务 ID","任务状态","创建时间","已审计页面","操作"]} rows={history.map(item=>[
           <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>,
