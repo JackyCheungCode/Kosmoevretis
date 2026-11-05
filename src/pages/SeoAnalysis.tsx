@@ -105,7 +105,7 @@ export default function SeoAnalysis() {
       <div className="seo-task-console">
         <div className="seo-task-title-row">
           <div className="seo-task-title"><strong>{task.title}</strong><span>任务 ID：{task.id}</span></div>
-          <Tag className={task.status==="partial"?"seo-status-warning":""} type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>
+          <Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>
         </div>
         <div className="seo-task-attributes">
           <div><span>创建时间</span><strong>{dateText(task.created_at)}</strong></div>
@@ -193,7 +193,7 @@ export default function SeoAnalysis() {
                   <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>
                 </StructuredListCell>
                 <StructuredListCell><span className="seo-history-id">{item.id}</span></StructuredListCell>
-                <StructuredListCell><Tag className={item.status==="partial"?"seo-status-warning":""} type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></StructuredListCell>
+                <StructuredListCell><Tag type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></StructuredListCell>
                 <StructuredListCell><time>{dateText(item.created_at)}</time></StructuredListCell>
                 <StructuredListCell><strong className="seo-history-count">{item.result_count??0}</strong></StructuredListCell>
                 <StructuredListCell><Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button></StructuredListCell>
