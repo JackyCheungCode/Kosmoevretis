@@ -105,7 +105,7 @@ export default function SeoAnalysis() {
       <div className="seo-task-console">
         <div className="seo-task-title-row">
           <div className="seo-task-title"><strong>{task.title}</strong><span>任务 ID：{task.id}</span></div>
-          <Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>
+          <Tag className={task.status==="partial"?"seo-status-warning":""} type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag>
         </div>
         <div className="seo-task-attributes">
           <div><span>创建时间</span><strong>{dateText(task.created_at)}</strong></div>
@@ -180,7 +180,7 @@ export default function SeoAnalysis() {
           {history.map(item=><div key={item.id} className={"seo-history-row "+(task?.id===item.id?"is-selected":"")}>
             <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>
             <span className="seo-history-id">{item.id}</span>
-            <span><Tag type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></span>
+            <span><Tag className={item.status==="partial"?"seo-status-warning":""} type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></span>
             <time>{dateText(item.created_at)}</time>
             <strong className="seo-history-count">{item.result_count??0}</strong>
             <Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button>
