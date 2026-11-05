@@ -6,6 +6,7 @@ export {
   PageHeader,
   PageSection,
   StatusTag,
+  SuccessState,
 } from "./PagePrimitives";
 export type { PageHeaderProps } from "./PagePrimitives";
 

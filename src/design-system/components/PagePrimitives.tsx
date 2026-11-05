@@ -79,6 +79,20 @@ export function LoadingState({ description = "正在加载…" }: { description?
   );
 }
 
+export function SuccessState({ title, description, actionLabel, onAction }: {
+  title: string;
+  description?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="kosmo-success-state">
+      <InlineNotification kind="success" lowContrast title={title} subtitle={description} hideCloseButton />
+      {actionLabel && onAction && <Button kind="ghost" size="sm" onClick={onAction}>{actionLabel}</Button>}
+    </div>
+  );
+}
+
 export function ErrorState({ title = "暂时无法完成操作", description, actionLabel = "重试", onRetry }: {
   title?: string;
   description: string;
