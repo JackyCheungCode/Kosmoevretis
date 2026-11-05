@@ -181,7 +181,8 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
   return (
     <div className="social-platform-workspace-shell">
       <Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu}
-        aria-label="打开电商平台导航" aria-expanded={mobileNavOpen} aria-controls="ecommerce-platform-nav">
+        aria-label="打开电商平台导航" aria-expanded={mobileNavOpen} aria-controls="ecommerce-platform-nav"
+        onClick={() => setMobileNavOpen(open => !open)}>
         其他平台发现
       </Button>
       <div className="social-platform-workspace">
