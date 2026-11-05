@@ -348,6 +348,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
       {error && <InlineNotification kind="error" title="采集未完成" subtitle={error} onCloseButtonClick={() => setError("")} />}
       {notice && <InlineNotification kind="success" title="任务状态" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}
     </section>}
+  >
     <>
     <section className="ec-logs-section">
       <div className="fb-section-head"><div><span className="eyebrow">02 / LIVE ACTIVITY</span><h3>任务日志</h3><p>显示任务提交、Actor 状态与 Dataset 读取阶段。</p></div>
