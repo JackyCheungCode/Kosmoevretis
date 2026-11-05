@@ -146,7 +146,7 @@ export default function SeoAnalysis() {
             </AccordionItem>
           </Accordion>
         </>}
-        {!report&&task.status!=="running"&&<EmptyState title="本次任务没有生成完整报告" description={task.error_message||"请检查服务凭证和第三方任务状态后重试。"} />
+        {!report&&task.status!=="running"&&<EmptyState title="本次任务没有生成完整报告" description={task.error_message||"请检查服务凭证和第三方任务状态后重试。"} />}
       </div>}
     </PageSection>
     <PageSection title="历史诊断记录" description="查看当前组织最近 30 次网站 SEO 诊断。">
