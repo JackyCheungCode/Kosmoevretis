@@ -141,7 +141,7 @@ export default function SeoAnalysis() {
 
     <PageSection title="诊断结果中心" description="按分析维度查看报告；任务完成或部分完成后显示完整诊断结果。">
       {!task?<EmptyState title="暂无诊断结果" description="选择或创建诊断任务后，报告会显示在这里。"/>:!report?
-        <EmptyState title={task.status==="running"?"报告正在生成":"本次任务尚未生成报告"} description={task.error_message||"等待页面审计和 PageSpeed 阶段完成。"/>:
+        <EmptyState title={task.status==="running"?"报告正在生成":"本次任务尚未生成报告"} description={task.error_message||"等待页面审计和 PageSpeed 阶段完成。"}/>:
         <div className="seo-report-workspace">
           <div className="seo-report-summary"><div><span>综合健康度</span><strong>{scoreText(report.overall_score)}</strong></div><div><span>数据覆盖率</span><strong>{report.coverage_percent||0}%</strong></div><div><span>发现 / 审计页面</span><strong>{report.discovered_pages} / {report.audited_pages}</strong></div><div><span>PageSpeed 页面</span><strong>{report.pagespeed_samples}</strong></div></div>
           <Tabs><TabList aria-label="诊断结果分析维度" contained>
