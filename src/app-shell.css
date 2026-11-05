@@ -265,7 +265,7 @@
   border-radius: 50%;
   background: var(--cds-layer-accent-01);
   color: var(--cds-text-primary);
-  font-family: var(--cds-font-family-sans);
+  font-family: inherit;
   font-size: var(--cds-body-compact-01-font-size);
   line-height: var(--cds-body-compact-01-line-height);
   font-weight: 600;
