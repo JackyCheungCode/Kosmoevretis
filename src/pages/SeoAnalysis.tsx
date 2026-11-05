@@ -113,7 +113,7 @@ export default function SeoAnalysis() {
     eyebrow="WEBSITE SEO INTELLIGENCE" sourceConfiguration={config}>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} hideCloseButton/>}
     <PageSection title="SEO 诊断工作区" description="查看网站健康度、页面级证据、PageSpeed 指标与优化建议。">
-      {!task?<EmptyState title="等待提交网站进行诊断" description="先在设置中心保存 DataForSEO API Login / Password 与 Google PageSpeed API Key，然后输入网站网址开始诊断。"/>:
+      {!task?<EmptyState title="等待提交网站进行诊断" description="先在设置中心保存 DataForSEO API Key（Base64 凭证） 与 Google PageSpeed API Key，然后输入网站网址开始诊断。"/>:
       <div className="seo-analysis-results">
         <div className="seo-analysis-task-heading"><div><strong>{task.title}</strong><p>{dateText(task.created_at)} · 已检查 {task.result_count||0} 个页面</p></div>
           <Tag type={task.status==="succeeded"?"green":task.status==="failed"?"red":task.status==="partial"?"warm-gray":"blue"}>{statusText(task.status)}</Tag></div>
