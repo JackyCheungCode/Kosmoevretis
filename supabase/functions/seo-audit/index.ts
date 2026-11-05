@@ -143,8 +143,9 @@ function makeReport(pages: any[], speed: any[], target: string, maxPages: number
     const meta = p.meta || {};
     const title = String(meta.title || "");
     const description = String(meta.description || "");
-    const h1 = Array.isArray(p.h1) ? p.h1.length : Number(p.h1_count || 0);
-    const words = Number(p.content?.plain_text_word_count || p.content?.word_count || p.word_count || 0);
+    const h1Values = p.meta?.htags?.h1 || p.h1 || [];
+    const h1 = Array.isArray(h1Values) ? h1Values.length : Number(p.h1_count || 0);
+    const words = Number(p.content?.plain_text_word_count || p.content?.word_count || p.meta?.content?.plain_text_word_count || p.word_count || 0);
     return (title.length >= 10 && title.length <= 60 ? 1 : 0) +
       (description.length >= 50 && description.length <= 160 ? 1 : 0) +
       (h1 === 1 ? 1 : 0) + (words >= 200 ? 1 : 0);
@@ -163,7 +164,8 @@ function makeReport(pages: any[], speed: any[], target: string, maxPages: number
     if (!meta.title) recommendations.push({ severity: "high", category: "内容", title: "页面缺少 Title", url, evidence: "DataForSEO 页面数据中未返回 meta.title", action: "为页面添加唯一、准确且包含核心主题的 Title。" });
     else if (String(meta.title).length > 60) recommendations.push({ severity: "medium", category: "内容", title: "Title 可能过长", url, evidence: "Title 长度为 " + String(meta.title).length + " 个字符", action: "精简标题并将最重要的主题放在前部。" });
     if (!meta.description) recommendations.push({ severity: "medium", category: "内容", title: "页面缺少 Meta Description", url, evidence: "DataForSEO 页面数据中未返回 meta.description", action: "编写页面专属摘要，准确概括内容与价值。" });
-    const h1 = Array.isArray(p.h1) ? p.h1.length : Number(p.h1_count || 0);
+    const h1Values = p.meta?.htags?.h1 || p.h1 || [];
+    const h1 = Array.isArray(h1Values) ? h1Values.length : Number(p.h1_count || 0);
     if (h1 !== 1) recommendations.push({ severity: "medium", category: "内容", title: "H1 标题数量异常", url, evidence: "检测到 H1 数量：" + h1, action: "确保页面有一个清晰、描述主题的主 H1。" });
     const code = Number(p.status_code || p.status_code_http || 0);
     if (code >= 400) recommendations.push({ severity: "high", category: "技术 SEO", title: "页面返回 HTTP 错误", url, evidence: "HTTP 状态码 " + code, action: "检查页面路由、服务器响应和内部链接，修复错误页面。" });
