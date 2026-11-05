@@ -6,11 +6,39 @@ const explicitFiles = [
   ["src/Settings.tsx", new URL("../src/Settings.tsx", import.meta.url)],
   ["src/SettingsBackend.tsx", new URL("../src/SettingsBackend.tsx", import.meta.url)],
   ["src/settings-center.css", new URL("../src/settings-center.css", import.meta.url)],
+  ["src/App.tsx", new URL("../src/App.tsx", import.meta.url)],
+  ["src/app-shell.css", new URL("../src/app-shell.css", import.meta.url)],
+  ["src/design-tokens.scss", new URL("../src/design-tokens.scss", import.meta.url)],
 ];
-const allowedExtensions = new Set([".tsx", ".ts", ".css"]);
+const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
+  if (relative === "src/App.tsx") {
+    for (const component of ["Header", "SideNav", "Content", "Grid", "Column"]) {
+      if (!new RegExp("\\b" + component + "\\b").test(source)) {
+        violations.push(relative + ": Carbon UI Shell foundation must include " + component + ".");
+      }
+    }
+    if (!/<Content\\b[^>]*className=/.test(source) ||
+        !/<Grid\\b[^>]*fullWidth/.test(source) ||
+        !/<Column\\b[^>]*sm=\\{4\\}[^>]*md=\\{8\\}[^>]*lg=\\{16\\}/.test(source)) {
+      violations.push(relative + ": page content must use Carbon Content > full-width Grid > responsive 2x Grid Column.");
+    }
+  }
+  if (relative === "src/app-shell.css") {
+    if (/\\bbox-shadow\\s*:/i.test(source)) violations.push(relative + ": AppShell must use Carbon layer and border tokens, not shadows.");
+    if (/--kosmo-space-\\d+/.test(source)) violations.push(relative + ": AppShell must use canonical --kosmo-spacing-* Carbon aliases, not legacy spacing aliases.");
+    if (!/\.kosmo-main\\.cds--content\\s*\\{[^}]*margin-top:\\s*var\\(--kosmo-shell-header-height\\)/s.test(source)) {
+      violations.push(relative + ": Carbon Content must own the single Header offset.");
+    }
+  }
+  if (relative === "src/design-tokens.scss") {
+    if (!/@use ["']@carbon\\/react\\/scss\\/spacing["']/.test(source) || !/carbon-spacing\\.\\$spacing-12/.test(source)) {
+      violations.push(relative + ": spacing aliases must be sourced from official Carbon v11 Sass spacing tokens.");
+    }
+    if (/:focus-visible\\s*\\{/.test(source)) violations.push(relative + ": do not globally override Carbon component focus treatments.");
+  }
   if (/<select\b/i.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.");
   if (relative === "src/pages/SeoAnalysis.tsx") {
     if (!/\bProgressIndicator\b/.test(source) || !/\bProgressStep\b/.test(source)) violations.push(relative + ": execution stages must use Carbon ProgressIndicator / ProgressStep.");
@@ -55,5 +83,5 @@ if (violations.length) {
   console.error("Design-system guard failed:\n" + violations.map(item => " - " + item).join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("Design-system guard passed: Carbon React/shared primitives, Carbon controls, token colors, and scoped CSS are enforced for src/pages and Settings.");
+  console.log("Design-system guard passed: Carbon AppShell, Content/Grid composition, Carbon spacing tokens, Carbon React controls, token colors, and scoped CSS are enforced.");
 }
