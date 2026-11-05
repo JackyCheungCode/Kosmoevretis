@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type CSSProperties } from "react";
 import {
   Button, Checkbox, InlineNotification, NumberInput, Search, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, TextArea, TextInput
 } from "@carbon/react";
@@ -507,6 +507,71 @@ export default function ProductCenter() {
     finally{setBusy(false);}
   };
 
+  const generateVariantCombinations = async () => {
+    if(!selected||!org)return;
+    const axes=productAttributes.filter(attribute=>attribute.variant_creation_mode!=="never");
+    if(!axes.length){setNotice({kind:"info",text:"请先启用至少一个变体轴。"});return;}
+    const missing=axes.find(attribute=>!(attribute.product_attribute_values||[]).length);
+    if(missing){setNotice({kind:"error",text:"属性「"+missing.name+"」尚未配置可选值。"});return;}
+    let combinations:Record<string,string>[]=[{}];
+    for(const axis of axes){
+      const next:Record<string,string>[]=[];
+      for(const current of combinations){
+        for(const value of axis.product_attribute_values||[]){
+          next.push({...current,[axis.id]:value.id});
+        }
+      }
+      combinations=next;
+    }
+    const existingSignatures=new Set<string>();
+    for(const variant of variants){
+      const links=variantAttributeValues.filter(link=>link.variant_id===variant.id);
+      const signature=axes.map(axis=>{
+        const link=links.find(item=>item.attribute_id===axis.id);
+        return axis.id+":"+(link?.attribute_value_id||"");
+      }).join("|");
+      if(links.length===axes.length)existingSignatures.add(signature);
+    }
+    const pending=combinations.filter(combo=>{
+      const signature=axes.map(axis=>axis.id+":"+combo[axis.id]).join("|");
+      return !existingSignatures.has(signature);
+    });
+    if(!pending.length){setNotice({kind:"info",text:"所有规格组合均已存在，无需重复生成。"});return;}
+    setBusy(true);setNotice(null);
+    try{
+      const rows=pending.map(combo=>{
+        const title=axes.map(axis=>{
+          const value=(axis.product_attribute_values||[]).find(item=>item.id===combo[axis.id]);
+          return axis.name+":"+(value?.value_text||"");
+        }).join(" / ");
+        return {organization_id:org,product_id:selected.id,title,sku:null,model:null,barcode:null,price:null,currency:"USD",cost:null};
+      });
+      const {data:created,error:createError}=await supabase.from("product_variants").insert(rows).select("*");
+      if(createError)throw createError;
+      const links=(created||[]).flatMap((variant,index)=>axes.map(axis=>({
+        organization_id:org,product_id:selected.id,variant_id:variant.id,
+        attribute_id:axis.id,attribute_value_id:pending[index][axis.id]
+      })));
+      const {error:linkError}=await supabase.from("product_variant_values").insert(links);
+      if(linkError){
+        const ids=(created||[]).map(item=>item.id);
+        const {error:rollbackError}=await supabase.from("product_variants").delete().in("id",ids).eq("organization_id",org);
+        throw new Error(rollbackError
+          ?"规格组合关联失败，自动回滚也未完成："+linkError.message+"；"+rollbackError.message
+          :"规格组合关联失败，已撤销本次生成："+linkError.message);
+      }
+      const [variantResult,linkResult]=await Promise.all([
+        supabase.from("product_variants").select("*").eq("product_id",selected.id).eq("organization_id",org).order("created_at"),
+        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",selected.id).eq("organization_id",org)
+      ]);
+      if(variantResult.error)throw variantResult.error;if(linkResult.error)throw linkResult.error;
+      setVariants((variantResult.data||[]) as Variant[]);
+      setVariantAttributeValues((linkResult.data||[]) as VariantAttributeValue[]);
+      setNotice({kind:"success",text:"已生成 "+pending.length+" 个缺失规格组合。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
+  };
+
   const editVariant = (variant:Variant) => {
     setEditingVariantId(variant.id);
     setVariantForm({title:variant.title||"",sku:variant.sku||"",model:variant.model||"",barcode:variant.barcode||"",
@@ -609,7 +674,7 @@ export default function ProductCenter() {
           </form>:selected?<div className="pc-detail">
             <div className="pc-panel-heading"><div><button className="pc-back" onClick={()=>setSelected(null)}>← 返回产品目录</button><h3>{selected.name}</h3><p>{selected.brand||"未设置品牌"} · {selected.model||"未设置型号"} · {(selected.category_path||categoryPathFor(selected.category_id)).join(" / ")||"未分类"}</p></div><div className="pc-heading-actions"><Tag type={selected.status==="archived"?"gray":"blue"}>{selected.status==="archived"?"已归档":"模板 v"+(selected.version||1)}</Tag><Button kind="secondary" onClick={()=>startEdit(selected)}>编辑模板</Button>{selected.status==="archived"?<Button kind="primary" disabled={busy} onClick={restoreProduct}>恢复产品</Button>:<Button kind="danger" disabled={busy} onClick={archiveProduct}>归档产品</Button>}</div></div>
             <div className="pc-product-facts"><div><span>内部参考</span><strong>{selected.internal_reference||"—"}</strong></div><div><span>主 SKU</span><strong>{selected.sku||"由变体定义"}</strong></div><div><span>销售价格</span><strong>{money(selected.sales_price,selected.sales_currency)}</strong></div><div><span>生命周期</span><strong>{selected.lifecycle_stage}</strong></div></div>
-            <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品变体 / Product Variants</h4><p>变体是可销售的实际规格组合，每个变体拥有独立 SKU、条码和商业价格。</p></div><Tag>{variants.length} 个变体</Tag></div>
+            <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品变体 / Product Variants</h4><p>变体是可销售的实际规格组合，每个变体拥有独立 SKU、条码和商业价格。</p></div><div className="pc-variant-actions"><Tag>{variants.length} 个变体</Tag><Button kind="secondary" size="sm" disabled={busy||!productAttributes.some(a=>a.variant_creation_mode!=="never")} onClick={generateVariantCombinations}>生成全部规格组合</Button></div></div>
               {productAttributes.some(a=>a.variant_creation_mode!=="never")&&<div className="pc-axis-selector"><div><strong>变体属性组合</strong><span>每个启用的变体轴都需要选择一个规格值；所选值会与新 SKU 一起保存。</span></div><div className="pc-axis-grid">{productAttributes.filter(a=>a.variant_creation_mode!=="never").map(a=><FormField className="pc-field" key={a.id} label={`${a.name}${a.unit?`（${a.unit}）`:""}`} htmlFor={`pc-axis-${a.id}`}><CarbonSelect id={`pc-axis-${a.id}`} value={variantAxisSelection[a.id]||""} onChange={v=>setVariantAxisSelection(prev=>({...prev,[a.id]:v}))} placeholder="选择属性值">{(a.product_attribute_values||[]).map(v=><option key={v.id} value={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</option>)}</CarbonSelect></FormField>)}</div></div>}
               <form className="pc-variant-form" onSubmit={createVariant}>
                 <TextInput id="pc-v-title" labelText="变体名称 / 规格组合" value={variantForm.title} onChange={e=>setVariantForm(p=>({...p,title:e.target.value}))}/>
@@ -639,7 +704,7 @@ export default function ProductCenter() {
                 <TextInput id="pc-cat-description" labelText="分类说明" value={categoryForm.description} onChange={e=>setCategoryForm(p=>({...p,description:e.target.value}))}/>
                 <Button type="submit" disabled={busy}>{busy?"保存中…":editingCategoryId?"保存分类":"创建分类"}</Button>{editingCategoryId&&<Button kind="ghost" type="button" onClick={()=>{setEditingCategoryId("");setCategoryForm({name:"",code:"",parent_id:"",description:""});}}>取消编辑</Button>}
               </form>
-              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+Math.max(0,categories.filter(x=>x.id===c.parent_id).length)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>editCategory(c)}>编辑</Button><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategoryId(c.id);const links=categoryTemplates.filter(x=>x.category_id===c.id);setSelectedDefinitionIds(links.map(x=>x.definition_id));setSelectedRequiredIds(links.filter(x=>x.is_required).map(x=>x.definition_id));}}>配置属性</Button><Button kind="ghost" size="sm" onClick={()=>deleteCategory(c)} disabled={busy}>{confirmCategoryDeleteId===c.id?"再次点击确认删除":"删除"}</Button></div>)}</div>
+              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{"--pc-category-indent":(12+categoryDepth(c.id)*18)+"px"} as CSSProperties}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>editCategory(c)}>编辑</Button><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategoryId(c.id);const links=categoryTemplates.filter(x=>x.category_id===c.id);setSelectedDefinitionIds(links.map(x=>x.definition_id));setSelectedRequiredIds(links.filter(x=>x.is_required).map(x=>x.definition_id));}}>配置属性</Button><Button kind="ghost" size="sm" onClick={()=>deleteCategory(c)} disabled={busy}>{confirmCategoryDeleteId===c.id?"再次点击确认删除":"删除"}</Button></div>)}</div>
             </section>
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>分类属性模板</h3><p>为所选分类指定默认属性。创建该分类产品时自动初始化。</p></div></div>
               {selectedCategoryRecord?<form onSubmit={saveCategoryAttributes}><div className="pc-selected-category">{selectedCategoryRecord.name}</div><div className="pc-check-list">{definitions.map(d=><div className="pc-template-definition" key={d.id}><Checkbox id={`pc-cat-def-${d.id}`} labelText={d.name} checked={selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>{setSelectedDefinitionIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id));if(!data.checked)setSelectedRequiredIds(prev=>prev.filter(x=>x!==d.id));}}/><Checkbox id={`pc-cat-required-${d.id}`} labelText="必填" checked={selectedRequiredIds.includes(d.id)} disabled={!selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>setSelectedRequiredIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id))}/></div>)}</div><Button type="submit" disabled={busy}>保存分类属性模板</Button></form>:<div className="pc-empty-inline">从左侧分类列表选择「配置属性」。</div>}
