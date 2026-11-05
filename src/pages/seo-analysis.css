@@ -311,7 +311,7 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.seo-muted { color: var(--cds-text-secondary); font-size: .8125rem; line-height: 1.5; }
+.seo-muted { color: var(--cds-text-secondary); line-height: 1.5; }
 .seo-table-scroll {
   width: 100%;
   max-width: 100%;
@@ -352,5 +352,5 @@
 @media (max-width: 420px) {
   .seo-metric-grid,.seo-report-summary,.seo-score-grid { grid-template-columns: minmax(0, 1fr); }
   .seo-metric-card,.seo-summary-card { min-height: 6rem; }
-  .seo-board-heading h2 { font-size: 1.125rem; }
+  .seo-board-heading h2 { }
 }
