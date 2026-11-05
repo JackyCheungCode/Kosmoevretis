@@ -73,7 +73,7 @@ async function parseTarget(value: unknown) {
   return url.toString().replace(/\/$/, "");
 }
 function splitDataForSeo(value: string) {
-  const input = value.trim().replace(/^Basic\\s+/i, "");
+  const input = value.trim().replace(/^Basic\s+/i, "");
   const parsePair = (pair: string) => {
     const separator = pair.indexOf(":");
     if (separator < 1 || separator === pair.length - 1) return null;
@@ -87,7 +87,7 @@ function splitDataForSeo(value: string) {
   // DataForSEO's API Access screen supplies Base64(login:password), used as
   // the single Authorization token in integrations. Base64 is encoding, not encryption.
   try {
-    const normalized = input.replace(/-/g, "+").replace(/_/g, "/").replace(/\\s+/g, "");
+    const normalized = input.replace(/-/g, "+").replace(/_/g, "/").replace(/\s+/g, "");
     if (!/^[A-Za-z0-9+/]+={0,2}$/.test(normalized)) throw new Error("invalid base64");
     const decoded = new TextDecoder("utf-8", { fatal: true }).decode(
       Uint8Array.from(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")), c => c.charCodeAt(0)),
