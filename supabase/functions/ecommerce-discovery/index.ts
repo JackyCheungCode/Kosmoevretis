@@ -12,6 +12,7 @@ const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body)
 const ACTOR_ID = "apify/e-commerce-scraping-tool";
 const PLATFORMS = ["amazon", "walmart", "ebay", "aliexpress", "temu", "etsy", "shopify", "mercado-libre", "rakuten"];
 const MODES = ["keyword", "details", "listing", "reviews", "sellers"];
+const KEYWORD_PLATFORMS = ["amazon", "walmart", "ebay", "mercado-libre"];
 
 async function decrypt(ciphertext: string, iv: string) {
   const secret = Deno.env.get("SETTINGS_ENCRYPTION_KEY");
