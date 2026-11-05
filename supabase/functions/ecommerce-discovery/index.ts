@@ -32,7 +32,7 @@ const isHttpUrl = (value: string) => {
 };
 async function readDataset(datasetId: string, token: string, limit: number) {
   const url = "https://api.apify.com/v2/datasets/" + encodeURIComponent(datasetId)
-    + "/items?format=json&clean=true&offset=0&limit=" + encodeURIComponent(String(limit));
+    + "/items?format=json&offset=0&limit=" + encodeURIComponent(String(limit));
   const response = await fetch(url, { headers: { Authorization: "Bearer " + token } });
   if (!response.ok) throw new Error("读取 Apify Dataset 失败（HTTP " + response.status + "）。");
   const items = await response.json();
