@@ -318,9 +318,9 @@ Deno.serve(async (req: Request) => {
       if (insertError) throw insertError;
       try {
         const submitted = await dataForSeoRequest(credentials.login, credentials.password, "/v3/on_page/task_post", [{
-          target: new URL(target).hostname, max_crawl_pages: maxPages,
-          start_url: target, max_depth: 10, load_resources: true, enable_javascript: false,
-          custom_js: null, store_raw_html: false, enable_browser_rendering: false,
+          target: new URL(target).hostname.replace(/^www\\./i, ""), max_crawl_pages: maxPages,
+          start_url: target, max_crawl_depth: 10, load_resources: true, enable_javascript: false,
+          store_raw_html: false, enable_browser_rendering: false,
         }]);
         const taskInfo = submitted?.tasks?.[0];
         const providerId = taskInfo?.id;
