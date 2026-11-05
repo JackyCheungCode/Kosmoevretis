@@ -167,7 +167,7 @@ Deno.serve(async (req: Request) => {
         input_snapshot: {
           platform, mode, input_values: values, marketplace: body.marketplace || null,
           max_results: Math.min(500, Math.max(1, Number(body.max_results) || 50)),
-          country_code: body.country_code || null, actor_id: ACTOR_ID, actor_input: actorInput,
+          actor_id: ACTOR_ID, actor_input: actorInput,
         },
         actor_meta: { actor_id: ACTOR_ID, actor_status: "starting" },
         started_at: startedAt,
