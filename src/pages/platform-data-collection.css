@@ -39,3 +39,23 @@
 .pdc-tab-count{display:inline-flex;min-width:1.25rem;justify-content:center;margin-left:var(--kosmo-space-1);color:var(--cds-text-secondary);font-size:var(--cds-helper-text-01-font-size)}
 .pdc-result-tab-content{padding-top:var(--kosmo-space-4)}
 @media(max-width:671px){.pdc-activity,.pdc-history-section{padding:var(--kosmo-space-3)}.pdc-history-toolbar{grid-template-columns:minmax(0,1fr)}.pdc-section-head,.pdc-result-heading{flex-direction:column}.pdc-history-row{align-items:flex-start}.pdc-history-meta{align-items:flex-end;flex-direction:column;gap:var(--kosmo-space-1)}}
+
+
+/* Unslop refinement: keep raw actor fields intact while containing overflow. */
+.pdc-activity,.pdc-history-section,.pdc-result-tab-content,.pdc-raw{min-width:0;max-width:100%}
+.pdc-log-console{max-width:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.pdc-log-line{min-width:0;align-items:start;overflow-wrap:anywhere;word-break:break-word}
+.pdc-log-line time{flex:0 0 5rem;white-space:nowrap}
+.pdc-table-wrap{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.pdc-table-wrap .cds--data-table{width:max-content;min-width:680px}
+.pdc-table-wrap .cds--table-header-label{white-space:nowrap}
+.pdc-result-tab-content .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.pdc-result-tab-content .cds--tab{flex:0 0 auto;white-space:nowrap}
+@media(max-width:671px){
+ .pdc-log-line{gap:var(--kosmo-space-2)}
+ .pdc-log-line time{flex-basis:3.7rem}
+ .pdc-history-meta{max-width:40%;align-items:flex-end;overflow-wrap:anywhere}
+ .pdc-table-wrap .cds--data-table{min-width:620px}
+ .pdc-result-tab-content .cds--tab-list{scroll-snap-type:x proximity}
+ .pdc-result-tab-content .cds--tab{scroll-snap-align:start}
+}
