@@ -173,6 +173,12 @@ function AppShell() {
 
   if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
 
+  const legacySocialPlatform: SocialPlatform | null =
+    path === "/leads/facebook" ? "facebook" :
+    path === "/leads/instagram" ? "instagram" :
+    path === "/leads/linkedin" ? "linkedin" :
+    path === "/leads/google-maps" ? "google-maps" :
+    path.startsWith("/platform-data/") ? (path.split("/")[2] as SocialPlatform) : null;
   const currentLabel = path.startsWith("/platform-data/") ? "平台数据采集"
     : path === "/products" ? "产品中心"
     : path === "/trade-access" ? "贸易与市场准入"
@@ -343,7 +349,7 @@ function AppShell() {
         
         
         
-        {(path === "/social-discovery" || path.startsWith("/social-discovery/")) && <SocialPlatformWorkspace platform={(path.split("/")[2] || "facebook") as SocialPlatform} />}
+        {(path === "/social-discovery" || path.startsWith("/social-discovery/") || legacySocialPlatform !== null) && <SocialPlatformWorkspace platform={(path.startsWith("/social-discovery/") ? path.split("/")[2] : legacySocialPlatform || "facebook") as SocialPlatform} />}
         {isSettings && <SettingsPage />}
       </main>
     </div>
