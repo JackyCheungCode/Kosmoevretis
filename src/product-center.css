@@ -204,3 +204,7 @@
 .pc-table th:last-child,.pc-table td:last-child{white-space:nowrap}
 .pc-variant-form .cds--btn{align-self:end}
 @media(max-width:671px){.pc-variant-form .cds--btn{width:100%}}
+
+.pc-product-attribute .pc-definition-values{display:flex;flex-wrap:wrap;gap:var(--kosmo-spacing-02,0.5rem)}
+.pc-product-attribute .pc-definition-value{background:var(--cds-layer-02)}
+.pc-product-attribute .pc-definition-value button{min-width:1.25rem}
