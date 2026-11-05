@@ -29,6 +29,7 @@ import {
   Logout,
   DataBase,
   ShoppingCart,
+  Search as SearchIcon,
   Menu,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -41,6 +42,7 @@ import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
 import PlatformDataCollection from "./pages/PlatformDataCollection";
 import EcommerceDiscovery, { type EcommercePlatform } from "./pages/EcommerceDiscovery";
+import SeoAnalysis from "./pages/SeoAnalysis";
 import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
@@ -59,7 +61,7 @@ const validPaths = new Set([
   "/ecommerce-discovery", "/ecommerce-discovery/amazon", "/ecommerce-discovery/walmart", "/ecommerce-discovery/ebay",
   "/ecommerce-discovery/aliexpress", "/ecommerce-discovery/temu", "/ecommerce-discovery/etsy",
   "/ecommerce-discovery/shopify", "/ecommerce-discovery/mercado-libre", "/ecommerce-discovery/rakuten",
-  "/products", "/settings/providers", "/settings/actors", "/settings/channels", "/settings/runs",
+  "/products", "/seo-analysis", "/settings/providers", "/settings/actors", "/settings/channels", "/settings/runs",
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
   "/settings/governance", "/settings/audit", "/settings/design-system",
@@ -239,7 +241,7 @@ function AppShell() {
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
-  const isTemplatePage = path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
+  const isTemplatePage = path === "/seo-analysis" || path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -311,6 +313,7 @@ function AppShell() {
     path.startsWith("/platform-data/") ? (path.split("/")[2] as SocialPlatform) : null;
   const currentLabel = path.startsWith("/platform-data/") ? "平台数据采集"
     : path === "/products" ? "产品中心"
+    : path === "/seo-analysis" ? "独立站Seo分析"
     : path === "/trade-access" ? "贸易与市场准入"
     : path.startsWith("/leads/") ? "潜在客户"
     : isSettings ? "设置中心"
@@ -328,6 +331,7 @@ function AppShell() {
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
     { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
+    { id: "seo-analysis", label: "独立站Seo分析", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
@@ -443,6 +447,9 @@ function AppShell() {
                 {renderMenuItem(navItems[3])}
                 {renderMenuItem(navItems[4])}
               </SideNavMenu>
+              <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
+                {renderMenuItem(navItems[5])}
+              </SideNavMenu>
               <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
                 {renderMenuItem(navItems[5])}
               </SideNavMenu>
@@ -472,6 +479,7 @@ function AppShell() {
         {path === "/intelligence" && <GlobalIntelligence />}
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
+        {path === "/seo-analysis" && <SeoAnalysis />}
         
         
         
