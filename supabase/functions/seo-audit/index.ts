@@ -242,6 +242,12 @@ Deno.serve(async (req: Request) => {
       const response = await dataForSeoRequest(credentials.login, credentials.password, "/v3/on_page/task_get/advanced/" + encodeURIComponent(providerTaskId));
       const providerTask = response?.tasks?.[0];
       const providerResult = providerTask?.result?.[0];
+      const providerCode = Number(providerTask?.status_code || 0);
+      if (providerCode >= 40000 && providerCode !== 40601) {
+        const message = "DataForSEO 爬取失败：" + String(providerTask?.status_message || providerTask?.status_code || "未知错误");
+        await admin.from("market_trend_tasks").update({ status: "failed", error_message: message, completed_at: now(), updated_at: now() }).eq("id", task.id);
+        return reply({ task: { ...task, status: "failed", error_message: message } });
+      }
       if (!providerResult || !Array.isArray(providerResult.items)) {
         return reply({ task, progress: providerTask?.data?.crawl_progress || providerTask?.status_message || "DataForSEO 正在抓取网站" });
       }
