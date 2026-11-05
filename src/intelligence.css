@@ -390,24 +390,49 @@
 @media(max-width:671px){.gi-source-run-list{grid-template-columns:minmax(0,1fr)}.gi-live-evidence-row,.gi-product-evidence-row{grid-template-columns:minmax(0,1fr)}.gi-product-evidence-row{gap:var(--cds-spacing-02)}}
 
 
-/* Carbon v11 page composition and responsive business layout. */
-.gi-page-grid{min-width:0}
-.global-intelligence{display:grid;gap:var(--cds-spacing-07);min-width:0}
-.global-intelligence>section{min-width:0}
+
+
+/* Global intelligence page — one configuration workspace and one result workspace. */
+.gi-setup{
+ display:grid;
+ gap:0;
+ min-width:0;
+ background:var(--cds-layer-01);
+}
+.gi-setup>.analysis-source,
+.gi-setup>.market-section,
+.gi-setup>.gi-source-section{
+ min-width:0;
+ margin:0;
+ padding:var(--cds-spacing-06);
+ background:transparent;
+}
+.gi-setup>.analysis-source,
+.gi-setup>.market-section{
+ border-bottom:1px solid var(--cds-border-subtle);
+}
+.gi-setup>.gi-source-section{margin-top:0}
+.gi-setup>.gi-source-section .gi-section-head{align-items:flex-start}
 .gi-source-card{cursor:default}
 .gi-source-card:focus-within{outline:2px solid var(--cds-focus);outline-offset:2px}
-.gi-source-card.unavailable{opacity:.58}
-.gi-source-card .gi-source-name{flex:1}
-.gi-source-card .gi-status{margin-inline-start:auto}
 .gi-channel-filter{display:flex;gap:var(--cds-spacing-02);flex-wrap:wrap}
-.gi-source-actions-left{display:flex;align-items:center;gap:var(--cds-spacing-03);flex-wrap:wrap}
 .market-option{display:flex;align-items:center;min-width:0;padding:var(--cds-spacing-02) var(--cds-spacing-03);background:var(--cds-layer-01)}
 .market-option.selected{background:var(--cds-layer-selected-01)}
 .language-chip{display:inline-flex;align-items:center;gap:var(--cds-spacing-02)}
-.gi-map-retry{margin-top:var(--cds-spacing-03)}
+.gi-ai-section{margin-top:0}
 @media(max-width:671px){
  .global-intelligence{gap:var(--cds-spacing-05)}
- .gi-source-actions{align-items:flex-start;flex-direction:column}
- .gi-source-toolbar{align-items:stretch}
- .market-option{padding-inline:var(--cds-spacing-02)}
+ .gi-setup>.analysis-source,.gi-setup>.market-section,.gi-setup>.gi-source-section{padding:var(--cds-spacing-04)}
+ .gi-setup>.analysis-source .analysis-source-heading,.gi-setup>.market-section .analysis-source-heading,.gi-setup>.gi-source-section .gi-section-head{flex-direction:column;gap:var(--cds-spacing-02);margin-bottom:var(--cds-spacing-04)}
+ .gi-setup .source-grid{grid-template-columns:minmax(0,1fr)}
+ .gi-setup .source-options{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--cds-spacing-03)}
+ .gi-setup .source-options>.field-label,.gi-setup .source-option-foot{grid-column:auto}
+ .gi-setup .translation-head{align-items:flex-start;flex-direction:row}
+ .gi-setup .translation-head button,.gi-setup .add-language-row button{width:auto;flex:none;white-space:nowrap}
+ .gi-setup .add-language-row{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+ .gi-setup .market-layout{grid-template-columns:minmax(0,1fr)}
+ .gi-setup .market-picker{height:22rem;min-height:22rem}
+ .gi-setup .market-map-panel{height:22rem;min-height:22rem}
+ .gi-setup .market-map-panel .world-map{height:19rem}
+ .gi-ai-model-grid,.gi-ai-layout{grid-template-columns:minmax(0,1fr)}
 }
