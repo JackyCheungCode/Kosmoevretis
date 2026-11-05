@@ -2,7 +2,7 @@
 .kosmo-page-frame { display: flex; flex-direction: column; gap: var(--kosmo-space-5); min-width: 0; }
 .kosmo-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--kosmo-space-4); min-width: 0; }
 .kosmo-page-header__copy { min-width: 0; }
-.kosmo-page-header__eyebrow { margin: 0 0 var(--kosmo-space-2); color: var(--kosmo-color-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); letter-spacing: .04em; text-transform: uppercase; }
+.kosmo-page-header__eyebrow { margin: 0 0 var(--kosmo-space-2); color: var(--kosmo-color-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); letter-spacing: 0; text-transform: none; }
 .kosmo-page-header__title { margin: 0; color: var(--kosmo-color-text); font-size: var(--cds-heading-04-font-size); font-weight: var(--cds-heading-04-font-weight); line-height: var(--cds-heading-04-line-height); }
 .kosmo-page-header__description { max-width: 72ch; margin: var(--kosmo-space-2) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-body-01-font-size); line-height: var(--cds-body-01-line-height); }
 .kosmo-page-header__actions, .kosmo-page-section__actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--kosmo-space-2); }
