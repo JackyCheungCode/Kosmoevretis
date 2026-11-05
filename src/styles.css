@@ -709,13 +709,13 @@
   }
   .source-options {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--cds-spacing-03);
     padding: var(--cds-spacing-04);
   }
   .source-options > .field-label,
   .source-option-foot {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
   .source-option-foot {
     margin-top: 0;
