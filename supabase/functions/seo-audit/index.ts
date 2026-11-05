@@ -177,7 +177,7 @@ function makeReport(pages: any[], speed: any[], target: string, maxPages: number
   const unique = new Map<string, any>();
   for (const item of recommendations) unique.set(item.category + "|" + item.title + "|" + item.url, item);
   return {
-    target, crawled_pages: pages.length, requested_max_pages: maxPages, pagespeed_samples: speed.length,
+    target, crawled_pages: pages.length, requested_max_pages: maxPages, pagespeed_samples: new Set(speed.map((item: any) => item.url)).size,
     coverage_percent: coverage, overall_score: total,
     scores: { technical_seo: technical, performance, content, indexability: indexScore, accessibility: average(accessibility) },
     recommendations: [...unique.values()].slice(0, 100),
