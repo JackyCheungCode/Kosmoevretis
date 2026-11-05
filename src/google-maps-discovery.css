@@ -8,3 +8,21 @@
 .gm-results .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
 .gm-results .cds--tab-content { padding:1rem 0 0; }
 .gm-results .cds--tab-panel { padding:0; }
+
+
+.gm-results,.gm-table,.gm-map-layout{min-width:0;max-width:100%}
+.gm-table{overscroll-behavior-x:contain;scrollbar-width:thin}
+.gm-table table{width:max-content;min-width:980px}
+.gm-results .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.gm-results .cds--tab{flex:0 0 auto;white-space:nowrap}
+.gm-map-canvas{max-width:100%;overscroll-behavior:contain}
+.gm-map-legend{max-width:calc(100% - 2rem);box-sizing:border-box}
+.gm-map-popup{max-width:min(16rem,70vw);overflow-wrap:anywhere}
+@media(max-width:600px){
+ .gm-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gm-map-canvas{height:300px}
+ .gm-map-legend{left:.5rem;bottom:.5rem;padding:var(--kosmo-space-2)}
+ .gm-results .cds--tab-list{scroll-snap-type:x proximity}
+ .gm-results .cds--tab{scroll-snap-align:start}
+ .gm-log{grid-template-columns:3.6rem .4rem minmax(0,1fr);gap:var(--kosmo-space-2)}
+}
