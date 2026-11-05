@@ -304,11 +304,11 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
   return <IntelligencePageTemplate
     title={config.name + " 电商发现"}
     description={config.description + " 通过已验证的 Apify 连接采集公开商品、价格、评论及店铺数据。"}
-    eyebrow="GLOBAL ECOMMERCE DISCOVERY"
+    eyebrow="全球电商发现"
     actions={<Tag type="green">{organizationName || "企业工作区"}</Tag>}
     sourceConfiguration={<section className="ec-config-panel">
       <div className="fb-section-head discovery-object-heading">
-        <div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div>
+        <div><span className="eyebrow">发现对象</span><h3>选择发现对象</h3></div>
         <span>一个平台，多种商品情报</span>
       </div>
       <CollectionModeGrid ariaLabel={"选择 " + config.name + " 发现对象"} options={modes.filter(item => item.id !== "keyword" || config.supportsKeyword)} selectedId={mode} onSelect={id => {
@@ -358,7 +358,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
   >
     <>
     <section className="ec-logs-section">
-      <div className="fb-section-head"><div><span className="eyebrow">02 / LIVE ACTIVITY</span><h3>任务日志</h3><p>显示任务提交、Actor 状态与 Dataset 读取阶段。</p></div>
+      <div className="fb-section-head"><div><span className="eyebrow">02 / 实时活动</span><h3>任务日志</h3><p>显示任务提交、Actor 状态与 Dataset 读取阶段。</p></div>
         <div className="ec-log-actions"><Tag type={loading ? "blue" : "gray"}>{loading ? "执行中" : taskStatus ? statusLabel(taskStatus) : "空闲"}</Tag><Button kind="ghost" size="sm" onClick={() => setLogs([])}>清空日志</Button></div>
       </div>
       <div className="fb-log-console" aria-live="polite">{logs.length ? logs.map(log => <div className={"fb-log-line " + log.level} key={log.id}><time>{log.time}</time><span className="fb-log-dot" /><span>{log.message}</span></div>) : <div className="fb-log-placeholder">等待任务事件。启动发现后，日志将在此处追加。</div>}</div>
@@ -366,7 +366,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     </section>
 
     <section className="ec-results-section">
-      <div className="fb-section-head"><div><span className="eyebrow">03 / DISCOVERY RESULTS</span><h3>电商情报结果</h3><p>仅展示 Actor 实际返回的字段；平台未公开的销量等指标不会被推算成真实数据。</p></div><strong className="fb-result-count">{rows.length.toLocaleString()} 条</strong></div>
+      <div className="fb-section-head"><div><span className="eyebrow">03 / 发现结果</span><h3>电商情报结果</h3><p>仅展示 Actor 实际返回的字段；平台未公开的销量等指标不会被推算成真实数据。</p></div><strong className="fb-result-count">{rows.length.toLocaleString()} 条</strong></div>
       <Tabs selectedIndex={Math.max(0, tabs.findIndex(item => item.id === activeTab))} onChange={({ selectedIndex }) => setActiveTab(tabs[selectedIndex]?.id || "overview")}>
         <TabList aria-label={config.name + " 电商情报维度"}>{tabs.map(item => { const Icon = item.icon; return <Tab key={item.id}><span className="fb-tab-label"><Icon size={16} />{item.label}{item.id !== "overview" && item.id !== "raw" && item.id !== "history" ? <span className="fb-tab-count">{item.id === "reviews" ? (mode === "reviews" ? rows.length : 0) : item.id === "sellers" ? (mode === "sellers" ? rows.length : 0) : item.id === "bestsellers" ? rows.filter(hasPublicRank).length : rows.length}</span> : null}</span></Tab>; })}</TabList>
         <TabPanels>
