@@ -18,7 +18,7 @@ type Product = {
   country_of_origin:string|null; hs_code:string|null; website_url:string|null; lifecycle_stage:string; version:number;
 };
 type Variant = { id:string; sku:string|null; title:string|null; model:string|null; barcode:string|null; price:number|null; currency:string|null; cost:number|null; is_active:boolean };
-type ProductAttribute = { id:string; name:string; variant_creation_mode:string; unit:string|null; product_attribute_values:{id:string;value_text:string;unit:string|null}[] };
+type ProductAttribute = { id:string; name:string; data_type:string; variant_creation_mode:string; unit:string|null; product_attribute_values:{id:string;value_text:string;unit:string|null}[] };
 type VariantAttributeValue = { id:string; variant_id:string; attribute_id:string; attribute_value_id:string };
 type CategoryTemplate = { id:string; category_id:string; definition_id:string; is_required:boolean; sort_order:number };
 
@@ -242,7 +242,7 @@ export default function ProductCenter() {
     setBusy(true);setNotice(null);
     const {data,error}=await supabase.from("product_attribute_values").insert({
       organization_id:org,product_id:selected.id,attribute_id:attribute.id,value_text:raw,
-      value_number:null,unit:attribute.unit,sort_order:(attribute.product_attribute_values||[]).length
+      value_number:["number","dimension"].includes(attribute.data_type)&&Number.isFinite(Number(raw))?Number(raw):null,unit:attribute.unit,sort_order:(attribute.product_attribute_values||[]).length
     }).select("id,value_text,unit").single();
     if(error)setNotice({kind:"error",text:message(error)});
     else{
