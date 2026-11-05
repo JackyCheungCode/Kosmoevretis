@@ -183,7 +183,7 @@ Before finalizing a Carbon Labs implementation:
 Before finalizing a Web Components implementation:
 
 - Ensure an app entry module imports styles before component imports (for example `import './styles.scss';` first).
-- Ensure `<body>` preserves an existing Carbon theme class; if none exists, use `cds--white`.
+- Preserve the existing host theme class. For Kosmoevretis, keep Gray 10; never use `cds--white` as a fallback.
 - Ensure SCSS files are not referenced through HTML `<link>` tags.
 - Ensure dependencies include `@carbon/web-components` and `@carbon/styles`; add `sass` only when SCSS is used.
 
@@ -195,7 +195,7 @@ Before finalizing a Web Components implementation:
 - Keep overlay/floating UI (modals, side panels, tooltips, toasts) out of normal page Grid flow.
 - Breadcrumb current item must use `isCurrentPage` and must not include `href`.
 - Icon-only interactive controls must include descriptive `iconDescription`.
-- **UIShell Header + Content (Hard Rule):** Carbon's `Header` uses `position: fixed`, removing it from document flow. Always wrap the main page content in the `Content` component from `@carbon/react` — it applies `padding-top: 3rem` (48px) automatically. Never apply `margin-top: 48px` or any hardcoded pixel offset as a substitute. The `Content` component is the correct Carbon composition pattern and the only approved fix.
+- **UIShell Header + Content (conditional guidance):** When building a new application that actually adopts Carbon UIShell, account for its fixed Header using the documented `Content` composition. This rule does not apply to Kosmoevretis: preserve its existing AppShell and content offsets; do not add a parallel `Content` wrapper or a second 48px offset.
 
 ### Layer System
 
