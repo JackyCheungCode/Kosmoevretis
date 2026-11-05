@@ -7,6 +7,7 @@ import { Download, Search, ShoppingCart, Store, Star, Currency, Chat, UserMultip
 import { supabase } from "../lib/supabase";
 import { EmptyState, PageHeader } from "../design-system";
 import { CollectionModeGrid } from "../design-system/components/CollectionModeGrid";
+import "../facebook-discovery.css";
 import "./ecommerce-discovery.css";
 
 export type EcommercePlatform =
