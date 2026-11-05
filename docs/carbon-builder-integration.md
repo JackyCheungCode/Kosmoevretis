@@ -27,3 +27,21 @@ Carbon MCP 需要 IBMid 身份认证。仓库配置只包含公开服务地址�
 Carbon Builder 是 Carbon 组件、Token、图标、图表和官方文档的事实来源；本项目现有治理文档仍是项目架构与视觉规则的事实来源。不得以安装官方 Skill 为由替换 Carbon v11、Gray 10、AppShell、Design Tokens 或现有业务组件。
 
 视觉验收必须以真实桌面和手机截图为依据。代码检查和构建通过不等于视觉验收通过。
+
+
+## 规范冲突审计与优先级（2026-11-05）
+
+项目规则优先于 Skill 中的通用示例，具体执行顺序：
+
+1. Kosmoevretis Design Governance 与 UI Standard：决定 Gray 10、Design Tokens、AppShell、导航、页面模板、断点和 CSS 边界。
+2. IBM Carbon v11：提供组件语义、交互、无障碍和基础设计原则。
+3. Carbon Builder Skill / MCP：提供 Carbon 组件、图标、Charts、API 和官方文档检索辅助，不得改变项目架构。
+
+已明确的冲突处理：
+- 通用 `cds--white` fallback 不适用于本项目，必须保留 Gray 10。
+- 通用“所有布局必须使用 Carbon Grid”调整为新页面优先使用；现有模板及可访问的 CSS Grid/Flex 布局无需为满足示例而重构。
+- 通用 UIShell / Content 组合不得替换现有 AppShell，也不得重复添加固定 Header 的 48px 偏移。
+- AppShell 中已有的 Carbon 内部类选择器属于集中维护的既有集成边界；业务页面不得复制或扩展该例外。
+- MCP-first 只在当前 Agent 确实连接 MCP 时强制执行；未连接时按已安装 Carbon 版本、项目现有用法和官方文档验证，不得虚称 MCP 已查询。
+
+官方 Skill 的参考资料保持原样；项目例外写在 Skill 主文件、相关参考文件的项目附录及本说明中，避免篡改上游通用知识。

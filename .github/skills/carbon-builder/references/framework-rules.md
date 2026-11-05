@@ -199,6 +199,10 @@ Apply typography via semantic HTML tags (`h1`, `h2`, `h3`, `p`) with Carbon type
 
 ---
 
+## Kosmoevretis integration exception
+
+For this repository, preserve the existing React + Carbon v11 Gray 10 application theme, Design Tokens, and centralized AppShell. Do not introduce a new UIShell/Content wrapper or hard-coded 48px header offset. The existing AppShell owns fixed-header spacing and its centralized Carbon class integration. These project rules supersede generic examples below whenever they differ.
+
 ## 6. Web Components Styling Safety Rules
 
 When the target framework is **Web Components**, prefer a minimal import strategy first.
@@ -234,7 +238,7 @@ When the target framework is **Web Components**, prefer a minimal import strateg
 
 - Import SCSS from the app entry module before component imports (for example `import './styles.scss';`).
 - Do not use HTML `<link>` tags for SCSS files.
-- Preserve an existing app theme class when present; otherwise default to `<body class="cds--white">`.
+- Preserve the host application's existing theme class. Generic fallback guidance such as `<body class="cds--white">` does not apply to Kosmoevretis: keep its Carbon Gray 10 theme and existing theme context; never switch themes to resolve a generic setup issue.
 
 ### Avoid fragile theme wiring by default
 

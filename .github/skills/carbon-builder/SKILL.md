@@ -68,12 +68,25 @@ Use this matrix as the fastest route-selection and result-shape check before que
 
 ---
 
+## Project Precedence and Runtime Availability (Highest Priority for This Repository)
+
+Apply these rules before the generic Carbon implementation rules below. They specialize this Skill for Kosmoevretis and take precedence wherever the generic guidance would alter the existing application architecture or visual foundation.
+
+1. **Theme:** The application is Carbon v11 **Gray 10**. Preserve the existing Gray 10 theme context and semantic Carbon tokens. Never switch to White / `cds--white`, Gray 100, or another theme as a generic fallback. For Labs packages, add a package-specific theme attribute only when that package's verified documentation requires it; do not change the application theme.
+2. **Tokens:** Use `src/design-tokens.css` and existing `--kosmo-*` / `--cds-*` semantic tokens. Do not create a competing token scale, hardcode theme colors, or replace project tokens with ad-hoc values.
+3. **AppShell:** Preserve the existing `App.tsx` + `src/app-shell.css` shell, navigation, route definitions, responsive behavior, and content offsets. Do not introduce a second Carbon UIShell, replace the shell with a new `Content` composition, or add another fixed-header offset. The existing AppShell's documented Carbon internal selectors are an approved, centralized exception; do not copy those selectors into business-page CSS.
+4. **Grid and layout:** Follow the project's Carbon 2x Grid breakpoints (320 / 672 / 1056 / 1312 / 1584 px) and existing page templates. Use Carbon Grid for new page layouts when it fits the task, but do not force every nested content group or existing template into new `Grid` / `Column` wrappers. Existing shared templates and well-scoped CSS Grid/Flex layouts remain valid when they preserve the same responsive system and accessibility.
+5. **Borders and elevation:** Organize content with Carbon background/layer tokens and restrained borders. Do not add decorative shadows, gradients, or card outlines. Preserve only necessary functional Carbon overlay/elevation behavior when required for legibility and interaction.
+6. **MCP availability:** The MCP-first rule below applies only when the Carbon MCP tools are actually available in the current agent runtime. If they are unavailable (including a ChatGPT session without this MCP connection), do not claim to have queried MCP and do not block the task. Verify against the repository's installed Carbon version, existing imports/patterns, and official documentation where available; state any verification limitation when it materially affects confidence.
+7. **No speculative migration:** Do not upgrade Carbon, replace components, restructure AppShell, or migrate existing layouts merely to match a generic Skill example. Make the smallest change that meets the user's task and project governance.
+
+---
+
 ## MCP-First Rule (Mandatory, Hard Rule)
 
-> **Never generate, modify, or diagnose Carbon component code from training knowledge alone.**
+> **When Carbon MCP is connected, never generate, modify, or diagnose new Carbon component code from training knowledge alone.** If MCP is unavailable, follow the Project Precedence and Runtime Availability rules above.
 > Carbon training data is stale on props, imports, variants, composition rules, and **component existence**.
-> **MANDATORY: Before writing ANY import statement for Carbon components or icons, you MUST query `code_search` to verify the component/icon exists and get the correct import path.**
-> Always call `code_search` (or `get_charts` for charts, `labs_search` for Carbon Labs package verification) before generating, editing, or debugging any Carbon code.
+> **When MCP is connected:** before writing a new Carbon component or icon import, query `code_search`; use `get_charts` for charts and `labs_search` for Carbon Labs. When MCP is not connected, verify imports against installed package exports and existing project usage; never imply an MCP query occurred.
 > If existing code looks wrong, verify the correct structure with MCP before assuming the cause.
 > The MCP index is the authoritative source for Carbon facts — not your weights.
 
@@ -206,12 +219,12 @@ See [references/implementation-guardrails.md](references/implementation-guardrai
 
 ## Grid System Implementation (Critical)
 
-**MANDATORY:** All page layouts must use Carbon Grid with proper responsive configuration.
+**For new page-level layouts, prefer Carbon Grid where it fits the existing application architecture.** Existing Kosmoevretis page templates and accessible CSS Grid/Flex compositions are valid; do not add wrapper-only Grid components or refactor stable pages solely to satisfy this generic example.
 
 Key requirements:
 
 - Use separate Grid components for each distinct logical content group
-- Specify column spans for ALL breakpoints (sm, md, lg)
+- Specify responsive spans for the breakpoints supported by the chosen Carbon Grid API; account for the project's 320 / 672 / 1056 / 1312 / 1584 px layout system
 - Choose appropriate grid variant (default 32px, narrow 16px, condensed 0px gutters)
 - Match vertical spacing to horizontal gutter spacing when content wraps
 
@@ -306,9 +319,9 @@ This repository uses IBM Carbon Design System v11 / Gray 10. These project rules
 - Organize information through Carbon layer/background hierarchy with restrained borders. Do not use box shadows.
 - Design for desktop, tablet, and mobile; check overflow, focus, touch targets, tables, tabs, maps, charts, and navigation.
 - Avoid generic dashboard templates, repetitive equal-sized cards, decorative gradients, gratuitous icons, and visual noise. Prioritize workflow and information hierarchy.
-- Page CSS is limited to business-specific layout. Never override Carbon internal classes or global elements, and never add raw HEX/RGB colors in page styles.
+- Page CSS is limited to business-specific layout. Do not override Carbon internal classes or global elements in business pages, and never add raw HEX/RGB colors in page styles. The existing centralized AppShell styles are an approved legacy integration boundary; do not duplicate or expand that exception.
 - Do not use native HTML `select`; use approved Carbon controls or the project's `CarbonSelect`.
-- Keep AppShell/navigation centralized. Business pages must not create a global shell or duplicate page titles.
+- Keep AppShell/navigation centralized in the existing App.tsx and src/app-shell.css. Do not replace it with a parallel Carbon UIShell/Content composition or add duplicate header offsets. Business pages must not create a global shell or duplicate page titles.
 - New shared components belong in `src/design-system/`; update the design-system preview and governance docs when shared behavior or tokens change.
 - Preserve business logic, data contracts, API payloads, and Chinese UI unless explicitly requested.
 - Visual acceptance requires actual desktop and mobile browser screenshots. Do not claim screenshot QA without screenshots.

@@ -1,12 +1,17 @@
 # Carbon Grid System Implementation
 
+## Kosmoevretis project exception
+
+This reference describes general Carbon Grid patterns. In Kosmoevretis, the existing Design System templates and AppShell are authoritative. Prefer Carbon Grid for new page-level structures when appropriate, but do not force every content group or existing page into Grid/Column wrappers. Accessible CSS Grid/Flex layouts inside approved templates are valid. Preserve the project's 2x Grid breakpoints: 320 / 672 / 1056 / 1312 / 1584 px. The generic examples below must not be used to replace AppShell, page templates, or project tokens.
+
+
 ## Mandatory Grid Usage (Critical)
 
-**ALWAYS use Carbon Grid for all page layouts.** The Grid system is fundamental to all Carbon implementations.
+**Prefer Carbon Grid for new page-level layouts when it fits the application architecture.** Existing approved templates and accessible CSS Grid/Flex layouts remain valid.
 
 ### Three mandatory requirements:
 
-1. **Use Carbon Grid for all page layouts**
+1. **Use Carbon Grid for new page-level layouts where appropriate; reuse approved project templates otherwise**
 2. **Configure responsive column widths for ALL breakpoints (sm, md, lg)**
 3. **Create SEPARATE Grid components for each distinct logical content group**
 
