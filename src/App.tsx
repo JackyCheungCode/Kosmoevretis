@@ -86,6 +86,8 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   React.useEffect(() => {
     if (!mobileNavOpen) return;
     navRef.current?.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMobileNavOpen(false);
@@ -93,7 +95,10 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
       }
     };
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [mobileNavOpen]);
   const selectPlatform = (id: SocialPlatform) => {
     navigate("/social-discovery/" + id);
@@ -122,7 +127,13 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
             onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }} />}
           <nav id="social-platform-nav" ref={navRef}
             className={mobileNavOpen ? "settings-local-nav social-platform-navigation is-open" : "settings-local-nav social-platform-navigation"}
-            aria-label="社媒平台发现分类" role="group">
+            aria-label="社媒平台发现分类" role="group"
+            onTouchStart={event => { (navRef as React.RefObject<HTMLElement> & { touchX?: number }).touchX = event.touches[0]?.clientX; }}
+            onTouchEnd={event => { const ref = navRef as React.RefObject<HTMLElement> & { touchX?: number }; if (ref.touchX !== undefined && event.changedTouches[0].clientX - ref.touchX > 80) { setMobileNavOpen(false); triggerRef.current?.focus(); } ref.touchX = undefined; }}>
+            <div className="platform-drawer-heading">
+              <strong>选择社媒平台</strong>
+              <button type="button" aria-label="关闭平台导航" onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }}>×</button>
+            </div>
             <div className="settings-nav-group">
               <div className="settings-nav-group-title">社媒平台发现</div>
               {socialPlatformItems.map((item) => {
@@ -145,15 +156,15 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
 }
 
 const ecommercePlatformItems: { id: EcommercePlatformId; label: string }[] = [
-  { id: "amazon", label: "Amazon" },
-  { id: "walmart", label: "Walmart" },
-  { id: "ebay", label: "eBay" },
-  { id: "aliexpress", label: "AliExpress" },
-  { id: "temu", label: "Temu" },
-  { id: "etsy", label: "Etsy" },
-  { id: "shopify", label: "Shopify" },
-  { id: "mercado-libre", label: "Mercado Libre" },
-  { id: "rakuten", label: "Rakuten" },
+  { id: "amazon", label: "Amazon", mark: "a" },
+  { id: "walmart", label: "Walmart", mark: "✳" },
+  { id: "ebay", label: "eBay", mark: "ebay" },
+  { id: "aliexpress", label: "AliExpress", mark: "A" },
+  { id: "temu", label: "Temu", mark: "T" },
+  { id: "etsy", label: "Etsy", mark: "E" },
+  { id: "shopify", label: "Shopify", mark: "S" },
+  { id: "mercado-libre", label: "Mercado Libre", mark: "M" },
+  { id: "rakuten", label: "Rakuten", mark: "R" },
 ];
 
 function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformId }) {
@@ -164,6 +175,8 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
   React.useEffect(() => {
     if (!mobileNavOpen) return;
     navRef.current?.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMobileNavOpen(false);
@@ -171,7 +184,10 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
       }
     };
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [mobileNavOpen]);
   const selectPlatform = (id: EcommercePlatformId) => {
     navigate("/ecommerce-discovery/" + id);
@@ -191,14 +207,20 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
             onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }} />}
           <nav id="ecommerce-platform-nav" ref={navRef}
             className={mobileNavOpen ? "settings-local-nav is-open social-platform-navigation" : "settings-local-nav social-platform-navigation"}
-            aria-label="电商平台发现分类" role="group">
+            aria-label="电商平台发现分类" role="group"
+            onTouchStart={event => { (navRef as React.RefObject<HTMLElement> & { touchX?: number }).touchX = event.touches[0]?.clientX; }}
+            onTouchEnd={event => { const ref = navRef as React.RefObject<HTMLElement> & { touchX?: number }; if (ref.touchX !== undefined && event.changedTouches[0].clientX - ref.touchX > 80) { setMobileNavOpen(false); triggerRef.current?.focus(); } ref.touchX = undefined; }}>
+            <div className="platform-drawer-heading">
+              <strong>选择电商平台</strong>
+              <button type="button" aria-label="关闭电商平台导航" onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }}>×</button>
+            </div>
             <div className="settings-nav-group">
               <div className="settings-nav-group-title">电商平台发现</div>
               {ecommercePlatformItems.map(item => (
                 <button key={item.id} type="button" className="settings-nav-item social-platform-nav-item"
                   aria-current={platform === item.id ? "page" : undefined}
                   onClick={() => selectPlatform(item.id)}>
-                  <ShoppingCart size={16} aria-hidden="true" />
+                  <span className={"ecommerce-brand-mark ecommerce-brand-" + item.id} aria-hidden="true">{item.mark}</span>
                   <span className="settings-nav-label">{item.label}</span>
                 </button>
               ))}
