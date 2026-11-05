@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Accordion, AccordionItem, Button, Dropdown, InlineNotification, NumberInput, ProgressBar, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, TextInput, Tile } from "@carbon/react";
+import { Accordion, AccordionItem, Button, Dropdown, InlineNotification, NumberInput, ProgressBar, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, TextInput, Tile, StructuredListWrapper, StructuredListHead, StructuredListBody, StructuredListRow, StructuredListCell } from "@carbon/react";
 import { Search, Settings, Renew } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import { EmptyState, IntelligencePageTemplate } from "../design-system";
@@ -143,7 +143,7 @@ export default function SeoAnalysis() {
               <div className="seo-event-status"><Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"Success":event.type==="error"?"Failed":event.type==="warning"?"Warning":"Info"}</Tag></div>
               <div className="seo-event-content"><strong>{event.message}</strong><span>{event.stage?stageText(event.stage):"后台事件"}</span></div>
               <time className="seo-event-time">{dateText(event.created_at)}</time>
-              <div className="seo-event-action">{event.details&&Object.keys(event.details).length>0?<details><summary>查看详情</summary><pre>{JSON.stringify(event.details,null,2)}</pre></details>:<span>—</span>}</div>
+              <div className="seo-event-action">{event.details&&Object.keys(event.details).length>0?<Accordion><AccordionItem title="查看详情"><pre>{JSON.stringify(event.details,null,2)}</pre></AccordionItem></Accordion>:<span>—</span>}</div>
             </div>)}
         </div>}
     </section>
@@ -176,15 +176,30 @@ export default function SeoAnalysis() {
     <section className="seo-console-section" aria-labelledby="seo-history-title"><div className="seo-section-heading"><h2 id="seo-history-title">历史诊断任务</h2><p>独立管理最近 30 次诊断记录；查看历史任务不会覆盖后台其他任务。</p></div>
       {!history.length?<EmptyState title="暂无历史诊断" description="完成首次网站诊断后，任务会保存在这里。"/>:
         <div className="seo-history-list">
-          <div className="seo-history-header"><span>诊断目标</span><span>任务 ID</span><span>任务状态</span><span>创建时间</span><span>已审计页面</span><span>操作</span></div>
-          {history.map(item=><div key={item.id} className={"seo-history-row "+(task?.id===item.id?"is-selected":"")}>
-            <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>
-            <span className="seo-history-id">{item.id}</span>
-            <span><Tag className={item.status==="partial"?"seo-status-warning":""} type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></span>
-            <time>{dateText(item.created_at)}</time>
-            <strong className="seo-history-count">{item.result_count??0}</strong>
-            <Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button>
-          </div>)}
+          <StructuredListWrapper ariaLabel="历史诊断任务">
+            <StructuredListHead>
+              <StructuredListRow head>
+                <StructuredListCell head>诊断目标</StructuredListCell>
+                <StructuredListCell head>任务 ID</StructuredListCell>
+                <StructuredListCell head>任务状态</StructuredListCell>
+                <StructuredListCell head>创建时间</StructuredListCell>
+                <StructuredListCell head>已审计页面</StructuredListCell>
+                <StructuredListCell head>操作</StructuredListCell>
+              </StructuredListRow>
+            </StructuredListHead>
+            <StructuredListBody>
+              {history.map(item=><StructuredListRow key={item.id} className={task?.id===item.id?"is-selected":""}>
+                <StructuredListCell>
+                  <div className="seo-history-target"><strong>{item.title}</strong><span>{item.input_snapshot?.target||"—"}</span></div>
+                </StructuredListCell>
+                <StructuredListCell><span className="seo-history-id">{item.id}</span></StructuredListCell>
+                <StructuredListCell><Tag className={item.status==="partial"?"seo-status-warning":""} type={item.status==="succeeded"?"green":item.status==="failed"?"red":item.status==="partial"?"warm-gray":"blue"}>{statusText(item.status)}</Tag></StructuredListCell>
+                <StructuredListCell><time>{dateText(item.created_at)}</time></StructuredListCell>
+                <StructuredListCell><strong className="seo-history-count">{item.result_count??0}</strong></StructuredListCell>
+                <StructuredListCell><Button kind="ghost" size="sm" disabled={busy} onClick={()=>openHistory(item.id)}>查看任务</Button></StructuredListCell>
+              </StructuredListRow>)}
+            </StructuredListBody>
+          </StructuredListWrapper>
         </div>}
     </section>
   </IntelligencePageTemplate>;
