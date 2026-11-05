@@ -7,6 +7,8 @@ const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 
 const apiProviders = [
   { key: "apify", name: "Apify", domain: "apify.com", group: "数据采集与网页抓取", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
+  { key: "dataforseo", name: "DataForSEO", domain: "dataforseo.com", group: "SEO 与网站分析", description: "OnPage 全站爬取、技术 SEO 检查与页面级数据。", credentialLabel: "DataForSEO API Login / Password", placeholder: "分别输入 API Login 和 API Password" },
+  { key: "google_pagespeed", name: "Google PageSpeed Insights", domain: "developers.google.com", group: "SEO 与网站分析", description: "Lighthouse 性能、SEO、无障碍与最佳实践检测。", credentialLabel: "PageSpeed API Key", placeholder: "输入 Google PageSpeed API Key" },
   { key: "octoparse", name: "Octoparse", domain: "octoparse.com", group: "数据采集与网页抓取", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
   { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", group: "数据采集与网页抓取", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
   { key: "bright_data", name: "Bright Data", domain: "brightdata.com", group: "全球数据访问", description: "全球代理网络、网页采集与结构化数据", credentialLabel: "Bright Data API Key", placeholder: "输入 Bright Data API Key" },
@@ -20,6 +22,7 @@ const providerGroups = [
   { name: "全球数据访问", description: "管理全球代理网络与跨区域网页数据访问能力。" },
   { name: "社媒与线索采集", description: "管理社交平台自动化、线索发现与数据丰富服务。" },
   { name: "跨境市场数据", description: "管理跨境电商、企业与贸易市场数据服务。" },
+  { name: "SEO 与网站分析", description: "管理网站爬取、技术 SEO 与页面性能检测服务。" },
 ] as const;
 
 type ApiState = {
@@ -32,6 +35,8 @@ export default function SettingsBackend() {
   const [sessionReady, setSessionReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [credentials, setCredentials] = useState<Record<string, string>>({});
+  const [dataForSeoLogin, setDataForSeoLogin] = useState("");
+  const [dataForSeoPassword, setDataForSeoPassword] = useState("");
   const [savedProviders, setSavedProviders] = useState<ApiState["providers"]>([]);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error" | "info"; title: string; message: string } | null>(null);
@@ -91,7 +96,9 @@ export default function SettingsBackend() {
 
   const saveProvider = async (providerKey: string) => {
     const definition = apiProviders.find(item => item.key === providerKey);
-    const credential = credentials[providerKey]?.trim();
+    const credential = providerKey === "dataforseo"
+      ? (dataForSeoLogin.trim() && dataForSeoPassword ? dataForSeoLogin.trim() + ":" + dataForSeoPassword : "")
+      : credentials[providerKey]?.trim();
     if (!definition || !credential) {
       setNotice({ kind: "error", title: "缺少 API 凭证", message: "请先输入 " + (definition?.credentialLabel || "API Key") + "。" });
       return;
@@ -106,6 +113,7 @@ export default function SettingsBackend() {
         is_enabled: true,
       });
       setCredentials(current => ({ ...current, [providerKey]: "" }));
+      if (providerKey === "dataforseo") { setDataForSeoLogin(""); setDataForSeoPassword(""); }
       if (providerKey === "apify") {
         const result = await invoke("test_apify") as { actor_username?: string; plan?: string };
         await load();
@@ -124,6 +132,22 @@ export default function SettingsBackend() {
     } finally {
       setBusyKey(null);
     }
+  };
+
+  const testSeoConnections = async () => {
+    setBusyKey("seo-test");
+    setNotice(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("seo-audit", {
+        body: { action: "test_connections", organization_id: ORGANIZATION_ID },
+      });
+      if (error) throw new Error(error.message || "SEO 服务连接测试失败。");
+      if (data?.error) throw new Error(data.error);
+      setNotice({ kind: "success", title: "SEO 服务连接成功", message: data.message || "DataForSEO 与 Google PageSpeed 已验证。" });
+      await load();
+    } catch (error) {
+      setNotice({ kind: "error", title: "SEO 服务连接测试失败", message: error instanceof Error ? error.message : "请检查 API 凭证。" });
+    } finally { setBusyKey(null); }
   };
 
   const signOut = async () => {
@@ -162,19 +186,26 @@ export default function SettingsBackend() {
               </div>}>
                 <div className="provider-detail">
                   <div className="provider-detail-description">{definition.description}</div>
-                  <PasswordInput
+                  {definition.key === "dataforseo" ? <div className="settings-form-grid">
+                    <TextInput id="settings-dataforseo-login" labelText="API Login"
+                      placeholder="DataForSEO API Login" value={dataForSeoLogin}
+                      onChange={event => setDataForSeoLogin(event.target.value)} />
+                    <PasswordInput id="settings-dataforseo-password" labelText="API Password"
+                      placeholder={saved?.credential_hint ? "留空则保留当前凭证" : "DataForSEO API Password"}
+                      value={dataForSeoPassword} onChange={event => setDataForSeoPassword(event.target.value)} />
+                  </div> : <PasswordInput
                     id={"settings-provider-" + definition.key}
                     labelText={definition.credentialLabel}
                     placeholder={saved?.credential_hint ? "留空则保留当前凭证" : definition.placeholder}
                     value={credentials[definition.key] || ""}
                     onChange={event => setCredentials(current => ({ ...current, [definition.key]: event.target.value }))}
-                  />
+                  />}
                   <div className="provider-detail-meta">
                     <span>{saved?.credential_hint ? "已保存凭证 · " + saved.credential_hint : "尚未配置连接凭证"}</span>
                     {isApify && saved?.last_tested_at && <span>上次测试：{new Date(saved.last_tested_at).toLocaleString()}</span>}
                   </div>
                   <div className="analysis-submit-row">
-                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : "凭证通过服务端加密保存；该服务商实时连通性测试尚未接入。"}</span>
+                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : definition.key === "dataforseo" ? "API Login 与 Password 会合并后在服务端加密保存。" : "凭证通过服务端加密保存；可在本组下方执行连接测试。"}</span>
                     <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
                       {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
                     </Button>
@@ -185,6 +216,10 @@ export default function SettingsBackend() {
           })}</div>
         </section>;
       })}</div>
+      <div className="analysis-submit-row">
+        <span>DataForSEO 与 Google PageSpeed 凭证保存后，可执行实际连接验证。</span>
+        <Button kind="secondary" disabled={!!busyKey} onClick={testSeoConnections}>{busyKey === "seo-test" ? "测试中…" : "测试 SEO 数据服务"}</Button>
+      </div>
       <div className="analysis-submit-row"><span>已通过组织管理员身份验证。</span><Button kind="ghost" size="sm" onClick={signOut}>退出登录</Button></div>
     </>}
     {notice && <InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} hideCloseButton />}
