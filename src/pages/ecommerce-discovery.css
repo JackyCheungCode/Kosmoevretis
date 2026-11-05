@@ -22,3 +22,22 @@
 .ec-results-section .cds--tab-content{padding:var(--kosmo-space-4) 0 0}
 @media(max-width:800px){.ec-form-grid{grid-template-columns:minmax(0,1fr)}.ec-input-field,.ec-options{grid-column:auto}.ec-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.ec-config-panel,.ec-results-section,.ec-logs-section{padding:var(--kosmo-space-3)}.ec-options{flex-direction:column;gap:var(--kosmo-space-2)}.ec-kpis>div{padding:var(--kosmo-space-3)}.ec-kpis strong{font-size:var(--cds-body-compact-01-font-size)}}
+
+
+/* Unslop refinement: horizontally navigable data and readable execution logs. */
+.ecommerce-discovery,.ec-results-section,.ec-logs-section{min-width:0;max-width:100%}
+.ec-results-section .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
+.ec-results-section .cds--tab{flex:0 0 auto;white-space:nowrap}
+.fb-carbon-table{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.fb-carbon-table table{width:max-content;min-width:46rem}
+.fb-carbon-table th{white-space:nowrap}
+.fb-carbon-table td{vertical-align:top}
+.fb-log-console{max-width:100%;overflow:auto;overscroll-behavior:contain}
+.fb-log-line{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.fb-log-line time{white-space:nowrap}
+.ec-actor-meta span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:560px){
+ .ec-results-section .cds--tab-list{scroll-snap-type:x proximity}
+ .ec-results-section .cds--tab{scroll-snap-align:start}
+ .fb-log-line{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-space-2)}
+}
