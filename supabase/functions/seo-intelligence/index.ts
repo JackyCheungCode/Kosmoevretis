@@ -201,8 +201,8 @@ async function advanceTask(admin:any,task:any){
   return {status:"running",stage:meta.stage,progress_percent:meta.progress_percent};
  }catch(e){
   const message=e instanceof Error?e.message:"后台任务执行失败";
-  meta.stage="failed";meta.progress_percent=100;
-  try{await recordEvent(admin,task,meta,"error","后台任务执行失败",{stage:meta.stage,error:message});}catch{}
+  const failedStage=meta.stage;meta.failed_stage=failedStage;meta.stage="failed";meta.progress_percent=100;
+  try{await recordEvent(admin,task,meta,"error","后台任务执行失败",{stage:failedStage,error:message});}catch{}
   await save("failed",{error_message:message,completed_at:now()});
   return {status:"failed",error:message};
  }
