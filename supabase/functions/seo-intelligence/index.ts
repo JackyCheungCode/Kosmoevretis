@@ -5,6 +5,8 @@ import ContextDev from "npm:context.dev";
 const cors = { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods":"POST, OPTIONS" };
 const reply = (body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...cors,"Content-Type":"application/json"}});
 const now=()=>new Date().toISOString();
+const taskEvent=(type:string,message:string,details:Record<string,unknown>={})=>({id:crypto.randomUUID(),type,message,details,created_at:now()});
+const addEvent=(meta:Record<string,any>,type:string,message:string,details:Record<string,unknown>={})=>{meta.events=Array.isArray(meta.events)?meta.events:[];meta.events.push(taskEvent(type,message,details));meta.events=meta.events.slice(-500);meta.last_progress_at=now();};
 const enc=new TextEncoder();
 async function decrypt(ciphertext:string,iv:string){
  const secret=Deno.env.get("SETTINGS_ENCRYPTION_KEY"); if(!secret||secret.length<32)throw new Error("服务端凭证解密密钥未配置。");
@@ -116,37 +118,37 @@ Deno.serve(async req=>{
    await admin.from("platform_provider_connections").update({status:"verified",last_tested_at:now(),last_error_code:null,updated_at:now()}).eq("organization_id",org).in("provider_key",["context_dev","google_pagespeed"]);
    return reply({success:true,message:"Context.dev Map URLs 与 Google PageSpeed Insights 均已连通。"});
   }
-  if(body.action==="list_history"){const {data,error}=await admin.from("market_trend_tasks").select("id,title,status,result_count,created_at,error_message,actor_meta,input_snapshot").eq("organization_id",org).eq("task_type","seo_audit").is("deleted_at",null).order("created_at",{ascending:false}).limit(30);if(error)throw error;return reply({history:data||[]})}
+  if(body.action==="list_history"){const {data,error}=await admin.from("market_trend_tasks").select("id,title,status,result_count,created_at,error_message,actor_meta,input_snapshot,updated_at,completed_at").eq("organization_id",org).eq("task_type","seo_audit").is("deleted_at",null).order("created_at",{ascending:false}).limit(30);if(error)throw error;return reply({history:data||[]})}
   if(body.action==="get_history"||body.action==="poll_task"){
-   const id=String(body.task_id||""),{data:task,error}=await admin.from("market_trend_tasks").select("id,title,status,actor_run_id,input_snapshot,raw_items,result_count,actor_meta,error_message,created_at").eq("id",id).eq("organization_id",org).eq("task_type","seo_audit").maybeSingle();if(error)throw error;if(!task)return reply({error:"找不到该诊断任务，或当前账号无权查看。"},404);if(body.action==="get_history"||task.status!=="running")return reply({task});
+   const id=String(body.task_id||""),{data:task,error}=await admin.from("market_trend_tasks").select("id,title,status,actor_run_id,input_snapshot,raw_items,result_count,actor_meta,error_message,created_at,updated_at,completed_at,started_at").eq("id",id).eq("organization_id",org).eq("task_type","seo_audit").maybeSingle();if(error)throw error;if(!task)return reply({error:"找不到该诊断任务，或当前账号无权查看。"},404);if(body.action==="get_history"||task.status!=="running")return reply({task});
    const meta={...(task.actor_meta||{})} as Record<string,any>;
    if(meta.stage==="scraping"){
     const key=await credential(admin,org,"context_dev"),queue=Array.isArray(meta.scrape_queue)?meta.scrape_queue:[];
-    for(let i=0;i<2&&queue.length;i++){const next=queue.shift();try{const p=await scrape(key,next.url);p.audit=audit(p);delete p.html;delete p.markdown;meta.pages.push(p)}catch(e){meta.page_errors.push({url:next.url,error:e instanceof Error?e.message:"页面采集失败"})}}
-    meta.scrape_queue=queue;if(!queue.length){const urls=coreUrls(meta.map_urls||[],String(task.input_snapshot.target),Number(task.input_snapshot.pagespeed_limit||5));meta.pagespeed_queue=urls.flatMap(x=>[{url:x.url,strategy:"mobile"},{url:x.url,strategy:"desktop"}]);meta.stage="pagespeed"}
+    for(let i=0;i<2&&queue.length;i++){const next=queue.shift();try{const p=await scrape(key,next.url);p.audit=audit(p);delete p.html;delete p.markdown;meta.pages.push(p);addEvent(meta,"success","页面采集与 SEO 审计完成",{url:next.url,completed:meta.pages.length,remaining:queue.length})}catch(e){const message=e instanceof Error?e.message:"页面采集失败";meta.page_errors.push({url:next.url,error:message});addEvent(meta,"warning","页面采集失败",{url:next.url,error:message})}}
+    meta.scrape_queue=queue;if(!queue.length){const urls=coreUrls(meta.map_urls||[],String(task.input_snapshot.target),Number(task.input_snapshot.pagespeed_limit||5));meta.pagespeed_queue=urls.flatMap(x=>[{url:x.url,strategy:"mobile"},{url:x.url,strategy:"desktop"}]);meta.stage="pagespeed";addEvent(meta,"success","页面采集阶段完成，开始 PageSpeed 检测",{audited_pages:meta.pages.length,selected_urls:urls.length,checks:meta.pagespeed_queue.length})}
    }
    if(meta.stage==="pagespeed"){
     let key:string|null=null;try{key=await credential(admin,org,"google_pagespeed")}catch{meta.pagespeed_unavailable=true}
     const queue=Array.isArray(meta.pagespeed_queue)?meta.pagespeed_queue:[];
-    for(let i=0;i<2&&queue.length&&key;i++){const n=queue.shift();try{meta.pagespeed_results.push(await psi(n.url,key,n.strategy))}catch(e){meta.pagespeed_results.push({url:n.url,strategy:n.strategy,error:e instanceof Error?e.message:"PageSpeed 请求失败"})}}
-    if(meta.pagespeed_unavailable)queue.length=0;meta.pagespeed_queue=queue;
+    for(let i=0;i<2&&queue.length&&key;i++){const n=queue.shift();try{meta.pagespeed_results.push(await psi(n.url,key,n.strategy));addEvent(meta,"success","PageSpeed 检测完成",{url:n.url,strategy:n.strategy,completed:meta.pagespeed_results.length,remaining:queue.length})}catch(e){const message=e instanceof Error?e.message:"PageSpeed 请求失败";meta.pagespeed_results.push({url:n.url,strategy:n.strategy,error:message});addEvent(meta,"warning","PageSpeed 检测失败",{url:n.url,strategy:n.strategy,error:message})}}
+    if(meta.pagespeed_unavailable){queue.length=0;addEvent(meta,"warning","PageSpeed 未配置，跳过性能检测")}meta.pagespeed_queue=queue;
     if(!queue.length){
-     meta.report=report(meta.pages||[],(meta.pagespeed_results||[]).filter((x:any)=>!x.error),String(task.input_snapshot.target),Number(meta.discovered_count||0));meta.stage="completed";
+     meta.report=report(meta.pages||[],(meta.pagespeed_results||[]).filter((x:any)=>!x.error),String(task.input_snapshot.target),Number(meta.discovered_count||0));meta.stage="completed";addEvent(meta,"success","诊断报告已生成",{audited_pages:meta.pages.length,pagespeed_checks:(meta.pagespeed_results||[]).length});
      const ok=(meta.pages||[]).length&&(meta.pagespeed_results||[]).some((x:any)=>!x.error),status=ok?"succeeded":"partial";
      const {data:updated,error:up}=await admin.from("market_trend_tasks").update({status,raw_items:meta.pages,result_count:meta.pages.length,actor_meta:meta,error_message:meta.pagespeed_unavailable?"PageSpeed 未配置，性能维度未纳入评分。":meta.page_errors.length?"部分页面采集失败，报告按实际覆盖范围生成。":null,completed_at:now(),updated_at:now()}).eq("id",task.id).select("id,title,status,result_count,actor_meta,error_message,input_snapshot,raw_items,created_at").single();if(up)throw up;return reply({task:updated});
     }
    }
    const {error:up}=await admin.from("market_trend_tasks").update({actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now()}).eq("id",task.id);if(up)throw up;
-   return reply({task:{...task,actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length},progress:meta.stage==="pagespeed"?"PageSpeed 检测 "+(meta.pagespeed_results||[]).length+" 项":"页面采集中，剩余 "+(meta.scrape_queue||[]).length+" 页"});
+   return reply({task:{...task,actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now()},progress:meta.stage==="pagespeed"?"PageSpeed 检测 "+(meta.pagespeed_results||[]).length+" 项":"页面采集中，剩余 "+(meta.scrape_queue||[]).length+" 页"});
   }
   if(body.action==="start"){
    const root=await targetUrl(body.url),max=Math.min(200,Math.max(1,Number(body.max_pages)||80)),speedLimit=Math.min(10,Math.max(1,Number(body.pagespeed_limit)||5)),key=await credential(admin,org,"context_dev");
-   const {data:task,error:ins}=await admin.from("market_trend_tasks").insert({organization_id:org,created_by:user.id,actor_id:"context.dev/map-scrape",task_type:"seo_audit",title:"独立站诊断："+root,status:"running",input_snapshot:{target:root,max_pages:max,pagespeed_limit:speedLimit},raw_items:[],result_count:0,actor_meta:{provider:"Context.dev + Google PageSpeed",stage:"mapping",map_urls:[],pages:[],page_errors:[],pagespeed_results:[]},started_at:now()}).select("id").single();if(ins)throw ins;
+   const {data:task,error:ins}=await admin.from("market_trend_tasks").insert({organization_id:org,created_by:user.id,actor_id:"context.dev/map-scrape",task_type:"seo_audit",title:"独立站诊断："+root,status:"running",input_snapshot:{target:root,max_pages:max,pagespeed_limit:speedLimit},raw_items:[],result_count:0,actor_meta:{provider:"Context.dev + Google PageSpeed",stage:"mapping",map_urls:[],pages:[],page_errors:[],pagespeed_results:[],events:[taskEvent("info","诊断任务已创建",{target:root})],last_progress_at:now()},started_at:now()}).select("id").single();if(ins)throw ins;
    try{const mapped=await mapSite(key,root,max),selected=coreUrls(mapped,root,max);if(!selected.length)throw new Error("Map URLs 没有返回当前域名下的可分析页面。");
-    const meta={provider:"Context.dev + Google PageSpeed",stage:"scraping",map_urls:mapped,pages:[],page_errors:[],scrape_queue:selected,pagespeed_results:[],discovered_count:mapped.length};
+    const meta={provider:"Context.dev + Google PageSpeed",stage:"scraping",map_urls:mapped,pages:[],page_errors:[],scrape_queue:selected,pagespeed_results:[],discovered_count:mapped.length,events:[taskEvent("success","网站结构发现完成",{discovered_pages:mapped.length,selected_pages:selected.length})],last_progress_at:now()};
     const {error:up}=await admin.from("market_trend_tasks").update({actor_meta:meta,updated_at:now()}).eq("id",task.id);if(up)throw up;
     return reply({task_id:task.id,status:"running",discovered_pages:mapped.length,selected_pages:selected.length});
-   }catch(e){const message=e instanceof Error?e.message:"Context.dev 网站结构发现失败。";await admin.from("market_trend_tasks").update({status:"failed",error_message:message,completed_at:now(),updated_at:now()}).eq("id",task.id);return reply({error:message,task_id:task.id},502)}
+   }catch(e){const message=e instanceof Error?e.message:"Context.dev 网站结构发现失败。";await admin.from("market_trend_tasks").update({status:"failed",error_message:message,actor_meta:{provider:"Context.dev + Google PageSpeed",stage:"failed",events:[taskEvent("error","网站结构发现失败",{error:message})]},completed_at:now(),updated_at:now()}).eq("id",task.id);return reply({error:message,task_id:task.id},502)}
   }
   return reply({error:"不支持的操作类型。"},400);
  }catch(e){return reply({error:e instanceof Error?e.message:"网站诊断服务发生未知错误。",status:(e as any)?.status||400},(e as any)?.status||400)}
