@@ -43,9 +43,10 @@ export default function CarbonSelect({id,value,onChange,children,placeholder="�
     <button id={id} type="button" className="carbon-select-trigger" aria-haspopup="listbox" aria-controls={listboxId} aria-expanded={open} aria-label={ariaLabel||selected?.label||placeholder} onKeyDown={event=>{if(event.key==="ArrowDown"||event.key==="ArrowUp"){event.preventDefault();setOpen(true);}}} onClick={()=>setOpen(x=>!x)}>
       <span className={selected?"":"carbon-select-placeholder"}>{selected?<OptionLabel label={selected.label}/>:placeholder}</span><span className="carbon-select-chevron" aria-hidden="true">⌄</span>
     </button>
-    {open&&<div className="carbon-select-menu" role="listbox">
-      {options.length>8&&<input className="carbon-select-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索选项…" autoFocus/>}
-      <div className="carbon-select-options">{filtered.map(option=><button type="button" role="option" aria-selected={value===option.value} disabled={option.disabled} key={option.value} className={value===option.value?"carbon-select-option selected":"carbon-select-option"} onClick={()=>{onChange(option.value);setOpen(false);setQuery("");}}><OptionLabel label={option.label}/>{value===option.value&&<span aria-hidden="true">✓</span>}</button>)}{!filtered.length&&<div className="carbon-select-empty">没有匹配的选项</div>}</div>
+    {open&&<div id={listboxId} className="carbon-select-menu" role="listbox" aria-label={ariaLabel||placeholder}>
+      {options.length>8&&<input className="carbon-select-search" aria-label="搜索选项" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索选项…"/>}
+      <div className="carbon-select-options">{filtered.map((option,index)=>{const optionIndex=options.findIndex(item=>item.value===option.value);return <button ref={node=>{optionRefs.current[optionIndex]=node;}} type="button" role="option" tabIndex={-1} aria-selected={value===option.value} disabled={option.disabled} key={option.value} className={value===option.value?"carbon-select-option selected":"carbon-select-option"} onKeyDown={event=>handleOptionKeyDown(event,index)} onClick={()=>{onChange(option.value);setOpen(false);setQuery("");root.current?.querySelector<HTMLButtonElement>(".carbon-select-trigger")?.focus();}}><OptionLabel label={option.label}/>{value===option.value&&<span aria-hidden="true">✓</span>}</button>;})}{!filtered.length&&<div className="carbon-select-empty">没有匹配的选项</div>}</div>
+    </div>}</div>
     </div>}
   </div>;
 }
