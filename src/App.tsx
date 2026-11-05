@@ -451,7 +451,7 @@ function AppShell() {
                 {renderMenuItem(navItems[5])}
               </SideNavMenu>
               <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
-                {renderMenuItem(navItems[5])}
+                {renderMenuItem(navItems[6])}
               </SideNavMenu>
             </>
           )}
