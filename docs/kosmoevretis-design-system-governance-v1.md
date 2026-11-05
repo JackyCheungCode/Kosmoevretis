@@ -111,3 +111,12 @@ npm run design-system:check 扫描 src/pages，并显式纳入设置中心根目
 - AppShell 必须按 Carbon v11 UI Shell 的官方组合、尺寸、主题层级和交互模式验收。
 - 允许重构当前 Shell 的 CSS 和 JSX；不得将旧有 48px header、侧栏尺寸或自定义覆盖当成不可变规则。
 - 禁止业务页面自行实现 Header、SideNav 或第二套内容偏移。
+
+
+## 9. Carbon Content 与 Grid 实施约定（2026-11-05）
+
+- 使用 Carbon `Content` 作为 UI Shell 的主内容容器，顶部偏移采用官方 Header 高度（3rem）；不要在业务页面再叠加 Header 高度。
+- 页面级布局使用 Carbon v11 `Grid` 和 `Column`，优先 `Grid fullWidth`，并按 2x Grid 在 sm/md/lg 等断点设置列跨度。
+- 多层布局必须按官方结构嵌套 `Grid > Column > Grid`，避免将 Column 直接嵌套在 Column 中。
+- 页面级 gutters 交由 Carbon Grid 管理，Content 容器不再叠加第二套水平 padding。
+- 组件内部的 CSS Grid/Flex 可用于数据卡片、表单字段和局部排列，不取代页面级 Carbon Grid。
