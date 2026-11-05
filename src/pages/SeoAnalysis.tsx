@@ -151,7 +151,7 @@ export default function SeoAnalysis() {
               {(task.raw_items||[]).map((item:any,i:number)=><div className="seo-analysis-page-row" key={item.url||i}>
                 <strong>{item.url}</strong><span>JSON-LD {item.audit?.structured_data?.json_ld_valid??0}/{item.audit?.structured_data?.json_ld_blocks??0} · Microdata {item.audit?.structured_data?.microdata_items??0} · RDFa {item.audit?.structured_data?.rdfa_items??0}</span>
                 <span>Schema：{(item.audit?.structured_data?.types||[]).join("、")||"未发现"}</span>
-                {(item.audit?.structured_data?.eligibility_checks||[]).map((check:any)=><span key={check.type}>{check.type}：{check.note}</span>)}
+                {(item.audit?.structured_data?.eligibility_checks||[]).map((check:any)=><span key={check.type}>{check.type}：{check.precheck} · 缺少必填：{(check.missing_required||[]).join("、")||"无"} · 建议补充：{(check.missing_recommended||[]).join("、")||"无"}</span>)}
               </div>)}
             </AccordionItem>
             <AccordionItem title="PageSpeed 原始指标">
