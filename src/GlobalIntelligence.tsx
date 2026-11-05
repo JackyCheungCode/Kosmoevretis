@@ -163,7 +163,7 @@ export default function GlobalIntelligence(){
  const login=async(e:React.FormEvent)=>{e.preventDefault();setAuthError("");const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setAuthError(error.message);};
  if(!ready)return <div className="boot-screen">正在连接全球情报中心…</div>;
  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">全球情报中心</div><h2>登录企业工作区</h2><p>登录后选择产品档案，或直接输入关键词开展市场研究。</p><TextInput id="gi-login-email" type="email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)} required/><PasswordInput id="gi-login-password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError} hideCloseButton/>}<Button kind="primary" type="submit">登录</Button></form>;
- return <main className="global-intelligence">
+ return <section className="global-intelligence">
   <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div></Column></Grid>
   <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><section className="gi-setup" aria-label="分析源配置">
   <section className="analysis-source">
@@ -198,5 +198,5 @@ export default function GlobalIntelligence(){
     {compactViewport?<div className="gi-mobile-dimension"><Select id="gi-mobile-dimension" labelText="分析维度" value={activeTab} onChange={e=>setActiveTab(e.target.value)}>{tabs.map(tab=><SelectItem key={tab.id} value={tab.id} text={tab.label}/>)}</Select><div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div></div>:<CarbonTabs ariaLabel="情报分析维度" activeTabId={activeTab} onChange={setActiveTab} items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}/>}
    </div>
   </section></Column></Grid>
- </main>;
+ </section>;
 }
