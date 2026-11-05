@@ -228,8 +228,6 @@
 
 .kosmo-main--template-page { min-width: 0; }
 .kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
-@media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
-@media (max-width: 671px) { .kosmo-main--template-page { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }
 
 
 /* Mobile shell navigation: keep the drawer inside the viewport and respect device safe areas. */
