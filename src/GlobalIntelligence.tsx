@@ -187,7 +187,7 @@ export default function GlobalIntelligence(){
      <div className="gi-subsection-heading"><div><h4>产品参数</h4><p>默认包含已配置的分析参数，可按需要调整。</p></div><span>{selectedCount} 个参数值已选</span></div>
      {loading?<div className="inline-loading">正在读取产品参数…</div>:attributes.length===0?<div className="inline-empty">该产品尚未配置参数，可直接分析整个产品。</div>:<div className="gi-parameter-list">{attributes.map(a=><div className="gi-parameter-row" key={a.id}><div className="gi-parameter-name">{a.name}{a.unit&&<small>单位：{a.unit}</small>}</div><div className="gi-parameter-values">{(a.product_attribute_values||[]).map(v=><div className="gi-parameter-value" key={v.id}><Checkbox id={`parameter-${a.id}-${v.id}`} labelText={`${v.value_text}${v.unit||""}`} checked={(selectedValues[a.id]||[]).includes(v.id)} onChange={()=>toggleValue(a.id,v.id)}/></div>)}</div><Button kind="ghost" size="sm" type="button" onClick={()=>selectAllValues(a.id,a.product_attribute_values||[])}>全选</Button></div>)}</div>}
      {variants.length>0&&<div className="gi-variant-block"><div className="gi-subsection-heading"><div><h4>SKU / 规格组合</h4><p>选择参与分析的实际销售规格。</p></div><span>{selectedVariants.length} / {variants.length} 已选</span></div><div className="gi-variant-list">{variants.map(v=><label className="gi-variant-item" key={v.id}><Checkbox id={`variant-${v.id}`} labelText={`${v.title||v.model||"未命名规格"} · ${[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}`} checked={selectedVariants.includes(v.id)} onChange={()=>{setSelectedVariants(current=>current.includes(v.id)?current.filter(x=>x!==v.id):[...current,v.id]);resetAnalysis();}}/><span><strong>{v.title||v.model||"未命名规格"}</strong><small>{[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}</small></span></label>)}</div></div>}
-   </div>
+   </div>}
    </section>
 
    <section className="gi-config-section gi-keyword-section">
@@ -235,5 +235,4 @@ export default function GlobalIntelligence(){
    </div>
   </section>
  </section>;
-}
 }
