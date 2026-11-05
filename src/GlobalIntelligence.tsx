@@ -90,7 +90,7 @@ export default function GlobalIntelligence(){
  return <section className="global-intelligence">
   <div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div>
   <section className="analysis-source">
-   <div className="analysis-source-heading"><div><span className="eyebrow">01 / ANALYSIS SOURCE</span><h2>分析对象与关键词</h2><p>选择企业产品并复用参数规格，或直接输入关键词；可使用 DeepL 生成多语言关键词。</p></div><span className="source-note">产品档案自动同步</span></div>
+   <div className="analysis-source-heading"><div><span className="eyebrow">01 / 分析来源</span><h2>分析对象与关键词</h2><p>选择企业产品并复用参数规格，或直接输入关键词；可使用 DeepL 生成多语言关键词。</p></div><span className="source-note">产品档案自动同步</span></div>
    <div className="source-grid"><div className="source-main">
     <label className="field-label">选择产品</label>
     <CarbonSelect value={productId} onChange={v=>{setProductId(v);setAnalyzed(false);}} placeholder="不选择产品，直接进行关键词分析">{products.map(p=><option key={p.id} value={p.id}>{p.name}{p.brand?" · "+p.brand:""}{p.model?" · "+p.model:""}</option>)}</CarbonSelect>
@@ -112,7 +112,7 @@ export default function GlobalIntelligence(){
    </div><div className="market-map-panel"><div className="map-heading"><strong>全球市场分布</strong><span>OpenStreetMap · 点击国家可选择</span></div><WorldMarketMap selected={selectedMarkets} onToggle={toggleMarket}/></div></div>
   </section>
   <DataSourceSelector organizationId={organizationId} selectedMarkets={selectedMarkets} selectedSourceIds={selectedSourceIds} onChange={setSelectedSourceIds} onLoadDemo={()=>{setKeywords("AI 主动降噪无线耳机, ANC headphones");setSelectedMarkets(["US","JP","DE","GB"]);setAnalyzed(false);setError("");}}/>
-  <section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / INTELLIGENCE RESULTS</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
+  <section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / 情报分析结果</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
    {task&&<div className="analysis-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="context-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
    {error&&<InlineNotification kind="error" lowContrast title="分析未完成" subtitle={error} hideCloseButton/>}<div className="analysis-submit-row"><span>配置完成后提交分析条件；切换下方 Tab 不会重置当前条件。</span><Button kind="primary" type="button" onClick={startAnalysis}>开始分析 <span aria-hidden="true">→</span></Button></div>
    <div className="intelligence-tabs"><Tabs selectedIndex={Math.max(0,tabs.findIndex(tab=>tab.id===activeTab))} onChange={({selectedIndex})=>setActiveTab(tabs[selectedIndex]?.id||"overview")}>
