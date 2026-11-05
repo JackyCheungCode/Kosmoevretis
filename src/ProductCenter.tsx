@@ -54,6 +54,11 @@ export default function ProductCenter() {
   const [selectedCategoryId,setSelectedCategoryId] = useState("");
   const [selectedDefinitionIds,setSelectedDefinitionIds] = useState<string[]>([]);
   const [selectedRequiredIds,setSelectedRequiredIds] = useState<string[]>([]);
+  const [editingCategoryId,setEditingCategoryId] = useState("");
+  const [editingDefinitionId,setEditingDefinitionId] = useState("");
+  const [confirmCategoryDeleteId,setConfirmCategoryDeleteId] = useState("");
+  const [confirmDefinitionDeleteId,setConfirmDefinitionDeleteId] = useState("");
+  const [confirmValueDeleteId,setConfirmValueDeleteId] = useState("");
   const [definitionForm,setDefinitionForm] = useState({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
   const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({});
   const [variants,setVariants] = useState<Variant[]>([]);
@@ -201,16 +206,49 @@ export default function ProductCenter() {
     finally{setBusy(false);}
   };
 
-  const createCategory = async (event:FormEvent) => {
+  const saveCategory = async (event:FormEvent) => {
     event.preventDefault();if(!categoryForm.name.trim()||!org)return;
-    setBusy(true);
-    const {data,error}=await supabase.from("product_categories").insert({
-      organization_id:org,parent_id:categoryForm.parent_id||null,name:categoryForm.name.trim(),
-      slug:makeSlug(categoryForm.name),code:categoryForm.code.trim()||null,description:categoryForm.description.trim()||null,sort_order:categories.length
-    }).select("*").single();
-    if(error)setNotice({kind:"error",text:message(error)});
-    else{setCategories(prev=>[...prev,data as Category]);setCategoryForm({name:"",code:"",parent_id:"",description:""});setNotice({kind:"success",text:"产品分类已创建。"});}
-    setBusy(false);
+    if(editingCategoryId&&(categoryForm.parent_id===editingCategoryId||categoryPathFor(categoryForm.parent_id).includes(categories.find(c=>c.id===editingCategoryId)?.name||""))){
+      setNotice({kind:"error",text:"不能将分类移动到自身或自己的下级分类中。"});return;
+    }
+    setBusy(true);setNotice(null);
+    try{
+      const row={organization_id:org,parent_id:categoryForm.parent_id||null,name:categoryForm.name.trim(),
+        slug:makeSlug(categoryForm.name),code:categoryForm.code.trim()||null,
+        description:categoryForm.description.trim()||null,updated_at:new Date().toISOString()};
+      const result=editingCategoryId
+        ?await supabase.from("product_categories").update(row).eq("id",editingCategoryId).eq("organization_id",org).select("*").single()
+        :await supabase.from("product_categories").insert({...row,sort_order:categories.length}).select("*").single();
+      if(result.error)throw result.error;
+      await load(org);setCategoryForm({name:"",code:"",parent_id:"",description:""});
+      setEditingCategoryId("");setNotice({kind:"success",text:editingCategoryId?"分类信息已更新。":"产品分类已创建。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
+  };
+
+  const editCategory = (category:Category) => {
+    setEditingCategoryId(category.id);
+    setCategoryForm({name:category.name,code:category.code||"",parent_id:category.parent_id||"",description:category.description||""});
+  };
+
+  const deleteCategory = async (category:Category) => {
+    if(confirmCategoryDeleteId!==category.id){setConfirmCategoryDeleteId(category.id);return;}
+    setBusy(true);setNotice(null);
+    try{
+      const [children,productsInCategory,templates]=await Promise.all([
+        supabase.from("product_categories").select("id").eq("parent_id",category.id).limit(1),
+        supabase.from("products").select("id").eq("category_id",category.id).limit(1),
+        supabase.from("product_category_attribute_templates").select("id").eq("category_id",category.id).limit(1)
+      ]);
+      if(children.error)throw children.error;if(productsInCategory.error)throw productsInCategory.error;if(templates.error)throw templates.error;
+      if(children.data?.length||productsInCategory.data?.length||templates.data?.length){
+        setNotice({kind:"error",text:"该分类仍有下级分类、产品或属性模板引用。请先调整关联，再删除。"});return;
+      }
+      const {error}=await supabase.from("product_categories").delete().eq("id",category.id).eq("organization_id",org);
+      if(error)throw error;await load(org);setConfirmCategoryDeleteId("");
+      setNotice({kind:"success",text:"分类已删除。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
   };
 
   const saveCategoryAttributes = async (event:FormEvent) => {
@@ -237,18 +275,50 @@ export default function ProductCenter() {
     finally{setBusy(false);}
   };
 
-  const createDefinition = async (event:FormEvent) => {
+  const saveDefinition = async (event:FormEvent) => {
     event.preventDefault();if(!definitionForm.name.trim()||!org)return;
-    setBusy(true);
-    const {data,error}=await supabase.from("product_attribute_definitions").insert({
-      organization_id:org,name:definitionForm.name.trim(),slug:makeSlug(definitionForm.name),data_type:definitionForm.data_type,
-      unit:definitionForm.unit.trim()||null,attribute_group:definitionForm.group,semantic_type:definitionForm.semantic,
-      display_type:definitionForm.display,default_variant_creation_mode:definitionForm.variant_mode,
-      include_in_analysis:true,sort_order:definitions.length
-    }).select("*,product_attribute_definition_values(*)").single();
-    if(error)setNotice({kind:"error",text:message(error)});
-    else{setDefinitions(prev=>[...prev,data as Definition]);setDefinitionForm({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});setNotice({kind:"success",text:"属性已加入企业属性库。"});}
-    setBusy(false);
+    setBusy(true);setNotice(null);
+    try{
+      const row={organization_id:org,name:definitionForm.name.trim(),slug:makeSlug(definitionForm.name),
+        data_type:definitionForm.data_type,unit:definitionForm.unit.trim()||null,attribute_group:definitionForm.group,
+        semantic_type:definitionForm.semantic,display_type:definitionForm.display,
+        default_variant_creation_mode:definitionForm.variant_mode,include_in_analysis:true,
+        sort_order:editingDefinitionId?(definitions.find(item=>item.id===editingDefinitionId)?.sort_order??definitions.length):definitions.length};
+      const result=editingDefinitionId
+        ?await supabase.from("product_attribute_definitions").update(row).eq("id",editingDefinitionId).eq("organization_id",org).select("*,product_attribute_definition_values(*)").single()
+        :await supabase.from("product_attribute_definitions").insert(row).select("*,product_attribute_definition_values(*)").single();
+      if(result.error)throw result.error;
+      setDefinitions(prev=>editingDefinitionId?prev.map(item=>item.id===editingDefinitionId?result.data as Definition:item):[...prev,result.data as Definition]);
+      setDefinitionForm({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
+      setNotice({kind:"success",text:editingDefinitionId?"属性定义已更新。":"属性已加入企业属性库。"});setEditingDefinitionId("");
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
+  };
+
+  const editDefinition = (definition:Definition) => {
+    setEditingDefinitionId(definition.id);
+    setDefinitionForm({name:definition.name,data_type:definition.data_type,unit:definition.unit||"",
+      group:definition.attribute_group,semantic:definition.semantic_type,display:definition.display_type,
+      variant_mode:definition.default_variant_creation_mode});
+  };
+
+  const deleteDefinition = async (definition:Definition) => {
+    if(confirmDefinitionDeleteId!==definition.id){setConfirmDefinitionDeleteId(definition.id);return;}
+    setBusy(true);setNotice(null);
+    try{
+      const [usedByProducts,usedByCategories]=await Promise.all([
+        supabase.from("product_attributes").select("id").eq("definition_id",definition.id).limit(1),
+        supabase.from("product_category_attribute_templates").select("id").eq("definition_id",definition.id).limit(1)
+      ]);
+      if(usedByProducts.error)throw usedByProducts.error;if(usedByCategories.error)throw usedByCategories.error;
+      if(usedByProducts.data?.length||usedByCategories.data?.length){
+        setNotice({kind:"error",text:"该属性已被产品或分类模板引用，不能直接删除。请先解除关联。"});return;
+      }
+      const {error}=await supabase.from("product_attribute_definitions").delete().eq("id",definition.id).eq("organization_id",org);
+      if(error)throw error;setDefinitions(prev=>prev.filter(item=>item.id!==definition.id));
+      setConfirmDefinitionDeleteId("");setNotice({kind:"success",text:"属性定义已删除。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
   };
 
   const addDefinitionValue = async (d:Definition) => {
@@ -260,6 +330,21 @@ export default function ProductCenter() {
     }).select("*").single();
     if(error)setNotice({kind:"error",text:message(error)});
     else{setDefinitions(prev=>prev.map(x=>x.id===d.id?{...x,product_attribute_definition_values:[...(x.product_attribute_definition_values||[]),data as DefinitionValue]}:x));setDefinitionValueDraft(prev=>({...prev,[d.id]:""}));}
+  };
+
+  const deleteDefinitionValue = async (definition:Definition,value:DefinitionValue) => {
+    if(confirmValueDeleteId!==value.id){setConfirmValueDeleteId(value.id);return;}
+    setBusy(true);setNotice(null);
+    try{
+      const {data:used,error:usedError}=await supabase.from("product_attribute_values").select("id").eq("definition_value_id",value.id).limit(1);
+      if(usedError)throw usedError;
+      if(used?.length){setNotice({kind:"error",text:"该属性值已被产品使用，不能删除。"});return;}
+      const {error}=await supabase.from("product_attribute_definition_values").delete().eq("id",value.id).eq("definition_id",definition.id).eq("organization_id",org);
+      if(error)throw error;
+      setDefinitions(prev=>prev.map(item=>item.id===definition.id?{...item,product_attribute_definition_values:(item.product_attribute_definition_values||[]).filter(v=>v.id!==value.id)}:item));
+      setConfirmValueDeleteId("");setNotice({kind:"success",text:"属性值已删除。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
   };
 
   const updateProductAttributeMode = async (attribute:ProductAttribute,mode:string) => {
@@ -421,14 +506,14 @@ export default function ProductCenter() {
         <TabPanel>
           <div className="pc-management-grid">
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>产品分类</h3><p>建立独立的多级产品分类；分类与属性是不同的主数据。</p></div><Tag>{categories.length} 个分类</Tag></div>
-              <form className="pc-create-category" onSubmit={createCategory}>
+              <form className="pc-create-category" onSubmit={saveCategory}>
                 <TextInput id="pc-cat-name" labelText="分类名称 *" value={categoryForm.name} onChange={e=>setCategoryForm(p=>({...p,name:e.target.value}))} required/>
                 <TextInput id="pc-cat-code" labelText="分类编码" value={categoryForm.code} onChange={e=>setCategoryForm(p=>({...p,code:e.target.value}))}/>
                 <FormField className="pc-field" label="上级分类" htmlFor="pc-category-parent"><CarbonSelect id="pc-category-parent" value={categoryForm.parent_id} onChange={v=>setCategoryForm(p=>({...p,parent_id:v}))} placeholder="顶级分类"><option value="">顶级分类</option>{categoryTree().map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</CarbonSelect></FormField>
                 <TextInput id="pc-cat-description" labelText="分类说明" value={categoryForm.description} onChange={e=>setCategoryForm(p=>({...p,description:e.target.value}))}/>
-                <Button type="submit" disabled={busy}>创建分类</Button>
+                <Button type="submit" disabled={busy}>{busy?"保存中…":editingCategoryId?"保存分类":"创建分类"}</Button>{editingCategoryId&&<Button kind="ghost" type="button" onClick={()=>{setEditingCategoryId("");setCategoryForm({name:"",code:"",parent_id:"",description:""});}}>取消编辑</Button>}
               </form>
-              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+Math.max(0,categories.filter(x=>x.id===c.parent_id).length)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategoryId(c.id);const links=categoryTemplates.filter(x=>x.category_id===c.id);setSelectedDefinitionIds(links.map(x=>x.definition_id));setSelectedRequiredIds(links.filter(x=>x.is_required).map(x=>x.definition_id));}}>配置属性 →</Button></div>)}</div>
+              <div className="pc-category-tree">{categoryTree().map(c=><div className="pc-category-item" key={c.id} style={{paddingLeft:`${12+Math.max(0,categories.filter(x=>x.id===c.parent_id).length)*18}px`}}><span className="pc-category-dot"/><strong>{c.name}</strong><small>{c.code||c.slug}</small><Button kind="ghost" size="sm" onClick={()=>editCategory(c)}>编辑</Button><Button kind="ghost" size="sm" onClick={()=>{setSelectedCategoryId(c.id);const links=categoryTemplates.filter(x=>x.category_id===c.id);setSelectedDefinitionIds(links.map(x=>x.definition_id));setSelectedRequiredIds(links.filter(x=>x.is_required).map(x=>x.definition_id));}}>配置属性</Button><Button kind="ghost" size="sm" onClick={()=>deleteCategory(c)} disabled={busy}>{confirmCategoryDeleteId===c.id?"再次点击确认删除":"删除"}</Button></div>)}</div>
             </section>
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>分类属性模板</h3><p>为所选分类指定默认属性。创建该分类产品时自动初始化。</p></div></div>
               {selectedCategoryRecord?<form onSubmit={saveCategoryAttributes}><div className="pc-selected-category">{selectedCategoryRecord.name}</div><div className="pc-check-list">{definitions.map(d=><div className="pc-template-definition" key={d.id}><Checkbox id={`pc-cat-def-${d.id}`} labelText={d.name} checked={selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>{setSelectedDefinitionIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id));if(!data.checked)setSelectedRequiredIds(prev=>prev.filter(x=>x!==d.id));}}/><Checkbox id={`pc-cat-required-${d.id}`} labelText="必填" checked={selectedRequiredIds.includes(d.id)} disabled={!selectedDefinitionIds.includes(d.id)} onChange={(_,data)=>setSelectedRequiredIds(prev=>data.checked?[...prev,d.id]:prev.filter(x=>x!==d.id))}/></div>)}</div><Button type="submit" disabled={busy}>保存分类属性模板</Button></form>:<div className="pc-empty-inline">从左侧分类列表选择「配置属性」。</div>}
@@ -438,18 +523,18 @@ export default function ProductCenter() {
         <TabPanel>
           <div className="pc-management-grid pc-attributes-layout">
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>创建属性</h3><p>企业级统一属性库；不同产品分类可复用相同属性定义。</p></div></div>
-              <form className="pc-create-attribute" onSubmit={createDefinition}>
+              <form className="pc-create-attribute" onSubmit={saveDefinition}>
                 <TextInput id="pc-attr-name" labelText="属性名称 *" value={definitionForm.name} onChange={e=>setDefinitionForm(p=>({...p,name:e.target.value}))} required/>
                 <FormField className="pc-field" label="数据类型" htmlFor="pc-definition-type"><CarbonSelect id="pc-definition-type" value={definitionForm.data_type} onChange={v=>setDefinitionForm(p=>({...p,data_type:v}))}><option value="text">文本</option><option value="number">数值</option><option value="single_select">单选</option><option value="multi_select">多选</option><option value="boolean">布尔值</option><option value="date">日期</option><option value="dimension">带单位数值</option></CarbonSelect></FormField>
                 <TextInput id="pc-attr-unit" labelText="计量单位" value={definitionForm.unit} onChange={e=>setDefinitionForm(p=>({...p,unit:e.target.value}))}/>
                 <FormField className="pc-field" label="属性分组" htmlFor="pc-definition-group"><CarbonSelect id="pc-definition-group" value={definitionForm.group} onChange={v=>setDefinitionForm(p=>({...p,group:v}))}><option value="规格参数">规格参数</option><option value="外观设计">外观设计</option><option value="功能特性">功能特性</option><option value="合规认证">合规认证</option><option value="商业信息">商业信息</option></CarbonSelect></FormField>
                 <FormField className="pc-field" label="变体生成方式" htmlFor="pc-definition-variant-mode"><CarbonSelect id="pc-definition-variant-mode" value={definitionForm.variant_mode} onChange={v=>setDefinitionForm(p=>({...p,variant_mode:v}))}><option value="never">不生成变体</option><option value="dynamic">动态生成</option><option value="instant">立即生成</option></CarbonSelect></FormField>
                 <FormField className="pc-field" label="显示方式" htmlFor="pc-definition-display"><CarbonSelect id="pc-definition-display" value={definitionForm.display} onChange={v=>setDefinitionForm(p=>({...p,display:v}))}><option value="pills">标签按钮</option><option value="select">下拉选择</option><option value="radio">单选按钮</option><option value="color">颜色</option><option value="multi_checkbox">多选框</option><option value="image">图片</option></CarbonSelect></FormField>
-                <Button type="submit" disabled={busy}>创建属性</Button>
+                <Button type="submit" disabled={busy}>{busy?"保存中…":editingDefinitionId?"保存属性":"创建属性"}</Button>{editingDefinitionId&&<Button kind="ghost" type="button" onClick={()=>{setEditingDefinitionId("");setDefinitionForm({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});}}>取消编辑</Button>}
               </form>
             </section>
             <section className="pc-form-section"><div className="pc-section-head"><div><h3>属性库</h3><p>维护属性允许值、单位和变体规则。</p></div><Tag>{definitions.length} 项</Tag></div>
-              <div className="pc-definition-list">{definitions.map(d=><article className="pc-definition" key={d.id}><div className="pc-definition-heading"><div><strong>{d.name}</strong><span>{d.attribute_group} · {d.data_type}{d.unit?` · ${d.unit}`:""}</span></div><Tag type={d.default_variant_creation_mode==="never"?"gray":"blue"}>{d.default_variant_creation_mode==="never"?"非变体属性":d.default_variant_creation_mode==="dynamic"?"动态变体":"立即变体"}</Tag></div><div className="pc-definition-values">{(d.product_attribute_definition_values||[]).map(v=><span key={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</span>)}{!(d.product_attribute_definition_values||[]).length&&<small>尚未定义允许值</small>}</div><div className="pc-add-value"><TextInput id={`pc-value-${d.id}`} labelText="添加属性值" hideLabel value={definitionValueDraft[d.id]||""} onChange={e=>setDefinitionValueDraft(p=>({...p,[d.id]:e.target.value}))} placeholder="输入属性值"/><Button kind="tertiary" size="sm" onClick={()=>addDefinitionValue(d)}>添加</Button></div></article>)}</div>
+              <div className="pc-definition-list">{definitions.map(d=><article className="pc-definition" key={d.id}><div className="pc-definition-heading"><div><strong>{d.name}</strong><span>{d.attribute_group} · {d.data_type}{d.unit?` · ${d.unit}`:""}</span></div><Tag type={d.default_variant_creation_mode==="never"?"gray":"blue"}>{d.default_variant_creation_mode==="never"?"非变体属性":d.default_variant_creation_mode==="dynamic"?"动态变体":"立即变体"}</Tag><Button kind="ghost" size="sm" onClick={()=>editDefinition(d)}>编辑</Button><Button kind="ghost" size="sm" disabled={busy} onClick={()=>deleteDefinition(d)}>{confirmDefinitionDeleteId===d.id?"再次点击确认删除":"删除"}</Button></div><div className="pc-definition-values">{(d.product_attribute_definition_values||[]).map(v=><span className="pc-definition-value" key={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}<button type="button" aria-label={"删除属性值 "+v.value_text} disabled={busy} onClick={()=>deleteDefinitionValue(d,v)}>{confirmValueDeleteId===v.id?"确认?":"×"}</button></span>)}{!(d.product_attribute_definition_values||[]).length&&<small>尚未定义允许值</small>}</div><div className="pc-add-value"><TextInput id={`pc-value-${d.id}`} labelText="添加属性值" hideLabel value={definitionValueDraft[d.id]||""} onChange={e=>setDefinitionValueDraft(p=>({...p,[d.id]:e.target.value}))} placeholder="输入属性值"/><Button kind="tertiary" size="sm" onClick={()=>addDefinitionValue(d)}>添加</Button></div></article>)}</div>
             </section>
           </div>
         </TabPanel>
