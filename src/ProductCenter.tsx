@@ -12,11 +12,12 @@ type DefinitionValue = { id:string; value_text:string; value_number:number|null;
 type Definition = { id:string; name:string; slug:string; data_type:string; unit:string|null; attribute_group:string; semantic_type:string; display_type:string; default_variant_creation_mode:string; include_in_analysis:boolean; sort_order:number; product_attribute_definition_values?:DefinitionValue[] };
 type Product = {
   id:string; name:string; brand:string|null; manufacturer:string|null; model:string|null; sku:string|null; internal_reference:string|null; barcode:string|null;
-  category_id:string|null; category_path:string[]; description:string|null; image_url:string|null; target_markets:string[]; status:string; product_type:string;
+  category_id:string|null; category_path:string[]; description:string|null; image_url:string|null; target_markets:string[]; target_audiences:string[]; target_positioning:string|null; key_selling_points:string[]; release_date:string|null; status:string; product_type:string;
   can_be_sold:boolean; can_be_purchased:boolean; sales_price:number|null; sales_currency:string; cost:number|null; cost_currency:string;
   unit_of_measure:string; purchase_uom:string; sales_description:string|null; purchase_description:string|null; weight:number|null; volume:number|null;
   country_of_origin:string|null; hs_code:string|null; website_url:string|null; lifecycle_stage:string; version:number;
 };
+type ProductKeyword = { id:string; keyword:string; keyword_type:string; language_code:string; market_code:string|null; search_intent:string|null; is_active:boolean };
 type Variant = { id:string; sku:string|null; title:string|null; model:string|null; barcode:string|null; price:number|null; currency:string|null; cost:number|null; is_active:boolean };
 type ProductAttribute = { id:string; name:string; data_type:string; variant_creation_mode:string; unit:string|null; product_attribute_values:{id:string;value_text:string;value_number?:number|null;unit:string|null}[] };
 type VariantAttributeValue = { id:string; variant_id:string; attribute_id:string; attribute_value_id:string };
@@ -27,7 +28,7 @@ const makeSlug = (s:string) => s.toLowerCase().trim().replace(/[^a-z0-9\u4e00-\u
 const money = (v:number|null|undefined,currency:string) => v==null ? "—" : new Intl.NumberFormat("en-US",{style:"currency",currency:currency||"USD",maximumFractionDigits:2}).format(v);
 const emptyProduct = () => ({
   name:"",brand:"",manufacturer:"",model:"",sku:"",internal_reference:"",barcode:"",category_id:"",description:"",image_url:"",
-  target_markets:"Global",product_type:"physical",can_be_sold:true,can_be_purchased:true,sales_price:"",sales_currency:"USD",cost:"",cost_currency:"USD",
+  target_markets:"Global",target_audiences:"",target_positioning:"",key_selling_points:"",release_date:"",product_type:"physical",can_be_sold:true,can_be_purchased:true,sales_price:"",sales_currency:"USD",cost:"",cost_currency:"USD",
   unit_of_measure:"pcs",purchase_uom:"pcs",sales_description:"",purchase_description:"",weight:"",volume:"",country_of_origin:"",hs_code:"",
   website_url:"",lifecycle_stage:"development"
 });
@@ -43,6 +44,12 @@ export default function ProductCenter() {
   const [busy,setBusy] = useState(false);
   const [tab,setTab] = useState(0);
   const [products,setProducts] = useState<Product[]>([]);
+  const [productKeywords,setProductKeywords] = useState<ProductKeyword[]>([]);
+  const [keywordDraft,setKeywordDraft] = useState("");
+  const [keywordType,setKeywordType] = useState("core");
+  const [keywordLanguage,setKeywordLanguage] = useState("en");
+  const [keywordMarket,setKeywordMarket] = useState("");
+  const [confirmKeywordDeleteId,setConfirmKeywordDeleteId] = useState("");
   const [categories,setCategories] = useState<Category[]>([]);
   const [definitions,setDefinitions] = useState<Definition[]>([]);
   const [categoryTemplates,setCategoryTemplates] = useState<CategoryTemplate[]>([]);
@@ -127,11 +134,13 @@ export default function ProductCenter() {
     });
   const categoryOptions = categoryTree().map(c=>({id:c.id,label:"　".repeat(categoryDepth(c.id))+c.name}));
 
-  const startNew = () => {setSelected(null);setForm(emptyProduct());setVariants([]);setEditing(true);setNotice(null);};
+  const startNew = () => {setSelected(null);setForm(emptyProduct());setProductKeywords([]);setKeywordDraft("");setKeywordType("core");setKeywordLanguage("en");setKeywordMarket("");setVariants([]);setProductAttributes([]);setVariantAttributeValues([]);setEditingVariantId("");setEditing(true);setNotice(null);};
   const startEdit = async (p:Product) => {
     setSelected(p);setForm({
       name:p.name||"",brand:p.brand||"",manufacturer:p.manufacturer||"",model:p.model||"",sku:p.sku||"",internal_reference:p.internal_reference||"",barcode:p.barcode||"",
       category_id:p.category_id||"",description:p.description||"",image_url:p.image_url||"",target_markets:(p.target_markets||[]).join(", "),
+      target_audiences:(p.target_audiences||[]).join(", "),target_positioning:p.target_positioning||"",
+      key_selling_points:(p.key_selling_points||[]).join(", "),release_date:p.release_date||"",
       product_type:p.product_type||"physical",can_be_sold:p.can_be_sold??true,can_be_purchased:p.can_be_purchased??true,
       sales_price:p.sales_price==null?"":String(p.sales_price),sales_currency:p.sales_currency||"USD",cost:p.cost==null?"":String(p.cost),cost_currency:p.cost_currency||"USD",
       unit_of_measure:p.unit_of_measure||"pcs",purchase_uom:p.purchase_uom||"pcs",sales_description:p.sales_description||"",purchase_description:p.purchase_description||"",
@@ -159,7 +168,11 @@ export default function ProductCenter() {
         model:form.model.trim()||null,sku:form.sku.trim()||null,internal_reference:form.internal_reference.trim()||null,
         barcode:form.barcode.trim()||null,category_id:form.category_id||null,category_path:categoryPathFor(form.category_id),
         description:form.description.trim()||null,image_url:form.image_url.trim()||null,
-        target_markets:form.target_markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),product_type:form.product_type,
+        target_markets:form.target_markets.split(/[,，]/).map(x=>x.trim()).filter(Boolean),
+        target_audiences:form.target_audiences.split(/[,，]/).map(x=>x.trim()).filter(Boolean),
+        target_positioning:form.target_positioning.trim()||null,
+        key_selling_points:form.key_selling_points.split(/[,，]/).map(x=>x.trim()).filter(Boolean),
+        release_date:form.release_date||null,product_type:form.product_type,
         can_be_sold:form.can_be_sold,can_be_purchased:form.can_be_purchased,
         sales_price:form.sales_price===""?null:Number(form.sales_price),sales_currency:form.sales_currency,
         cost:form.cost===""?null:Number(form.cost),cost_currency:form.cost_currency,unit_of_measure:form.unit_of_measure,
@@ -199,14 +212,16 @@ export default function ProductCenter() {
         }
       }
       await load(org);
-      const [vr,ar,lr]=await Promise.all([
+      const [vr,ar,lr,kr]=await Promise.all([
         supabase.from("product_variants").select("*").eq("product_id",result.data.id).eq("organization_id",org).order("created_at"),
         supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,value_number,unit)").eq("product_id",result.data.id).eq("organization_id",org).order("sort_order"),
-        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",result.data.id).eq("organization_id",org)
+        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",result.data.id).eq("organization_id",org),
+        supabase.from("product_keywords").select("*").eq("product_id",result.data.id).eq("organization_id",org).order("created_at")
       ]);
-      if(vr.error)throw vr.error;if(ar.error)throw ar.error;if(lr.error)throw lr.error;
+      if(vr.error)throw vr.error;if(ar.error)throw ar.error;if(lr.error)throw lr.error;if(kr.error)throw kr.error;
       setSelected(result.data as Product);setEditing(false);setVariants((vr.data||[]) as Variant[]);
       setProductAttributes((ar.data||[]) as ProductAttribute[]);setVariantAttributeValues((lr.data||[]) as VariantAttributeValue[]);
+      setProductKeywords((kr.data||[]) as ProductKeyword[]);
       setVariantAxisSelection({});
       setNotice({kind:"success",text:selected?"产品档案已更新，版本号已递增。":"产品档案已创建，分类属性模板已自动应用。"});
     }catch(e){setNotice({kind:"error",text:message(e)});}
@@ -507,6 +522,38 @@ export default function ProductCenter() {
     finally{setBusy(false);}
   };
 
+  const addProductKeyword = async (event:FormEvent) => {
+    event.preventDefault();if(!selected||!org)return;
+    const keyword=keywordDraft.trim();if(!keyword)return;
+    if(productKeywords.some(item=>item.keyword.toLocaleLowerCase()===keyword.toLocaleLowerCase()&&item.keyword_type===keywordType&&item.language_code===keywordLanguage)){
+      setNotice({kind:"info",text:"相同类型和语言的关键词已存在。"});return;
+    }
+    setBusy(true);setNotice(null);
+    try{
+      const {data,error}=await supabase.from("product_keywords").insert({
+        organization_id:org,product_id:selected.id,keyword,keyword_type:keywordType,
+        language_code:keywordLanguage,market_code:keywordMarket.trim()||null,is_active:true
+      }).select("*").single();
+      if(error)throw error;
+      setProductKeywords(prev=>[...prev,data as ProductKeyword]);
+      setKeywordDraft("");setNotice({kind:"success",text:"产品分析关键词已添加。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
+  };
+
+  const deleteProductKeyword = async (keyword:ProductKeyword) => {
+    if(confirmKeywordDeleteId!==keyword.id){setConfirmKeywordDeleteId(keyword.id);return;}
+    setBusy(true);setNotice(null);
+    try{
+      const {error}=await supabase.from("product_keywords").delete().eq("id",keyword.id)
+        .eq("product_id",selected?.id||"").eq("organization_id",org);
+      if(error)throw error;
+      setProductKeywords(prev=>prev.filter(item=>item.id!==keyword.id));
+      setConfirmKeywordDeleteId("");setNotice({kind:"success",text:"关键词已删除。"});
+    }catch(e){setNotice({kind:"error",text:message(e)});}
+    finally{setBusy(false);}
+  };
+
   const generateVariantCombinations = async () => {
     if(!selected||!org)return;
     const axes=productAttributes.filter(attribute=>attribute.variant_creation_mode!=="never");
@@ -617,15 +664,19 @@ export default function ProductCenter() {
   const openProduct = async (p:Product) => {
     setBusy(true);setSelected(p);setEditing(false);setNotice(null);
     try{
-      const [variantResult,attributeResult,variantValuesResult]=await Promise.all([
+      const [variantResult,attributeResult,variantValuesResult,keywordResult]=await Promise.all([
         supabase.from("product_variants").select("*").eq("product_id",p.id).eq("organization_id",org).order("created_at"),
         supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,value_number,unit)").eq("product_id",p.id).eq("organization_id",org).order("sort_order"),
-        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",p.id).eq("organization_id",org)
+        supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",p.id).eq("organization_id",org),
+        supabase.from("product_keywords").select("*").eq("product_id",p.id).eq("organization_id",org).order("created_at")
       ]);
-      if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;if(variantValuesResult.error)throw variantValuesResult.error;
+      if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;
+      if(variantValuesResult.error)throw variantValuesResult.error;if(keywordResult.error)throw keywordResult.error;
       setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);
-      setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);setVariantAxisSelection({});
-      setEditingVariantId("");setConfirmVariantDeleteId("");setVariantForm({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
+      setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);
+      setProductKeywords((keywordResult.data||[]) as ProductKeyword[]);
+      setVariantAxisSelection({});setEditingVariantId("");setConfirmVariantDeleteId("");
+      setVariantForm({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
     }catch(e){setSelected(null);setNotice({kind:"error",text:message(e)});throw e;}
     finally{setBusy(false);}
   };
@@ -669,11 +720,34 @@ export default function ProductCenter() {
               <TextInput id="pc-origin" labelText="原产国 / 地区" value={form.country_of_origin} onChange={e=>setForm(p=>({...p,country_of_origin:e.target.value}))}/>
               <TextInput id="pc-hs" labelText="HS 编码" value={form.hs_code} onChange={e=>setForm(p=>({...p,hs_code:e.target.value}))}/>
               <TextInput id="pc-markets" labelText="目标市场（逗号分隔）" value={form.target_markets} onChange={e=>setForm(p=>({...p,target_markets:e.target.value}))}/>
+               <TextInput id="pc-audiences" labelText="目标客户群体（逗号分隔）" value={form.target_audiences} onChange={e=>setForm(p=>({...p,target_audiences:e.target.value}))}/>
+               <TextInput id="pc-release-date" type="date" labelText="发布日期" value={form.release_date} onChange={e=>setForm(p=>({...p,release_date:e.target.value}))}/>
+               <div className="pc-span-2"><TextArea id="pc-positioning" labelText="目标市场定位" value={form.target_positioning} onChange={e=>setForm(p=>({...p,target_positioning:e.target.value}))} rows={2}/></div>
+               <div className="pc-span-2"><TextArea id="pc-selling-points" labelText="核心卖点（逗号分隔）" value={form.key_selling_points} onChange={e=>setForm(p=>({...p,key_selling_points:e.target.value}))} rows={2}/></div>
             </div></div>
             <div className="pc-form-actions"><Button kind="secondary" type="button" onClick={()=>setEditing(false)}>取消</Button><Button kind="primary" type="submit" disabled={busy}>{busy?"保存中…":"保存产品模板"}</Button></div>
           </form>:selected?<div className="pc-detail">
             <div className="pc-panel-heading"><div><button className="pc-back" onClick={()=>setSelected(null)}>← 返回产品目录</button><h3>{selected.name}</h3><p>{selected.brand||"未设置品牌"} · {selected.model||"未设置型号"} · {(selected.category_path||categoryPathFor(selected.category_id)).join(" / ")||"未分类"}</p></div><div className="pc-heading-actions"><Tag type={selected.status==="archived"?"gray":"blue"}>{selected.status==="archived"?"已归档":"模板 v"+(selected.version||1)}</Tag><Button kind="secondary" onClick={()=>startEdit(selected)}>编辑模板</Button>{selected.status==="archived"?<Button kind="primary" disabled={busy} onClick={restoreProduct}>恢复产品</Button>:<Button kind="danger" disabled={busy} onClick={archiveProduct}>归档产品</Button>}</div></div>
             <div className="pc-product-facts"><div><span>内部参考</span><strong>{selected.internal_reference||"—"}</strong></div><div><span>主 SKU</span><strong>{selected.sku||"由变体定义"}</strong></div><div><span>销售价格</span><strong>{money(selected.sales_price,selected.sales_currency)}</strong></div><div><span>生命周期</span><strong>{selected.lifecycle_stage}</strong></div></div>
+            <section className="pc-form-section pc-market-profile"><div className="pc-section-head"><div><h4>市场画像</h4><p>目标市场、受众和卖点将作为后续全球市场情报分析的产品上下文。</p></div></div>
+              <div className="pc-attribute-summary">
+                <div><strong>目标市场</strong><span>{(selected.target_markets||[]).join("、")||"尚未设置"}</span></div>
+                <div><strong>目标客户</strong><span>{(selected.target_audiences||[]).join("、")||"尚未设置"}</span></div>
+                <div><strong>市场定位</strong><span>{selected.target_positioning||"尚未设置"}</span></div>
+                <div><strong>核心卖点</strong><span>{(selected.key_selling_points||[]).join("、")||"尚未设置"}</span></div>
+              </div>
+            </section>
+            <section className="pc-form-section pc-keyword-section"><div className="pc-section-head"><div><h4>产品分析关键词</h4><p>关键词可供搜索趋势、社媒、电商和市场发现任务复用。</p></div><Tag>{productKeywords.length} 个关键词</Tag></div>
+              <form className="pc-keyword-form" onSubmit={addProductKeyword}>
+                <TextInput id="pc-keyword" labelText="关键词" placeholder="例如：wireless earbuds" value={keywordDraft} onChange={e=>setKeywordDraft(e.target.value)}/>
+                <FormField className="pc-field" label="关键词类型" htmlFor="pc-keyword-type"><CarbonSelect id="pc-keyword-type" value={keywordType} onChange={setKeywordType}><option value="core">核心词</option><option value="feature">功能词</option><option value="scenario">场景词</option><option value="competitor">竞品词</option><option value="model">型号词</option><option value="pain_point">痛点词</option><option value="long_tail">长尾词</option></CarbonSelect></FormField>
+                <FormField className="pc-field" label="语言" htmlFor="pc-keyword-language"><CarbonSelect id="pc-keyword-language" value={keywordLanguage} onChange={setKeywordLanguage}><option value="en">英语</option><option value="zh">中文</option><option value="ja">日语</option><option value="de">德语</option><option value="fr">法语</option><option value="es">西班牙语</option></CarbonSelect></FormField>
+                <TextInput id="pc-keyword-market" labelText="目标市场代码（可选）" placeholder="US / GB / DE" value={keywordMarket} onChange={e=>setKeywordMarket(e.target.value.toUpperCase())}/>
+                <Button type="submit" disabled={busy||!keywordDraft.trim()}>添加关键词</Button>
+              </form>
+              <div className="pc-keyword-list">{productKeywords.map(keyword=><div className="pc-keyword-row" key={keyword.id}><div><strong>{keyword.keyword}</strong><span>{keyword.keyword_type} · {keyword.language_code.toUpperCase()}{keyword.market_code?" · "+keyword.market_code:""}</span></div><Button kind="ghost" size="sm" disabled={busy} onClick={()=>deleteProductKeyword(keyword)}>{confirmKeywordDeleteId===keyword.id?"再次确认":"删除"}</Button></div>)}</div>
+              {!productKeywords.length&&<div className="pc-empty-inline">尚未添加分析关键词。</div>}
+            </section>
             <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品变体 / Product Variants</h4><p>变体是可销售的实际规格组合，每个变体拥有独立 SKU、条码和商业价格。</p></div><div className="pc-variant-actions"><Tag>{variants.length} 个变体</Tag><Button kind="secondary" size="sm" disabled={busy||!productAttributes.some(a=>a.variant_creation_mode!=="never")} onClick={generateVariantCombinations}>生成全部规格组合</Button></div></div>
               {productAttributes.some(a=>a.variant_creation_mode!=="never")&&<div className="pc-axis-selector"><div><strong>变体属性组合</strong><span>每个启用的变体轴都需要选择一个规格值；所选值会与新 SKU 一起保存。</span></div><div className="pc-axis-grid">{productAttributes.filter(a=>a.variant_creation_mode!=="never").map(a=><FormField className="pc-field" key={a.id} label={`${a.name}${a.unit?`（${a.unit}）`:""}`} htmlFor={`pc-axis-${a.id}`}><CarbonSelect id={`pc-axis-${a.id}`} value={variantAxisSelection[a.id]||""} onChange={v=>setVariantAxisSelection(prev=>({...prev,[a.id]:v}))} placeholder="选择属性值">{(a.product_attribute_values||[]).map(v=><option key={v.id} value={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</option>)}</CarbonSelect></FormField>)}</div></div>}
               <form className="pc-variant-form" onSubmit={createVariant}>
