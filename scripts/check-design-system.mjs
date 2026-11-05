@@ -8,6 +8,7 @@ const explicitFiles = [
   ["src/settings-center.css", new URL("../src/settings-center.css", import.meta.url)],
   ["src/App.tsx", new URL("../src/App.tsx", import.meta.url)],
   ["src/app-shell.css", new URL("../src/app-shell.css", import.meta.url)],
+  ["src/styles.css", new URL("../src/styles.css", import.meta.url)],
   ["src/design-tokens.scss", new URL("../src/design-tokens.scss", import.meta.url)],
 ];
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
@@ -32,6 +33,9 @@ function inspect(relative, source) {
     if (!/\.kosmo-main\.cds--content\s*\{[^}]*margin-top:\s*var\(--kosmo-shell-header-height\)/s.test(source)) {
       violations.push(relative + ": Carbon Content must own the single Header offset.");
     }
+  }
+  if (relative === "src/styles.css" && /(^|[,}])\\s*\\.content\\s*\\{/m.test(source)) {
+    violations.push(relative + ": generic .content layout rules are not allowed; use Carbon Content and scoped page containers.");
   }
   if (relative === "src/design-tokens.scss") {
     if (!/@use ["']@carbon\/react\/scss\/spacing["']/.test(source) || !/carbon-spacing\.\$spacing-12/.test(source)) {
