@@ -5,7 +5,7 @@ import {
 } from "@carbon/react";
 import { Download, Search, ShoppingCart, Store, Star, Currency, Chat, UserMultiple, Activity } from "@carbon/icons-react";
 import { supabase } from "../lib/supabase";
-import { EmptyState, PageHeader } from "../design-system";
+import { EmptyState, IntelligencePageTemplate } from "../design-system";
 import { CollectionModeGrid } from "../design-system/components/CollectionModeGrid";
 import "../facebook-discovery.css";
 import "./ecommerce-discovery.css";
@@ -294,9 +294,12 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
 
   const tabRows = ["reviews", "sellers", "bestsellers", "pricing", "products"].includes(activeTab) ? activeRows : rows;
 
-  return <section className="ecommerce-discovery">
-    <PageHeader title={config.name + " 电商发现"} description={config.description + " 通过已验证的 Apify 连接采集公开商品、价格、评论及店铺数据。"} actions={<Tag type="green">{organizationName || "企业工作区"}</Tag>} />
-    <section className="ec-config-panel">
+  return <IntelligencePageTemplate
+    title={config.name + " 电商发现"}
+    description={config.description + " 通过已验证的 Apify 连接采集公开商品、价格、评论及店铺数据。"}
+    eyebrow="GLOBAL ECOMMERCE DISCOVERY"
+    actions={<Tag type="green">{organizationName || "企业工作区"}</Tag>}
+    sourceConfiguration={<section className="ec-config-panel">
       <div className="fb-section-head discovery-object-heading">
         <div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div>
         <span>一个平台，多种商品情报</span>
@@ -344,8 +347,8 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
       </div>
       {error && <InlineNotification kind="error" title="采集未完成" subtitle={error} onCloseButtonClick={() => setError("")} />}
       {notice && <InlineNotification kind="success" title="任务状态" subtitle={notice} onCloseButtonClick={() => setNotice("")} />}
-    </section>
-
+    </section>}
+    <>
     <section className="ec-logs-section">
       <div className="fb-section-head"><div><span className="eyebrow">02 / LIVE ACTIVITY</span><h3>任务日志</h3><p>显示任务提交、Actor 状态与 Dataset 读取阶段。</p></div>
         <div className="ec-log-actions"><Tag type={loading ? "blue" : "gray"}>{loading ? "执行中" : taskStatus ? statusLabel(taskStatus) : "空闲"}</Tag><Button kind="ghost" size="sm" onClick={() => setLogs([])}>清空日志</Button></div>
@@ -378,7 +381,8 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
       </Tabs>
       {activeTab !== "history" && <div className="ec-history-refresh"><Button kind="ghost" size="sm" onClick={() => void loadHistory()}>刷新历史记录</Button></div>}
     </section>
-  </section>;
+    </>
+  </IntelligencePageTemplate>;
 }
 
 function ResultTable({ rows, type }: { rows: RowData[]; type: string }) {
