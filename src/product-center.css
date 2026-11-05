@@ -208,3 +208,7 @@
 .pc-product-attribute .pc-definition-values{display:flex;flex-wrap:wrap;gap:var(--kosmo-spacing-02,0.5rem)}
 .pc-product-attribute .pc-definition-value{background:var(--cds-layer-02)}
 .pc-product-attribute .pc-definition-value button{min-width:1.25rem}
+
+.pc-list-toolbar{display:grid;grid-template-columns:minmax(16rem,1fr) minmax(12rem,15rem) auto;align-items:end;gap:var(--kosmo-spacing-04,1rem)}
+.pc-status-filter{min-width:0}
+@media(max-width:671px){.pc-list-toolbar{grid-template-columns:minmax(0,1fr)}.pc-list-toolbar>span{justify-self:start}}
