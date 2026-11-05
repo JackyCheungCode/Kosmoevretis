@@ -1,10 +1,10 @@
 .kosmo-collection-mode-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kosmo-collection-mode-card-min-width)), 1fr));
-  gap: var(--kosmo-space-2);
+  gap: var(--kosmo-spacing-03);
   width: 100%;
   min-width: 0;
-  margin-bottom: var(--kosmo-space-4);
+  margin-bottom: var(--kosmo-spacing-05);
 }
 
 .kosmo-collection-mode-grid__item.cds--btn {
@@ -12,14 +12,14 @@
   align-items: flex-start;
   justify-content: flex-start;
   flex-direction: row;
-  gap: var(--kosmo-space-3);
+  gap: var(--kosmo-spacing-04);
   width: 100%;
   min-width: 0;
   min-height: var(--kosmo-collection-mode-card-height);
   height: var(--kosmo-collection-mode-card-height);
   max-height: var(--kosmo-collection-mode-card-height);
   max-width: 100%;
-  padding: var(--kosmo-space-3);
+  padding: var(--kosmo-spacing-04);
   color: var(--cds-text-primary);
   background: var(--cds-layer-02);
   text-align: left;
@@ -30,7 +30,7 @@
 .kosmo-collection-mode-grid__item.cds--btn:hover { background: var(--cds-layer-hover-02); }
 .kosmo-collection-mode-grid__item.cds--btn.is-selected {
   background: var(--cds-layer-selected-01);
-  box-shadow: inset 3px 0 var(--cds-interactive);
+  border-inline-start: 3px solid var(--cds-interactive);
 }
 .kosmo-collection-mode-grid__icon {
   display: grid !important;
@@ -45,7 +45,7 @@
   display: flex !important;
   flex: 1;
   flex-direction: column;
-  gap: var(--kosmo-space-1);
+  gap: var(--kosmo-spacing-02);
   min-width: 0;
   width: auto !important;
   text-align: left;
@@ -72,12 +72,12 @@
   font-size: var(--cds-helper-text-01-font-size);
   line-height: 1.4;
 }
-.kosmo-collection-mode-grid__item:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: 2px; }
+
 
 
 @media(max-width:671px) and (min-width:361px){
- .kosmo-collection-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kosmo-space-2)}
- .kosmo-collection-mode-grid__item.cds--btn{height:auto;min-height:7rem;max-height:none;flex-direction:column;gap:var(--kosmo-space-2);padding:var(--kosmo-space-3)}
+ .kosmo-collection-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kosmo-spacing-03)}
+ .kosmo-collection-mode-grid__item.cds--btn{height:auto;min-height:7rem;max-height:none;flex-direction:column;gap:var(--kosmo-spacing-03);padding:var(--kosmo-spacing-04)}
  .kosmo-collection-mode-grid__icon{flex-basis:1.25rem;width:1.25rem!important;height:1.25rem}
  .kosmo-collection-mode-grid__copy{width:100%!important}
 }

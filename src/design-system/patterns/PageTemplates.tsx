@@ -5,11 +5,12 @@ type SharedHeader = {
   title: string;
   description?: string;
   eyebrow?: string;
+  scope?: string;
   actions?: ReactNode;
   headingLevel?: 1 | 2;
 };
 
-export function IntelligencePageTemplate({ title, description, eyebrow, actions, headingLevel, sourceConfiguration, navigation, children, metadata }: SharedHeader & {
+export function IntelligencePageTemplate({ title, description, eyebrow, scope, actions, headingLevel, sourceConfiguration, navigation, children, metadata }: SharedHeader & {
   sourceConfiguration: ReactNode;
   navigation?: ReactNode;
   children: ReactNode;
@@ -17,7 +18,7 @@ export function IntelligencePageTemplate({ title, description, eyebrow, actions,
 }) {
   return (
     <PageFrame className="kosmo-template kosmo-template--intelligence">
-      <PageHeader title={title} description={description} eyebrow={eyebrow} actions={actions} headingLevel={headingLevel} />
+      <PageHeader title={title} description={description} eyebrow={eyebrow} scope={scope} actions={actions} headingLevel={headingLevel} />
       <section className="kosmo-template__source" aria-label="分析源配置">{sourceConfiguration}</section>
       <section className="kosmo-template__results" aria-label="采集结果工作区">
         {navigation && <nav className="kosmo-template__navigation kosmo-results-tabs" aria-label="页面内容导航">{navigation}</nav>}

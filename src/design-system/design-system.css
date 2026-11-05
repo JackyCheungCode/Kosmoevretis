@@ -1,29 +1,29 @@
 /* Shared page primitives and templates. Use Carbon tokens; avoid page-local redefinitions. */
-.kosmo-page-frame { display: flex; flex-direction: column; gap: var(--kosmo-space-5); min-width: 0; }
-.kosmo-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--kosmo-space-4); min-width: 0; }
+.kosmo-page-frame { display: flex; flex-direction: column; gap: var(--kosmo-spacing-06); min-width: 0; }
+.kosmo-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--kosmo-spacing-05); min-width: 0; }
 .kosmo-page-header__copy { min-width: 0; }
-.kosmo-page-header__eyebrow { margin: 0 0 var(--kosmo-space-2); color: var(--kosmo-color-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); letter-spacing: 0; text-transform: none; }
+.kosmo-page-header__eyebrow { margin: 0 0 var(--kosmo-spacing-03); color: var(--kosmo-color-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); letter-spacing: 0; text-transform: none; }
 .kosmo-page-header__title { margin: 0; color: var(--kosmo-color-text); font-size: var(--cds-heading-04-font-size); font-weight: var(--cds-heading-04-font-weight); line-height: var(--cds-heading-04-line-height); }
-.kosmo-page-header__description { max-width: 72ch; margin: var(--kosmo-space-2) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-body-01-font-size); line-height: var(--cds-body-01-line-height); }
-.kosmo-page-header__actions, .kosmo-page-section__actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--kosmo-space-2); }
+.kosmo-page-header__description { max-width: 72ch; margin: var(--kosmo-spacing-03) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-body-01-font-size); line-height: var(--cds-body-01-line-height); }
+.kosmo-page-header__actions, .kosmo-page-section__actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--kosmo-spacing-03); }
 .kosmo-page-section { min-width: 0; }
-.kosmo-page-section__header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--kosmo-space-3); margin-bottom: var(--kosmo-space-3); }
+.kosmo-page-section__header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--kosmo-spacing-04); margin-bottom: var(--kosmo-spacing-04); }
 .kosmo-page-section__title { margin: 0; font-size: var(--cds-heading-compact-02-font-size); font-weight: var(--cds-heading-compact-02-font-weight); line-height: var(--cds-heading-compact-02-line-height); }
-.kosmo-page-section__description { margin: var(--kosmo-space-1) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-helper-text-01-font-size); line-height: var(--cds-helper-text-01-line-height); }
+.kosmo-page-section__description { margin: var(--kosmo-spacing-02) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-helper-text-01-font-size); line-height: var(--cds-helper-text-01-line-height); }
 .kosmo-page-section__content { min-width: 0; }
-.kosmo-empty-state { display: grid; justify-items: center; gap: var(--kosmo-space-3); padding: var(--kosmo-space-7) var(--kosmo-space-4); text-align: center; background: var(--cds-layer-01); }
+.kosmo-empty-state { display: grid; justify-items: center; gap: var(--kosmo-spacing-04); padding: var(--kosmo-spacing-08) var(--kosmo-spacing-05); text-align: center; background: var(--cds-layer-01); }
 .kosmo-empty-state__title { margin: 0; font-size: var(--cds-heading-compact-02-font-size); font-weight: var(--cds-heading-compact-02-font-weight); }
 .kosmo-empty-state__description { max-width: 56ch; margin: 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-body-01-font-size); line-height: var(--cds-body-01-line-height); }
 .kosmo-loading-state { display: flex; align-items: center; min-height: 3rem; }
-.kosmo-error-state { display: flex; align-items: center; flex-wrap: wrap; gap: var(--kosmo-space-2); }
-.kosmo-template { gap: var(--kosmo-space-4); }
+.kosmo-error-state { display: flex; align-items: center; flex-wrap: wrap; gap: var(--kosmo-spacing-03); }
+.kosmo-template { gap: var(--kosmo-spacing-05); }
 .kosmo-template__source, .kosmo-template__toolbar, .kosmo-template__context, .kosmo-template__summary, .kosmo-template__navigation, .kosmo-template__content, .kosmo-template__metadata, .kosmo-template__configuration-nav { min-width: 0; }
-.kosmo-template__source, .kosmo-template__context { padding: var(--kosmo-space-4); background: var(--cds-layer-01); }
-.kosmo-template__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--kosmo-space-3); }
-.kosmo-template__summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--kosmo-space-3); }
-.kosmo-template__content { display: flex; flex-direction: column; gap: var(--kosmo-space-4); }
+.kosmo-template__source, .kosmo-template__context { padding: var(--kosmo-spacing-05); background: var(--cds-layer-01); }
+.kosmo-template__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--kosmo-spacing-04); }
+.kosmo-template__summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--kosmo-spacing-04); }
+.kosmo-template__content { display: flex; flex-direction: column; gap: var(--kosmo-spacing-05); }
 .kosmo-template__metadata { color: var(--kosmo-color-text-secondary); font-size: var(--cds-helper-text-01-font-size); }
-.kosmo-template__configuration-layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: var(--kosmo-space-5); align-items: start; }
+.kosmo-template__configuration-layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: var(--kosmo-spacing-06); align-items: start; }
 .kosmo-template__configuration-nav { min-width: 0; }
 @media (max-width: 671px) {
   .kosmo-page-header, .kosmo-page-section__header { flex-direction: column; }
@@ -32,23 +32,23 @@
 }
 
 /* Unified collection result workspace: match the white Carbon layer used by sibling page sections. */
-.kosmo-template__results { min-width:0; padding:var(--kosmo-space-4); background:var(--cds-layer-01); }
+.kosmo-template__results { min-width:0; padding:var(--kosmo-spacing-05); background:var(--cds-layer-01); }
 .kosmo-template__results .kosmo-template__content { gap:0; }
 .kosmo-template__results .kosmo-page-section { min-width:0; }
-.kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-space-4); }
+.kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
 .kosmo-page-header { align-items:flex-end; }
 
-.kosmo-page-header__meta { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:var(--kosmo-space-2); }
-.kosmo-page-header__scope { display:inline-flex; align-items:center; min-height:2.25rem; padding:.5rem .75rem; background:var(--cds-layer-01); color:var(--cds-text-secondary); font-size:var(--cds-helper-text-01-font-size); white-space:nowrap; }
+.kosmo-page-header__meta { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:var(--kosmo-spacing-03); }
+.kosmo-page-header__scope { display:inline-flex; align-items:center; min-height:2.25rem; padding:var(--kosmo-spacing-03) var(--kosmo-spacing-04); background:var(--cds-layer-01); color:var(--cds-text-secondary); font-size:var(--cds-helper-text-01-font-size); white-space:nowrap; }
 .kosmo-results-tabs .cds--tabs { min-width:0; margin:0; }
 .ig-results-tabs { min-width:0; }
 .kosmo-results-tabs .cds--tab-list { display:flex; flex-wrap:nowrap; max-width:100%; overflow-x:auto; overflow-y:hidden; border-bottom:1px solid var(--cds-border-subtle); background:transparent; overscroll-behavior-x:contain; }
 .kosmo-results-tabs .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
-.kosmo-results-tabs .cds--tab-content { min-width:0; padding:var(--kosmo-space-4) 0 0; }
+.kosmo-results-tabs .cds--tab-content { min-width:0; padding:var(--kosmo-spacing-05) 0 0; }
 .kosmo-results-tabs .cds--tab-panel { min-width:0; padding:0; }
 @media(max-width:671px) {
  .kosmo-page-header { align-items:flex-start; }
  .kosmo-page-header__title { font-size:var(--cds-heading-03-font-size); line-height:var(--cds-heading-03-line-height); }
  .kosmo-page-header__meta { justify-content:flex-start; width:100%; }
- .kosmo-template__results { padding:var(--kosmo-space-3); }
+ .kosmo-template__results { padding:var(--kosmo-spacing-04); }
 }

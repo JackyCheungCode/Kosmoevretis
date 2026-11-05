@@ -5,22 +5,23 @@ export type PageHeaderProps = {
   title: string;
   description?: string;
   eyebrow?: string;
+  scope?: string;
   actions?: ReactNode;
   headingLevel?: 1 | 2;
 };
 
-export function PageHeader({ title, description, eyebrow, actions, headingLevel = 1 }: PageHeaderProps) {
+export function PageHeader({ title, description, eyebrow, scope, actions, headingLevel = 1 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   return (
     <header className="kosmo-page-header">
       <div className="kosmo-page-header__copy">
-        <p className="kosmo-page-header__eyebrow">{eyebrow || "KOSMOEVRETIS / GLOBAL INTELLIGENCE"}</p>
+        {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
         <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
         {description && <p className="kosmo-page-header__description">{description}</p>}
       </div>
       <div className="kosmo-page-header__meta">
         {actions && <div className="kosmo-page-header__actions">{actions}</div>}
-        <span className="kosmo-page-header__scope">● GLOBAL　全球市场</span>
+        {scope && <span className="kosmo-page-header__scope">{scope}</span>}
       </div>
     </header>
   );
