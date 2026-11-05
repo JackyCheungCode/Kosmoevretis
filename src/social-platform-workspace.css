@@ -38,3 +38,27 @@
  .platform-drawer-heading button:focus-visible{outline:2px solid var(--cds-focus);outline-offset:-2px}
 }
 @media(prefers-reduced-motion:reduce){.settings-local-nav.social-platform-navigation{transition:none}}
+
+
+/* Mobile navigation and discovery card rhythm. */
+.settings-mobile-nav-trigger{min-height:2.75rem;max-width:100%;margin-bottom:var(--kosmo-space-3)}
+.settings-mobile-nav-trigger:focus-visible,.social-platform-nav-item:focus-visible{outline:2px solid var(--cds-focus);outline-offset:2px}
+.social-platform-navigation .social-platform-nav-item{min-height:2.75rem}
+.social-platform-content,.social-platform-content>*{min-width:0;max-width:100%}
+@media(max-width:671px){
+ .settings-mobile-nav-trigger{display:inline-flex}
+ .settings-local-nav.social-platform-navigation{overscroll-behavior:contain}
+ .settings-local-nav.social-platform-navigation .social-platform-nav-item{min-height:3rem}
+ .settings-nav-backdrop{touch-action:pan-y}
+ .social-platform-content .fb-carbon-table,.social-platform-content .li-table,.social-platform-content .gm-table{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+ .social-platform-content .fb-results-section .cds--tab-list,
+ .social-platform-content .li-results .cds--tab-list,
+ .social-platform-content .gm-results .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
+}
+@media(max-width:480px) and (min-width:361px){
+ .li-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .li-object{min-height:5rem;align-items:flex-start}
+}
+@media(max-width:360px){
+ .li-object-grid{grid-template-columns:minmax(0,1fr)}
+}
