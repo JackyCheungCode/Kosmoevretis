@@ -59,6 +59,7 @@ export default function ProductCenter() {
   const [variantAttributeValues,setVariantAttributeValues] = useState<VariantAttributeValue[]>([]);
   const [productAttributes,setProductAttributes] = useState<ProductAttribute[]>([]);
   const [variantAxisSelection,setVariantAxisSelection] = useState<Record<string,string>>({});
+  const [attributeValueDraft,setAttributeValueDraft] = useState<Record<string,string>>({});
   const [variantForm,setVariantForm] = useState({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
   const [login,setLogin] = useState({email:"",password:""});
   const [authError,setAuthError] = useState("");
@@ -219,6 +220,41 @@ export default function ProductCenter() {
     else{setDefinitions(prev=>prev.map(x=>x.id===d.id?{...x,product_attribute_definition_values:[...(x.product_attribute_definition_values||[]),data as DefinitionValue]}:x));setDefinitionValueDraft(prev=>({...prev,[d.id]:""}));}
   };
 
+  const updateProductAttributeMode = async (attribute:ProductAttribute,mode:string) => {
+    if(!selected||!org)return;
+    setBusy(true);setNotice(null);
+    const {error}=await supabase.from("product_attributes").update({
+      variant_creation_mode:mode,is_variant_axis:mode!=="never"
+    }).eq("id",attribute.id).eq("product_id",selected.id);
+    if(error)setNotice({kind:"error",text:message(error)});
+    else{
+      setProductAttributes(prev=>prev.map(item=>item.id===attribute.id?{...item,variant_creation_mode:mode}:item));
+      if(mode==="never")setVariantAxisSelection(prev=>{const next={...prev};delete next[attribute.id];return next;});
+      setNotice({kind:"success",text:"「"+attribute.name+"」的变体规则已更新。"});
+    }
+    setBusy(false);
+  };
+
+  const addProductAttributeValue = async (attribute:ProductAttribute) => {
+    if(!selected||!org)return;
+    const raw=(attributeValueDraft[attribute.id]||"").trim();
+    if(!raw)return;
+    setBusy(true);setNotice(null);
+    const {data,error}=await supabase.from("product_attribute_values").insert({
+      organization_id:org,product_id:selected.id,attribute_id:attribute.id,value_text:raw,
+      value_number:null,unit:attribute.unit,sort_order:(attribute.product_attribute_values||[]).length
+    }).select("id,value_text,unit").single();
+    if(error)setNotice({kind:"error",text:message(error)});
+    else{
+      setProductAttributes(prev=>prev.map(item=>item.id===attribute.id
+        ?{...item,product_attribute_values:[...(item.product_attribute_values||[]),data as {id:string;value_text:string;unit:string|null}]}
+        :item));
+      setAttributeValueDraft(prev=>({...prev,[attribute.id]:""}));
+      setNotice({kind:"success",text:"「"+attribute.name+"」已新增属性值。"});
+    }
+    setBusy(false);
+  };
+
   const createVariant = async (event:FormEvent) => {
     event.preventDefault();if(!selected||!org)return;
     const axes=productAttributes.filter(attribute=>attribute.variant_creation_mode!=="never");
@@ -334,7 +370,7 @@ export default function ProductCenter() {
               </form>
               {variants.length?<div className="pc-table-wrap"><table className="pc-table"><thead><tr><th>变体</th><th>规格属性</th><th>SKU</th><th>型号</th><th>条码</th><th>销售价</th><th>成本</th></tr></thead><tbody>{variants.map(v=>{const values=variantAttributeValues.filter(link=>link.variant_id===v.id).map(link=>{const attribute=productAttributes.find(item=>item.id===link.attribute_id);const value=attribute?.product_attribute_values.find(item=>item.id===link.attribute_value_id);return attribute&&value?attribute.name+"："+value.value_text+(value.unit?" "+value.unit:""):null;}).filter(Boolean);return <tr key={v.id}><td>{v.title||"默认变体"}</td><td>{values.length?values.join(" · "):"—"}</td><td>{v.sku||"—"}</td><td>{v.model||"—"}</td><td>{v.barcode||"—"}</td><td>{money(v.price,v.currency||"USD")}</td><td>{money(v.cost,v.currency||"USD")}</td></tr>;})}</tbody></table></div>:<div className="pc-empty-inline">尚未创建实际销售变体。可先添加默认 SKU，后续再配置属性组合。</div>}
             </section>
-            <section className="pc-form-section"><h4>产品属性摘要</h4><div className="pc-attribute-summary">{productAttributes.map(a=><div key={a.id}><strong>{a.name}</strong><span>{a.variant_creation_mode==="never"?"普通属性":a.variant_creation_mode==="dynamic"?"动态变体轴":"立即变体轴"}</span><small>{(a.product_attribute_values||[]).map(v=>v.value_text).join(" / ")||"尚无属性值"}</small></div>)}</div>{!productAttributes.length&&<p>分类：{categoryName(selected.category_id)}。当前分类尚未配置属性模板。</p>}</section>
+            <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品属性与变体规则</h4><p>管理此产品实际使用的属性值，并决定哪些属性参与 SKU 组合。</p></div><Tag>{productAttributes.length} 项属性</Tag></div>{productAttributes.length?<div className="pc-product-attribute-list">{productAttributes.map(a=><article className="pc-product-attribute" key={a.id}><div className="pc-product-attribute-heading"><div><strong>{a.name}{a.unit?"（"+a.unit+"）":""}</strong><span>{(a.product_attribute_values||[]).length} 个可选值</span></div><FormField className="pc-field" label="变体规则" htmlFor={"pc-attribute-mode-"+a.id}><CarbonSelect id={"pc-attribute-mode-"+a.id} value={a.variant_creation_mode} onChange={value=>updateProductAttributeMode(a,value)}><option value="never">普通属性（不生成 SKU）</option><option value="dynamic">动态变体轴</option><option value="instant">立即变体轴</option></CarbonSelect></FormField></div><div className="pc-definition-values">{(a.product_attribute_values||[]).map(v=><span key={v.id}>{v.value_text}{v.unit?" "+v.unit:""}</span>)}</div><form className="pc-add-value" onSubmit={event=>{event.preventDefault();addProductAttributeValue(a);}}><TextInput id={"pc-attribute-value-"+a.id} labelText={"新增「"+a.name+"」属性值"} placeholder="输入属性值" value={attributeValueDraft[a.id]||""} onChange={event=>setAttributeValueDraft(prev=>({...prev,[a.id]:event.target.value}))}/><Button type="submit" kind="secondary" disabled={busy||!(attributeValueDraft[a.id]||"").trim()}>添加属性值</Button></form></article>)}</div>:<div className="pc-empty-inline">分类「{categoryName(selected.category_id)}」尚未配置属性模板。可先在「属性管理」建立属性，再配置分类模板。</div>}</section>
           </div>:<><div className="pc-catalog-stats"><div><span>产品模板</span><strong>{products.length}</strong></div><div><span>分类</span><strong>{categories.length}</strong></div><div><span>属性定义</span><strong>{definitions.length}</strong></div><div><span>已发布产品</span><strong>{products.filter(p=>p.status==="active"||p.lifecycle_stage==="active").length}</strong></div></div>
             <div className="pc-list-toolbar"><Search size="lg" labelText="搜索产品" placeholder="名称、品牌、型号、SKU 或内部编号" value={query} onChange={e=>setQuery(e.target.value)}/><span>{filtered.length} 条记录</span></div>
             {filtered.length?<div className="pc-product-list">{filtered.map(p=><button key={p.id} className="pc-product-row" onClick={()=>openProduct(p).catch(e=>setNotice({kind:"error",text:message(e)}))}><div className="pc-product-thumb">{p.image_url?<img src={p.image_url} alt=""/>:<span>▣</span>}</div><div className="pc-product-main"><strong>{p.name}</strong><span>{p.brand||"未设置品牌"} · {p.model||"未设置型号"}</span><small>{categoryName(p.category_id)} · {p.internal_reference||p.sku||"未设置编码"}</small></div><div className="pc-product-price"><strong>{money(p.sales_price,p.sales_currency||"USD")}</strong><span>{p.can_be_sold?"可销售":"不销售"}</span></div><span className="pc-row-arrow">›</span></button>)}</div>:<div className="pc-empty"><div className="pc-empty-icon">▣</div><h3>{query?"没有匹配的产品":"产品主档案尚为空"}</h3><p>创建产品模板后，可按分类自动载入属性，并在模板下维护实际 SKU 变体。</p><Button kind="primary" onClick={startNew}>创建第一个产品</Button></div>}
