@@ -112,7 +112,7 @@ export default function SeoAnalysis() {
             <div><strong>{discovered}</strong><span>发现 URL</span></div>
             <div><strong>{audited}</strong><span>已审计页面</span></div>
             <div><strong>{scrapeQueue.length}</strong><span>待采集页面</span></div>
-            <div><strong>{speedResults.length}/{speedTotal}</strong><span>PageSpeed 检测（Mobile / Desktop）</span></div><div><strong>{(meta.page_errors||[]).length}</strong><span>页面采集失败</span></div>
+            <div><strong>{mobileDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Mobile 已完成</span></div><div><strong>{desktopDone}/{Number(task?.input_snapshot?.pagespeed_limit||pagespeedLimit)}</strong><span>Desktop 已完成</span></div>
           </div>
         </div>
         {task.status==="running"&&<div className="seo-stage-track">
