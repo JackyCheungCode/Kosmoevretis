@@ -33,7 +33,7 @@ async function getCredential(admin: ReturnType<typeof createClient>, org: string
   }
   return await decrypt(data.credential_ciphertext, data.credential_iv);
 }
-function parseTarget(value: unknown) {
+async function parseTarget(value: unknown) {
   let url: URL;
   try { url = new URL(String(value || "").trim()); } catch { throw new Error("请输入有效的网站首页 URL。"); }
   if (!["http:", "https:"].includes(url.protocol)) throw new Error("网站地址只允许 HTTP 或 HTTPS。");
@@ -50,6 +50,25 @@ function parseTarget(value: unknown) {
     throw new Error("目标地址指向本地、内网或保留网络，出于安全原因不能扫描。");
   }
   if (!host.includes(".") && !/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) throw new Error("请输入可公开访问的域名。");
+  const isPrivateIp = (ip: string) => {
+    const v = ip.toLowerCase().replace(/^::ffff:/, "");
+    if (v.includes(".")) {
+      const parts = v.split(".").map(Number);
+      if (parts.length !== 4 || parts.some(n => !Number.isInteger(n) || n < 0 || n > 255)) return true;
+      const [a,b] = parts;
+      return a === 0 || a === 10 || a === 127 || a >= 224 ||
+        (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254) ||
+        (a === 172 && b >= 16 && b <= 31) || (a === 192 && (b === 0 || b === 168)) ||
+        (a === 198 && (b === 18 || b === 19));
+    }
+    return v === "::" || v === "::1" || /^(fc|fd|fe[89ab])/i.test(v) || /^ff/i.test(v);
+  };
+  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(host) && host.includes(".")) {
+    const lookups = await Promise.allSettled([Deno.resolveDns(host, "A"), Deno.resolveDns(host, "AAAA")]);
+    const addresses = lookups.flatMap(result => result.status === "fulfilled" ? result.value : []);
+    if (!addresses.length) throw new Error("网站域名无法解析，请检查 DNS 配置。");
+    if (addresses.some(address => isPrivateIp(String(address)))) throw new Error("网站域名解析到了内网或保留 IP，出于安全原因不能扫描。");
+  } else if (isPrivateIp(host)) throw new Error("目标地址不是可公开访问的 IP。");
   url.hash = "";
   return url.toString().replace(/\/$/, "");
 }
@@ -276,7 +295,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (body.action === "start") {
-      const target = parseTarget(body.url);
+      const target = await parseTarget(body.url);
       const maxPages = clamp(body.max_pages, 1, 500, 500);
       const pageSpeedLimit = clamp(body.pagespeed_limit, 1, 10, 10);
       const market = String(body.market || "US").toUpperCase();
