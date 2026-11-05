@@ -192,7 +192,7 @@ export default function GlobalIntelligence(){
     ariaLabel="情报分析维度"
     activeTabId={activeTab}
     onChange={setActiveTab}
-    items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} evidence={liveEvidence}/></div>}))}
+    items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience activeTab={tab.id} analyzed={analyzed} liveMeta={liveTrendMeta} collectionLoading={collecting} evidence={liveEvidence}/></div>}))}
    /></div>
   </section>
   <AIAnalysisPanel accessToken={session?.access_token||""} context={task?.filters.join("；")||""} activeTab={activeTab} taskId={currentTaskId} organizationId={organizationId} evidenceCount={liveEvidence.length}/>
