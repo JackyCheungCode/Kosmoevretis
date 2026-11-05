@@ -102,7 +102,8 @@
   max-width: var(--kosmo-content-max-width);
   min-height: 100vh;
   margin-left: var(--kosmo-shell-sidebar-width);
-  padding: 0 var(--kosmo-space-7) var(--kosmo-space-6);
+  padding-inline: var(--kosmo-space-7);
+  padding-bottom: var(--kosmo-space-6);
 }
 
 .kosmo-side-nav-tablet-expanded.cds--side-nav {
@@ -164,7 +165,7 @@
     display: inline;
   }
 
-  .kosmo-main.content {
+  .kosmo-main {
     width: calc(100% - var(--kosmo-shell-sidebar-collapsed-width));
     margin-left: var(--kosmo-shell-sidebar-collapsed-width);
     padding-inline: var(--kosmo-space-5);
@@ -197,10 +198,11 @@
     width: 0;
   }
 
-  .kosmo-main.content {
+  .kosmo-main {
     width: 100%;
     margin-left: 0;
-    padding: 0 var(--kosmo-space-4) var(--kosmo-space-6);
+    padding-inline: var(--kosmo-space-4);
+    padding-bottom: var(--kosmo-space-6);
   }
 }
 
@@ -226,8 +228,8 @@
 
 .kosmo-main--template-page { min-width: 0; }
 .kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
-@media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
-@media (max-width: 671px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }
+@media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
+@media (max-width: 671px) { .kosmo-main--template-page { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }
 
 
 /* Mobile shell navigation: keep the drawer inside the viewport and respect device safe areas. */
