@@ -163,40 +163,78 @@ export default function GlobalIntelligence(){
  const login=async(e:React.FormEvent)=>{e.preventDefault();setAuthError("");const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setAuthError(error.message);};
  if(!ready)return <div className="boot-screen">正在连接全球情报中心…</div>;
  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">全球情报中心</div><h2>登录企业工作区</h2><p>登录后选择产品档案，或直接输入关键词开展市场研究。</p><TextInput id="gi-login-email" type="email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)} required/><PasswordInput id="gi-login-password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError} hideCloseButton/>}<Button kind="primary" type="submit">登录</Button></form>;
- return <section className="global-intelligence">
-  <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div></Column></Grid>
-  <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><section className="gi-setup" aria-label="分析源配置">
-  <section className="analysis-source">
-   <div className="analysis-source-heading"><div><span className="eyebrow">01 / 分析来源</span><h2>分析对象与关键词</h2><p>选择企业产品并复用参数规格，或直接输入关键词；可使用 DeepL 生成多语言关键词。</p></div><span className="source-note">产品档案自动同步</span></div>
-   <div className="source-grid"><div className="source-main">
-    <label className="field-label">选择产品</label>
-    <CarbonSelect value={productId} onChange={v=>{setProductId(v);resetAnalysis();}} placeholder="不选择产品，直接进行关键词分析">{products.map(p=><option key={p.id} value={p.id}>{p.name}{p.brand?" · "+p.brand:""}{p.model?" · "+p.model:""}</option>)}</CarbonSelect>
-    {selectedProduct&&<div className="selected-product-summary"><Tag type="blue">已选产品</Tag><div><strong>{selectedProduct.name}</strong><span>{[selectedProduct.brand,selectedProduct.model,...(selectedProduct.category_path||[])].filter(Boolean).join(" · ")||"企业产品档案"}</span></div><Button kind="ghost" size="sm" type="button" onClick={()=>{setProductId("");resetAnalysis();}}>清除</Button></div>}
-    {selectedProduct&&<div className="parameter-area"><div className="parameter-heading"><div><strong>产品参数与规格</strong><span>默认选中全部已配置值，可按需取消或组合</span></div><span>{selectedCount} 个值已选</span></div>{loading?<div className="inline-loading">正在读取产品参数…</div>:attributes.length===0?<div className="inline-empty">该产品尚未配置参数，可直接分析整个产品。</div>:<div className="parameter-list">{attributes.map(a=><div className="parameter-row" key={a.id}><div className="parameter-name">{a.name}{a.unit?<small>单位：{a.unit}</small>:null}</div><div className="parameter-values">{(a.product_attribute_values||[]).map(v=><label className="parameter-chip" key={v.id}><Checkbox id={`parameter-${a.id}-${v.id}`} labelText={`${v.value_text}${v.unit||""}`} checked={(selectedValues[a.id]||[]).includes(v.id)} onChange={()=>toggleValue(a.id,v.id)}/><span>{v.value_text}{v.unit||""}</span></label>)}{!(a.product_attribute_values||[]).length&&<small className="muted">未配置参数值</small>}</div><Button kind="ghost" size="sm" type="button" onClick={()=>selectAllValues(a.id,a.product_attribute_values||[])}>全选</Button></div>)}</div>}</div>}
-    {selectedProduct&&variants.length>0&&<div className="variant-selection"><div className="parameter-heading"><div><strong>SKU / 实际规格组合</strong><span>默认选中全部已建立规格，可按需筛选</span></div><span>{selectedVariants.length} / {variants.length} 个已选</span></div><div className="variant-selection-list">{variants.map(v=><label className="variant-selection-item" key={v.id}><Checkbox id={`variant-${v.id}`} labelText={`${v.title||v.model||"未命名规格"} · ${[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}`} checked={selectedVariants.includes(v.id)} onChange={()=>{setSelectedVariants(current=>current.includes(v.id)?current.filter(x=>x!==v.id):[...current,v.id]);resetAnalysis();}}/><span><strong>{v.title||v.model||"未命名规格"}</strong><small>{[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}</small></span></label>)}</div></div>}
-    <div className="keyword-area"><label className="field-label" htmlFor="analysis-keywords">分析关键词 <span>可选，支持多个</span></label><TextArea id="analysis-keywords" labelText="分析关键词" hideLabel value={keywords} onChange={e=>{setKeywords(e.target.value);resetAnalysis();}} placeholder={"例如：GaN charger、fast charging、travel adapter\n多个关键词可用逗号或换行分隔"} rows={3}/><small>可与产品组合，用于补充竞品词、场景词、需求词或技术词。</small></div>
-    <div className="translation-panel"><div className="translation-head"><div><strong>DeepL 多语言关键词</strong><span>根据所选市场推荐语言，可手动添加其他语言</span></div><Button kind="ghost" type="button" onClick={translate} disabled={translating}>{translating?"翻译中…":"DeepL 翻译"}</Button></div>
-     <div className="language-chips">{targetLanguages.map(lang=><span className="language-chip" key={lang}><Tag type="blue">{languageNames[lang]||lang}</Tag><Button kind="ghost" size="sm" type="button" aria-label={"移除"+lang} onClick={()=>{setTargetLanguages(current=>current.filter(x=>x!==lang));resetAnalysis();}}>×</Button></span>)}</div>
-     <div className="add-language-row"><CarbonSelect value={extraLanguage} onChange={setExtraLanguage}>{extraLanguages.map(lang=><option key={lang} value={lang}>{languageNames[lang]||lang}</option>)}</CarbonSelect><Button kind="ghost" type="button" onClick={()=>{setTargetLanguages(current=>current.includes(extraLanguage)?current:[...current,extraLanguage]);resetAnalysis();}}>添加语言</Button></div>
-     {targetLanguages.map(lang=><div className="translation-field" key={lang}><span>{languageNames[lang]||lang}</span><TextArea id={"translation-"+lang} labelText={languageNames[lang]||lang} hideLabel rows={2} value={translations[lang]||""} onChange={e=>{setTranslations(current=>({...current,[lang]:e.target.value}));resetAnalysis();}} placeholder="翻译结果将在这里显示，也可以手动编辑"/></div>)}
-     {translationStatus&&<div className="translation-status">{translationStatus}</div>}<small className="translation-footnote">DeepL 密钥仅在服务端使用。启用前需在 Cloudflare Pages 项目中配置 DEEPL_AUTH_KEY Secret。</small>
-    </div>
-   </div><aside className="source-options"><div className="field-label">分析时间范围</div><label>时间范围<CarbonSelect value={period} onChange={v=>{setPeriod(v);resetAnalysis();}}><option value="30d">近 30 天</option><option value="90d">近 90 天</option><option value="12m">近 12 个月</option><option value="5y">近 5 年</option></CarbonSelect></label><div className="source-option-foot"><span>分析对象</span><strong>{selectedProduct?"产品档案"+(keywordList.length?" + 关键词":""):"关键词"}</strong><span>目标市场：{selectedMarkets.length} 个国家 / 地区</span></div></aside></div>
-  </section>
-  <section className="market-section"><div className="analysis-source-heading"><div><span className="eyebrow">02 / 目标市场</span><h2>选择全球市场</h2><p>左侧选择国家和地区，右侧地图同步高亮；也可以直接点击地图选择市场。</p></div><span className="source-note">{selectedMarkets.length} / {markets.length} 个市场已选</span></div>
-   <div className="market-layout"><div className="market-picker"><div className="market-list-heading"><strong>国家 / 地区</strong><span>{selectedMarkets.length} 个已选</span></div>
-    <div className="market-search"><Search size="lg" labelText="搜索国家或地区" value={marketQuery} onChange={e=>setMarketQuery(e.target.value)} placeholder="搜索国家或地区"/></div><div className="market-actions"><Button kind="ghost" size="sm" type="button" onClick={()=>{setSelectedMarkets(markets.map(m=>m.code));resetAnalysis();}}>全选</Button><Button kind="ghost" size="sm" type="button" onClick={()=>{setSelectedMarkets([]);resetAnalysis();}}>清空</Button><span>{visibleMarkets.length} 个结果</span></div><div className="market-options">{visibleMarkets.map(m=><div key={m.code} className={selectedMarkets.includes(m.code)?"market-option selected":"market-option"}><Checkbox id={"market-"+m.code} labelText={`${m.flag} ${m.name}`} checked={selectedMarkets.includes(m.code)} onChange={()=>toggleMarket(m.code)}/></div>)}{!visibleMarkets.length&&<div className="carbon-select-empty">没有匹配的国家或地区</div>}</div><div className="market-dropdown-foot">列表固定显示，可在此区域内独立滚动选择</div>
-   </div><div className="market-map-panel"><div className="map-heading"><strong>全球市场分布</strong><span>OpenStreetMap · 点击国家可选择</span></div><WorldMarketMap selected={selectedMarkets} onToggle={toggleMarket}/></div></div>
-  </section>
-  <DataSourceSelector organizationId={organizationId} selectedMarkets={selectedMarkets} selectedSourceIds={selectedSourceIds} onChange={ids=>{setSelectedSourceIds(ids);resetAnalysis();}} onLoadDemo={()=>{setKeywords("AI 主动降噪无线耳机, ANC headphones");setSelectedMarkets(["US","JP","DE","GB"]);resetAnalysis();}}/>
-  </section></Column></Grid>
-  <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / 情报分析结果</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
-   {task&&<div className="analysis-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="context-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
-   {sourceRuns.length>0&&<div className="gi-source-run-list" aria-live="polite">{sourceRuns.map((source:any)=><div className="gi-source-run-item" key={source.id||source.source_id}><div><strong>{source.name||source.source_slug}</strong><small>{source.error_message||((source.result_count??0)+" 条")}</small></div><Tag type={source.status==="succeeded"?"green":source.status==="failed"?"red":source.status==="running"?"blue":"cool-gray"} size="sm">{source.status==="succeeded"?"已完成":source.status==="failed"?"失败":source.status==="running"?"执行中":source.status==="queued"?"排队中":source.status==="partial"?"部分完成":source.status||"待处理"}</Tag></div>)}</div>}
-   {error&&<InlineNotification kind="error" lowContrast title="分析未完成" subtitle={error} hideCloseButton/>}<div className="analysis-submit-row"><span>提交后会按所选平台启动真实采集任务，可能产生第三方 Actor 用量费用；切换下方 Tab 不会重置当前条件。</span><Button kind="primary" type="button" onClick={startAnalysis}>开始全球采集 <span aria-hidden="true">→</span></Button></div>
-   <div className="intelligence-tabs">
-    {compactViewport?<div className="gi-mobile-dimension"><Select id="gi-mobile-dimension" labelText="分析维度" value={activeTab} onChange={e=>setActiveTab(e.target.value)}>{tabs.map(tab=><SelectItem key={tab.id} value={tab.id} text={tab.label}/>)}</Select><div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div></div>:<CarbonTabs ariaLabel="情报分析维度" activeTabId={activeTab} onChange={setActiveTab} items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}/>}
+ return <main className="global-intelligence gi-workspace">
+  <header className="gi-page-header">
+   <div className="gi-page-heading">
+    <span className="eyebrow">GLOBAL INTELLIGENCE</span>
+    <h1>全球情报中心</h1>
+    <p>选择产品或输入关键词，配置目标市场与数据来源，生成多维度全球市场情报。</p>
    </div>
-  </section></Column></Grid>
- </section>;
+   <div className="gi-history-utility"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div>
+  </header>
+
+  <section className="gi-config-shell" aria-label="情报分析配置">
+   <div className="gi-config-heading">
+    <div><span className="eyebrow">01 / ANALYSIS INPUT</span><h2>配置分析对象</h2><p>可从企业产品档案开始，也可以跳过产品直接使用关键词分析。</p></div>
+    <div className="gi-period-control"><label htmlFor="gi-period">分析周期</label><CarbonSelect value={period} onChange={v=>{setPeriod(v);resetAnalysis();}}><option value="30d">近 30 天</option><option value="90d">近 90 天</option><option value="12m">近 12 个月</option><option value="5y">近 5 年</option></CarbonSelect></div>
+   </div>
+
+   <section className="gi-config-section gi-product-section">
+    <div className="gi-section-title"><div><h3>产品档案</h3><p>选择产品后自动读取已配置的参数与 SKU。</p></div><span className="gi-section-meta">{products.length} 个可用产品</span></div>
+    <div className="gi-product-select"><CarbonSelect value={productId} onChange={v=>{setProductId(v);resetAnalysis();}} placeholder="选择产品，或留空使用关键词分析">{products.map(p=><option key={p.id} value={p.id}>{p.name}{p.brand?" · "+p.brand:""}{p.model?" · "+p.model:""}</option>)}</CarbonSelect></div>
+    {selectedProduct&&<div className="gi-selected-product"><div className="gi-selected-product-main"><Tag type="blue">已选择</Tag><div><strong>{selectedProduct.name}</strong><span>{[selectedProduct.brand,selectedProduct.model,...(selectedProduct.category_path||[])].filter(Boolean).join(" · ")||"企业产品档案"}</span></div></div><Button kind="ghost" size="sm" type="button" onClick={()=>{setProductId("");resetAnalysis();}}>清除产品</Button></div>}
+    {selectedProduct&&<div className="gi-product-details">
+     <div className="gi-subsection-heading"><div><h4>产品参数</h4><p>默认包含已配置的分析参数，可按需要调整。</p></div><span>{selectedCount} 个参数值已选</span></div>
+     {loading?<div className="inline-loading">正在读取产品参数…</div>:attributes.length===0?<div className="inline-empty">该产品尚未配置参数，可直接分析整个产品。</div>:<div className="gi-parameter-list">{attributes.map(a=><div className="gi-parameter-row" key={a.id}><div className="gi-parameter-name">{a.name}{a.unit&&<small>单位：{a.unit}</small>}</div><div className="gi-parameter-values">{(a.product_attribute_values||[]).map(v=><label className="gi-parameter-value" key={v.id}><Checkbox id={\`parameter-\${a.id}-\${v.id}\`} labelText={\`\${v.value_text}\${v.unit||""}\`} checked={(selectedValues[a.id]||[]).includes(v.id)} onChange={()=>toggleValue(a.id,v.id)}/></label>)}</div><Button kind="ghost" size="sm" type="button" onClick={()=>selectAllValues(a.id,a.product_attribute_values||[])}>全选</Button></div>)}</div>}
+     {variants.length>0&&<div className="gi-variant-block"><div className="gi-subsection-heading"><div><h4>SKU / 规格组合</h4><p>选择参与分析的实际销售规格。</p></div><span>{selectedVariants.length} / {variants.length} 已选</span></div><div className="gi-variant-list">{variants.map(v=><label className="gi-variant-item" key={v.id}><Checkbox id={\`variant-\${v.id}\`} labelText={\`\${v.title||v.model||"未命名规格"} · \${[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}\`} checked={selectedVariants.includes(v.id)} onChange={()=>{setSelectedVariants(current=>current.includes(v.id)?current.filter(x=>x!==v.id):[...current,v.id]);resetAnalysis();}}/><span><strong>{v.title||v.model||"未命名规格"}</strong><small>{[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}</small></span></label>)}</div></div>}
+    {/******** product section ends ********/}
+   </div>
+   </section>
+
+   <section className="gi-config-section gi-keyword-section">
+    <div className="gi-section-title"><div><h3>关键词与多语言</h3><p>补充品类词、竞品词、技术词或使用场景词；支持多个关键词。</p></div><span className="gi-section-meta">{keywordList.length} 个关键词</span></div>
+    <TextArea id="analysis-keywords" labelText="分析关键词" value={keywords} onChange={e=>{setKeywords(e.target.value);resetAnalysis();}} placeholder={"例如：GaN charger、fast charging、travel adapter\n多个关键词可用逗号或换行分隔"} rows={3}/>
+    <div className="gi-keyword-hint">关键词可独立分析，也可以与产品档案组合使用。</div>
+    <div className="gi-translation-block">
+     <div className="gi-subsection-heading"><div><h4>DeepL 多语言关键词</h4><p>根据目标市场推荐语言，也可以手动添加语言。</p></div><Button kind="ghost" type="button" onClick={translate} disabled={translating}>{translating?"翻译中…":"翻译关键词"}</Button></div>
+     <div className="gi-language-tools"><div className="gi-language-chips">{targetLanguages.map(lang=><span className="gi-language-chip" key={lang}><Tag type="blue">{languageNames[lang]||lang}</Tag><Button kind="ghost" size="sm" type="button" aria-label={"移除"+lang} onClick={()=>{setTargetLanguages(current=>current.filter(x=>x!==lang));resetAnalysis();}}>×</Button></span>)}</div><div className="gi-add-language"><CarbonSelect value={extraLanguage} onChange={setExtraLanguage}>{extraLanguages.map(lang=><option key={lang} value={lang}>{languageNames[lang]||lang}</option>)}</CarbonSelect><Button kind="tertiary" size="sm" type="button" onClick={()=>{setTargetLanguages(current=>current.includes(extraLanguage)?current:[...current,extraLanguage]);resetAnalysis();}}>添加语言</Button></div></div>
+     {targetLanguages.map(lang=><div className="gi-translation-field" key={lang}><label htmlFor={"translation-"+lang}>{languageNames[lang]||lang}</label><TextArea id={"translation-"+lang} labelText={languageNames[lang]||lang} hideLabel rows={2} value={translations[lang]||""} onChange={e=>{setTranslations(current=>({...current,[lang]:e.target.value}));resetAnalysis();}} placeholder="翻译结果将在这里显示，也可以手动编辑"/></div>)}
+     {translationStatus&&<div className="translation-status">{translationStatus}</div>}
+     <small className="gi-translation-note">DeepL 密钥仅在服务端使用；需在 Cloudflare Pages 配置 DEEPL_AUTH_KEY Secret。</small>
+    </div>
+   </section>
+
+   <section className="gi-config-section gi-market-section">
+    <div className="gi-section-title"><div><h3>目标市场</h3><p>选择国家或地区，地图会同步显示已选范围。</p></div><span className="gi-section-meta">{selectedMarkets.length} 个市场已选</span></div>
+    <div className="gi-market-layout">
+     <div className="gi-market-picker">
+      <Search size="lg" labelText="搜索国家或地区" value={marketQuery} onChange={e=>setMarketQuery(e.target.value)} placeholder="搜索国家或地区"/>
+      <div className="gi-market-actions"><Button kind="ghost" size="sm" type="button" onClick={()=>{setSelectedMarkets(markets.map(m=>m.code));resetAnalysis();}}>全选市场</Button><Button kind="ghost" size="sm" type="button" onClick={()=>{setSelectedMarkets([]);resetAnalysis();}}>清空</Button><span>{visibleMarkets.length} 个结果</span></div>
+      <div className="gi-market-options">{visibleMarkets.map(m=><div key={m.code} className={selectedMarkets.includes(m.code)?"gi-market-option selected":"gi-market-option"}><Checkbox id={"market-"+m.code} labelText={\`\${m.flag} \${m.name}\`} checked={selectedMarkets.includes(m.code)} onChange={()=>toggleMarket(m.code)}/></div>)}{!visibleMarkets.length&&<div className="carbon-select-empty">没有匹配的国家或地区</div>}</div>
+     </div>
+     <div className="gi-market-map"><div className="gi-map-title"><strong>全球市场分布</strong><span>点击地图国家可选择</span></div><WorldMarketMap selected={selectedMarkets} onToggle={toggleMarket}/></div>
+    </div>
+   </section>
+
+   <section className="gi-config-section gi-sources-section">
+    <DataSourceSelector organizationId={organizationId} selectedMarkets={selectedMarkets} selectedSourceIds={selectedSourceIds} onChange={ids=>{setSelectedSourceIds(ids);resetAnalysis();}} onLoadDemo={()=>{setKeywords("AI 主动降噪无线耳机, ANC headphones");setSelectedMarkets(["US","JP","DE","GB"]);resetAnalysis();}}/>
+   </section>
+
+   <footer className="gi-config-footer">
+    <div className="gi-config-summary"><strong>{selectedProduct?selectedProduct.name:keywordList.length?keywordList.join("、"):"尚未选择分析对象"}</strong><span>{selectedMarkets.length} 个市场 · {selectedSourceIds.length} 个数据源 · {({ "30d":"近 30 天","90d":"近 90 天","12m":"近 12 个月","5y":"近 5 年"} as Record<string,string>)[period]}</span></div>
+    <Button kind="primary" type="button" onClick={startAnalysis}>开始分析 <span aria-hidden="true">→</span></Button>
+   </footer>
+   {error&&<div className="gi-config-error"><InlineNotification kind="error" lowContrast title="无法开始分析" subtitle={error} hideCloseButton/></div>}
+  </section>
+
+  <section className="gi-results-workspace" aria-label="情报分析结果">
+   <div className="gi-results-heading"><div><span className="eyebrow">02 / INTELLIGENCE WORKSPACE</span><h2>全球市场情报</h2><p>分析结果按维度组织；切换维度不会重置本次任务。</p></div>{task&&<Tag type="green">分析条件已提交</Tag>}</div>
+   {task&&<div className="gi-task-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="gi-task-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
+   {sourceRuns.length>0&&<div className="gi-source-run-list" aria-live="polite">{sourceRuns.map((source:any)=><div className="gi-source-run-item" key={source.id||source.source_id}><div><strong>{source.name||source.source_slug}</strong><small>{source.error_message||((source.result_count??0)+" 条")}</small></div><Tag type={source.status==="succeeded"?"green":source.status==="failed"?"red":source.status==="running"?"blue":"cool-gray"} size="sm">{source.status==="succeeded"?"已完成":source.status==="failed"?"失败":source.status==="running"?"执行中":source.status==="queued"?"排队中":source.status==="partial"?"部分完成":source.status||"待处理"}</Tag></div>)}</div>}
+   <div className="gi-result-tabs">
+    {compactViewport?<><Select id="gi-mobile-dimension" labelText="分析维度" value={activeTab} onChange={e=>setActiveTab(e.target.value)}>{tabs.map(tab=><SelectItem key={tab.id} value={tab.id} text={tab.label}/>)}</Select><div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div></>:<CarbonTabs ariaLabel="情报分析维度" activeTabId={activeTab} onChange={setActiveTab} items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}/>}
+   </div>
+  </section>
+ </main>;
+}
 }
