@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { Button, InlineNotification, NumberInput, Select, SelectItem, TextInput } from "@carbon/react";
+import { Button, Dropdown, InlineNotification, NumberInput, TextInput } from "@carbon/react";
 import { Search } from "@carbon/icons-react";
 import { EmptyState, IntelligencePageTemplate, PageSection } from "../design-system";
+
+const marketOptions = [
+  { id: "US", label: "美国" },
+  { id: "GB", label: "英国" },
+  { id: "DE", label: "德国" },
+  { id: "JP", label: "日本" },
+  { id: "GLOBAL", label: "全球" },
+];
 
 export default function SeoAnalysis() {
   const [url, setUrl] = useState("");
@@ -22,13 +30,15 @@ export default function SeoAnalysis() {
         />
       </div>
       <div>
-        <Select id="seo-target-market" labelText="目标市场" value={market} onChange={(event) => setMarket(event.currentTarget.value)}>
-          <SelectItem value="US" text="美国" />
-          <SelectItem value="GB" text="英国" />
-          <SelectItem value="DE" text="德国" />
-          <SelectItem value="JP" text="日本" />
-          <SelectItem value="GLOBAL" text="全球" />
-        </Select>
+        <Dropdown
+          id="seo-target-market"
+          titleText="目标市场"
+          label="选择目标市场"
+          items={marketOptions}
+          itemToString={(item) => item?.label || ""}
+          selectedItem={marketOptions.find((item) => item.id === market) || marketOptions[0]}
+          onChange={({ selectedItem }) => setMarket(selectedItem?.id || "US")}
+        />
         <NumberInput
           id="seo-max-pages"
           label="最大爬取页面数"
