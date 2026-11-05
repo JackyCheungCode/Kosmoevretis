@@ -27,6 +27,7 @@ import {
   Music,
   Logout,
   DataBase,
+  Menu,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -72,6 +73,25 @@ const socialPlatformItems = [
 ];
 function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   const navigate = useNavigate();
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const navRef = React.useRef<HTMLElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (!mobileNavOpen) return;
+    navRef.current?.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileNavOpen]);
+  const selectPlatform = (id: SocialPlatform) => {
+    navigate("/social-discovery/" + id);
+    setMobileNavOpen(false);
+  };
   const pages = {
     facebook: <FacebookDiscovery />,
     instagram: <InstagramDiscovery />,
@@ -84,21 +104,31 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
     youtube: <PlatformDataCollection platform="youtube" />,
   };
   return (
-    <div className="social-platform-workspace">
-      <nav className="social-platform-navigation" aria-label="社媒平台发现分类">
-        <div className="social-platform-nav-heading">社媒平台发现</div>
-        {socialPlatformItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <button key={item.id} type="button" className="social-platform-nav-item"
-              aria-current={platform === item.id ? "page" : undefined}
-              onClick={() => navigate("/social-discovery/" + item.id)}>
-              <Icon size={16} aria-hidden="true" /><span>{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-      <div className="social-platform-content">{pages[platform]}</div>
+    <div className="social-platform-workspace-shell">
+      <button ref={triggerRef} type="button" className="social-platform-mobile-trigger"
+        aria-label="打开平台菜单" aria-expanded={mobileNavOpen} aria-controls="social-platform-nav"
+        onClick={() => setMobileNavOpen(open => !open)}>
+        <Menu size={16} aria-hidden="true" /><span>其他平台发现</span>
+      </button>
+      {mobileNavOpen && <button type="button" className="social-platform-nav-backdrop"
+        aria-label="关闭平台菜单" onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }} />}
+      <div className="social-platform-workspace">
+        <nav id="social-platform-nav" ref={navRef} className={mobileNavOpen ? "social-platform-navigation is-open" : "social-platform-navigation"}
+          aria-label="社媒平台发现分类" role="group">
+          <div className="social-platform-nav-heading">社媒平台发现</div>
+          {socialPlatformItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button key={item.id} type="button" className="social-platform-nav-item"
+                aria-current={platform === item.id ? "page" : undefined}
+                onClick={() => selectPlatform(item.id)}>
+                <Icon size={16} aria-hidden="true" /><span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="social-platform-content">{pages[platform]}</div>
+      </div>
     </div>
   );
 }
