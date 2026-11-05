@@ -163,7 +163,7 @@ export default function GlobalIntelligence(){
  const login=async(e:React.FormEvent)=>{e.preventDefault();setAuthError("");const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setAuthError(error.message);};
  if(!ready)return <div className="boot-screen">正在连接全球情报中心…</div>;
  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">全球情报中心</div><h2>登录企业工作区</h2><p>登录后选择产品档案，或直接输入关键词开展市场研究。</p><TextInput id="gi-login-email" type="email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)} required/><PasswordInput id="gi-login-password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError} hideCloseButton/>}<Button kind="primary" type="submit">登录</Button></form>;
- return <main className="global-intelligence gi-workspace">
+ return <section className="global-intelligence gi-workspace">
   <header className="gi-page-header">
    <div className="gi-page-heading">
     <span className="eyebrow">GLOBAL INTELLIGENCE</span>
@@ -187,7 +187,6 @@ export default function GlobalIntelligence(){
      <div className="gi-subsection-heading"><div><h4>产品参数</h4><p>默认包含已配置的分析参数，可按需要调整。</p></div><span>{selectedCount} 个参数值已选</span></div>
      {loading?<div className="inline-loading">正在读取产品参数…</div>:attributes.length===0?<div className="inline-empty">该产品尚未配置参数，可直接分析整个产品。</div>:<div className="gi-parameter-list">{attributes.map(a=><div className="gi-parameter-row" key={a.id}><div className="gi-parameter-name">{a.name}{a.unit&&<small>单位：{a.unit}</small>}</div><div className="gi-parameter-values">{(a.product_attribute_values||[]).map(v=><label className="gi-parameter-value" key={v.id}><Checkbox id={\`parameter-\${a.id}-\${v.id}\`} labelText={\`\${v.value_text}\${v.unit||""}\`} checked={(selectedValues[a.id]||[]).includes(v.id)} onChange={()=>toggleValue(a.id,v.id)}/></label>)}</div><Button kind="ghost" size="sm" type="button" onClick={()=>selectAllValues(a.id,a.product_attribute_values||[])}>全选</Button></div>)}</div>}
      {variants.length>0&&<div className="gi-variant-block"><div className="gi-subsection-heading"><div><h4>SKU / 规格组合</h4><p>选择参与分析的实际销售规格。</p></div><span>{selectedVariants.length} / {variants.length} 已选</span></div><div className="gi-variant-list">{variants.map(v=><label className="gi-variant-item" key={v.id}><Checkbox id={\`variant-\${v.id}\`} labelText={\`\${v.title||v.model||"未命名规格"} · \${[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}\`} checked={selectedVariants.includes(v.id)} onChange={()=>{setSelectedVariants(current=>current.includes(v.id)?current.filter(x=>x!==v.id):[...current,v.id]);resetAnalysis();}}/><span><strong>{v.title||v.model||"未命名规格"}</strong><small>{[v.sku,v.model,v.price===null?null:(v.currency||"USD")+" "+v.price].filter(Boolean).join(" · ")||"未配置 SKU 信息"}</small></span></label>)}</div></div>}
-    {/******** product section ends ********/}
    </div>
    </section>
 
@@ -235,6 +234,6 @@ export default function GlobalIntelligence(){
     {compactViewport?<><Select id="gi-mobile-dimension" labelText="分析维度" value={activeTab} onChange={e=>setActiveTab(e.target.value)}>{tabs.map(tab=><SelectItem key={tab.id} value={tab.id} text={tab.label}/>)}</Select><div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div></>:<CarbonTabs ariaLabel="情报分析维度" activeTabId={activeTab} onChange={setActiveTab} items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}/>}
    </div>
   </section>
- </main>;
+ </section>;
 }
 }
