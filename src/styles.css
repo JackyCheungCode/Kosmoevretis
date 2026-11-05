@@ -732,7 +732,7 @@
     align-items: flex-start;
     flex-wrap: wrap;
   }
-  .translation-head .cds--btn,
+  .translation-head > button,
   .add-language-row .cds--btn {
     width: auto;
     flex: 0 0 auto;
