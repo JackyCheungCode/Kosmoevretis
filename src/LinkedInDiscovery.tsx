@@ -94,7 +94,7 @@ export default function LinkedInDiscovery(){
  return <section className="linkedin-discovery">
   <PageHeader title="LinkedIn 公开信息发现" description="发现目标企业、采购决策者、公开帖子与招聘信号，保留 Actor 来源及原始数据。" actions={<Tag type="blue">{orgName||"企业工作区"}</Tag>} />
   <section className="li-panel li-config">
-   <div className="li-section-head"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3><p>选择发现对象后，仅显示该对象适用的搜索参数。</p></div></div>
+   <div className="li-section-head discovery-object-heading"><div><span className="eyebrow">DISCOVERY OBJECT</span><h3>选择发现对象</h3></div><span>按对象类型显示对应参数</span></div>
    <CollectionModeGrid ariaLabel="选择 LinkedIn 发现对象" options={kinds} selectedId={kind} onSelect={id=>{setKind(id as Kind);setRows([]);setMeta(null);setError("");setNotice("");}} />
    <div className="li-form-grid">
     {kind!=="enrich"&&<div className="li-field li-keywords"><TextArea id="li-keywords" labelText={kind==="posts"?"搜索关键词 / 话题":"搜索关键词"} placeholder={kind==="people"?"例如：B2B Purchasing Manager\n也可通过职位筛选进一步限定":kind==="companies"?"例如：Consumer Electronics Distributor":"例如：wireless earbuds, sourcing, procurement"} value={terms} onChange={e=>setTerms(e.target.value)} rows={3}/><small>{termsList.length} 个关键词 · 换行或逗号分隔</small></div>}
