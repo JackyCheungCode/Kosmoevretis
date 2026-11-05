@@ -312,15 +312,6 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
           <NumberInput id="ec-max-results" label="最多返回结果" min={1} max={500} value={limit} onChange={(_event, { value }) => setLimit(Number(value) || 50)} />
           <small>限制本次任务的结果数量。</small>
         </div>
-        {mode === "keyword" && <div className="ec-field">
-          <Dropdown id="ec-country-code" titleText="结果地区" label="选择国家 / 地区" items={[
-            { id: "us", text: "美国" }, { id: "gb", text: "英国" }, { id: "de", text: "德国" },
-            { id: "jp", text: "日本" }, { id: "ca", text: "加拿大" }, { id: "au", text: "澳大利亚" },
-          ]} itemToString={(item: Option | null) => item?.text || ""} selectedItem={[
-            { id: "us", text: "美国" }, { id: "gb", text: "英国" }, { id: "de", text: "德国" },
-            { id: "jp", text: "日本" }, { id: "ca", text: "加拿大" }, { id: "au", text: "澳大利亚" },
-          ].find(item => item.id === countryCode)} onChange={({ selectedItem }) => setCountryCode(selectedItem?.id || "us")} />
-        </div>}
         {mode === "reviews" && <div className="ec-field">
           <Dropdown id="ec-review-sort" titleText="评论排序" label="选择排序" items={[
             { id: "Most recent", text: "最新" }, { id: "Most relevant", text: "最相关" },
