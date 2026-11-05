@@ -19,6 +19,7 @@ type Product = {
 };
 type Variant = { id:string; sku:string|null; title:string|null; model:string|null; barcode:string|null; price:number|null; currency:string|null; cost:number|null; is_active:boolean };
 type ProductAttribute = { id:string; name:string; variant_creation_mode:string; unit:string|null; product_attribute_values:{id:string;value_text:string;unit:string|null}[] };
+type VariantAttributeValue = { id:string; variant_id:string; attribute_id:string; attribute_value_id:string };
 type CategoryTemplate = { id:string; category_id:string; definition_id:string; is_required:boolean; sort_order:number };
 
 const message = (e:unknown) => e instanceof Error ? e.message : "操作失败，请稍后重试。";
@@ -55,6 +56,7 @@ export default function ProductCenter() {
   const [definitionForm,setDefinitionForm] = useState({name:"",data_type:"single_select",unit:"",group:"规格参数",semantic:"specification",display:"pills",variant_mode:"never"});
   const [definitionValueDraft,setDefinitionValueDraft] = useState<Record<string,string>>({});
   const [variants,setVariants] = useState<Variant[]>([]);
+  const [variantAttributeValues,setVariantAttributeValues] = useState<VariantAttributeValue[]>([]);
   const [productAttributes,setProductAttributes] = useState<ProductAttribute[]>([]);
   const [variantAxisSelection,setVariantAxisSelection] = useState<Record<string,string>>({});
   const [variantForm,setVariantForm] = useState({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
@@ -155,11 +157,12 @@ export default function ProductCenter() {
       }
     }
     await load(org);setSelected(result.data as Product);setEditing(false);
-    const [variantResult,attributeResult]=await Promise.all([
+    const [variantResult,attributeResult,variantValuesResult]=await Promise.all([
       supabase.from("product_variants").select("*").eq("product_id",result.data.id).order("created_at"),
-      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",result.data.id).order("sort_order")
+      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",result.data.id).order("sort_order"),
+      supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",result.data.id)
     ]);
-    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAxisSelection({});
+    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);setVariantAxisSelection({});
     setBusy(false);
     setNotice({kind:"success",text:selected?"产品模板已更新。":"产品模板已创建，分类属性模板已自动应用。"});
   };
@@ -218,14 +221,35 @@ export default function ProductCenter() {
 
   const createVariant = async (event:FormEvent) => {
     event.preventDefault();if(!selected||!org)return;
-    setBusy(true);
+    const axes=productAttributes.filter(attribute=>attribute.variant_creation_mode!=="never");
+    const missingAxis=axes.find(attribute=>!variantAxisSelection[attribute.id]);
+    if(missingAxis){setNotice({kind:"error",text:"请先选择「"+missingAxis.name+"」的规格值，再创建 SKU。"});return;}
+    setBusy(true);setNotice(null);
     const {data,error}=await supabase.from("product_variants").insert({
       organization_id:org,product_id:selected.id,title:variantForm.title.trim()||null,sku:variantForm.sku.trim()||null,
       model:variantForm.model.trim()||null,barcode:variantForm.barcode.trim()||null,price:variantForm.price===""?null:Number(variantForm.price),
       currency:variantForm.currency,cost:variantForm.cost===""?null:Number(variantForm.cost)
     }).select("*").single();
-    if(error)setNotice({kind:"error",text:message(error)});
-    else{setVariants(prev=>[...prev,data as Variant]);setVariantForm({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});setNotice({kind:"success",text:"实际销售变体已创建。"});}
+    if(error){setNotice({kind:"error",text:message(error)});setBusy(false);return;}
+    const links=axes.map(attribute=>({
+      organization_id:org,product_id:selected.id,variant_id:data.id,attribute_id:attribute.id,
+      attribute_value_id:variantAxisSelection[attribute.id]
+    }));
+    if(links.length){
+      const {error:linkError}=await supabase.from("product_variant_values").insert(links);
+      if(linkError){
+        const rollback=await supabase.from("product_variants").delete().eq("id",data.id);
+        setNotice({kind:"error",text:rollback.error
+          ?"SKU 已创建，但规格关联失败且自动回滚未完成："+message(linkError)+"；"+message(rollback.error)
+          :"规格关联失败，已撤销本次 SKU 创建："+message(linkError)});
+        setBusy(false);return;
+      }
+      setVariantAttributeValues(prev=>[...prev,...links.map((link,index)=>({id:data.id+"-"+index,variant_id:data.id,attribute_id:link.attribute_id,attribute_value_id:link.attribute_value_id}))]);
+    }
+    setVariants(prev=>[...prev,data as Variant]);
+    setVariantAxisSelection({});
+    setVariantForm({title:"",sku:"",model:"",barcode:"",price:"",currency:"USD",cost:""});
+    setNotice({kind:"success",text:links.length?"SKU 与所选规格属性已关联并保存。":"实际销售 SKU 已创建。"});
     setBusy(false);
   };
 
@@ -243,12 +267,13 @@ export default function ProductCenter() {
   const selectedCategoryRecord=categories.find(c=>c.id===selectedCategoryId);
   const openProduct = async (p:Product) => {
     setSelected(p);setEditing(false);setNotice(null);
-    const [variantResult,attributeResult]=await Promise.all([
+    const [variantResult,attributeResult,variantValuesResult]=await Promise.all([
       supabase.from("product_variants").select("*").eq("product_id",p.id).order("created_at"),
-      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",p.id).order("sort_order")
+      supabase.from("product_attributes").select("*,product_attribute_values(id,value_text,unit)").eq("product_id",p.id).order("sort_order"),
+      supabase.from("product_variant_values").select("id,variant_id,attribute_id,attribute_value_id").eq("product_id",p.id)
     ]);
-    if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;
-    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAxisSelection({});
+    if(variantResult.error)throw variantResult.error;if(attributeResult.error)throw attributeResult.error;if(variantValuesResult.error)throw variantValuesResult.error;
+    setVariants((variantResult.data||[]) as Variant[]);setProductAttributes((attributeResult.data||[]) as ProductAttribute[]);setVariantAttributeValues((variantValuesResult.data||[]) as VariantAttributeValue[]);setVariantAxisSelection({});
   };
   return <section className="pc-workspace">
     <div className="pc-heading"><div><div className="pc-kicker">PRODUCT MASTER / ODOO-STYLE CATALOG</div><h2>产品中心</h2><p>{orgName} · 统一产品主档案，供市场情报、报价与合同流程复用</p></div><div className="pc-heading-actions"><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></div></div>
@@ -296,7 +321,7 @@ export default function ProductCenter() {
             <div className="pc-panel-heading"><div><button className="pc-back" onClick={()=>setSelected(null)}>← 返回产品目录</button><h3>{selected.name}</h3><p>{selected.brand||"未设置品牌"} · {selected.model||"未设置型号"} · {categoryName(selected.category_id)}</p></div><div className="pc-heading-actions"><Tag type="blue">模板 v{selected.version||1}</Tag><Button kind="primary" onClick={()=>startEdit(selected)}>编辑模板</Button></div></div>
             <div className="pc-product-facts"><div><span>内部参考</span><strong>{selected.internal_reference||"—"}</strong></div><div><span>主 SKU</span><strong>{selected.sku||"由变体定义"}</strong></div><div><span>销售价格</span><strong>{money(selected.sales_price,selected.sales_currency)}</strong></div><div><span>生命周期</span><strong>{selected.lifecycle_stage}</strong></div></div>
             <section className="pc-form-section"><div className="pc-section-head"><div><h4>产品变体 / Product Variants</h4><p>变体是可销售的实际规格组合，每个变体拥有独立 SKU、条码和商业价格。</p></div><Tag>{variants.length} 个变体</Tag></div>
-              {productAttributes.some(a=>a.variant_creation_mode!=="never")&&<div className="pc-axis-selector"><div><strong>变体属性组合</strong><span>选择每个变体轴的具体属性值，系统将关联到实际 SKU。</span></div><div className="pc-axis-grid">{productAttributes.filter(a=>a.variant_creation_mode!=="never").map(a=><FormField className="pc-field" key={a.id} label={`${a.name}${a.unit?`（${a.unit}）`:""}`} htmlFor={`pc-axis-${a.id}`}><CarbonSelect id={`pc-axis-${a.id}`} value={variantAxisSelection[a.id]||""} onChange={v=>setVariantAxisSelection(prev=>({...prev,[a.id]:v}))} placeholder="选择属性值">{(a.product_attribute_values||[]).map(v=><option key={v.id} value={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</option>)}</CarbonSelect></FormField>)}</div></div>}
+              {productAttributes.some(a=>a.variant_creation_mode!=="never")&&<div className="pc-axis-selector"><div><strong>变体属性组合</strong><span>每个启用的变体轴都需要选择一个规格值；所选值会与新 SKU 一起保存。</span></div><div className="pc-axis-grid">{productAttributes.filter(a=>a.variant_creation_mode!=="never").map(a=><FormField className="pc-field" key={a.id} label={`${a.name}${a.unit?`（${a.unit}）`:""}`} htmlFor={`pc-axis-${a.id}`}><CarbonSelect id={`pc-axis-${a.id}`} value={variantAxisSelection[a.id]||""} onChange={v=>setVariantAxisSelection(prev=>({...prev,[a.id]:v}))} placeholder="选择属性值">{(a.product_attribute_values||[]).map(v=><option key={v.id} value={v.id}>{v.value_text}{v.unit?` ${v.unit}`:""}</option>)}</CarbonSelect></FormField>)}</div></div>}
               <form className="pc-variant-form" onSubmit={createVariant}>
                 <TextInput id="pc-v-title" labelText="变体名称 / 规格组合" value={variantForm.title} onChange={e=>setVariantForm(p=>({...p,title:e.target.value}))}/>
                 <TextInput id="pc-v-sku" labelText="SKU" value={variantForm.sku} onChange={e=>setVariantForm(p=>({...p,sku:e.target.value}))}/>
@@ -307,7 +332,7 @@ export default function ProductCenter() {
                 <NumberInput id="pc-v-cost" label="成本" min={0} step={0.01} value={variantForm.cost} onChange={(_,d)=>setVariantForm(p=>({...p,cost:String(d.value??"")}))}/>
                 <Button type="submit" disabled={busy}>新增变体</Button>
               </form>
-              {variants.length?<div className="pc-table-wrap"><table className="pc-table"><thead><tr><th>变体</th><th>SKU</th><th>型号</th><th>条码</th><th>销售价</th><th>成本</th></tr></thead><tbody>{variants.map(v=><tr key={v.id}><td>{v.title||"默认变体"}</td><td>{v.sku||"—"}</td><td>{v.model||"—"}</td><td>{v.barcode||"—"}</td><td>{money(v.price,v.currency||"USD")}</td><td>{money(v.cost,v.currency||"USD")}</td></tr>)}</tbody></table></div>:<div className="pc-empty-inline">尚未创建实际销售变体。可先添加默认 SKU，后续再配置属性组合。</div>}
+              {variants.length?<div className="pc-table-wrap"><table className="pc-table"><thead><tr><th>变体</th><th>规格属性</th><th>SKU</th><th>型号</th><th>条码</th><th>销售价</th><th>成本</th></tr></thead><tbody>{variants.map(v=>{const values=variantAttributeValues.filter(link=>link.variant_id===v.id).map(link=>{const attribute=productAttributes.find(item=>item.id===link.attribute_id);const value=attribute?.product_attribute_values.find(item=>item.id===link.attribute_value_id);return attribute&&value?attribute.name+"："+value.value_text+(value.unit?" "+value.unit:""):null;}).filter(Boolean);return <tr key={v.id}><td>{v.title||"默认变体"}</td><td>{values.length?values.join(" · "):"—"}</td><td>{v.sku||"—"}</td><td>{v.model||"—"}</td><td>{v.barcode||"—"}</td><td>{money(v.price,v.currency||"USD")}</td><td>{money(v.cost,v.currency||"USD")}</td></tr>;})}</tbody></table></div>:<div className="pc-empty-inline">尚未创建实际销售变体。可先添加默认 SKU，后续再配置属性组合。</div>}
             </section>
             <section className="pc-form-section"><h4>产品属性摘要</h4><div className="pc-attribute-summary">{productAttributes.map(a=><div key={a.id}><strong>{a.name}</strong><span>{a.variant_creation_mode==="never"?"普通属性":a.variant_creation_mode==="dynamic"?"动态变体轴":"立即变体轴"}</span><small>{(a.product_attribute_values||[]).map(v=>v.value_text).join(" / ")||"尚无属性值"}</small></div>)}</div>{!productAttributes.length&&<p>分类：{categoryName(selected.category_id)}。当前分类尚未配置属性模板。</p>}</section>
           </div>:<><div className="pc-catalog-stats"><div><span>产品模板</span><strong>{products.length}</strong></div><div><span>分类</span><strong>{categories.length}</strong></div><div><span>属性定义</span><strong>{definitions.length}</strong></div><div><span>已发布产品</span><strong>{products.filter(p=>p.status==="active"||p.lifecycle_stage==="active").length}</strong></div></div>
