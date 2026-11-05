@@ -38,13 +38,13 @@ const platformConfig: Record<EcommercePlatform, {
     { id: "www.ebay.com", text: "美国 · eBay.com" }, { id: "www.ebay.co.uk", text: "英国 · eBay.co.uk" },
     { id: "www.ebay.de", text: "德国 · eBay.de" }, { id: "www.ebay.com.au", text: "澳大利亚 · eBay.com.au" },
   ] },
-  aliexpress: { name: "AliExpress", description: "发现跨境商品、价格、店铺与公开评论。", domain: "www.aliexpress.com", supportsKeyword: true, domains: [
+  aliexpress: { name: "AliExpress", description: "发现跨境商品、价格、店铺与公开评论。", domain: "www.aliexpress.com", supportsKeyword: false, domains: [
     { id: "www.aliexpress.com", text: "全球 · AliExpress.com" },
   ] },
-  temu: { name: "Temu", description: "发现 Temu 商品、价格、商品信息与市场供给信号。", domain: "www.temu.com", supportsKeyword: true, domains: [
+  temu: { name: "Temu", description: "发现 Temu 商品、价格、商品信息与市场供给信号。", domain: "www.temu.com", supportsKeyword: false, domains: [
     { id: "www.temu.com", text: "全球 · Temu.com" },
   ] },
-  etsy: { name: "Etsy", description: "发现创意商品、手工制品、卖家与价格分布。", domain: "www.etsy.com", supportsKeyword: true, domains: [
+  etsy: { name: "Etsy", description: "发现创意商品、手工制品、卖家与价格分布。", domain: "www.etsy.com", supportsKeyword: false, domains: [
     { id: "www.etsy.com", text: "全球 · Etsy.com" },
   ] },
   shopify: { name: "Shopify", description: "通过公开店铺、商品和分类页 URL 发现独立站商品。", domain: "", supportsKeyword: false, domains: [] },
@@ -53,7 +53,7 @@ const platformConfig: Record<EcommercePlatform, {
     { id: "www.mercadolivre.com.br", text: "巴西 · Mercado Livre" }, { id: "www.mercadolibre.com.co", text: "哥伦比亚 · Mercado Libre" },
     { id: "www.mercadolibre.cl", text: "智利 · Mercado Libre" },
   ] },
-  rakuten: { name: "Rakuten", description: "发现日本及其他地区乐天市场商品、价格与店铺。", domain: "www.rakuten.co.jp", supportsKeyword: true, domains: [
+  rakuten: { name: "Rakuten", description: "发现日本及其他地区乐天市场商品、价格与店铺。", domain: "www.rakuten.co.jp", supportsKeyword: false, domains: [
     { id: "www.rakuten.co.jp", text: "日本 · Rakuten.co.jp" }, { id: "www.rakuten.com", text: "美国 · Rakuten.com" },
   ] },
 };
@@ -135,7 +135,6 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
   const [domain, setDomain] = useState(config.domain);
   const [inputText, setInputText] = useState("");
   const [limit, setLimit] = useState(50);
-  const [countryCode, setCountryCode] = useState("us");
   const [includeAdditional, setIncludeAdditional] = useState(true);
   const [deduplicate, setDeduplicate] = useState(true);
   const [reviewSort, setReviewSort] = useState("Most recent");
@@ -154,12 +153,11 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const inputList = useMemo(() => splitLines(inputText), [inputText]);
   const currentMode = modes.find(item => item.id === mode) || modes[0];
-  const isUrlMode = mode === "details" || mode === "listing" || mode === "sellers" || (mode === "reviews" && inputList.some(value => /^https?:\/\//i.test(value)));
   const activeRows = useMemo(() => rows.filter(row => {
     const type = String(row.discovery_type || row.result_type || "").toLowerCase();
     if (activeTab === "reviews") return mode === "reviews" || type.includes("review") || Boolean(row.reviewBody || row.review_body);
     if (activeTab === "sellers") return mode === "sellers" || type.includes("seller") || Boolean(row.sellerName || row.aggregateRating);
-    if (activeTab === "pricing") return mode !== "reviews" && mode !== "sellers";
+    if (activeTab === "products" || activeTab === "pricing") return mode !== "reviews" && mode !== "sellers";
     return true;
   }).filter(row => !filter.trim() || JSON.stringify(row).toLowerCase().includes(filter.trim().toLowerCase())), [rows, activeTab, mode, filter]);
   const addLog = useCallback((message: string, level: LogEntry["level"] = "info") => {
@@ -237,6 +235,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     if (mode !== "keyword" && mode !== "reviews" && inputList.some(value => !/^https?:\/\//i.test(value))) {
       setError("当前发现模式需要输入完整的 http(s) URL。"); return;
     }
+    if (mode === "reviews" && !config.supportsKeyword && inputList.some(value => !/^https?:\/\//i.test(value))) { setError("当前平台暂不支持关键词评论搜索，请输入商品 URL。"); return; }
     if (mode === "reviews" && inputList.some(value => /^https?:\/\//i.test(value)) && inputList.some(value => !/^https?:\/\//i.test(value))) {
       setError("评论模式请只输入关键词，或只输入商品 URL，不要混合两种输入。"); return;
     }
@@ -248,7 +247,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     try {
       const data = await invoke({
         action: "collect", platform, mode, input_values: inputList, marketplace: domain,
-        max_results: limit, country_code: countryCode, include_additional: includeAdditional,
+        max_results: limit, include_additional: includeAdditional,
         deduplicate: deduplicate, review_sort: reviewSort,
       });
       setTaskId(data.task_id);
