@@ -385,7 +385,7 @@ function AppShell() {
         <HeaderName href="/intelligence" onClick={(event) => handleNavigate(event, "/intelligence")}>
           kosmoevretis
         </HeaderName>
-        <span className="kosmo-header-context">GLOBAL INTELLIGENCE PLATFORM</span>
+        <span className="kosmo-header-context">全球情报平台</span>
         <div className="kosmo-account-menu" ref={accountMenuRef}>
           <button
             type="button"
@@ -460,7 +460,7 @@ function AppShell() {
 
       <main id="main-content" className={`content kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         {!isTemplatePage && <>
-        <div className="eyebrow">KOSMOEVRETIS / GLOBAL INTELLIGENCE</div>
+        <div className="eyebrow">Kosmoevretis / 全球情报中心</div>
         <div className="page-head">
           <div>
             <h1>{currentLabel}</h1>
