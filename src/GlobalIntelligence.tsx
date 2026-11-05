@@ -4,7 +4,7 @@ import { supabase } from "./lib/supabase";
 import { Button, InlineNotification, PasswordInput, Checkbox, Search, TextArea, TextInput } from "@carbon/react";
 import { CarbonTabs } from "./design-system/components";
 import CarbonSelect from "./components/CarbonSelect";
-import { DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
+import { AIAnalysisPanel, DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
 
 type Product={id:string;name:string;brand:string|null;model:string|null;category_path:string[]|null};
 type Value={id:string;value_text:string;unit:string|null;include_in_analysis?:boolean};
@@ -192,8 +192,9 @@ export default function GlobalIntelligence(){
     ariaLabel="情报分析维度"
     activeTabId={activeTab}
     onChange={setActiveTab}
-    items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}
+    items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} evidence={liveEvidence}/></div>}))}
    /></div>
   </section>
+  <AIAnalysisPanel accessToken={session?.access_token||""} context={task?.filters.join("；")||""} activeTab={activeTab} taskId={currentTaskId} organizationId={organizationId} evidenceCount={liveEvidence.length}/>
  </section>;
 }
