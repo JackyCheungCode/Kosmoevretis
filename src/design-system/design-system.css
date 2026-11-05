@@ -50,3 +50,14 @@
  .kosmo-page-header__meta { justify-content:flex-start; width:100%; }
  .kosmo-template__results { padding:var(--kosmo-spacing-04); }
 }
+
+/* Shared form-field framing; input behavior and focus remain Carbon-owned. */
+.kosmo-form-field { display:flex; flex-direction:column; align-items:stretch; gap:var(--kosmo-spacing-02); min-width:0; }
+.kosmo-form-field .cds--label { margin:0; color:var(--cds-text-primary); }
+.kosmo-form-field__required { color:var(--cds-text-error); }
+.kosmo-form-field__control { min-width:0; }
+.kosmo-form-field__message { color:var(--cds-text-helper); font-size:var(--cds-helper-text-01-font-size); line-height:var(--cds-helper-text-01-line-height); }
+.kosmo-form-field__message--error { color:var(--cds-text-error); }
+.kosmo-form-field.is-invalid .cds--text-input,
+.kosmo-form-field.is-invalid .cds--text-area,
+.kosmo-form-field.is-invalid .cds--list-box__field { border-block-end-color:var(--cds-border-invalid); }
