@@ -28,7 +28,7 @@ const allowedTabs = new Set(["overview","bestsellers","search","social","consume
 const evidenceByTab: Record<string, string[]> = {
   overview: ["search_trend","product_listing","social_post","review","article","other"],
   bestsellers: ["product_listing"],
-  search: ["search_trend"],
+  search: ["search_trend","article"],
   social: ["social_post"],
   consumer: ["social_post","review"],
   competitors: ["product_listing","social_post","article"],

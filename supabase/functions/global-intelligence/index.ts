@@ -12,6 +12,7 @@ const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body)
 const fail = (message: string, status = 400) => reply({ error: message }, status);
 const adapters: Record<string, { functionName: string; kind: string; channel: string }> = {
   "google-trends": { functionName: "market-trends", kind: "search_trend", channel: "搜索引擎" },
+  "google-news": { functionName: "google-news-rss", kind: "article", channel: "新闻媒体" },
   amazon: { functionName: "ecommerce-discovery", kind: "product_listing", channel: "电商平台" },
   walmart: { functionName: "ecommerce-discovery", kind: "product_listing", channel: "电商平台" },
   ebay: { functionName: "ecommerce-discovery", kind: "product_listing", channel: "电商平台" },
@@ -25,6 +26,49 @@ const adapters: Record<string, { functionName: string; kind: string; channel: st
   facebook: { functionName: "facebook-discovery", kind: "social_post", channel: "社交媒体" },
   linkedin: { functionName: "linkedin-discovery", kind: "social_post", channel: "社交媒体" },
 };
+const ecomDomains: Record<string, Record<string, string>> = {
+  amazon: { US:"www.amazon.com", GB:"www.amazon.co.uk", DE:"www.amazon.de", JP:"www.amazon.co.jp", CA:"www.amazon.ca", AU:"www.amazon.com.au" },
+  walmart: { US:"www.walmart.com", CA:"www.walmart.ca" },
+  ebay: { US:"www.ebay.com", GB:"www.ebay.co.uk", DE:"www.ebay.de", AU:"www.ebay.com.au" },
+  "mercado-libre": { MX:"www.mercadolibre.com.mx", AR:"www.mercadolibre.com.ar", BR:"www.mercadolivre.com.br", CO:"www.mercadolibre.com.co", CL:"www.mercadolibre.cl" },
+};
+const newsLocales: Record<string,{hl:string;gl:string;ceid:string}> = {
+  US:{hl:"en-US",gl:"US",ceid:"US:en"},GB:{hl:"en-GB",gl:"GB",ceid:"GB:en"},CA:{hl:"en-CA",gl:"CA",ceid:"CA:en"},
+  AU:{hl:"en-AU",gl:"AU",ceid:"AU:en"},DE:{hl:"de-DE",gl:"DE",ceid:"DE:de"},JP:{hl:"ja-JP",gl:"JP",ceid:"JP:ja"},
+  FR:{hl:"fr-FR",gl:"FR",ceid:"FR:fr"},ES:{hl:"es-ES",gl:"ES",ceid:"ES:es"},IT:{hl:"it-IT",gl:"IT",ceid:"IT:it"},
+  BR:{hl:"pt-BR",gl:"BR",ceid:"BR:pt-419"},MX:{hl:"es-419",gl:"MX",ceid:"MX:es-419"},CN:{hl:"zh-CN",gl:"CN",ceid:"CN:zh-Hans"},
+};
+const decodeXml = (value:string) => value.replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g,"$1").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").trim();
+const readXmlTag = (xml:string,tag:string) => { const match=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)</"+tag+">","i"));return match?decodeXml(match[1]):""; };
+async function collectGoogleNews(keywords:string[],markets:string[]) {
+  const targets=markets.slice(0,8);
+  const results=await Promise.allSettled(targets.map(async market=>{
+    const locale=newsLocales[market]||{hl:"en-US",gl:market.slice(0,2)||"US",ceid:(market.slice(0,2)||"US")+":en"};
+    const query=keywords.map(term=>'"'+term.replace(/"/g,"")+'"').join(" OR ");
+    const params=new URLSearchParams({q:query,hl:locale.hl,gl:locale.gl,ceid:locale.ceid});
+    const response=await fetch("https://news.google.com/rss/search?"+params.toString(),{headers:{Accept:"application/rss+xml, application/xml, text/xml","User-Agent":"KosmoevretisGlobalIntelligence/1.0"}});
+    if(!response.ok)throw new Error(market+" Google News RSS 请求失败（HTTP "+response.status+"）。");
+    const xml=await response.text();
+    const items=[...xml.matchAll(/<item\\b[\\s\\S]*?<\\/item>/gi)].slice(0,40).map(match=>{
+      const block=match[0],sourceTag=block.match(/<source\\b[^>]*url=["']([^"']+)["'][^>]*>/i);
+      return {
+        title:readXmlTag(block,"title"),url:readXmlTag(block,"link"),description:readXmlTag(block,"description"),
+        published_at:readXmlTag(block,"pubDate"),publisher:readXmlTag(block,"source"),
+        publisher_url:sourceTag?decodeXml(sourceTag[1]):"",market_code:market,language:locale.hl,
+        search_query:keywords.join(" OR "),provider:"Google News RSS",
+      };
+    }).filter(item=>item.title&&item.url);
+    return {market,result_count:items.length,items};
+  }));
+  const completed=results.filter((item):item is PromiseFulfilledResult<{market:string;result_count:number;items:any[]}>=>item.status==="fulfilled");
+  const failed=results.filter((item):item is PromiseRejectedResult=>item.status==="rejected").map(item=>item.reason instanceof Error?item.reason.message:"Google News 请求失败。");
+  return {
+    status:completed.length===targets.length&&completed.length>0?"succeeded":completed.length?"partial":"failed",
+    results:completed.flatMap(item=>item.value.items),
+    error_message:failed.length?failed.join("；"):null,
+    actor_meta:{provider:"Google News RSS",markets_queried:targets,market_runs:completed.map(item=>({market:item.value.market,result_count:item.value.result_count})),errors:failed},
+  };
+}
 const uuidPattern = /^[0-9a-f-]{36}$/i;
 const cleanList = (value: unknown, max = 12) => Array.isArray(value)
   ? [...new Set(value.map(item => String(item).trim()).filter(Boolean))].slice(0, max) : [];
@@ -58,7 +102,7 @@ function normalizeEvidence(source: { id: string; slug: string; channel: string }
     const rating = numericValue(firstValue(item, ["rating", "stars", "averageRating", "score"]));
     const reviewCount = numericValue(firstValue(item, ["reviewCount", "review_count", "ratingsCount", "numReviews"]));
     const metrics: Record<string, unknown> = {};
-    for (const key of ["views", "viewCount", "playCount", "likes", "likeCount", "diggCount", "comments", "commentCount", "shareCount", "shares", "followers", "followerCount", "interest_over_time", "interest_by_region", "related_queries", "related_topics"]) {
+    for (const key of ["views", "viewCount", "playCount", "likes", "likeCount", "diggCount", "comments", "commentCount", "shareCount", "shares", "followers", "followerCount", "interest_over_time", "interest_by_region", "related_queries", "related_topics", "published_at", "publisher", "publisher_url", "search_query"]) {
       if (item[key] !== undefined) metrics[key] = item[key];
     }
     if (kind === "search_trend") {
@@ -122,10 +166,12 @@ Deno.serve(async (req: Request) => {
       if (!keywords.length) return fail("请至少输入一个分析关键词。");
       if (!markets.length) return fail("请至少选择一个目标市场。");
       if (!["30d", "90d", "12m", "5y"].includes(period)) return fail("不支持的分析时间范围。");
-      const { data: provider, error: providerError } = await admin.from("platform_provider_connections")
-        .select("is_enabled,status").eq("organization_id", organizationId).eq("provider_key", "apify").maybeSingle();
-      if (providerError) throw providerError;
-      if (!provider?.is_enabled || provider.status !== "verified") return fail("Apify 尚未启用或验证，请先到设置中心完成连接测试。");
+      if (sources.some(source => source.slug !== "google-news")) {
+        const { data: provider, error: providerError } = await admin.from("platform_provider_connections")
+          .select("is_enabled,status").eq("organization_id", organizationId).eq("provider_key", "apify").maybeSingle();
+        if (providerError) throw providerError;
+        if (!provider?.is_enabled || provider.status !== "verified") return fail("所选平台需要 Apify。请先到设置中心完成凭证配置与连接测试；Google News RSS 无需 Apify。");
+      }
       const { data: sources, error: sourceError } = await admin.from("intelligence_data_sources")
         .select("id,slug,name,channel").in("id", sourceIds).eq("is_active", true);
       if (sourceError) throw sourceError;
@@ -177,6 +223,14 @@ Deno.serve(async (req: Request) => {
       if (sourceError) throw sourceError;
       if (!source || !adapters[source.slug]) return fail("该数据源尚未接入实时采集接口。", 400);
       const adapter = adapters[source.slug];
+      const { data: priorSource } = await admin.from("market_intelligence_task_sources").select("status,result_count").eq("task_id",taskId).eq("source_id",source.id).maybeSingle();
+      if (priorSource && ["succeeded","partial"].includes(priorSource.status)) return reply({source_id:source.id,source_slug:source.slug,status:priorSource.status,result_count:priorSource.result_count,already_completed:true});
+      if (priorSource?.status === "running") return fail("该数据源正在执行，不能重复启动。",409);
+      if (source.slug !== "google-news") {
+        const { data: provider, error: providerError } = await admin.from("platform_provider_connections").select("is_enabled,status").eq("organization_id",organizationId).eq("provider_key","apify").maybeSingle();
+        if (providerError) throw providerError;
+        if (!provider?.is_enabled || provider.status !== "verified") return fail("Apify 尚未启用或验证，请先到设置中心完成连接测试。");
+      }
       const snapshot = task.input_snapshot || {};
       const keywords = cleanList(snapshot.keywords, 12);
       const markets = cleanList(snapshot.markets, 30);
@@ -207,21 +261,34 @@ Deno.serve(async (req: Request) => {
             organization_id: organizationId, keywords, geo, period, markets,
             analysis_snapshot: { ...(snapshot || {}), title: task.title, active_tab: "search" },
           });
+        } else if (source.slug === "google-news") {
+          result = await collectGoogleNews(keywords, markets);
         } else if (adapter.kind === "product_listing") {
-          result = await invokeChild("ecommerce-discovery", {
-            action: "collect", organization_id: organizationId, platform: source.slug,
-            mode: "keyword", input_values: keywords, marketplace: markets[0] || null, max_results: 50,
-          });
-          if (result.status === "running" && result.task_id) {
-            for (let attempt = 0; attempt < 42; attempt += 1) {
-              await delay(2000);
-              result = await invokeChild("ecommerce-discovery", {
-                action: "poll_task", organization_id: organizationId, platform: source.slug, task_id: result.task_id,
-              });
-              if (result.status !== "running") break;
+          const marketDomains=ecomDomains[source.slug]||{};
+          const marketTargets=markets.filter(market=>marketDomains[market]).slice(0,5);
+          if (!marketTargets.length) throw new Error("所选市场暂不支持 "+source.name+" 关键词采集。请改选该平台支持的国家 / 地区站点。");
+          const marketRuns=await Promise.allSettled(marketTargets.map(async market=>{
+            let child=await invokeChild("ecommerce-discovery",{
+              action:"collect",organization_id:organizationId,platform:source.slug,
+              mode:"keyword",input_values:keywords,marketplace:marketDomains[market],max_results:50,
+            });
+            const childTaskId=child.task_id;
+            if(child.status==="running"&&childTaskId){
+              for(let attempt=0;attempt<42;attempt+=1){
+                await delay(2000);
+                child=await invokeChild("ecommerce-discovery",{action:"poll_task",organization_id:organizationId,platform:source.slug,task_id:childTaskId});
+                if(child.status!=="running")break;
+              }
             }
-            if (result.status === "running") throw new Error("电商采集仍在执行，已保留子任务记录；请稍后从历史任务查看。");
-          }
+            if(child.status==="running")throw new Error(market+" 电商采集仍在执行，请稍后查看子任务。");
+            if(child.status==="failed")throw new Error(market+" 电商采集失败："+String(child.error_message||"Actor 未返回结果。"));
+            return {market,marketplace:marketDomains[market],task_id:childTaskId,status:child.status||"succeeded",results:(Array.isArray(child.results)?child.results:[]).map((item:any)=>({...item,market_code:market})),actor_meta:child.actor_meta||null};
+          }));
+          const fulfilled=marketRuns.filter((run):run is PromiseFulfilledResult<any>=>run.status==="fulfilled");
+          const rejected=marketRuns.filter((run):run is PromiseRejectedResult=>run.status==="rejected").map(run=>run.reason instanceof Error?run.reason.message:"电商市场采集失败。");
+          const marketResults=fulfilled.flatMap(run=>run.value.results);
+          if(!fulfilled.length)throw new Error(rejected.join("；")||"所选电商市场均未返回结果。");
+          result={status:rejected.length||fulfilled.some(run=>run.value.status==="partial")?"partial":"succeeded",results:marketResults,task_id:fulfilled[0].value.task_id,actor_meta:{market_runs:fulfilled.map(run=>({market:run.value.market,marketplace:run.value.marketplace,task_id:run.value.task_id,status:run.value.status,result_count:run.value.results.length,actor_meta:run.value.actor_meta})),skipped_markets:markets.filter(market=>!marketDomains[market]),errors:rejected},error_message:rejected.length?rejected.join("；"):null};
         } else if (source.slug === "instagram") {
           result = await invokeChild("instagram-discovery", {
             action: "collect", organization_id: organizationId, discovery_type: "hashtags",
@@ -263,8 +330,8 @@ Deno.serve(async (req: Request) => {
         const completedAt = new Date().toISOString();
         const { error: sourceUpdateError } = await admin.from("market_intelligence_task_sources").update({
           status, child_task_id: result.task_id || null, result_count: rawItems.length,
-          run_meta: { function_name: adapter.functionName, child_status: result.status || "succeeded", actor_meta: result.actor_meta || null, evidence_count: evidenceRows.length },
-          error_message: rawItems.length ? null : "数据源已执行，但没有返回可用记录。",
+          run_meta: { function_name: adapter.functionName, child_status: result.status || "succeeded", actor_meta: result.actor_meta ? { provider: result.actor_meta.provider || null, markets_queried: result.actor_meta.markets_queried || null, market_runs: result.actor_meta.market_runs || null, errors: result.actor_meta.errors || null } : null, evidence_count: evidenceRows.length },
+          error_message: result.error_message || (rawItems.length ? null : "数据源已执行，但没有返回可用记录。"),
           completed_at: completedAt, updated_at: completedAt,
         }).eq("task_id", taskId).eq("source_id", source.id);
         if (sourceUpdateError) throw sourceUpdateError;
