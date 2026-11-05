@@ -90,7 +90,7 @@ export default function SeoAnalysis() {
     <section aria-label="网站分析源配置">
       <TextInput id="seo-site-url" labelText="独立站网址" placeholder="https://www.example.com" value={url}
         onChange={e=>setUrl(e.currentTarget.value)} helperText="输入可公开访问的网站首页，系统将发起真实全站爬取。" />
-      <Dropdown id="seo-market" titleText="目标市场" label="选择目标市场" items={markets}
+      <Dropdown id="seo-market" titleText="目标市场（报告标记）" label="选择目标市场" items={markets}
         itemToString={item=>item?.label||""} selectedItem={markets.find(x=>x.id===market)||markets[0]}
         onChange={({selectedItem})=>setMarket(selectedItem?.id||"US")} />
       <div className="seo-analysis-config-grid">
@@ -125,7 +125,7 @@ export default function SeoAnalysis() {
             <span>{label}</span><strong>{scoreText(value)}</strong>{label==="综合健康度"&&<Tag type={typeof value==="number"&&value>=80?"green":"blue"}>覆盖率 {report.coverage_percent||0}%</Tag>}
           </Tile>)}</div>
           <InlineNotification kind="info" lowContrast title="评分覆盖范围" subtitle={report.methodology} hideCloseButton/>
-          <div className="seo-analysis-report-meta"><span>爬取页面：{report.crawled_pages}/{report.requested_max_pages}</span><span>PageSpeed 样本：{report.pagespeed_samples}</span><span>报告生成：{dateText(report.generated_at)}</span></div>
+          <div className="seo-analysis-report-meta"><span>爬取页面：{report.crawled_pages}/{report.requested_max_pages}</span><span>PageSpeed 页面：{report.pagespeed_samples}</span><span>报告生成：{dateText(report.generated_at)}</span></div>
           <section className="seo-analysis-recommendations"><h4>优化建议与检测证据</h4>
             {(report.recommendations||[]).length===0?<p>本次检测没有触发当前规则集的问题项；这不代表网站不存在所有 SEO 问题。</p>:
               report.recommendations.map((item:any,i:number)=><Tile key={item.title+i} className="seo-analysis-issue">
