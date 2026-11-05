@@ -66,7 +66,7 @@ export default function SeoAnalysis() {
   };
 
   const meta=task?.actor_meta||{},report=meta.report,pages=task?.raw_items||meta.pages||[],events=meta.events||[];
-  const scrapeQueue=meta.scrape_queue||[],speedResults=meta.pagespeed_results||[];
+  const scrapeQueue=meta.scrape_queue||[],speedQueue=meta.pagespeed_queue||[],speedResults=meta.pagespeed_results||[],mobileDone=speedResults.filter((x:any)=>x.strategy==="mobile").length,desktopDone=speedResults.filter((x:any)=>x.strategy==="desktop").length;
   const discovered=Number(meta.discovered_count||meta.map_urls?.length||0),audited=Number(task?.result_count||pages.length||0);
   const stage=meta.stage||"mapping";
   const progress=Number(meta.progress_percent??(task?.status==="succeeded"||task?.status==="partial"?100:task?.status==="failed"?100:2));
