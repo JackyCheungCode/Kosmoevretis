@@ -7,7 +7,7 @@ const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 
 const apiProviders = [
   { key: "apify", name: "Apify", domain: "apify.com", group: "数据采集与网页抓取", description: "Actor 自动化执行与数据采集平台", credentialLabel: "Apify API Token", placeholder: "输入 Apify API Token" },
-  { key: "dataforseo", name: "DataForSEO", domain: "dataforseo.com", group: "SEO 与网站分析", description: "OnPage 全站爬取、技术 SEO 检查与页面级数据。", credentialLabel: "DataForSEO API Key / Authorization Token", placeholder: "粘贴 DataForSEO API Key（Base64 凭证）" },
+  { key: "context_dev", name: "Context.dev", domain: "context.dev", group: "SEO 与网站分析", description: "全站 URL 发现、页面内容采集与 AI SEO 诊断数据源。", credentialLabel: "Context.dev API Key", placeholder: "输入 Context.dev API Key" },\n  { key: "dataforseo", name: "DataForSEO（旧版）", domain: "dataforseo.com", group: "SEO 与网站分析", description: "旧版 OnPage 服务配置；新版 SEO 诊断不再依赖此服务。", credentialLabel: "DataForSEO API Key / Authorization Token", placeholder: "粘贴 DataForSEO API Key（Base64 凭证）" },
   { key: "google_pagespeed", name: "Google PageSpeed Insights", domain: "developers.google.com", group: "SEO 与网站分析", description: "Lighthouse 性能、SEO、无障碍与最佳实践检测。", credentialLabel: "PageSpeed API Key", placeholder: "输入 Google PageSpeed API Key" },
   { key: "octoparse", name: "Octoparse", domain: "octoparse.com", group: "数据采集与网页抓取", description: "云端网页抓取与无代码数据采集", credentialLabel: "Octoparse API Key", placeholder: "输入 Octoparse API Key" },
   { key: "firecrawl", name: "Firecrawl", domain: "firecrawl.dev", group: "数据采集与网页抓取", description: "网页搜索、抓取与 AI 就绪内容提取", credentialLabel: "Firecrawl API Key", placeholder: "输入 Firecrawl API Key" },
@@ -137,12 +137,12 @@ export default function SettingsBackend() {
     setBusyKey("seo-test");
     setNotice(null);
     try {
-      const { data, error } = await supabase.functions.invoke("seo-audit", {
+      const { data, error } = await supabase.functions.invoke("seo-intelligence", {
         body: { action: "test_connections", organization_id: ORGANIZATION_ID },
       });
       if (error) throw new Error(error.message || "SEO 服务连接测试失败。");
       if (data?.error) throw new Error(data.error);
-      setNotice({ kind: "success", title: "SEO 服务连接成功", message: data.message || "DataForSEO 与 Google PageSpeed 已验证。" });
+      setNotice({ kind: "success", title: "SEO 服务连接成功", message: data.message || "Context.dev 与 Google PageSpeed 已验证。" });
       await load();
     } catch (error) {
       setNotice({ kind: "error", title: "SEO 服务连接测试失败", message: error instanceof Error ? error.message : "请检查 API 凭证。" });
@@ -204,7 +204,7 @@ export default function SettingsBackend() {
                     {isApify && saved?.last_tested_at && <span>上次测试：{new Date(saved.last_tested_at).toLocaleString()}</span>}
                   </div>
                   <div className="analysis-submit-row">
-                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : definition.key === "dataforseo" ? "只需粘贴 DataForSEO API Access 提供的 Base64 凭证；系统会在服务端解析并加密保存。" : "凭证通过服务端加密保存；可在本组下方执行连接测试。"}</span>
+                    <span>{isApify ? "保存后将调用 Apify 用户接口验证凭证。" : definition.key === "dataforseo" ? "旧版 DataForSEO 凭证仅保留兼容，不参与新版诊断。" : definition.key === "context_dev" ? "Context.dev API Key 仅在服务端解密调用，并通过现有加密凭证机制保存。" : "凭证通过服务端加密保存；可在本组下方执行连接测试。"}</span>
                     <Button kind="primary" disabled={!!busyKey} onClick={() => saveProvider(definition.key)}>
                       {busyKey === definition.key ? "处理中…" : isApify ? "保存并测试连接" : "安全保存凭证"}
                     </Button>
@@ -216,7 +216,7 @@ export default function SettingsBackend() {
         </section>;
       })}</div>
       <div className="analysis-submit-row">
-        <span>DataForSEO 与 Google PageSpeed 凭证保存后，可执行实际连接验证。</span>
+        <span>Context.dev 与 Google PageSpeed 凭证保存后，可执行实际连接验证。</span>
         <Button kind="secondary" disabled={!!busyKey} onClick={testSeoConnections}>{busyKey === "seo-test" ? "测试中…" : "测试 SEO 数据服务"}</Button>
       </div>
       <div className="analysis-submit-row"><span>已通过组织管理员身份验证。</span><Button kind="ghost" size="sm" onClick={signOut}>退出登录</Button></div>
