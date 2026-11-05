@@ -137,7 +137,7 @@ async function advanceTask(admin:any,task:any){
    const mapped=await mapSite(key,String(task.input_snapshot.target),Number(task.input_snapshot.max_pages||80));
    const selected=coreUrls(mapped,String(task.input_snapshot.target),Number(task.input_snapshot.max_pages||80));
    if(!selected.length)throw new Error("Map URLs 没有返回当前域名下的可分析页面。");
-   meta.map_urls=mapped;meta.discovered_count=mapped.length;meta.scrape_queue=selected;meta.pages=Array.isArray(meta.pages)?meta.pages:[];meta.page_errors=Array.isArray(meta.page_errors)?meta.page_errors:[];
+   meta.map_urls=mapped;meta.discovered_count=mapped.length;meta.selected_count=selected.length;meta.scrape_queue=selected;meta.pages=Array.isArray(meta.pages)?meta.pages:[];meta.page_errors=Array.isArray(meta.page_errors)?meta.page_errors:[];
    meta.stage_durations=meta.stage_durations||{};meta.stage_durations.mapping_ms=Date.now()-new Date(meta.stage_started_at).getTime();
    await recordEvent(admin,task,meta,"success","网站结构发现完成",{discovered_pages:mapped.length,selected_pages:selected.length},meta.stage_durations.mapping_ms);
    meta.stage="scraping";meta.stage_started_at=now();
