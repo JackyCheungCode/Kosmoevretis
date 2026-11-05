@@ -140,7 +140,21 @@ export default function SeoAnalysis() {
                 <span>Title：{item.meta?.title||"未返回"} · Description：{item.meta?.description?"已设置":"未返回"}</span>
               </div>)}
             </AccordionItem>
-            <AccordionItem title="页面级 SEO 诊断与证据">\n              {(task.raw_items||[]).map((item:any,i:number)=><div className="seo-analysis-page-row" key={item.url||i}>\n                <strong>{item.audit?.title||item.title||item.url}</strong><span>{item.url}</span>\n                <span>正文 {item.audit?.word_count??"—"} 词 · H1 {item.audit?.h1?.length??"—"} · 图片缺少 Alt {item.audit?.images_missing_alt??"—"}</span>\n                <span>{(item.audit?.issues||[]).length} 项页面问题</span>\n              </div>)}\n            </AccordionItem>\n            <AccordionItem title="结构化数据与富媒体资格预检">\n              {(task.raw_items||[]).map((item:any,i:number)=><div className="seo-analysis-page-row" key={item.url||i}>\n                <strong>{item.url}</strong><span>JSON-LD {item.audit?.structured_data?.json_ld_valid??0}/{item.audit?.structured_data?.json_ld_blocks??0} · Microdata {item.audit?.structured_data?.microdata_items??0} · RDFa {item.audit?.structured_data?.rdfa_items??0}</span>\n                <span>Schema：{(item.audit?.structured_data?.types||[]).join("、")||"未发现"}</span>\n                {(item.audit?.structured_data?.eligibility_checks||[]).map((check:any)=><span key={check.type}>{check.type}：{check.note}</span>)}\n              </div>)}\n            </AccordionItem>\n            <AccordionItem title="PageSpeed 原始指标">
+            <AccordionItem title="页面级 SEO 诊断与证据">
+              {(task.raw_items||[]).map((item:any,i:number)=><div className="seo-analysis-page-row" key={item.url||i}>
+                <strong>{item.audit?.title||item.title||item.url}</strong><span>{item.url}</span>
+                <span>正文 {item.audit?.word_count??"—"} 词 · H1 {item.audit?.h1?.length??"—"} · 图片缺少 Alt {item.audit?.images_missing_alt??"—"}</span>
+                <span>{(item.audit?.issues||[]).length} 项页面问题</span>
+              </div>)}
+            </AccordionItem>
+            <AccordionItem title="结构化数据与富媒体资格预检">
+              {(task.raw_items||[]).map((item:any,i:number)=><div className="seo-analysis-page-row" key={item.url||i}>
+                <strong>{item.url}</strong><span>JSON-LD {item.audit?.structured_data?.json_ld_valid??0}/{item.audit?.structured_data?.json_ld_blocks??0} · Microdata {item.audit?.structured_data?.microdata_items??0} · RDFa {item.audit?.structured_data?.rdfa_items??0}</span>
+                <span>Schema：{(item.audit?.structured_data?.types||[]).join("、")||"未发现"}</span>
+                {(item.audit?.structured_data?.eligibility_checks||[]).map((check:any)=><span key={check.type}>{check.type}：{check.note}</span>)}
+              </div>)}
+            </AccordionItem>
+            <AccordionItem title="PageSpeed 原始指标">
               {(task.actor_meta?.pagespeed_results||[]).map((item:any,i:number)=><div className="seo-analysis-page-row" key={item.url+item.strategy+i}>
                 <strong>{item.url} · {item.strategy}</strong><span>{item.error||("Performance "+scoreText(item.scores?.performance)+" · SEO "+scoreText(item.scores?.seo)+" · LCP "+(item.metrics?.lcp_ms==null?"—":Math.round(item.metrics.lcp_ms)+" ms")+" · CLS "+(item.metrics?.cls??"—"))}</span>
               </div>)}
