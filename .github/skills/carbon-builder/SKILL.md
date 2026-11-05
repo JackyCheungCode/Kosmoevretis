@@ -68,17 +68,18 @@ Use this matrix as the fastest route-selection and result-shape check before que
 
 ---
 
-## Project Precedence and Runtime Availability (Highest Priority for This Repository)
+## Kosmoevretis Project Adaptation Layer
 
-Apply these rules before the generic Carbon implementation rules below. They specialize this Skill for Kosmoevretis and take precedence wherever the generic guidance would alter the existing application architecture or visual foundation.
+IBM Carbon Design System v11 is the normative design authority. Carbon Builder Skill / MCP is the implementation and verification aid. Kosmoevretis governance is the final business and integration adaptation layer; it must not override Carbon fundamentals.
 
-1. **Theme:** The application is Carbon v11 **Gray 10**. Preserve the existing Gray 10 theme context and semantic Carbon tokens. Never switch to White / `cds--white`, Gray 100, or another theme as a generic fallback. For Labs packages, add a package-specific theme attribute only when that package's verified documentation requires it; do not change the application theme.
-2. **Tokens:** Use `src/design-tokens.css` and existing `--kosmo-*` / `--cds-*` semantic tokens. Do not create a competing token scale, hardcode theme colors, or replace project tokens with ad-hoc values.
-3. **AppShell:** Preserve the existing `App.tsx` + `src/app-shell.css` shell, navigation, route definitions, responsive behavior, and content offsets. Do not introduce a second Carbon UIShell, replace the shell with a new `Content` composition, or add another fixed-header offset. The existing AppShell's documented Carbon internal selectors are an approved, centralized exception; do not copy those selectors into business-page CSS.
-4. **Grid and layout:** Follow the project's Carbon 2x Grid breakpoints (320 / 672 / 1056 / 1312 / 1584 px) and existing page templates. Use Carbon Grid for new page layouts when it fits the task, but do not force every nested content group or existing template into new `Grid` / `Column` wrappers. Existing shared templates and well-scoped CSS Grid/Flex layouts remain valid when they preserve the same responsive system and accessibility.
-5. **Borders and elevation:** Organize content with Carbon background/layer tokens and restrained borders. Do not add decorative shadows, gradients, or card outlines. Preserve only necessary functional Carbon overlay/elevation behavior when required for legibility and interaction.
-6. **MCP availability:** The MCP-first rule below applies only when the Carbon MCP tools are actually available in the current agent runtime. If they are unavailable (including a ChatGPT session without this MCP connection), do not claim to have queried MCP and do not block the task. Verify against the repository's installed Carbon version, existing imports/patterns, and official documentation where available; state any verification limitation when it materially affects confidence.
-7. **No speculative migration:** Do not upgrade Carbon, replace components, restructure AppShell, or migrate existing layouts merely to match a generic Skill example. Make the smallest change that meets the user's task and project governance.
+1. **Carbon first:** Follow Carbon v11 for component APIs, theme behavior, typography, spacing, grid, layers, interaction, accessibility, and responsive patterns. When MCP is connected, verify component APIs and examples through MCP.
+2. **Project theme selection:** Kosmoevretis currently selects Carbon Gray 10 for the application canvas. Use the official Carbon inverse Header theme where the Carbon UI Shell pattern calls for it; this does not change the main canvas to Gray 100. Theme selection may change only through an explicit product design decision.
+3. **Tokens:** Treat `src/design-tokens.css` as semantic aliases of Carbon tokens, not a competing design system. New code should use Carbon tokens or the `--kosmo-spacing-*` aliases mapped directly to Carbon spacing. Legacy `--kosmo-space-*` names exist only for migration compatibility.
+4. **AppShell:** The existing `App.tsx` and `src/app-shell.css` are integration locations, not immutable designs. Refactor them when needed to align with official Carbon UI Shell composition, sizing, theming, accessibility, and responsive behavior. Preserve authentication, route semantics, and business navigation capabilities.
+5. **Grid and layout:** Prefer Carbon 2x Grid for page-level layouts and use the project's breakpoints (320 / 672 / 1056 / 1312 / 1584 px). CSS Grid/Flex may remain when it expresses a component's internal layout more clearly and follows the same grid and accessibility rules.
+6. **Business preservation:** Preserve business data, Supabase integration, API contracts, permissions, Actor inputs/outputs, and user workflows unless the user explicitly requests product behavior changes. Existing visual structure and CSS are not reasons to retain a non-Carbon design.
+7. **MCP availability:** Use MCP-first only when Carbon MCP tools are available in the current runtime. If unavailable, do not claim an MCP query; verify against the installed Carbon package and official documentation, and disclose material limitations.
+8. **Refactoring:** Do not limit work to cosmetic patches when the underlying structure conflicts with Carbon. Prefer staged foundation → shared components → business pages migration, with builds and regression checks at each stage.
 
 ---
 

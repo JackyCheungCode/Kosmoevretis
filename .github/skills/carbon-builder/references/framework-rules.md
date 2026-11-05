@@ -199,9 +199,9 @@ Apply typography via semantic HTML tags (`h1`, `h2`, `h3`, `p`) with Carbon type
 
 ---
 
-## Kosmoevretis integration exception
+## Kosmoevretis project adaptation
 
-For this repository, preserve the existing React + Carbon v11 Gray 10 application theme, Design Tokens, and centralized AppShell. Do not introduce a new UIShell/Content wrapper or hard-coded 48px header offset. The existing AppShell owns fixed-header spacing and its centralized Carbon class integration. These project rules supersede generic examples below whenever they differ.
+IBM Carbon v11 is the normative standard. Use official Carbon UI Shell, Grid, theme, spacing, typography, interaction, and accessibility patterns. The current AppShell and shared templates may be refactored when they do not conform; preserve route, auth, data, and business workflows. The application canvas currently selects Gray 10, with inverse Header theming only where the official UI Shell pattern calls for it. Project tokens are semantic aliases of Carbon tokens, not an independent scale. Use Carbon Grid for page-level layouts; retain CSS Grid/Flex only where appropriate for internal component composition. MCP-first applies only when MCP tools are available in the current runtime.
 
 ## 6. Web Components Styling Safety Rules
 

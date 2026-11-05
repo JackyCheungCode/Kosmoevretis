@@ -1,9 +1,8 @@
 # Carbon Grid System Implementation
 
-## Kosmoevretis project exception
+## Kosmoevretis project adaptation
 
-This reference describes general Carbon Grid patterns. In Kosmoevretis, the existing Design System templates and AppShell are authoritative. Prefer Carbon Grid for new page-level structures when appropriate, but do not force every content group or existing page into Grid/Column wrappers. Accessible CSS Grid/Flex layouts inside approved templates are valid. Preserve the project's 2x Grid breakpoints: 320 / 672 / 1056 / 1312 / 1584 px. The generic examples below must not be used to replace AppShell, page templates, or project tokens.
-
+IBM Carbon v11 is the normative standard. Use official Carbon UI Shell, Grid, theme, spacing, typography, interaction, and accessibility patterns. The current AppShell and shared templates may be refactored when they do not conform; preserve route, auth, data, and business workflows. The application canvas currently selects Gray 10, with inverse Header theming only where the official UI Shell pattern calls for it. Project tokens are semantic aliases of Carbon tokens, not an independent scale. Use Carbon Grid for page-level layouts; retain CSS Grid/Flex only where appropriate for internal component composition. MCP-first applies only when MCP tools are available in the current runtime.
 
 ## Mandatory Grid Usage (Critical)
 

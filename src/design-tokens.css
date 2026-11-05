@@ -1,23 +1,51 @@
+/* Kosmoevretis foundation tokens — aliases of IBM Carbon v11 semantic tokens. */
 :root {
   color-scheme: light;
-  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-  --kosmo-color-background: var(--cds-background, #f4f4f4);
-  --kosmo-color-layer: var(--cds-layer-01, #e8e8e8);
-  --kosmo-color-layer-raised: var(--cds-layer-02, #ffffff);
-  --kosmo-color-text: var(--cds-text-primary, #161616);
-  --kosmo-color-text-secondary: var(--cds-text-secondary, #525252);
-  --kosmo-color-border: var(--cds-border-subtle, #c6c6c6);
-  --kosmo-color-interactive: var(--cds-interactive, #0f62fe);
-  --kosmo-color-focus: var(--cds-focus, #0f62fe);
-  --kosmo-space-1: 0.25rem;
-  --kosmo-space-2: 0.5rem;
-  --kosmo-space-3: 0.75rem;
-  --kosmo-space-4: 1rem;
-  --kosmo-space-5: 1.5rem;
-  --kosmo-space-6: 2rem;
-  --kosmo-space-7: 2.5rem;
-  --kosmo-collection-mode-card-min-width: 13rem;
-  --kosmo-collection-mode-card-height: 6rem;
+  font-family: var(--cds-font-family-sans, "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif);
+
+  /* Carbon Gray 10 application canvas and layered surfaces. */
+  --kosmo-color-background: var(--cds-background);
+  --kosmo-color-layer: var(--cds-layer-01);
+  --kosmo-color-layer-raised: var(--cds-layer-02);
+  --kosmo-color-text: var(--cds-text-primary);
+  --kosmo-color-text-secondary: var(--cds-text-secondary);
+  --kosmo-color-border: var(--cds-border-subtle);
+  --kosmo-color-interactive: var(--cds-interactive);
+  --kosmo-color-focus: var(--cds-focus);
+
+  /* Canonical Carbon 2x spacing aliases: 2, 4, 8, 12, 16, 24, 32, 40, 48, 64, 80, 96px. */
+  --kosmo-spacing-01: var(--cds-spacing-01);
+  --kosmo-spacing-02: var(--cds-spacing-02);
+  --kosmo-spacing-03: var(--cds-spacing-03);
+  --kosmo-spacing-04: var(--cds-spacing-04);
+  --kosmo-spacing-05: var(--cds-spacing-05);
+  --kosmo-spacing-06: var(--cds-spacing-06);
+  --kosmo-spacing-07: var(--cds-spacing-07);
+  --kosmo-spacing-08: var(--cds-spacing-08);
+  --kosmo-spacing-09: var(--cds-spacing-09);
+  --kosmo-spacing-10: var(--cds-spacing-10);
+  --kosmo-spacing-11: var(--cds-spacing-11);
+  --kosmo-spacing-12: var(--cds-spacing-12);
+
+  /* Backward-compatible aliases. New code should use semantic tokens or --kosmo-spacing-*. */
+  --kosmo-space-1: var(--cds-spacing-02);
+  --kosmo-space-2: var(--cds-spacing-03);
+  --kosmo-space-3: var(--cds-spacing-04);
+  --kosmo-space-4: var(--cds-spacing-05);
+  --kosmo-space-5: var(--cds-spacing-06);
+  --kosmo-space-6: var(--cds-spacing-07);
+  --kosmo-space-7: var(--cds-spacing-08);
+  --kosmo-space-8: var(--cds-spacing-09);
+  --kosmo-space-9: var(--cds-spacing-10);
+  --kosmo-space-10: var(--cds-spacing-11);
+  --kosmo-space-11: var(--cds-spacing-12);
+
+  /* Carbon 2x Grid and shell geometry. */
+  --kosmo-grid-breakpoint-xs: 320px;
+  --kosmo-grid-breakpoint-sm: 672px;
+  --kosmo-grid-breakpoint-md: 1056px;
+  --kosmo-grid-breakpoint-lg: 1312px;
+  --kosmo-grid-breakpoint-xlg: 1584px;
   --kosmo-shell-header-height: 3rem;
   --kosmo-shell-sidebar-width: 16rem;
   --kosmo-shell-sidebar-collapsed-width: 3rem;
@@ -25,15 +53,25 @@
   --kosmo-shell-breakpoint-tablet: 1055px;
   --kosmo-shell-breakpoint-mobile: 671px;
   --kosmo-content-max-width: 1680px;
+
+  /* Reusable business component dimensions, not global design scales. */
+  --kosmo-collection-mode-card-min-width: 13rem;
+  --kosmo-collection-mode-card-height: 6rem;
 }
-html, body, #root {
+
+html,
+body,
+#root {
   min-height: 100%;
 }
+
 body {
+  margin: 0;
   color: var(--kosmo-color-text);
   background: var(--kosmo-color-background);
-  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--cds-font-family-sans, "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif);
 }
+
 :focus-visible {
   outline: 2px solid var(--kosmo-color-focus);
   outline-offset: 2px;

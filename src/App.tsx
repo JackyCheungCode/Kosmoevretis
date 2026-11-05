@@ -370,6 +370,7 @@ function AppShell() {
   return (
     <div className="shell kosmo-app-shell">
       <SkipToContent href="#main-content">跳转到主要内容</SkipToContent>
+      {/* Carbon inverse Header layer on the Gray 10 application canvas. */}
       <Theme theme="g100">
       <Header aria-label="Kosmoevretis 全球情报平台" className="kosmo-header">
         <HeaderMenuButton
@@ -458,7 +459,7 @@ function AppShell() {
         </SideNavItems>
       </SideNav>
 
-      <main id="main-content" className={`content kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
+      <main id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         {!isTemplatePage && <>
         <div className="eyebrow">Kosmoevretis / 全球情报中心</div>
         <div className="page-head">

@@ -54,7 +54,6 @@
   width: var(--kosmo-shell-sidebar-width);
   background: var(--cds-layer-01);
   border-right: 0;
-  box-shadow: none;
   z-index: 8000;
 }
 
@@ -89,7 +88,7 @@
 .kosmo-side-nav .cds--side-nav__link[aria-current="page"],
 .kosmo-side-nav .cds--side-nav__link--current {
   background: var(--cds-layer-02);
-  box-shadow: inset 3px 0 var(--cds-interactive);
+  border-inline-start: 3px solid var(--cds-interactive);
   color: var(--cds-text-primary);
 }
 
@@ -97,7 +96,7 @@
   color: var(--cds-interactive);
 }
 
-.kosmo-main.content {
+.kosmo-main {
   box-sizing: border-box;
   width: calc(100% - var(--kosmo-shell-sidebar-width));
   max-width: var(--kosmo-content-max-width);
@@ -108,7 +107,7 @@
 
 .kosmo-side-nav-tablet-expanded.cds--side-nav {
   z-index: 8500;
-  box-shadow: 0 0 1.5rem rgb(0 0 0 / 16%);
+  border-inline-end: 1px solid var(--cds-border-subtle);
 }
 
 @media (min-width: 672px) and (max-width: 1055px) {
@@ -218,14 +217,14 @@
 .kosmo-account-avatar{display:grid;place-items:center;width:2rem;height:2rem;padding:0;overflow:hidden;border:0;border-radius:50%;background:var(--cds-layer-accent-01,#e0e0e0);color:var(--cds-text-primary,#161616);font:600 .8rem/1 IBM Plex Sans,Arial,sans-serif;cursor:pointer}
 .kosmo-account-avatar:hover,.kosmo-account-avatar:focus-visible{outline:2px solid var(--cds-focus,#0f62fe);outline-offset:2px}
 .kosmo-account-avatar img{width:100%;height:100%;object-fit:cover}
-.kosmo-account-dropdown{position:absolute;top:calc(100% + .75rem);right:0;z-index:10000;width:14rem;padding:.5rem 0;background:var(--cds-layer-01,#f4f4f4);box-shadow:0 4px 16px rgb(0 0 0 / 18%);border:1px solid var(--cds-border-subtle,#c6c6c6)}
+.kosmo-account-dropdown{position:absolute;top:calc(100% + .75rem);right:0;z-index:10000;width:14rem;padding:.5rem 0;background:var(--cds-layer-01,#f4f4f4);border:1px solid var(--cds-border-subtle,#c6c6c6)}
 .kosmo-account-email{padding:.75rem 1rem;color:var(--cds-text-secondary,#525252);font-size:.75rem;overflow-wrap:anywhere;border-bottom:1px solid var(--cds-border-subtle,#c6c6c6)}
 .kosmo-account-signout{display:flex;align-items:center;gap:.75rem;width:100%;min-height:2.75rem;padding:.5rem 1rem;border:0;background:transparent;color:var(--cds-text-primary,#161616);font:400 .875rem/1.25 IBM Plex Sans,Arial,sans-serif;text-align:left;cursor:pointer}
 .kosmo-account-signout:hover{background:var(--cds-layer-hover-01,#e8e8e8)}
 .kosmo-account-signout:focus-visible{outline:2px solid var(--cds-focus,#0f62fe);outline-offset:-2px}
 @media(max-width:671px){.kosmo-account-menu{margin-right:.5rem}}
 
-.kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-6)); min-width: 0; }
+.kosmo-main--template-page { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-6)); min-width: 0; }
 .kosmo-main--template-page > .kosmo-template { width: 100%; min-width: 0; max-width: 100%; }
 @media (min-width: 672px) and (max-width: 1055px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-5)); } }
 @media (max-width: 671px) { .kosmo-main--template-page.content { padding-top: calc(var(--kosmo-shell-header-height) + var(--kosmo-space-4)); } }

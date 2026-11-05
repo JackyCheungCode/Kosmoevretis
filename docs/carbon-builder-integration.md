@@ -45,3 +45,13 @@ Carbon Builder 是 Carbon 组件、Token、图标、图表和官方文档的事�
 - MCP-first 只在当前 Agent 确实连接 MCP 时强制执行；未连接时按已安装 Carbon 版本、项目现有用法和官方文档验证，不得虚称 MCP 已查询。
 
 官方 Skill 的参考资料保持原样；项目例外写在 Skill 主文件、相关参考文件的项目附录及本说明中，避免篡改上游通用知识。
+
+
+## 全站重构时的规范优先级（2026-11-05）
+
+- IBM Carbon Design System v11 是基础设计规范与最终设计依据。
+- Carbon Builder Skill / MCP 是检索、实现和验证 Carbon 的辅助工具。
+- Kosmoevretis Governance 负责业务、数据、路由、权限、语言和品牌选型，不得覆盖 Carbon 基础规范。
+- 现有 AppShell、页面模板、公共组件和 CSS 都允许重构；不得仅为保护旧实现而牺牲 Carbon 一致性。
+- 当前主题选型为 Carbon Gray 10 主画布；Header 的 inverse theme 是 Carbon UI Shell 的独立层级，不代表应用切换为 Gray 100。
+- 先重构基础层，再重构共享组件，最后逐页迁移业务页面；每阶段必须构建和回归验证。
