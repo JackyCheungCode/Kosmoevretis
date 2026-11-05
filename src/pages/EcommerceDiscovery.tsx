@@ -106,8 +106,8 @@ const aliases: Record<string, string[]> = {
   currency: ["currency", "priceCurrency", "offers.priceCurrency", "price.currency"],
   rating: ["rating", "stars", "aggregateRating.ratingValue", "reviewRating.ratingValue"],
   reviewCount: ["reviewCount", "reviewsCount", "ratingCount", "numberOfReviews"],
-  rank: ["rank", "bestSellerRank", "bestsellerRank", "salesRank", "position"],
-  category: ["category", "categoryName", "breadcrumb", "categoryPath"],
+  rank: ["rank", "bestSellerRank", "bestsellerRank", "salesRank", "position", "bestsellerRanks.0.rank", "bestsellerRanks.rank"],
+  category: ["category", "categoryName", "breadcrumb", "categoryPath", "bestsellerRanks.0.category", "bestsellerRanks.category"],
   availability: ["availability", "inStockText", "inStock", "stockStatus"],
   url: ["url", "productUrl", "product_url", "sellerUrl", "profileUrl"],
   originalPrice: ["originalPrice", "listPrice", "wasPrice"], discount: ["discount", "discountText", "promotion"],
@@ -126,7 +126,7 @@ const readPath = (row: RowData, path: string): unknown => path.split(".").reduce
   return undefined;
 }, row);
 const getValue = (row: RowData, key: string) => (aliases[key] || [key]).map(path => readPath(row, path)).find(value => value !== undefined && value !== null && value !== "") ?? null;
-const hasPublicRank = (row: RowData) => { const ranks = readPath(row, "bestsellerRanks"); return getValue(row, "rank") !== null || (Array.isArray(ranks) && ranks.length > 0) || Boolean(ranks && typeof ranks === "object"); };
+const hasPublicRank = (row: RowData) => getValue(row, "rank") !== null;
 const show = (value: unknown) => value == null ? "—" : typeof value === "object" ? JSON.stringify(value) : String(value);
 const exportJson = (rows: RowData[], platform: string) => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }));
