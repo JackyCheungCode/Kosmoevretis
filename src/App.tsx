@@ -91,6 +91,7 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   }, [mobileNavOpen]);
   const selectPlatform = (id: SocialPlatform) => {
     navigate("/social-discovery/" + id);
+    if (mobileNavOpen) triggerRef.current?.focus();
     setMobileNavOpen(false);
   };
   const pages = {
