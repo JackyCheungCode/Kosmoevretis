@@ -125,7 +125,7 @@ const readPath = (row: RowData, path: string): unknown => path.split(".").reduce
   return undefined;
 }, row);
 const getValue = (row: RowData, key: string) => (aliases[key] || [key]).map(path => readPath(row, path)).find(value => value !== undefined && value !== null && value !== "") ?? null;
-const hasPublicRank = (row: RowData) => { const ranks = readPath(row, "bestsellerRanks"); return getValue(row, "rank") !== null || (Array.isArray(ranks) && ranks.length > 0); };
+const hasPublicRank = (row: RowData) => { const ranks = readPath(row, "bestsellerRanks"); return getValue(row, "rank") !== null || (Array.isArray(ranks) && ranks.length > 0) || Boolean(ranks && typeof ranks === "object"); };
 const show = (value: unknown) => value == null ? "—" : typeof value === "object" ? JSON.stringify(value) : String(value);
 const exportJson = (rows: RowData[], platform: string) => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }));
@@ -356,7 +356,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     <section className="ec-results-section">
       <div className="fb-section-head"><div><span className="eyebrow">03 / DISCOVERY RESULTS</span><h3>电商情报结果</h3><p>仅展示 Actor 实际返回的字段；平台未公开的销量等指标不会被推算成真实数据。</p></div><strong className="fb-result-count">{rows.length.toLocaleString()} 条</strong></div>
       <Tabs selectedIndex={Math.max(0, tabs.findIndex(item => item.id === activeTab))} onChange={({ selectedIndex }) => setActiveTab(tabs[selectedIndex]?.id || "overview")}>
-        <TabList aria-label={config.name + " 电商情报维度"}>{tabs.map(item => { const Icon = item.icon; return <Tab key={item.id}><span className="fb-tab-label"><Icon size={16} />{item.label}{item.id !== "overview" && item.id !== "raw" && item.id !== "history" ? <span className="fb-tab-count">{item.id === "reviews" ? (mode === "reviews" ? rows.length : 0) : item.id === "sellers" ? (mode === "sellers" ? rows.length : 0) : rows.length}</span> : null}</span></Tab>; })}</TabList>
+        <TabList aria-label={config.name + " 电商情报维度"}>{tabs.map(item => { const Icon = item.icon; return <Tab key={item.id}><span className="fb-tab-label"><Icon size={16} />{item.label}{item.id !== "overview" && item.id !== "raw" && item.id !== "history" ? <span className="fb-tab-count">{item.id === "reviews" ? (mode === "reviews" ? rows.length : 0) : item.id === "sellers" ? (mode === "sellers" ? rows.length : 0) : item.id === "bestsellers" ? rows.filter(hasPublicRank).length : rows.length}</span> : null}</span></Tab>; })}</TabList>
         <TabPanels>
           <TabPanel><div className="ec-kpis">
             <div><span>结果总量</span><strong>{rows.length.toLocaleString()}</strong></div>
@@ -367,7 +367,6 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
             {rows.length ? <ResultTable rows={rows.slice(0, 20)} type={mode === "reviews" ? "reviews" : mode === "sellers" ? "sellers" : "products"} /> : <EmptyState title="等待电商情报数据" description="在上方选择发现对象并配置关键词或 URL，启动采集后将在这里展示实际返回的商品、价格和市场信息。" />}
           </TabPanel>
           <TabPanel><div className="ec-table-tools"><TextInput id="ec-product-filter" labelText="筛选商品结果" placeholder="搜索商品名称、品牌或字段…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="products" /></TabPanel>
-          <TabPanel>{tabRows.length ? <ResultTable rows={tabRows} type="bestsellers" /> : <EmptyState title="暂无可验证的榜单排名" description="只有 Actor 返回真实公开排名字段时才会生成榜单；不会用评论数或推测销量冒充热销排名。" />}</TabPanel>
           <TabPanel>{tabRows.length ? <ResultTable rows={tabRows} type="bestsellers" /> : <EmptyState title="暂无可验证的榜单排名" description="只有 Actor 返回真实公开排名字段时才会生成榜单；不会用评论数或推测销量冒充热销排名。" />}</TabPanel>
           <TabPanel><div className="ec-table-tools"><TextInput id="ec-price-filter" labelText="筛选价格与供给" placeholder="搜索价格、币种、库存或卖家…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="pricing" /></TabPanel>
           <TabPanel><ResultTable rows={tabRows} type="reviews" /></TabPanel>
