@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Checkbox, Dropdown, InlineNotification, NumberInput, Search, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tabs, TabList, Tab, TextArea, TextInput, Tag } from "@carbon/react";
+import { Button, Checkbox, InlineNotification, NumberInput, Search, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, Tabs, TabList, Tab, TextArea, TextInput, Tag } from "@carbon/react";
 import { Download } from "@carbon/icons-react";
 import { supabase } from "../lib/supabase";
 import { EmptyState, ErrorState, IntelligencePageTemplate, LoadingState, PageSection } from "../design-system";
