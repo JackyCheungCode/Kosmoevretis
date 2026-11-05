@@ -283,9 +283,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     }
   };
 
-  const resultTab = (id: string) => id === "reviews" ? "reviews" : id === "sellers" ? "sellers" : "products";
   const tabRows = activeTab === "reviews" ? activeRows : activeTab === "sellers" ? activeRows : activeTab === "pricing" ? activeRows : rows;
-  const displayColumns = columns[resultTab(activeTab)] || columns.products;
 
   return <section className="ecommerce-discovery">
     <PageHeader title={config.name + " 电商发现"} description={config.description + " 通过已验证的 Apify 连接采集公开商品、价格、评论及店铺数据。"} actions={<Tag type="green">{organizationName || "企业工作区"}</Tag>} />
