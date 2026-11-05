@@ -151,13 +151,13 @@ export default function SeoAnalysis() {
     </section>
 
     <section className="seo-console-section" aria-labelledby="seo-event-title"><div className="seo-section-heading"><h2 id="seo-event-title">执行日志与阶段追踪</h2><p>只展示后台实际写入的事件；每条记录均包含发生时间和执行结果。</p></div>
-      {!task?<EmptyState title="暂无执行日志" description="启动诊断任务后，后台事件会显示在这里。"/>:
-        {!events.length?<InlineNotification kind="info" lowContrast title="等待后台事件" subtitle="任务已选中，等待第一次状态同步。" hideCloseButton/>:
-          <CarbonDataTable label="后台执行日志" headers={["执行结果","事件内容","执行阶段","发生时间","详情"]} rows={[...events].reverse().map((event:any)=>[
-            <Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"Success":event.type==="error"?"Failed":event.type==="warning"?"Warning":"Info"}</Tag>,
-            event.message||"—",event.stage?stageText(event.stage):"后台事件",dateText(event.created_at),
-            event.details&&Object.keys(event.details).length>0?<Accordion><AccordionItem title="查看详情"><pre>{JSON.stringify(event.details,null,2)}</pre></AccordionItem></Accordion>:"—"
-          ])]}/>} 
+      {!task?<EmptyState title="暂无执行日志" description="启动诊断任务后，后台事件会显示在这里。"/>:!events.length?
+        <InlineNotification kind="info" lowContrast title="等待后台事件" subtitle="任务已选中，等待第一次状态同步。" hideCloseButton/>:
+        <CarbonDataTable label="后台执行日志" headers={["执行结果","事件内容","执行阶段","发生时间","详情"]} rows={[...events].reverse().map((event:any)=>[
+          <Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"Success":event.type==="error"?"Failed":event.type==="warning"?"Warning":"Info"}</Tag>,
+          event.message||"—",event.stage?stageText(event.stage):"后台事件",dateText(event.created_at),
+          event.details&&Object.keys(event.details).length>0?<Accordion><AccordionItem title="查看详情"><pre>{JSON.stringify(event.details,null,2)}</pre></AccordionItem></Accordion>:"—"
+        ])]}/>
     </section>
 
     <section className="seo-console-section" aria-labelledby="seo-results-title"><div className="seo-section-heading"><h2 id="seo-results-title">诊断结果中心</h2><p>按分析维度查看报告；任务完成或部分完成后显示完整诊断结果。</p></div>
