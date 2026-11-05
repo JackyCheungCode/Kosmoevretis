@@ -104,11 +104,118 @@ function report(pages:any[],speeds:any[],root:string,discovered:number){
  for(const x of issues)unique.set(x.category+"|"+x.title+"|"+x.url,x);
  return {target:root,discovered_pages:discovered,audited_pages:pages.length,pagespeed_samples:new Set(speeds.map(x=>x.url)).size,coverage_percent:coverage,overall_score:overall,scores:{technical_seo:technical,content,structured_data:structuredScore,ai_search_readability:aiReadability,performance:perf,search_seo:seo},recommendations:[...unique.values()].sort((a,b)=>({high:0,medium:1,low:2}[a.severity]??3)-({high:0,medium:1,low:2}[b.severity]??3)).slice(0,150),generated_at:now(),methodology:"报告依据 Context.dev 实际发现与采集的页面内容、结构化数据解析结果及 Google PageSpeed Insights 实测结果。结构化数据为规则预检，不等于 Google Rich Results Test 最终资格判定；PageSpeed 仅覆盖所选代表性页面。评分为平台诊断指标，不是 Google 排名分数。"};
 }
+
+async function sha256(value:string){const digest=await crypto.subtle.digest("SHA-256",enc.encode(value));return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function verifyWorker(admin:any,req:Request){
+ const token=req.headers.get("x-seo-worker-token")||"";
+ if(token.length<40)return false;
+ const {data,error}=await admin.from("seo_worker_config").select("token_hash").eq("id",true).maybeSingle();
+ if(error||!data?.token_hash)return false;
+ return (await sha256(token))===data.token_hash;
+}
+async function recordEvent(admin:any,task:any,meta:Record<string,any>,type:string,message:string,details:Record<string,unknown>={},durationMs?:number){
+ const event={...taskEvent(type,message,details),stage:meta.stage};
+ meta.events=Array.isArray(meta.events)?meta.events:[];
+ meta.events.push(event);meta.events=meta.events.slice(-500);meta.last_progress_at=event.created_at;
+ const {error}=await admin.from("seo_task_events").insert({task_id:task.id,organization_id:task.organization_id,event_type:type,stage:meta.stage,message,details,duration_ms:durationMs??null});
+ if(error)throw error;
+}
+async function advanceTask(admin:any,task:any){
+ const meta={...(task.actor_meta||{})} as Record<string,any>;
+ if(meta.worker_lock_until&&new Date(meta.worker_lock_until).getTime()>Date.now())return {skipped:true};
+ meta.worker_lock_until=new Date(Date.now()+110000).toISOString();
+ const save=async(status=task.status,extra:Record<string,unknown>={})=>{
+  delete meta.worker_lock_until;
+  const {error}=await admin.from("market_trend_tasks").update({status,actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now(),...extra}).eq("id",task.id);
+  if(error)throw error;
+ };
+ try{
+  if(task.status==="queued"||meta.stage==="mapping"){
+   meta.stage="mapping";meta.stage_started_at=now();
+   await recordEvent(admin,task,meta,"info","后台工作器开始发现网站结构",{target:task.input_snapshot.target});
+   const key=await credential(admin,task.organization_id,"context_dev");
+   const mapped=await mapSite(key,String(task.input_snapshot.target),Number(task.input_snapshot.max_pages||80));
+   const selected=coreUrls(mapped,String(task.input_snapshot.target),Number(task.input_snapshot.max_pages||80));
+   if(!selected.length)throw new Error("Map URLs 没有返回当前域名下的可分析页面。");
+   meta.map_urls=mapped;meta.discovered_count=mapped.length;meta.scrape_queue=selected;meta.pages=Array.isArray(meta.pages)?meta.pages:[];meta.page_errors=Array.isArray(meta.page_errors)?meta.page_errors:[];
+   meta.stage_durations=meta.stage_durations||{};meta.stage_durations.mapping_ms=Date.now()-new Date(meta.stage_started_at).getTime();
+   await recordEvent(admin,task,meta,"success","网站结构发现完成",{discovered_pages:mapped.length,selected_pages:selected.length},meta.stage_durations.mapping_ms);
+   meta.stage="scraping";meta.stage_started_at=now();
+   await recordEvent(admin,task,meta,"info","开始页面采集与 SEO 审计",{queued_pages:selected.length});
+  }
+  if(meta.stage==="scraping"){
+   const key=await credential(admin,task.organization_id,"context_dev");
+   const queue=Array.isArray(meta.scrape_queue)?meta.scrape_queue:[];
+   const batchStarted=Date.now();
+   for(let i=0;i<4&&queue.length;i++){
+    const next=queue.shift();
+    try{const page=await scrape(key,next.url);page.audit=audit(page);delete page.html;delete page.markdown;meta.pages.push(page);
+     await recordEvent(admin,task,meta,"success","页面采集与 SEO 审计完成",{url:next.url,completed:meta.pages.length,failed:meta.page_errors.length,remaining:queue.length});
+    }catch(e){const message=e instanceof Error?e.message:"页面采集失败";meta.page_errors.push({url:next.url,error:message});await recordEvent(admin,task,meta,"warning","页面采集失败",{url:next.url,error:message,remaining:queue.length});}
+   }
+   meta.scrape_queue=queue;meta.stage_durations=meta.stage_durations||{};meta.stage_durations.scraping_ms=(meta.stage_durations.scraping_ms||0)+(Date.now()-batchStarted);
+   const total=Number(meta.selected_count||meta.discovered_count||meta.pages.length+queue.length+meta.page_errors.length);
+   meta.progress_percent=Math.min(64,Math.round(10+((meta.pages.length+meta.page_errors.length)/Math.max(1,total))*54));
+   if(!queue.length){
+    const urls=coreUrls(meta.map_urls||[],String(task.input_snapshot.target),Number(task.input_snapshot.pagespeed_limit||5));
+    meta.pagespeed_queue=urls.flatMap(x=>[{url:x.url,strategy:"mobile"},{url:x.url,strategy:"desktop"}]);
+    meta.stage_durations.scraping_total_ms=Date.now()-new Date(meta.stage_started_at).getTime();
+    await recordEvent(admin,task,meta,"success","页面采集阶段完成，开始 PageSpeed 检测",{audited_pages:meta.pages.length,failed_pages:meta.page_errors.length,selected_urls:urls.length,checks:meta.pagespeed_queue.length},meta.stage_durations.scraping_total_ms);
+    meta.stage="pagespeed";meta.stage_started_at=now();
+    await recordEvent(admin,task,meta,"info","开始 PageSpeed Mobile / Desktop 检测",{checks:meta.pagespeed_queue.length});
+   }
+  }
+  if(meta.stage==="pagespeed"){
+   let key:string|null=null;
+   try{key=await credential(admin,task.organization_id,"google_pagespeed")}catch{meta.pagespeed_unavailable=true}
+   const queue=Array.isArray(meta.pagespeed_queue)?meta.pagespeed_queue:[];
+   const batchStarted=Date.now();
+   for(let i=0;i<2&&queue.length&&key;i++){
+    const next=queue.shift();
+    try{meta.pagespeed_results=Array.isArray(meta.pagespeed_results)?meta.pagespeed_results:[];meta.pagespeed_results.push(await psi(next.url,key,next.strategy));await recordEvent(admin,task,meta,"success","PageSpeed 检测完成",{url:next.url,strategy:next.strategy,completed:meta.pagespeed_results.length,remaining:queue.length});}
+    catch(e){const message=e instanceof Error?e.message:"PageSpeed 请求失败";meta.pagespeed_results.push({url:next.url,strategy:next.strategy,error:message});await recordEvent(admin,task,meta,"warning","PageSpeed 检测失败",{url:next.url,strategy:next.strategy,error:message});}
+   }
+   if(meta.pagespeed_unavailable){queue.length=0;await recordEvent(admin,task,meta,"warning","PageSpeed 未配置，跳过性能检测");}
+   meta.pagespeed_queue=queue;meta.stage_durations=meta.stage_durations||{};meta.stage_durations.pagespeed_ms=(meta.stage_durations.pagespeed_ms||0)+(Date.now()-batchStarted);
+   const speedTotal=Number(task.input_snapshot.pagespeed_limit||5)*2;
+   meta.progress_percent=Math.min(95,Math.round(65+(meta.pagespeed_results.length/Math.max(1,speedTotal))*30));
+   if(!queue.length){
+    meta.report=report(meta.pages||[],(meta.pagespeed_results||[]).filter((x:any)=>!x.error),String(task.input_snapshot.target),Number(meta.discovered_count||0));
+    meta.stage_durations.pagespeed_total_ms=Date.now()-new Date(meta.stage_started_at).getTime();meta.stage="completed";meta.progress_percent=100;
+    await recordEvent(admin,task,meta,"info","开始生成诊断报告",{audited_pages:meta.pages.length});
+    await recordEvent(admin,task,meta,"success","诊断报告已生成",{audited_pages:meta.pages.length,failed_pages:meta.page_errors.length,pagespeed_checks:(meta.pagespeed_results||[]).length},meta.stage_durations.pagespeed_total_ms);
+    const successfulPages=meta.pages.length>0,successfulSpeed=(meta.pagespeed_results||[]).some((x:any)=>!x.error);
+    const status=successfulPages&&(successfulSpeed||meta.pagespeed_unavailable)?"succeeded":successfulPages?"partial":"failed";
+    const message=meta.pagespeed_unavailable?"PageSpeed 未配置，性能维度未纳入评分。":meta.page_errors.length?"部分页面采集失败，报告按实际覆盖范围生成。":status==="failed"?"没有成功采集任何页面。":null;
+    await save(status,{error_message:message,completed_at:now()});
+    return {status,stage:meta.stage};
+   }
+  }
+  const total=Number(meta.selected_count||meta.discovered_count||meta.pages.length+(meta.scrape_queue||[]).length+(meta.page_errors||[]).length);
+  meta.progress_percent=meta.stage==="mapping"?5:meta.stage==="scraping"?Math.max(10,Math.min(64,Math.round(10+((meta.pages.length+meta.page_errors.length)/Math.max(1,total))*54))):Math.max(65,Math.min(95,meta.progress_percent||65));
+  await save("running",{error_message:meta.page_errors?.length?("已采集 "+meta.pages.length+" 页，另有 "+meta.page_errors.length+" 页采集失败。"):null});
+  return {status:"running",stage:meta.stage,progress_percent:meta.progress_percent};
+ }catch(e){
+  const message=e instanceof Error?e.message:"后台任务执行失败";
+  meta.stage="failed";meta.progress_percent=100;
+  try{await recordEvent(admin,task,meta,"error","后台任务执行失败",{stage:meta.stage,error:message});}catch{}
+  await save("failed",{error_message:message,completed_at:now()});
+  return {status:"failed",error:message};
+ }
+}
+
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:cors});if(req.method!=="POST")return reply({error:"Method not allowed"},405);
  const admin=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,{auth:{persistSession:false}});
  try{
-  const user=await authorized(req),body=await req.json(),org=String(body.organization_id||"");if(!/^[0-9a-f-]{36}$/i.test(org))return reply({error:"组织信息无效。"},400);
+  const body=await req.json();
+  if(body.action==="worker"){
+   if(!await verifyWorker(admin,req))return reply({error:"Worker authentication failed."},401);
+   const {data:tasks,error}=await admin.from("market_trend_tasks").select("id,organization_id,status,input_snapshot,actor_meta,raw_items,result_count,created_at").eq("task_type","seo_audit").in("status",["queued","running"]).is("deleted_at",null).order("created_at",{ascending:true}).limit(1);
+   if(error)throw error;const outcomes=[];for(const task of tasks||[])outcomes.push({task_id:task.id,...await advanceTask(admin,task)});
+   return reply({processed:outcomes.length,outcomes});
+  }
+  const user=await authorized(req),org=String(body.organization_id||"");if(!/^[0-9a-f-]{36}$/i.test(org))return reply({error:"组织信息无效。"},400);
   const {data:member,error:me}=await admin.from("organization_members").select("role").eq("organization_id",org).eq("user_id",user.id).maybeSingle();if(me)throw me;if(!member||member.role==="viewer")return reply({error:"当前账号没有执行网站诊断任务的权限。"},403);
   if(body.action==="test_connections"){
    const key=await credential(admin,org,"context_dev"),client=new ContextDev({apiKey:key}),mapped:any=await client.web.mapUrls({domain:"example.com",includeSubdomains:false,maxLinks:1});
@@ -120,35 +227,23 @@ Deno.serve(async req=>{
   }
   if(body.action==="list_history"){const {data,error}=await admin.from("market_trend_tasks").select("id,title,status,result_count,created_at,error_message,actor_meta,input_snapshot,updated_at,completed_at").eq("organization_id",org).eq("task_type","seo_audit").is("deleted_at",null).order("created_at",{ascending:false}).limit(30);if(error)throw error;return reply({history:data||[]})}
   if(body.action==="get_history"||body.action==="poll_task"){
-   const id=String(body.task_id||""),{data:task,error}=await admin.from("market_trend_tasks").select("id,title,status,actor_run_id,input_snapshot,raw_items,result_count,actor_meta,error_message,created_at,updated_at,completed_at,started_at").eq("id",id).eq("organization_id",org).eq("task_type","seo_audit").maybeSingle();if(error)throw error;if(!task)return reply({error:"找不到该诊断任务，或当前账号无权查看。"},404);if(body.action==="get_history"||task.status!=="running")return reply({task});
-   const meta={...(task.actor_meta||{})} as Record<string,any>;
-   if(meta.stage==="scraping"){
-    const key=await credential(admin,org,"context_dev"),queue=Array.isArray(meta.scrape_queue)?meta.scrape_queue:[];
-    for(let i=0;i<2&&queue.length;i++){const next=queue.shift();try{const p=await scrape(key,next.url);p.audit=audit(p);delete p.html;delete p.markdown;meta.pages.push(p);addEvent(meta,"success","页面采集与 SEO 审计完成",{url:next.url,completed:meta.pages.length,remaining:queue.length})}catch(e){const message=e instanceof Error?e.message:"页面采集失败";meta.page_errors.push({url:next.url,error:message});addEvent(meta,"warning","页面采集失败",{url:next.url,error:message})}}
-    meta.scrape_queue=queue;if(!queue.length){const urls=coreUrls(meta.map_urls||[],String(task.input_snapshot.target),Number(task.input_snapshot.pagespeed_limit||5));meta.pagespeed_queue=urls.flatMap(x=>[{url:x.url,strategy:"mobile"},{url:x.url,strategy:"desktop"}]);meta.stage="pagespeed";addEvent(meta,"success","页面采集阶段完成，开始 PageSpeed 检测",{audited_pages:meta.pages.length,selected_urls:urls.length,checks:meta.pagespeed_queue.length})}
-   }
-   if(meta.stage==="pagespeed"){
-    let key:string|null=null;try{key=await credential(admin,org,"google_pagespeed")}catch{meta.pagespeed_unavailable=true}
-    const queue=Array.isArray(meta.pagespeed_queue)?meta.pagespeed_queue:[];
-    for(let i=0;i<2&&queue.length&&key;i++){const n=queue.shift();try{meta.pagespeed_results.push(await psi(n.url,key,n.strategy));addEvent(meta,"success","PageSpeed 检测完成",{url:n.url,strategy:n.strategy,completed:meta.pagespeed_results.length,remaining:queue.length})}catch(e){const message=e instanceof Error?e.message:"PageSpeed 请求失败";meta.pagespeed_results.push({url:n.url,strategy:n.strategy,error:message});addEvent(meta,"warning","PageSpeed 检测失败",{url:n.url,strategy:n.strategy,error:message})}}
-    if(meta.pagespeed_unavailable){queue.length=0;addEvent(meta,"warning","PageSpeed 未配置，跳过性能检测")}meta.pagespeed_queue=queue;
-    if(!queue.length){
-     meta.report=report(meta.pages||[],(meta.pagespeed_results||[]).filter((x:any)=>!x.error),String(task.input_snapshot.target),Number(meta.discovered_count||0));meta.stage="completed";addEvent(meta,"success","诊断报告已生成",{audited_pages:meta.pages.length,pagespeed_checks:(meta.pagespeed_results||[]).length});
-     const ok=(meta.pages||[]).length&&(meta.pagespeed_results||[]).some((x:any)=>!x.error),status=ok?"succeeded":"partial";
-     const {data:updated,error:up}=await admin.from("market_trend_tasks").update({status,raw_items:meta.pages,result_count:meta.pages.length,actor_meta:meta,error_message:meta.pagespeed_unavailable?"PageSpeed 未配置，性能维度未纳入评分。":meta.page_errors.length?"部分页面采集失败，报告按实际覆盖范围生成。":null,completed_at:now(),updated_at:now()}).eq("id",task.id).select("id,title,status,result_count,actor_meta,error_message,input_snapshot,raw_items,created_at").single();if(up)throw up;return reply({task:updated});
-    }
-   }
-   const {error:up}=await admin.from("market_trend_tasks").update({actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now()}).eq("id",task.id);if(up)throw up;
-   return reply({task:{...task,actor_meta:meta,raw_items:meta.pages||[],result_count:(meta.pages||[]).length,updated_at:now()},progress:meta.stage==="pagespeed"?"PageSpeed 检测 "+(meta.pagespeed_results||[]).length+" 项":"页面采集中，剩余 "+(meta.scrape_queue||[]).length+" 页"});
+   const id=String(body.task_id||"");
+   const {data:task,error}=await admin.from("market_trend_tasks").select("id,title,status,actor_run_id,input_snapshot,raw_items,result_count,actor_meta,error_message,created_at,updated_at,completed_at,started_at").eq("id",id).eq("organization_id",org).eq("task_type","seo_audit").maybeSingle();
+   if(error)throw error;if(!task)return reply({error:"找不到该诊断任务，或当前账号无权查看。"},404);
+   const {data:events,eventError}=await admin.from("seo_task_events").select("id,event_type,stage,message,details,created_at,duration_ms").eq("task_id",id).order("created_at",{ascending:true}).limit(500);
+   if(eventError)throw eventError;
+   const mapped=(events||[]).map((e:any)=>({id:e.id,type:e.event_type,stage:e.stage,message:e.message,details:{...(e.details||{}),...(e.duration_ms!=null?{duration_ms:e.duration_ms}:{})},created_at:e.created_at}));
+   const actor_meta={...(task.actor_meta||{}),events:mapped.length?mapped:(task.actor_meta?.events||[])};
+   return reply({task:{...task,actor_meta}});
   }
   if(body.action==="start"){
-   const root=await targetUrl(body.url),max=Math.min(200,Math.max(1,Number(body.max_pages)||80)),speedLimit=Math.min(10,Math.max(1,Number(body.pagespeed_limit)||5)),key=await credential(admin,org,"context_dev");
-   const {data:task,error:ins}=await admin.from("market_trend_tasks").insert({organization_id:org,created_by:user.id,actor_id:"context.dev/map-scrape",task_type:"seo_audit",title:"独立站诊断："+root,status:"running",input_snapshot:{target:root,max_pages:max,pagespeed_limit:speedLimit},raw_items:[],result_count:0,actor_meta:{provider:"Context.dev + Google PageSpeed",stage:"mapping",map_urls:[],pages:[],page_errors:[],pagespeed_results:[],events:[taskEvent("info","诊断任务已创建",{target:root})],last_progress_at:now()},started_at:now()}).select("id").single();if(ins)throw ins;
-   try{const mapped=await mapSite(key,root,max),selected=coreUrls(mapped,root,max);if(!selected.length)throw new Error("Map URLs 没有返回当前域名下的可分析页面。");
-    const meta={provider:"Context.dev + Google PageSpeed",stage:"scraping",map_urls:mapped,pages:[],page_errors:[],scrape_queue:selected,pagespeed_results:[],discovered_count:mapped.length,events:[taskEvent("success","网站结构发现完成",{discovered_pages:mapped.length,selected_pages:selected.length})],last_progress_at:now()};
-    const {error:up}=await admin.from("market_trend_tasks").update({actor_meta:meta,updated_at:now()}).eq("id",task.id);if(up)throw up;
-    return reply({task_id:task.id,status:"running",discovered_pages:mapped.length,selected_pages:selected.length});
-   }catch(e){const message=e instanceof Error?e.message:"Context.dev 网站结构发现失败。";await admin.from("market_trend_tasks").update({status:"failed",error_message:message,actor_meta:{provider:"Context.dev + Google PageSpeed",stage:"failed",events:[taskEvent("error","网站结构发现失败",{error:message})]},completed_at:now(),updated_at:now()}).eq("id",task.id);return reply({error:message,task_id:task.id},502)}
+   const root=await targetUrl(body.url),max=Math.min(200,Math.max(1,Number(body.max_pages)||80)),speedLimit=Math.min(10,Math.max(1,Number(body.pagespeed_limit)||5));
+   await credential(admin,org,"context_dev");
+   const {data:task,error:ins}=await admin.from("market_trend_tasks").insert({organization_id:org,created_by:user.id,actor_id:"context.dev/map-scrape",task_type:"seo_audit",title:"独立站诊断："+root,status:"queued",input_snapshot:{target:root,market:String(body.market||"US"),max_pages:max,pagespeed_limit:speedLimit},raw_items:[],result_count:0,actor_meta:{provider:"Context.dev + Google PageSpeed",stage:"mapping",progress_percent:2,discovered_count:0,pages:[],page_errors:[],pagespeed_results:[],events:[],last_progress_at:now(),stage_started_at:now()},started_at:now()}).select("id").single();
+   if(ins)throw ins;
+   const {error:eventError}=await admin.from("seo_task_events").insert({task_id:task.id,organization_id:org,event_type:"success",stage:"mapping",message:"诊断任务已进入后台队列",details:{target:root,max_pages:max,pagespeed_limit:speedLimit}});
+   if(eventError)throw eventError;
+   return reply({task_id:task.id,status:"queued",stage:"mapping"});
   }
   return reply({error:"不支持的操作类型。"},400);
  }catch(e){return reply({error:e instanceof Error?e.message:"网站诊断服务发生未知错误。",status:(e as any)?.status||400},(e as any)?.status||400)}
