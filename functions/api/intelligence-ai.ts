@@ -1,98 +1,147 @@
 interface WorkersAI {
-  run(
-    model: string,
-    input: {
-      messages: Array<{ role: "system" | "user"; content: string }>;
-      max_tokens?: number;
-      temperature?: number;
-    }
-  ): Promise<unknown>;
+  run(model: string, input: {
+    messages: Array<{ role: "system" | "user"; content: string }>;
+    max_tokens?: number;
+    temperature?: number;
+  }): Promise<unknown>;
 }
 interface Env {
   AI: WorkersAI;
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
 }
-interface PagesContext {
-  request: Request;
-  env: Env;
-}
-const allowedTabs = new Set(["overview","bestsellers","search","social","consumer","competitors","categories","markets"]);
+interface PagesContext { request: Request; env: Env }
 const defaultModel = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
-const allowedModels = new Set([defaultModel,"@cf/meta/llama-4-scout-17b-16e-instruct","@cf/openai/gpt-oss-120b","@cf/openai/gpt-oss-20b","@cf/moonshotai/kimi-k2.6","@cf/zai-org/glm-5.3"]);
+const allowedModels = new Set([
+  defaultModel,
+  "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "@cf/openai/gpt-oss-120b",
+  "@cf/openai/gpt-oss-20b",
+  "@cf/moonshotai/kimi-k2.6",
+  "@cf/zai-org/glm-5.3",
+]);
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
-  status,
-  headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
+  status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
 });
+const uuidPattern = /^[0-9a-f-]{36}$/i;
+const allowedTabs = new Set(["overview","bestsellers","search","social","consumer","competitors","categories","markets"]);
+const evidenceByTab: Record<string, string[]> = {
+  overview: ["search_trend","product_listing","social_post","review","article","other"],
+  bestsellers: ["product_listing"],
+  search: ["search_trend"],
+  social: ["social_post"],
+  consumer: ["social_post","review"],
+  competitors: ["product_listing","social_post","article"],
+  categories: ["product_listing"],
+  markets: ["search_trend","product_listing","social_post","review","article","other"],
+};
+async function rest<T>(env: Env, token: string, path: string, init: RequestInit = {}): Promise<T> {
+  const response = await fetch(env.SUPABASE_URL + path, {
+    ...init,
+    headers: {
+      apikey: env.SUPABASE_ANON_KEY,
+      authorization: "Bearer " + token,
+      "content-type": "application/json",
+      ...(init.headers || {}),
+    },
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new Error((body as any)?.message || (body as any)?.error_description || "Supabase 数据请求失败。");
+  return body as T;
+}
 export async function onRequestPost({ request, env }: PagesContext): Promise<Response> {
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
   const authorization = request.headers.get("authorization") || "";
   const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
   if (!token) return json({ error: "请先登录企业工作区。" }, 401);
   try {
-    const authResponse = await fetch(env.SUPABASE_URL + "/auth/v1/user", {
-      headers: { apikey: env.SUPABASE_ANON_KEY, authorization: "Bearer " + token }
-    });
-    if (!authResponse.ok) return json({ error: "登录状态已失效，请重新登录。" }, 401);
+    const authUser = await rest<{ id: string }>(env, token, "/auth/v1/user");
     const payload = await request.json() as Record<string, unknown>;
-    const provider = typeof payload.provider === "string" ? payload.provider : "cloudflare-workers-ai";
-    if (provider !== "cloudflare-workers-ai") return json({ error: "当前仅接入 Cloudflare Workers AI，其他服务商尚未配置。" }, 400);
+    const taskId = String(payload.task_id || "");
+    const organizationId = String(payload.organization_id || "");
+    if (!uuidPattern.test(taskId) || !uuidPattern.test(organizationId)) return json({ error: "分析任务或组织编号无效。" }, 400);
     const model = typeof payload.model === "string" ? payload.model : defaultModel;
     if (!allowedModels.has(model)) return json({ error: "所选模型不在当前可用模型列表中。" }, 400);
     const mode = typeof payload.mode === "string" ? payload.mode : "all";
     if (!["all","single","custom"].includes(mode)) return json({ error: "不支持的分析模式。" }, 400);
-    const dataset = payload.dataset;
-    if (!dataset || typeof dataset !== "object") return json({ error: "缺少情报数据集。" }, 400);
-    const datasetRecord = dataset as Record<string, unknown>;
     const tab = typeof payload.tab === "string" && allowedTabs.has(payload.tab) ? payload.tab : "overview";
-    const tabs = Array.isArray(payload.tabs) ? payload.tabs.filter((x): x is string => typeof x === "string" && allowedTabs.has(x)).slice(0,8) : [];
-    if (mode === "custom" && tabs.length === 0) return json({ error: "请至少选择一个情报 Tab。" }, 400);
+    const tabs = Array.isArray(payload.tabs) ? payload.tabs.filter((value): value is string => typeof value === "string" && allowedTabs.has(value)).slice(0,8) : [];
+    if (mode === "custom" && !tabs.length) return json({ error: "请至少选择一个情报维度。" }, 400);
     const question = typeof payload.question === "string" ? payload.question.slice(0,1200) : "";
     const context = typeof payload.context === "string" ? payload.context.slice(0,1600) : "";
-    const tabKeys: Record<string,string[]> = {
-      overview:["kpis","trend","social","markets"],
-      bestsellers:["bestsellers"],
-      search:["trend","search_terms"],
-      social:["social"],
-      consumer:["pain_points"],
-      competitors:["competitors"],
-      categories:["categories"],
-      markets:["markets"]
-    };
+
+    const taskQuery = new URLSearchParams({
+      select: "id,title,status,result_count,input_snapshot,actor_meta,created_at",
+      id: "eq." + taskId, organization_id: "eq." + organizationId, task_type: "eq.global_intelligence", limit: "1",
+    });
+    const tasks = await rest<Array<Record<string, any>>>(env, token, "/rest/v1/market_trend_tasks?" + taskQuery.toString());
+    const task = tasks[0];
+    if (!task) return json({ error: "找不到该任务，或当前账号无权查看。" }, 404);
+    if (!["succeeded","partial"].includes(String(task.status))) return json({ error: "采集任务尚未完成，暂不能生成 AI 报告。" }, 409);
+
+    const evidenceQuery = new URLSearchParams({
+      select: "id,source_slug,channel,evidence_kind,evidence_type,title,content_text,source_url,market_code,language,currency,price,rank_value,rating,review_count,metrics,collected_at",
+      task_id: "eq." + taskId, organization_id: "eq." + organizationId,
+      order: "collected_at.desc", limit: "500",
+    });
+    const evidence = await rest<Array<Record<string, any>>>(env, token, "/rest/v1/market_intelligence_evidence?" + evidenceQuery.toString());
+    if (!evidence.length) return json({ error: "当前任务没有可用于分析的真实证据。" }, 400);
+
     const scopeTabs = mode === "single" ? [tab] : mode === "custom" ? tabs : Array.from(allowedTabs);
-    const dataKeys = mode === "all" ? ["kpis","trend","bestsellers","search_terms","social","pain_points","competitors","categories","markets"] : [...new Set(scopeTabs.flatMap(key=>tabKeys[key]||[]))];
-    const scopedDataset: Record<string,unknown> = {};
-    for (const key of ["demo_notice","product"]) if (key in datasetRecord) scopedDataset[key]=datasetRecord[key];
-    for (const key of dataKeys) if (key in datasetRecord) scopedDataset[key]=datasetRecord[key];
-    const datasetText = JSON.stringify(scopedDataset);
-    if (datasetText.length > 18000) return json({ error: "分析数据量过大，请缩小分析范围。" }, 413);
-    const scope = mode === "single" ? "仅分析 Tab：" + tab : mode === "custom" ? "分析用户选中的 Tab：" + tabs.join(", ") : "综合分析全部情报结果。";
+    const allowedKinds = new Set(scopeTabs.flatMap(key => evidenceByTab[key] || []));
+    const scoped = evidence.filter(row => allowedKinds.has(String(row.evidence_kind))).slice(0, 300).map(row => ({
+      source: row.source_slug, channel: row.channel, kind: row.evidence_kind,
+      evidence_type: row.evidence_type, title: row.title, content: row.content_text,
+      url: row.source_url, market: row.market_code, language: row.language,
+      currency: row.currency, price: row.price, platform_rank: row.rank_value,
+      rating: row.rating, review_count: row.review_count, metrics: row.metrics,
+      collected_at: row.collected_at,
+    }));
+    if (!scoped.length) return json({ error: "当前分析范围没有对应的数据源证据，请切换分析维度。" }, 400);
+    const evidenceText = JSON.stringify(scoped);
+    if (evidenceText.length > 26000) return json({ error: "证据数据量过大，请缩小分析范围或减少数据源。" }, 413);
+
+    const sourceSlugs = [...new Set(scoped.map(row => row.source))];
     const system = [
-      "你是 Kosmoevretis 全球 3C 市场情报分析师，使用中文回答。",
-      "严格基于用户提供的情报数据与分析上下文，不得编造数据、来源、销量或市场规模。",
-      "数据集中的所有数值都是 DEMO 模拟数据，所有结论必须明确注明是演示数据推演，不可作为真实市场结论。",
-      "必须区分来源直接观测、平台信号、第三方估算和 AI 推断；不能把搜索指数、排名、互动量或评论样本称为真实销量。",
-      "先给结论，再列证据、市场差异、机会、风险和可执行验证步骤。说明相关性不等于因果关系。",
-      "如果数据不足或某项数据缺失，明确说明不足，不要推测成零需求。"
+      "你是 Kosmoevretis 全球 3C 市场情报分析师，使用简体中文。",
+      "只能依据提供的真实采集证据作答；不得编造销量、市场规模、品牌份额、价格、来源或样本。",
+      "每个事实性判断尽量指出来源平台、市场和采集时间；引用数据时保留原始来源 URL（若有）。",
+      "严格区分 observed（来源直接观测）、estimated（第三方估算）、inferred（AI 推断）。",
+      "电商列表、平台排名或 BSR 不是销量；Google Trends 0–100 是相对兴趣指数，不是绝对搜索量；播放、点赞、评论不等于购买需求。",
+      "搜索趋势、社媒互动和商品排名只能作为市场信号。不要将相关性表述为因果关系。",
+      "先给执行摘要，再列证据与跨市场差异、机会假设、风险、置信度和下一步验证动作。",
+      "如果证据不足、样本偏差明显或某渠道没有数据，明确说明，不要推测成零需求。",
     ].join("\n");
+    const scope = mode === "single" ? "仅分析维度：" + tab : mode === "custom" ? "组合分析维度：" + tabs.join(", ") : "综合分析本次全部可用证据。";
     const user = [
-      scope,
-      "分析上下文：" + (context || "未提供额外上下文"),
-      "用户追问：" + (question || "请根据所选范围给出深入的市场解读与行动建议。"),
-      "情报数据 JSON：",
-      datasetText
+      "任务名称：" + String(task.title || "全球市场情报"),
+      "任务上下文：" + (context || JSON.stringify(task.input_snapshot || {})).slice(0, 2200),
+      "分析范围：" + scope,
+      "用户研究问题：" + (question || "识别最值得进一步验证的全球 3C 市场机会。"),
+      "实际采集证据 JSON：", evidenceText,
     ].join("\n\n");
     const result = await env.AI.run(model, {
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
-      max_tokens: 1800,
-      temperature: 0.2
+      max_tokens: 2400, temperature: 0.2,
     });
-    const output = result as { response?: unknown };
-    const answer = typeof output?.response === "string" ? output.response : "";
+    const answer = typeof (result as any)?.response === "string" ? (result as any).response : "";
     if (!answer) return json({ error: "模型未返回可展示内容，请稍后重试。" }, 502);
-    return json({ answer, provider, model, evidence_type: "demo" });
+
+    let reportId: string | null = null;
+    try {
+      const saved = await rest<Array<{ id: string }>>(env, token, "/rest/v1/market_intelligence_ai_reports", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({
+          task_id: taskId, organization_id: organizationId, created_by: authUser.id,
+          analysis_mode: mode, tab_key: mode === "single" ? tab : scopeTabs.join(","),
+          model_key: model, question, answer, evidence_count: scoped.length, source_slugs: sourceSlugs,
+        }),
+      });
+      reportId = saved[0]?.id || null;
+    } catch { /* The generated answer remains useful if report persistence is temporarily unavailable. */ }
+    return json({ answer, provider: "cloudflare-workers-ai", model, report_id: reportId, evidence_count: scoped.length, source_slugs: sourceSlugs, evidence_type: "observed" });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "AI 分析服务暂不可用。";
-    return json({ error: message }, 500);
+    return json({ error: error instanceof Error ? error.message : "AI 分析服务暂不可用。" }, 500);
   }
 }

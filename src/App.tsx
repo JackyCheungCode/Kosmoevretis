@@ -330,7 +330,7 @@ function AppShell() {
 
   const navItems = [
     { id: "products", label: "产品中心", href: "/products", icon: Product, active: path === "/products" },
-    { id: "intelligence", label: "情报总览", href: "/intelligence", icon: Dashboard, active: path === "/intelligence" },
+    { id: "intelligence", label: "全球情报中心", href: "/intelligence", icon: Dashboard, active: path === "/intelligence" },
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
     { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
