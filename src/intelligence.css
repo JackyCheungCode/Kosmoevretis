@@ -367,3 +367,35 @@
 .gi-history-table-wrap .cds--tag{white-space:nowrap}
 
 @media(max-width:671px){.analysis-submit-row .cds--btn{width:100%}}
+
+
+/* Unslop refinement: intelligence visualizations and evidence tables. */
+.global-intelligence,.global-intelligence section,.global-intelligence .intelligence-panel{min-width:0;max-width:100%}
+.global-intelligence .market-layout,.global-intelligence .market-map-panel,.global-intelligence .world-map-wrap{min-width:0;max-width:100%}
+.global-intelligence .world-map{width:100%;max-width:100%;overflow:hidden}
+.global-intelligence .intelligence-tabs .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
+.gi-chart-grid,.gi-chart-card,.gi-chart,.gi-live-results,.gi-live-results .gi-evidence-list{min-width:0;max-width:100%}
+.gi-chart-card{overflow:hidden}
+.gi-chart svg,.gi-trend-chart svg{max-width:100%}
+.gi-table-wrap,.gi-history-table-wrap,.gi-md-table-wrap{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.gi-table-wrap .cds--data-table,.gi-history-table-wrap .cds--data-table{width:max-content;min-width:42rem}
+.gi-history-table-wrap .cds--data-table{min-width:680px}
+.gi-markdown-report table{min-width:520px}
+.gi-markdown-report{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.gi-gt-region-layout,.gi-gt-map-shell,.gi-gt-region-ranking{min-width:0;max-width:100%}
+.gi-gt-map{width:100%;max-width:100%}
+.gi-gt-map-legend{flex-wrap:wrap}
+@media(max-width:850px){
+ .gi-gt-region-layout{grid-template-columns:minmax(0,1fr)}
+ .gi-gt-map{height:340px}
+}
+@media(max-width:671px){
+ .gi-kpi-grid,.gi-live-results .gi-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gi-chart-grid{grid-template-columns:minmax(0,1fr)}
+ .gi-chart-card.wide{grid-column:auto}
+ .gi-chart-card{padding:var(--kosmo-space-3)}
+ .gi-gt-map{height:280px;min-height:240px}
+ .gi-gt-map-legend small{width:100%;margin-left:0}
+ .gi-table-wrap .cds--data-table,.gi-history-table-wrap .cds--data-table{min-width:640px}
+ .gi-markdown-report table{min-width:520px}
+}
