@@ -313,7 +313,7 @@ function AppShell() {
     path.startsWith("/platform-data/") ? (path.split("/")[2] as SocialPlatform) : null;
   const currentLabel = path.startsWith("/platform-data/") ? "平台数据采集"
     : path === "/products" ? "产品中心"
-    : path === "/seo-analysis" ? "独立站Seo分析"
+    : path === "/seo-analysis" ? "独立站智能诊断"
     : path === "/trade-access" ? "贸易与市场准入"
     : path.startsWith("/leads/") ? "潜在客户"
     : isSettings ? "设置中心"
@@ -331,7 +331,7 @@ function AppShell() {
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
     { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
-    { id: "seo-analysis", label: "独立站Seo分析", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
+    { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
