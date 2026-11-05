@@ -9,7 +9,7 @@ import "./product-center.css";
 
 type Category = { id:string; organization_id:string; parent_id:string|null; name:string; slug:string; code:string|null; description:string|null; is_active:boolean };
 type DefinitionValue = { id:string; value_text:string; value_number:number|null; unit:string|null };
-type Definition = { id:string; name:string; slug:string; data_type:string; unit:string|null; attribute_group:string; semantic_type:string; display_type:string; default_variant_creation_mode:string; include_in_analysis:boolean; product_attribute_definition_values?:DefinitionValue[] };
+type Definition = { id:string; name:string; slug:string; data_type:string; unit:string|null; attribute_group:string; semantic_type:string; display_type:string; default_variant_creation_mode:string; include_in_analysis:boolean; sort_order:number; product_attribute_definition_values?:DefinitionValue[] };
 type Product = {
   id:string; name:string; brand:string|null; manufacturer:string|null; model:string|null; sku:string|null; internal_reference:string|null; barcode:string|null;
   category_id:string|null; category_path:string[]; description:string|null; image_url:string|null; target_markets:string[]; status:string; product_type:string;
