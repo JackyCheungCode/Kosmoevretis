@@ -220,6 +220,8 @@ Deno.serve(async (req: Request) => {
       psi.searchParams.set("category", "performance");
       const check = await fetch(psi, { signal: AbortSignal.timeout(20000) });
       if (!check.ok) throw new Error("Google PageSpeed API 验证失败（HTTP " + check.status + "），请检查 API Key 和 API 启用状态。");
+      await admin.from("platform_provider_connections").update({ status: "verified", last_tested_at: now(), last_error_code: null, updated_at: now() })
+        .eq("organization_id", org).in("provider_key", ["dataforseo", "google_pagespeed"]);
       return reply({ success: true, message: "DataForSEO 与 Google PageSpeed 连接均已验证。" });
     }
 
