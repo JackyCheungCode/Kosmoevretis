@@ -1,0 +1,20 @@
+.seo-analysis-config-grid,.seo-analysis-score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--cds-spacing-05);margin-block:var(--cds-spacing-05)}
+.seo-analysis-results{display:flex;flex-direction:column;gap:var(--cds-spacing-05);min-width:0}
+.seo-analysis-task-heading,.seo-analysis-issue-head{display:flex;align-items:center;justify-content:space-between;gap:var(--cds-spacing-05)}
+.seo-analysis-task-heading p,.seo-analysis-history-item p{margin:var(--cds-spacing-02) 0 0;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
+.seo-analysis-score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seo-analysis-score-tile{display:flex;flex-direction:column;gap:var(--cds-spacing-03);min-width:0}
+.seo-analysis-score-tile>span{color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
+.seo-analysis-score-tile>strong{font-size:var(--cds-heading-03-font-size);font-weight:var(--cds-heading-03-font-weight);color:var(--cds-text-primary)}
+.seo-analysis-report-meta{display:flex;flex-wrap:wrap;gap:var(--cds-spacing-05);color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
+.seo-analysis-recommendations{display:flex;flex-direction:column;gap:var(--cds-spacing-03)}
+.seo-analysis-recommendations h4{margin:0;color:var(--cds-text-primary)}
+.seo-analysis-issue{display:flex;flex-direction:column;gap:var(--cds-spacing-03)}
+.seo-analysis-issue>span,.seo-analysis-issue p{margin:0;color:var(--cds-text-secondary);overflow-wrap:anywhere}
+.seo-analysis-issue p{font-size:var(--cds-body-compact-01-font-size)}
+.seo-analysis-page-row{display:flex;flex-direction:column;gap:var(--cds-spacing-02);padding:var(--cds-spacing-04) 0;border-bottom:1px solid var(--cds-border-subtle-01);overflow-wrap:anywhere}
+.seo-analysis-page-row strong{color:var(--cds-text-primary);font-size:var(--cds-body-compact-01-font-size)}
+.seo-analysis-page-row span{color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
+.seo-analysis-history{display:flex;flex-direction:column;gap:var(--cds-spacing-03)}
+.seo-analysis-history-item{display:flex;align-items:center;justify-content:space-between;gap:var(--cds-spacing-04);flex-wrap:wrap}
+@media(max-width:671px){.seo-analysis-config-grid,.seo-analysis-score-grid{grid-template-columns:minmax(0,1fr)}.seo-analysis-task-heading{align-items:flex-start;flex-direction:column}.seo-analysis-report-meta{flex-direction:column;gap:var(--cds-spacing-02)}}
