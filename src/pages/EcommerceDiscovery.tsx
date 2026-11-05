@@ -100,7 +100,7 @@ const aliases: Record<string, string[]> = {
   price: ["price", "currentPrice", "salePrice", "offers.price", "price.value"],
   currency: ["currency", "priceCurrency", "offers.priceCurrency", "price.currency"],
   rating: ["rating", "stars", "aggregateRating.ratingValue", "reviewRating.ratingValue"],
-  reviewCount: ["reviewCount", "reviewsCount", "ratingCount", "numberOfReviews"],
+  reviewCount: ["reviewCount", "reviewsCount", "ratingCount", "numberOfReviews"],\n  rank: ["rank", "bestSellerRank", "bestsellerRank", "salesRank", "position"],\n  category: ["category", "categoryName", "breadcrumb", "categoryPath"],
   availability: ["availability", "inStockText", "inStock", "stockStatus"],
   url: ["url", "productUrl", "product_url", "sellerUrl", "profileUrl"],
   originalPrice: ["originalPrice", "listPrice", "wasPrice"], discount: ["discount", "discountText", "promotion"],
@@ -118,7 +118,7 @@ const readPath = (row: RowData, path: string): unknown => path.split(".").reduce
   if (value && typeof value === "object") return (value as Record<string, unknown>)[key];
   return undefined;
 }, row);
-const getValue = (row: RowData, key: string) => (aliases[key] || [key]).map(path => readPath(row, path)).find(value => value !== undefined && value !== null && value !== "") ?? null;
+const getValue = (row: RowData, key: string) => (aliases[key] || [key]).map(path => readPath(row, path)).find(value => value !== undefined && value !== null && value !== "") ?? null;\nconst hasPublicRank = (row: RowData) => { const ranks = readPath(row, "bestsellerRanks"); return getValue(row, "rank") !== null || (Array.isArray(ranks) && ranks.length > 0); };
 const show = (value: unknown) => value == null ? "—" : typeof value === "object" ? JSON.stringify(value) : String(value);
 const exportJson = (rows: RowData[], platform: string) => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }));
@@ -283,7 +283,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     }
   };
 
-  const tabRows = activeTab === "reviews" ? activeRows : activeTab === "sellers" ? activeRows : activeTab === "pricing" ? activeRows : rows;
+  const tabRows = ["reviews", "sellers", "bestsellers", "pricing", "products"].includes(activeTab) ? activeRows : rows;
 
   return <section className="ecommerce-discovery">
     <PageHeader title={config.name + " 电商发现"} description={config.description + " 通过已验证的 Apify 连接采集公开商品、价格、评论及店铺数据。"} actions={<Tag type="green">{organizationName || "企业工作区"}</Tag>} />
@@ -359,7 +359,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
             {rows.length ? <ResultTable rows={rows.slice(0, 20)} type={mode === "reviews" ? "reviews" : mode === "sellers" ? "sellers" : "products"} /> : <EmptyState title="等待电商情报数据" description="在上方选择发现对象并配置关键词或 URL，启动采集后将在这里展示实际返回的商品、价格和市场信息。" />}
           </TabPanel>
           <TabPanel><div className="ec-table-tools"><TextInput id="ec-product-filter" labelText="筛选商品结果" placeholder="搜索商品名称、品牌或字段…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="products" /></TabPanel>
-          <TabPanel><div className="ec-table-tools"><TextInput id="ec-price-filter" labelText="筛选价格与供给" placeholder="搜索价格、币种、库存或卖家…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="pricing" /></TabPanel>
+          <TabPanel>{tabRows.length ? <ResultTable rows={tabRows} type="bestsellers" /> : <EmptyState title="暂无可验证的榜单排名" description="只有 Actor 返回真实公开排名字段时才会生成榜单；不会用评论数或推测销量冒充热销排名。" />}</TabPanel>\n          <TabPanel><div className="ec-table-tools"><TextInput id="ec-price-filter" labelText="筛选价格与供给" placeholder="搜索价格、币种、库存或卖家…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="pricing" /></TabPanel>
           <TabPanel><ResultTable rows={tabRows} type="reviews" /></TabPanel>
           <TabPanel><ResultTable rows={tabRows} type="sellers" /></TabPanel>
           <TabPanel><div className="ec-raw-actions"><Button kind="secondary" renderIcon={Download} disabled={!rows.length} onClick={() => exportJson(rows, platform)}>导出完整 JSON</Button></div>{rows.length ? <pre className="ec-raw-json">{JSON.stringify(rows, null, 2)}</pre> : <EmptyState title="暂无原始数据" description="执行采集后，可在这里查看 Actor 返回的全部 JSON 字段。" />}</TabPanel>
