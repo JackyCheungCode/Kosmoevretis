@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
-import { Button, Checkbox, InlineNotification, PasswordInput, Search, Tag, TextArea, TextInput } from "@carbon/react";
+import { Button, Checkbox, Column, Grid, InlineNotification, PasswordInput, Search, Select, SelectItem, Tag, TextArea, TextInput } from "@carbon/react";
 import { CarbonTabs } from "./design-system/components";
 import CarbonSelect from "./components/CarbonSelect";
 import { DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
@@ -73,6 +73,8 @@ export default function GlobalIntelligence(){
  const [liveTrendResults,setLiveTrendResults]=useState<any[]>([]),[liveTrendMeta,setLiveTrendMeta]=useState<any|null>(null),[trendHistory,setTrendHistory]=useState<any[]>([]),[historyView,setHistoryView]=useState(false);
  const [currentTaskId,setCurrentTaskId]=useState<string|null>(null),[liveEvidence,setLiveEvidence]=useState<any[]>([]),[sourceRuns,setSourceRuns]=useState<any[]>([]);
  const pendingHistorySnapshot=useRef<any>(null);
+ const [compactViewport,setCompactViewport]=useState(()=>window.matchMedia("(max-width: 671px)").matches);
+ useEffect(()=>{const media=window.matchMedia("(max-width: 671px)");const update=()=>setCompactViewport(media.matches);update();media.addEventListener("change",update);return()=>media.removeEventListener("change",update);},[]);
  useEffect(()=>{supabase.auth.getSession().then(({data})=>{setSession(data.session);setReady(true);});const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);setReady(true);});return()=>subscription.unsubscribe();},[]);
  useEffect(()=>{if(!organizationId||!session?.access_token)return;let active=true;supabase.functions.invoke("global-intelligence",{body:{action:"list_history",organization_id:organizationId}}).then(({data,error})=>{if(active&&!error)setTrendHistory(data?.history||[]);});return()=>{active=false;};},[organizationId,session?.access_token]);
  useEffect(()=>{if(!session?.user){setProducts([]);setProductId("");setOrganizationId(null);return;}(async()=>{const {data:member,error:memberError}=await supabase.from("organization_members").select("organization_id").eq("user_id",session.user.id).limit(1).maybeSingle();if(memberError)throw memberError;if(!member)throw new Error("当前账号尚未加入企业工作区。");setOrganizationId(member.organization_id);const {data,error:productError}=await supabase.from("products").select("id,name,brand,model,category_path").eq("organization_id",member.organization_id).order("updated_at",{ascending:false});if(productError)throw productError;setProducts((data||[]) as Product[]);})().catch(e=>setError(e instanceof Error?e.message:"产品档案加载失败。"));},[session]);
@@ -161,9 +163,9 @@ export default function GlobalIntelligence(){
  const login=async(e:React.FormEvent)=>{e.preventDefault();setAuthError("");const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setAuthError(error.message);};
  if(!ready)return <div className="boot-screen">正在连接全球情报中心…</div>;
  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">全球情报中心</div><h2>登录企业工作区</h2><p>登录后选择产品档案，或直接输入关键词开展市场研究。</p><TextInput id="gi-login-email" type="email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)} required/><PasswordInput id="gi-login-password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError} hideCloseButton/>}<Button kind="primary" type="submit">登录</Button></form>;
- return <section className="global-intelligence">
-  <div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div>
-  <section className="gi-setup" aria-label="分析源配置">
+ return <main className="global-intelligence">
+  <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div></Column></Grid>
+  <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><section className="gi-setup" aria-label="分析源配置">
   <section className="analysis-source">
    <div className="analysis-source-heading"><div><span className="eyebrow">01 / 分析来源</span><h2>分析对象与关键词</h2><p>选择企业产品并复用参数规格，或直接输入关键词；可使用 DeepL 生成多语言关键词。</p></div><span className="source-note">产品档案自动同步</span></div>
    <div className="source-grid"><div className="source-main">
@@ -187,17 +189,14 @@ export default function GlobalIntelligence(){
    </div><div className="market-map-panel"><div className="map-heading"><strong>全球市场分布</strong><span>OpenStreetMap · 点击国家可选择</span></div><WorldMarketMap selected={selectedMarkets} onToggle={toggleMarket}/></div></div>
   </section>
   <DataSourceSelector organizationId={organizationId} selectedMarkets={selectedMarkets} selectedSourceIds={selectedSourceIds} onChange={ids=>{setSelectedSourceIds(ids);resetAnalysis();}} onLoadDemo={()=>{setKeywords("AI 主动降噪无线耳机, ANC headphones");setSelectedMarkets(["US","JP","DE","GB"]);resetAnalysis();}}/>
-  </section>
-  <section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / 情报分析结果</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
+  </section></Column></Grid>
+  <Grid className="gi-page-grid"><Column sm={4} md={8} lg={16}><section className="analysis-results"><div className="results-heading"><div><span className="eyebrow">04 / 情报分析结果</span><h2>多维度情报分析</h2><p>同一分析任务下切换不同维度，分析对象、关键词、语言和目标市场保持不变。</p></div>{task&&<span className="task-state"><i/>分析条件已就绪</span>}</div>
    {task&&<div className="analysis-context"><div><small>当前分析对象</small><strong>{task.title}</strong></div><div className="context-filters">{task.filters.map((f,i)=><span key={i}>{f}</span>)}</div></div>}
    {sourceRuns.length>0&&<div className="gi-source-run-list" aria-live="polite">{sourceRuns.map((source:any)=><div className="gi-source-run-item" key={source.id||source.source_id}><div><strong>{source.name||source.source_slug}</strong><small>{source.error_message||((source.result_count??0)+" 条")}</small></div><Tag type={source.status==="succeeded"?"green":source.status==="failed"?"red":source.status==="running"?"blue":"cool-gray"} size="sm">{source.status==="succeeded"?"已完成":source.status==="failed"?"失败":source.status==="running"?"执行中":source.status==="queued"?"排队中":source.status==="partial"?"部分完成":source.status||"待处理"}</Tag></div>)}</div>}
    {error&&<InlineNotification kind="error" lowContrast title="分析未完成" subtitle={error} hideCloseButton/>}<div className="analysis-submit-row"><span>提交后会按所选平台启动真实采集任务，可能产生第三方 Actor 用量费用；切换下方 Tab 不会重置当前条件。</span><Button kind="primary" type="button" onClick={startAnalysis}>开始全球采集 <span aria-hidden="true">→</span></Button></div>
-   <div className="intelligence-tabs"><CarbonTabs
-    ariaLabel="情报分析维度"
-    activeTabId={activeTab}
-    onChange={setActiveTab}
-    items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}
-   /></div>
-  </section>
- </section>;
+   <div className="intelligence-tabs">
+    {compactViewport?<div className="gi-mobile-dimension"><Select id="gi-mobile-dimension" labelText="分析维度" value={activeTab} onChange={e=>setActiveTab(e.target.value)}>{tabs.map(tab=><SelectItem key={tab.id} value={tab.id} text={tab.label}/>)}</Select><div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={activeTab} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div></div>:<CarbonTabs ariaLabel="情报分析维度" activeTabId={activeTab} onChange={setActiveTab} items={tabs.map(tab=>({id:tab.id,label:tab.label,content:<div className="intelligence-panel"><IntelligenceDataExperience organizationId={organizationId} activeTab={tab.id} analyzed={analyzed} accessToken={session.access_token} context={task?.filters.join("；")||""} liveResults={liveTrendResults} liveMeta={liveTrendMeta} collectionLoading={collecting} taskId={currentTaskId} evidence={liveEvidence} evidenceCount={liveEvidence.length}/></div>}))}/>}
+   </div>
+  </section></Column></Grid>
+ </main>;
 }
