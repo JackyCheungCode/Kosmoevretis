@@ -157,7 +157,7 @@ export default function SeoAnalysis() {
           <Tag type={event.type==="success"?"green":event.type==="error"?"red":event.type==="warning"?"warm-gray":"blue"}>{event.type==="success"?"Success":event.type==="error"?"Failed":event.type==="warning"?"Warning":"Info"}</Tag>,
           event.message||"—",event.stage?stageText(event.stage):"后台事件",dateText(event.created_at),
           event.details&&Object.keys(event.details).length>0?<Accordion><AccordionItem title="查看详情"><pre>{JSON.stringify(event.details,null,2)}</pre></AccordionItem></Accordion>:"—"
-        ])]}/>
+        ])}/>
     </section>
 
     <section className="seo-console-section" aria-labelledby="seo-results-title"><div className="seo-section-heading"><h2 id="seo-results-title">诊断结果中心</h2><p>按分析维度查看报告；任务完成或部分完成后显示完整诊断结果。</p></div>
