@@ -66,7 +66,7 @@ function audit(p:any){
  const canonical=h.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)/i)?.[1]||"",robots=h.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)/i)?.[1]||"";
  const imgs=[...h.matchAll(/<img\b([^>]*)>/gi)],missing=imgs.filter(x=>!/\balt\s*=/.test(x[1])).length,links=[...h.matchAll(/<a\b[^>]+href=["']([^"']+)/gi)].map(x=>x[1]);
  const internal=links.filter(x=>x.startsWith("/")||(()=>{try{return new URL(x,p.url).hostname===new URL(p.url).hostname}catch{return false}})()).length;
- const words=md.replace(/[#>*_\-\[\]()]/g," ").split(/\s+/).filter(x=>x.length>1).length,headings=(md.match(/^#{1,6}\s+/gm)||[]).length,questionHeadings=(md.match(/^#{1,6}\s+[^\n]*[?？]/gm)||[]).length,lists=(md.match(/^\s*[-*+]\s+/gm)||[]).length,tables=(md.match(/^\s*\\|.*\\|\s*$/gm)||[]).length,sd=structured(h),issues:any[]=[];
+ const words=md.replace(/[#>*_\-\[\]()]/g," ").split(/\s+/).filter(x=>x.length>1).length,headings=(md.match(/^#{1,6}\s+/gm)||[]).length,questionHeadings=(md.match(/^#{1,6}\s+[^\n]*[?？]/gm)||[]).length,lists=(md.match(/^\s*[-*+]\s+/gm)||[]).length,tables=(md.match(/^\s*\|.*\|\s*$/gm)||[]).length,sd=structured(h),issues:any[]=[];
  const add=(severity:string,category:string,titleText:string,evidence:string,action:string)=>issues.push({severity,category,title:titleText,url:p.url,evidence,action});
  if(!title)add("high","技术 SEO","页面缺少 Title","未发现 title 标签","为页面添加唯一且准确描述主题的标题。");
  else if(title.length>60)add("medium","内容 SEO","Title 长度偏长","当前长度 "+title.length+" 字符","将核心主题前置并精简标题。");
