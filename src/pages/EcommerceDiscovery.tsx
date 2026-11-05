@@ -68,6 +68,7 @@ const modes: { id: Mode; label: string; description: string; icon: typeof Search
 const tabs = [
   { id: "overview", label: "情报总览", icon: Activity },
   { id: "products", label: "商品发现", icon: ShoppingCart },
+  { id: "bestsellers", label: "全球热销榜", icon: Star },
   { id: "pricing", label: "价格与供给", icon: Currency },
   { id: "reviews", label: "消费者评论", icon: Chat },
   { id: "sellers", label: "品牌与卖家", icon: Store },
@@ -79,6 +80,10 @@ const columns: Record<string, { key: string; label: string }[]> = {
     { key: "name", label: "商品名称" }, { key: "brand", label: "品牌" }, { key: "price", label: "价格" },
     { key: "currency", label: "币种" }, { key: "rating", label: "评分" }, { key: "reviewCount", label: "评论数" },
     { key: "availability", label: "库存 / 供给" }, { key: "url", label: "商品链接" },
+  ],
+  bestsellers: [
+    { key: "name", label: "商品名称" }, { key: "brand", label: "品牌" }, { key: "rank", label: "公开排名" },
+    { key: "category", label: "榜单类别" }, { key: "price", label: "价格" }, { key: "url", label: "商品链接" },
   ],
   pricing: [
     { key: "name", label: "商品名称" }, { key: "price", label: "当前价格" }, { key: "currency", label: "币种" },
@@ -100,7 +105,8 @@ const aliases: Record<string, string[]> = {
   price: ["price", "currentPrice", "salePrice", "offers.price", "price.value"],
   currency: ["currency", "priceCurrency", "offers.priceCurrency", "price.currency"],
   rating: ["rating", "stars", "aggregateRating.ratingValue", "reviewRating.ratingValue"],
-  reviewCount: ["reviewCount", "reviewsCount", "ratingCount", "numberOfReviews"],\n  rank: ["rank", "bestSellerRank", "bestsellerRank", "salesRank", "position"],\n  category: ["category", "categoryName", "breadcrumb", "categoryPath"],
+  reviewCount: ["reviewCount", "reviewsCount", "ratingCount", "numberOfReviews"],
+  rank: ["rank", "bestSellerRank", "bestsellerRank", "salesRank", "position"],\n  category: ["category", "categoryName", "breadcrumb", "categoryPath"],
   availability: ["availability", "inStockText", "inStock", "stockStatus"],
   url: ["url", "productUrl", "product_url", "sellerUrl", "profileUrl"],
   originalPrice: ["originalPrice", "listPrice", "wasPrice"], discount: ["discount", "discountText", "promotion"],
@@ -118,7 +124,8 @@ const readPath = (row: RowData, path: string): unknown => path.split(".").reduce
   if (value && typeof value === "object") return (value as Record<string, unknown>)[key];
   return undefined;
 }, row);
-const getValue = (row: RowData, key: string) => (aliases[key] || [key]).map(path => readPath(row, path)).find(value => value !== undefined && value !== null && value !== "") ?? null;\nconst hasPublicRank = (row: RowData) => { const ranks = readPath(row, "bestsellerRanks"); return getValue(row, "rank") !== null || (Array.isArray(ranks) && ranks.length > 0); };
+const getValue = (row: RowData, key: string) => (aliases[key] || [key]).map(path => readPath(row, path)).find(value => value !== undefined && value !== null && value !== "") ?? null;
+const hasPublicRank = (row: RowData) => { const ranks = readPath(row, "bestsellerRanks"); return getValue(row, "rank") !== null || (Array.isArray(ranks) && ranks.length > 0); };
 const show = (value: unknown) => value == null ? "—" : typeof value === "object" ? JSON.stringify(value) : String(value);
 const exportJson = (rows: RowData[], platform: string) => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" }));
@@ -157,6 +164,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     const type = String(row.discovery_type || row.result_type || "").toLowerCase();
     if (activeTab === "reviews") return mode === "reviews" || type.includes("review") || Boolean(row.reviewBody || row.review_body);
     if (activeTab === "sellers") return mode === "sellers" || type.includes("seller") || Boolean(row.sellerName || row.aggregateRating);
+    if (activeTab === "bestsellers") return hasPublicRank(row);
     if (activeTab === "products" || activeTab === "pricing") return mode !== "reviews" && mode !== "sellers";
     return true;
   }).filter(row => !filter.trim() || JSON.stringify(row).toLowerCase().includes(filter.trim().toLowerCase())), [rows, activeTab, mode, filter]);
@@ -359,7 +367,9 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
             {rows.length ? <ResultTable rows={rows.slice(0, 20)} type={mode === "reviews" ? "reviews" : mode === "sellers" ? "sellers" : "products"} /> : <EmptyState title="等待电商情报数据" description="在上方选择发现对象并配置关键词或 URL，启动采集后将在这里展示实际返回的商品、价格和市场信息。" />}
           </TabPanel>
           <TabPanel><div className="ec-table-tools"><TextInput id="ec-product-filter" labelText="筛选商品结果" placeholder="搜索商品名称、品牌或字段…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="products" /></TabPanel>
-          <TabPanel>{tabRows.length ? <ResultTable rows={tabRows} type="bestsellers" /> : <EmptyState title="暂无可验证的榜单排名" description="只有 Actor 返回真实公开排名字段时才会生成榜单；不会用评论数或推测销量冒充热销排名。" />}</TabPanel>\n          <TabPanel><div className="ec-table-tools"><TextInput id="ec-price-filter" labelText="筛选价格与供给" placeholder="搜索价格、币种、库存或卖家…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="pricing" /></TabPanel>
+          <TabPanel>{tabRows.length ? <ResultTable rows={tabRows} type="bestsellers" /> : <EmptyState title="暂无可验证的榜单排名" description="只有 Actor 返回真实公开排名字段时才会生成榜单；不会用评论数或推测销量冒充热销排名。" />}</TabPanel>
+          <TabPanel>{tabRows.length ? <ResultTable rows={tabRows} type="bestsellers" /> : <EmptyState title="暂无可验证的榜单排名" description="只有 Actor 返回真实公开排名字段时才会生成榜单；不会用评论数或推测销量冒充热销排名。" />}</TabPanel>
+          <TabPanel><div className="ec-table-tools"><TextInput id="ec-price-filter" labelText="筛选价格与供给" placeholder="搜索价格、币种、库存或卖家…" value={filter} onChange={event => setFilter(event.target.value)} /></div><ResultTable rows={tabRows} type="pricing" /></TabPanel>
           <TabPanel><ResultTable rows={tabRows} type="reviews" /></TabPanel>
           <TabPanel><ResultTable rows={tabRows} type="sellers" /></TabPanel>
           <TabPanel><div className="ec-raw-actions"><Button kind="secondary" renderIcon={Download} disabled={!rows.length} onClick={() => exportJson(rows, platform)}>导出完整 JSON</Button></div>{rows.length ? <pre className="ec-raw-json">{JSON.stringify(rows, null, 2)}</pre> : <EmptyState title="暂无原始数据" description="执行采集后，可在这里查看 Actor 返回的全部 JSON 字段。" />}</TabPanel>
