@@ -157,3 +157,33 @@
     width: 100%;
   }
 }
+
+
+/* Unslop refinement: product detail, attribute axes and SKU data remain readable at every width. */
+.pc-workspace,.pc-detail,.pc-editor,.pc-form-section,.pc-management-grid{min-width:0;max-width:100%}
+.pc-workspace>.cds--tabs,.pc-workspace .cds--tabs{min-width:0;max-width:100%}
+.pc-workspace .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.pc-workspace .cds--tab{flex:0 0 auto;white-space:nowrap}
+.pc-product-facts{grid-template-columns:repeat(4,minmax(0,1fr))}
+.pc-product-facts>div{min-width:0}
+.pc-product-facts strong{overflow-wrap:anywhere;word-break:break-word}
+.pc-axis-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pc-table-wrap{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.pc-table{min-width:720px}
+.pc-table th,.pc-table td{vertical-align:top}
+.pc-variant-form>*{min-width:0}
+.pc-attribute-summary>div{min-width:0}
+.pc-attribute-summary small{overflow-wrap:anywhere}
+@media(max-width:1055px){
+ .pc-product-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pc-variant-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pc-axis-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:671px){
+ .pc-product-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pc-variant-form{grid-template-columns:minmax(0,1fr)}
+ .pc-axis-grid{grid-template-columns:minmax(0,1fr)}
+ .pc-table{min-width:680px}
+ .pc-workspace .cds--tab-list{scroll-snap-type:x proximity}
+ .pc-workspace .cds--tab{scroll-snap-align:start}
+}
