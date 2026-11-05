@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
-import { Button, Checkbox, Column, Grid, InlineNotification, PasswordInput, Search, Select, SelectItem, Tag, TextArea, TextInput } from "@carbon/react";
+import { Button, Checkbox, InlineNotification, PasswordInput, Search, Select, SelectItem, Tag, TextArea, TextInput } from "@carbon/react";
 import { CarbonTabs } from "./design-system/components";
 import CarbonSelect from "./components/CarbonSelect";
 import { DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
