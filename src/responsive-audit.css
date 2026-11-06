@@ -202,8 +202,7 @@
 }
 
 .kosmo-main :is(
-  .cds--data-table-container,
-  .cds--table-container,
+  .kosmo-table-scroll,
   .table-scroll,
   .data-table-scroll
 ) {
