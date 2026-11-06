@@ -83,7 +83,7 @@ export default function MetaContentStudio(){
       if(uploadError)throw uploadError;
       const {data:download,error:downloadError}=await supabase.functions.invoke("meta-media",{body:{action:"create_download_url",organization_id:organizationId,connection_id:selectedConnection,path:prepared.path,expires_in_seconds:21600}});
       if(downloadError||download?.error||!download?.url)throw new Error(downloadError?.message||download?.error||"无法生成媒体访问地址");
-      if(mediaType==="image")setMediaUrls(current=>[...current.split("\\n").map(v=>v.trim()).filter(Boolean),download.url].join("\\n"));
+      if(mediaType==="image")setMediaUrls(current=>[...current.split("\n").map(v=>v.trim()).filter(Boolean),download.url].join("\n"));
       else setVideoUrl(download.url);
       setMediaFile(null);
       setNotice({kind:"success",title:"素材上传完成",message:"已保存到组织私有媒体库，并将限时 HTTPS 地址加入帖子素材。请在链接有效期内立即发布；限时地址不适合未来排程。"});
