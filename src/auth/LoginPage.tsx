@@ -66,7 +66,7 @@ function ParticleGlobe() {
       context.arc(cx, cy, radius * 1.2, 0, Math.PI * 2);
       context.fill();
 
-      context.strokeStyle = "rgba(66, 190, 255, .10)";
+      context.strokeStyle = blue40;
       context.lineWidth = 0.65;
       for (let i = 0; i < projected.length; i += 1) {
         const a = projected[i];
