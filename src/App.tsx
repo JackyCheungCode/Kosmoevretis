@@ -16,10 +16,7 @@ import {
   SideNav,
   SideNavItems,
   SideNavLink,
-  SkipToContent,
-  Tabs,
-  TabList,
-  Tab,
+  SkipToContent
 } from "@carbon/react";
 import {
   Currency,
@@ -73,75 +70,7 @@ const validPaths = new Set([
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
 type EcommercePlatformId = EcommercePlatform;
 
-type BrandLogoId =
-  | "facebook" | "instagram" | "linkedin" | "googlemaps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube"
-  | "amazon" | "walmart" | "ebay" | "aliexpress" | "temu" | "etsy" | "shopify" | "mercadolibre" | "rakuten";
-
-const brandLogoColors: Record<BrandLogoId, string> = {
-  facebook: "0866FF", instagram: "E4405F", linkedin: "0A66C2", googlemaps: "4285F4",
-  x: "000000", reddit: "FF4500", pinterest: "BD081C", tiktok: "000000", youtube: "FF0000",
-  amazon: "FF9900", walmart: "0071CE", ebay: "3665F3", aliexpress: "FF4747", temu: "FB7701",
-  etsy: "F1641E", shopify: "7AB55C", mercadolibre: "2D3277", rakuten: "BF0000",
-};
-
-function BrandLogo({ brand, label }: { brand: BrandLogoId; label: string }) {
-  return (
-    <img
-      className={`platform-brand-logo platform-brand-logo--${brand}`}
-      src={`https://cdn.simpleicons.org/${brand}/${brandLogoColors[brand]}`}
-      alt=""
-      aria-hidden="true"
-      loading="eager"
-      decoding="async"
-      title={label}
-    />
-  );
-}
-
-const socialPlatformItems: { id: SocialPlatform; label: string; brand: BrandLogoId }[] = [
-  { id: "facebook", label: "Facebook", brand: "facebook" },
-  { id: "instagram", label: "Instagram", brand: "instagram" },
-  { id: "linkedin", label: "LinkedIn", brand: "linkedin" },
-  { id: "google-maps", label: "Google Maps", brand: "googlemaps" },
-  { id: "x", label: "X", brand: "x" },
-  { id: "reddit", label: "Reddit", brand: "reddit" },
-  { id: "pinterest", label: "Pinterest", brand: "pinterest" },
-  { id: "tiktok", label: "TikTok", brand: "tiktok" },
-  { id: "youtube", label: "YouTube", brand: "youtube" },
-];
-type PlatformSwitcherItem = { id: string; label: string; brand: BrandLogoId };
-
-function PlatformSwitcher({ items, selectedId, ariaLabel, onSelect }: {
-  items: PlatformSwitcherItem[];
-  selectedId: string;
-  ariaLabel: string;
-  onSelect: (id: string) => void;
-}) {
-  const selectedIndex = Math.max(0, items.findIndex((item) => item.id === selectedId));
-  return (
-    <nav className="platform-switcher" aria-label={ariaLabel}>
-      <Tabs
-        selectedIndex={selectedIndex}
-        onChange={({ selectedIndex: nextIndex }) => {
-          const nextItem = items[nextIndex];
-          if (nextItem) onSelect(nextItem.id);
-        }}
-      >
-        <TabList aria-label={ariaLabel}>
-          {items.map((item) => (
-            <Tab key={item.id}>
-              <BrandLogo brand={item.brand} label={item.label} />
-              <span className="platform-switcher__label">{item.label}</span>
-            </Tab>
-          ))}
-        </TabList>
-      </Tabs>
-    </nav>
-  );
-}
-
 function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
-  const navigate = useNavigate();
   const pages = {
     facebook: <FacebookDiscovery />,
     instagram: <InstagramDiscovery />,
@@ -155,39 +84,14 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   };
   return (
     <div className="social-platform-workspace-shell">
-      <PlatformSwitcher
-        items={socialPlatformItems}
-        selectedId={platform}
-        ariaLabel="社交媒体平台"
-        onSelect={(id) => navigate("/social-discovery/" + id)}
-      />
       <div className="social-platform-content">{pages[platform]}</div>
     </div>
   );
 }
 
-const ecommercePlatformItems: { id: EcommercePlatformId; label: string; brand: BrandLogoId }[] = [
-  { id: "amazon", label: "Amazon", brand: "amazon" },
-  { id: "walmart", label: "Walmart", brand: "walmart" },
-  { id: "ebay", label: "eBay", brand: "ebay" },
-  { id: "aliexpress", label: "AliExpress", brand: "aliexpress" },
-  { id: "temu", label: "Temu", brand: "temu" },
-  { id: "etsy", label: "Etsy", brand: "etsy" },
-  { id: "shopify", label: "Shopify", brand: "shopify" },
-  { id: "mercado-libre", label: "Mercado Libre", brand: "mercadolibre" },
-  { id: "rakuten", label: "Rakuten", brand: "rakuten" },
-];
-
 function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformId }) {
-  const navigate = useNavigate();
   return (
     <div className="social-platform-workspace-shell">
-      <PlatformSwitcher
-        items={ecommercePlatformItems}
-        selectedId={platform}
-        ariaLabel="电商平台"
-        onSelect={(id) => navigate("/ecommerce-discovery/" + id)}
-      />
       <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
     </div>
   );
