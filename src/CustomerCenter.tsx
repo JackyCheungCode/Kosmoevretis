@@ -21,6 +21,8 @@ type Lead = {
   created_at: string;
   crm_companies: { name: string; website: string | null; country: string | null; industry: string | null } | null;
 };
+type Contact = { id: string; full_name: string; job_title: string | null; email: string | null; phone: string | null; preferred_language: string | null; notes: string | null; };
+type Activity = { id: string; channel: string; activity_type: string; subject: string | null; body: string; occurred_at: string; };
 type FormState = { company: string; website: string; country: string; industry: string; product: string; source: string; sourceUrl: string; summary: string };
 const emptyForm: FormState = { company: "", website: "", country: "", industry: "消费电子", product: "", source: "manual", sourceUrl: "", summary: "" };
 const statusLabels: Record<string, string> = { new: "新线索", qualified: "已筛选", contacted: "已联系", negotiating: "洽谈中", converted: "已转化", disqualified: "已排除" };
@@ -40,6 +42,12 @@ export default function CustomerCenter() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [contactForm, setContactForm] = useState({ full_name: "", job_title: "", email: "", phone: "", preferred_language: "", notes: "" });
+  const [activityForm, setActivityForm] = useState({ subject: "", body: "" });
 
   const loadLeads = useCallback(async (orgId: string) => {
     setLoading(true);
@@ -129,6 +137,58 @@ export default function CustomerCenter() {
     await loadLeads(organizationId);
   };
 
+  useEffect(() => {
+    if (!selectedLead || !organizationId) { setContacts([]); setActivities([]); return; }
+    let active = true;
+    setDetailLoading(true);
+    Promise.all([
+      supabase.from("crm_contacts").select("id, full_name, job_title, email, phone, preferred_language, notes").eq("organization_id", organizationId).eq("company_id", selectedLead.company_id).order("created_at", { ascending: false }),
+      supabase.from("crm_activities").select("id, channel, activity_type, subject, body, occurred_at").eq("organization_id", organizationId).eq("company_id", selectedLead.company_id).order("occurred_at", { ascending: false }).limit(30)
+    ]).then(([contactResult, activityResult]) => {
+      if (!active) return;
+      if (contactResult.error) setError(contactResult.error.message); else setContacts((contactResult.data || []) as Contact[]);
+      if (activityResult.error) setError(activityResult.error.message); else setActivities((activityResult.data || []) as Activity[]);
+    }).finally(() => { if (active) setDetailLoading(false); });
+    return () => { active = false; };
+  }, [selectedLead, organizationId]);
+
+  const createContact = async () => {
+    if (!selectedLead || !organizationId || !contactForm.full_name.trim()) return;
+    setSaving(true); setError("");
+    const { error: insertError } = await supabase.from("crm_contacts").insert({
+      organization_id: organizationId, company_id: selectedLead.company_id,
+      full_name: contactForm.full_name.trim(), job_title: contactForm.job_title.trim() || null,
+      email: contactForm.email.trim() || null, phone: contactForm.phone.trim() || null,
+      preferred_language: contactForm.preferred_language.trim() || null, notes: contactForm.notes.trim() || null
+    });
+    if (insertError) setError(insertError.message);
+    else {
+      setContactForm({ full_name: "", job_title: "", email: "", phone: "", preferred_language: "", notes: "" });
+      const { data } = await supabase.from("crm_contacts").select("id, full_name, job_title, email, phone, preferred_language, notes").eq("organization_id", organizationId).eq("company_id", selectedLead.company_id).order("created_at", { ascending: false });
+      setContacts((data || []) as Contact[]);
+      setNotice("联系人已添加。");
+    }
+    setSaving(false);
+  };
+
+  const createActivity = async () => {
+    if (!selectedLead || !organizationId || !activityForm.body.trim()) return;
+    setSaving(true); setError("");
+    const { error: insertError } = await supabase.from("crm_activities").insert({
+      organization_id: organizationId, company_id: selectedLead.company_id, lead_id: selectedLead.id,
+      channel: "internal", activity_type: "note", subject: activityForm.subject.trim() || "客户跟进记录",
+      body: activityForm.body.trim()
+    });
+    if (insertError) setError(insertError.message);
+    else {
+      setActivityForm({ subject: "", body: "" });
+      const { data } = await supabase.from("crm_activities").select("id, channel, activity_type, subject, body, occurred_at").eq("organization_id", organizationId).eq("company_id", selectedLead.company_id).order("occurred_at", { ascending: false }).limit(30);
+      setActivities((data || []) as Activity[]);
+      setNotice("客户活动已记录。");
+    }
+    setSaving(false);
+  };
+
   const counts = useMemo(() => ({
     total: leads.length,
     new: leads.filter((item) => item.status === "new").length,
@@ -171,12 +231,46 @@ export default function CustomerCenter() {
           <Button kind="primary" disabled={!form.company.trim() || saving} loading={saving} onClick={() => void createLead()}>保存客户线索</Button>
         </div>
       </Tile>}
+      {selectedLead && <Tile className="crm-detail-panel">
+        <div className="crm-detail-heading">
+          <div><h3>{selectedLead.crm_companies?.name || "客户详情"}</h3><p>客户企业档案 · 联系人 · 跟进活动</p></div>
+          <Button kind="ghost" size="sm" onClick={() => setSelectedLead(null)}>关闭详情</Button>
+        </div>
+        {detailLoading ? <p>正在加载客户档案…</p> : <div className="crm-detail-grid">
+          <section className="crm-detail-section">
+            <h4>联系人 <Tag type="blue">{contacts.length}</Tag></h4>
+            {contacts.length ? contacts.map((contact) => <div className="crm-contact-item" key={contact.id}>
+              <strong>{contact.full_name}</strong><span>{contact.job_title || "职位未填写"}</span>
+              <span>{[contact.email, contact.phone, contact.preferred_language].filter(Boolean).join(" · ") || "暂无联系方式"}</span>
+            </div>) : <p className="crm-detail-muted">尚未添加联系人。</p>}
+            <div className="crm-inline-form">
+              <TextInput id="crm-contact-name" labelText="联系人姓名 *" value={contactForm.full_name} onChange={(event) => setContactForm((v) => ({ ...v, full_name: event.target.value }))} />
+              <TextInput id="crm-contact-title" labelText="职位" value={contactForm.job_title} onChange={(event) => setContactForm((v) => ({ ...v, job_title: event.target.value }))} />
+              <TextInput id="crm-contact-email" labelText="邮箱" value={contactForm.email} onChange={(event) => setContactForm((v) => ({ ...v, email: event.target.value }))} />
+              <TextInput id="crm-contact-phone" labelText="电话 / WhatsApp" value={contactForm.phone} onChange={(event) => setContactForm((v) => ({ ...v, phone: event.target.value }))} />
+              <TextInput id="crm-contact-language" labelText="偏好语言" value={contactForm.preferred_language} onChange={(event) => setContactForm((v) => ({ ...v, preferred_language: event.target.value }))} />
+              <Button size="md" kind="tertiary" disabled={!contactForm.full_name.trim() || saving} onClick={() => void createContact()}>添加联系人</Button>
+            </div>
+          </section>
+          <section className="crm-detail-section">
+            <h4>客户活动时间线 <Tag type="cool-gray">{activities.length}</Tag></h4>
+            <div className="crm-inline-form">
+              <TextInput id="crm-activity-subject" labelText="记录标题" value={activityForm.subject} onChange={(event) => setActivityForm((v) => ({ ...v, subject: event.target.value }))} placeholder="例如：首次联系 / 需求确认" />
+              <TextArea id="crm-activity-body" labelText="活动内容 *" rows={2} value={activityForm.body} onChange={(event) => setActivityForm((v) => ({ ...v, body: event.target.value }))} placeholder="记录沟通内容、采购需求或下一步跟进事项" />
+              <Button size="md" kind="tertiary" disabled={!activityForm.body.trim() || saving} onClick={() => void createActivity()}>记录活动</Button>
+            </div>
+            {activities.length ? <div className="crm-timeline">{activities.map((activity) => <article key={activity.id}>
+              <span className="crm-timeline-dot" /><div><strong>{activity.subject || "客户活动"}</strong><time>{new Date(activity.occurred_at).toLocaleString()}</time><p>{activity.body}</p></div>
+            </article>)}</div> : <p className="crm-detail-muted">暂无活动记录。</p>}
+          </section>
+        </div>}
+      </Tile>}
       {loading ? <div className="crm-empty">正在加载客户数据…</div> : filteredLeads.length === 0 ? <div className="crm-empty"><UserMultiple size={28}/><strong>暂无匹配的客户线索</strong><span>可先新增客户，或将市场情报与社媒发现的线索接入客户中心。</span></div> :
         <div className="crm-table-wrap"><TableContainer title="客户线索列表"><Table size="lg" useZebraStyles>
           <TableHead><TableRow>
             <TableHeader>企业</TableHeader><TableHeader>国家 / 地区</TableHeader><TableHeader>产品兴趣</TableHeader><TableHeader>来源</TableHeader><TableHeader>状态 / 跟进</TableHeader><TableHeader>评分</TableHeader><TableHeader>创建时间</TableHeader>
           </TableRow></TableHead><TableBody>{filteredLeads.map((lead) => <TableRow key={lead.id}>
-            <TableCell><div className="crm-company-cell"><Building size={16}/><div><strong>{lead.crm_companies?.name || "未命名企业"}</strong>{lead.crm_companies?.website && <a href={lead.crm_companies.website} target="_blank" rel="noreferrer">{lead.crm_companies.website}</a>}</div></div></TableCell>
+            <TableCell><div className="crm-company-cell"><Building size={16}/><div><button type="button" className="crm-company-open" onClick={() => setSelectedLead(lead)}>{lead.crm_companies?.name || "未命名企业"}</button>{lead.crm_companies?.website && <a href={lead.crm_companies.website} target="_blank" rel="noreferrer">{lead.crm_companies.website}</a>}</div></div></TableCell>
             <TableCell>{lead.crm_companies?.country || "—"}</TableCell><TableCell>{lead.product_interest || "—"}</TableCell>
             <TableCell>{sourceLabels[lead.source] || lead.source}</TableCell><TableCell><Dropdown id={"crm-lead-status-" + lead.id} aria-label="更新线索状态" size="sm" label="选择状态" items={Object.entries(statusLabels).map(([id, text]) => ({ id, text }))} itemToString={itemToString} selectedItem={{ id: lead.status, text: statusLabels[lead.status] || lead.status }} onChange={({ selectedItem }) => selectedItem && void updateLeadStatus(lead, selectedItem.id)} /></TableCell>
             <TableCell>{lead.score}</TableCell><TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
