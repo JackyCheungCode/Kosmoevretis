@@ -98,7 +98,12 @@ function inspect(relative, source) {
     }
     if (/:focus-visible\s*\{/.test(source)) violations.push(relative + ": do not globally override Carbon component focus treatments.");
   }
-  if (/<select\b/.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.");
+  if (/<select\b/.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, ; native select is not allowed.");
+  if (relative === "src/components/CarbonSelect.tsx" &&
+      (!/\\bDropdown\\b/.test(source) || !/\\bComboBox\\b/.test(source) ||
+       !/from\\s+["']@carbon\\/react["']/.test(source) || /<(?:button|select)\\b/.test(source))) {
+    violations.push(relative + ": shared selection controls must use Carbon React Dropdown / ComboBox, not hand-built native controls.");
+  }
   if (relative === "src/pages/SeoAnalysis.tsx") {
     if (!/\bProgressIndicator\b/.test(source) || !/\bProgressStep\b/.test(source)) violations.push(relative + ": execution stages must use Carbon ProgressIndicator / ProgressStep.");
     if (!/\bTableContainer\b/.test(source) || !/\bTableHeader\b/.test(source) || !/\bTableCell\b/.test(source)) violations.push(relative + ": tabular records must use Carbon Table components.");
