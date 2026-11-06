@@ -147,7 +147,10 @@ function RouteBreadcrumbs({ path }: { path: string }) {
     const platform = path.split("/")[2];
     items.push({ label: "社媒平台发现", to: "/social-discovery" });
     items.push({ label: (socialLabels[platform] || "平台") + "数据采集" });
-  } else if (path.startsWith("/meta-channels/")) {\n    items.push({ label: "Meta 渠道管理", to: "/meta-channels" });\n    items.push({ label: routeLabels[path] || "渠道管理" });\n  } else if (path.startsWith("/ecommerce-discovery/")) {
+  } else if (path.startsWith("/meta-channels/")) {
+    items.push({ label: "Meta 渠道管理", to: "/meta-channels" });
+    items.push({ label: routeLabels[path] || "渠道管理" });
+  } else if (path.startsWith("/ecommerce-discovery/")) {
     const platform = path.split("/")[2];
     items.push({ label: "电商平台发现", to: "/ecommerce-discovery" });
     items.push({ label: ecommerceLabels[platform] || "平台数据" });
@@ -366,7 +369,10 @@ function AppShell() {
         {path === "/opportunities" && <SalesPipeline />}
         {isMailWorkspace && <MailCommunication />}
         {path === "/communication/inbox" && <UnifiedMessageCenter />}
-        {path === "/meta-channels" && <MetaChannelManagement />}\n        {path === "/meta-channels/facebook" && <MetaChannelWorkspace channel="facebook" />}\n        {path === "/meta-channels/whatsapp" && <MetaChannelWorkspace channel="whatsapp" />}\n        {path === "/meta-channels/messenger" && <MetaChannelWorkspace channel="messenger" />}
+        {path === "/meta-channels" && <MetaChannelManagement />}
+        {path === "/meta-channels/facebook" && <MetaChannelWorkspace channel="facebook" />}
+        {path === "/meta-channels/whatsapp" && <MetaChannelWorkspace channel="whatsapp" />}
+        {path === "/meta-channels/messenger" && <MetaChannelWorkspace channel="messenger" />}
         
         
         
