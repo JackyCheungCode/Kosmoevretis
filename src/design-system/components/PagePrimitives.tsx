@@ -10,12 +10,13 @@ export type PageHeaderProps = {
   headingLevel?: 1 | 2;
 };
 
-export function PageHeader({ title, description, scope, actions, headingLevel = 1 }: PageHeaderProps) {
+export function PageHeader({ title, description, eyebrow, scope, actions, headingLevel = 1 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   return (
     <header className="kosmo-page-header">
       <div className="kosmo-page-header__body">
         <div className="kosmo-page-header__copy">
+          {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
           <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
           {description && <p className="kosmo-page-header__description">{description}</p>}
         </div>
