@@ -239,6 +239,7 @@
 }
 @media (max-width: 671px) {
   .kosmo-login-screen { grid-template-columns: 1fr; overflow: visible; }
+  .kosmo-visual-status { display: none; }
   .kosmo-login-visual {
     min-height: 42vh;
     min-height: 42svh;
