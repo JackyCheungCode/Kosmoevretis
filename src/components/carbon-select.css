@@ -1,14 +1,14 @@
 /* Shared styles for the project CarbonSelect control. Keep component behavior in CarbonSelect.tsx. */
 /* Carbon-native dropdowns: never expose browser-rendered select menus */
 .carbon-select{position:relative;width:100%;min-width:0}
-.carbon-select-trigger{width:100%;min-height:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.55rem .75rem;border:1px solid var(--cds-border-strong);border-radius:0;background:var(--cds-field);color:var(--cds-text-primary);font:inherit;font-size:var(--cds-body-compact-01-font-size);text-align:left;cursor:pointer}
+.carbon-select-trigger{width:100%;min-height:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:var(--kosmo-spacing-04);padding:.55rem var(--kosmo-spacing-04);border:1px solid var(--cds-border-strong);border-radius:0;background:var(--cds-field);color:var(--cds-text-primary);font:inherit;font-size:var(--cds-body-compact-01-font-size);text-align:left;cursor:pointer}
 .carbon-select-trigger:hover{background:var(--cds-field-hover)}
 .carbon-select-placeholder{color:var(--cds-text-secondary)}
 .carbon-select-chevron{font-size:var(--cds-heading-compact-01-font-size);color:var(--cds-text-secondary)}
 .carbon-select-menu{position:absolute;z-index:30;top:calc(100% + 2px);left:0;right:0;max-height:20rem;display:flex;flex-direction:column;background:var(--cds-layer-01);border:1px solid var(--cds-border-subtle)}
-.carbon-select-search{flex:none;width:100%;min-height:2.5rem;padding:.6rem .75rem;border:0;border-bottom:1px solid var(--cds-border-subtle);font:inherit;font-size:var(--cds-label-01-font-size);outline:0}
+.carbon-select-search{flex:none;width:100%;min-height:2.5rem;padding:.6rem var(--kosmo-spacing-04);border:0;border-bottom:1px solid var(--cds-border-subtle);font:inherit;font-size:var(--cds-label-01-font-size);outline:0}
 .carbon-select-options{overflow-y:auto;overscroll-behavior:contain}
-.carbon-select-option{width:100%;min-height:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.55rem .75rem;border:0;background:transparent;color:var(--cds-text-primary);font:inherit;font-size:var(--cds-label-01-font-size);text-align:left;cursor:pointer}
+.carbon-select-option{width:100%;min-height:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:var(--kosmo-spacing-03);padding:.55rem var(--kosmo-spacing-04);border:0;background:transparent;color:var(--cds-text-primary);font:inherit;font-size:var(--cds-label-01-font-size);text-align:left;cursor:pointer}
 .carbon-select-option:hover,.carbon-select-option.selected{background:var(--cds-layer-hover-01)}
 .carbon-select-option.selected{color:var(--cds-interactive);font-weight:600}
 .carbon-select-option:disabled{opacity:.45;cursor:not-allowed}
