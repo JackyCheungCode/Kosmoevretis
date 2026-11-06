@@ -8,7 +8,8 @@ import { PageSection } from "./design-system/components";
 import "./meta-content-studio.css";
 
 type Connection = { id:string; provider:string; external_asset_id:string; display_name:string; status:string };
-type Comment = { id:string; message:string; from?:{name?:string}; created_time?:string; };\ntype Post = { id:string; connection_id:string; content_text:string; link_url:string|null; status:string; external_post_id:string|null; permalink_url:string|null; published_at:string|null; created_at:string; last_error_message:string|null };
+type Comment = { id:string; message:string; from?:{name?:string}; created_time?:string; };
+type Post = { id:string; connection_id:string; content_text:string; link_url:string|null; status:string; external_post_id:string|null; permalink_url:string|null; published_at:string|null; created_at:string; last_error_message:string|null };
 const labelFor=(status:string)=>({draft:"草稿",publishing:"发布中",published:"已发布",failed:"发布失败",scheduled:"已排程",cancelled:"已取消"}[status]||status);
 const tagFor=(status:string)=>status==="published"?"green":status==="failed"?"red":status==="draft"?"blue":"cool-gray";
 
@@ -22,7 +23,12 @@ export default function MetaContentStudio(){
   const [link,setLink]=useState("");
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
-  const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);\n  const [selectedPost,setSelectedPost]=useState<Post|null>(null);\n  const [comments,setComments]=useState<Comment[]>([]);\n  const [replyText,setReplyText]=useState("");\n  const [replyingTo,setReplyingTo]=useState("");\n  const [insights,setInsights]=useState<any[]>([]);
+  const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);
+  const [selectedPost,setSelectedPost]=useState<Post|null>(null);
+  const [comments,setComments]=useState<Comment[]>([]);
+  const [replyText,setReplyText]=useState("");
+  const [replyingTo,setReplyingTo]=useState("");
+  const [insights,setInsights]=useState<any[]>([]);
   const selected=useMemo(()=>connections.find(c=>c.id===selectedConnection)||null,[connections,selectedConnection]);
   const call=useCallback(async(action:string,extra:Record<string,unknown>={})=>{
     const {data,error}=await supabase.functions.invoke("meta-operations",{body:{action,organization_id:organizationId,...extra}});
@@ -102,5 +108,7 @@ export default function MetaContentStudio(){
         </Tile>)}
       </div>}
     </PageSection>
+    {insights.length>0&&<PageSection title="主页表现" description="展示 Meta 当前授权范围内返回的日级指标。" headingLevel={3}><div className="meta-content-insights">{insights.map((item:any)=><Tile key={item.name}><strong>{item.title||item.name}</strong><span>{item.period||"day"}</span><p>{(item.values||[]).slice(-7).map((v:any)=>v.value).join(" · ")||"暂无指标值"}</p></Tile>)}</div></PageSection>}
+    {selectedPost&&<PageSection title="帖子评论管理" description={selectedPost.external_post_id||"已选择帖子"} headingLevel={3}><div className="meta-content-comments">{comments.length===0?<Tile><p>当前帖子没有可读取的评论，或 Meta 尚未授予评论读取权限。</p></Tile>:comments.map(comment=><Tile key={comment.id} className="meta-content-comment"><div><strong>{comment.from?.name||"Facebook 用户"}</strong><span>{comment.created_time?new Date(comment.created_time).toLocaleString():""}</span></div><p>{comment.message}</p><div className="meta-content-post__actions"><Button kind="ghost" size="sm" onClick={()=>setReplyingTo(comment.id)}>回复</Button><Button kind="ghost" size="sm" onClick={()=>void moderateComment(comment.id,true)}>隐藏</Button><Button kind="ghost" size="sm" onClick={()=>void moderateComment(comment.id,false)}>恢复显示</Button></div>{replyingTo===comment.id&&<div className="meta-content-comment-reply"><TextInput id={"meta-comment-reply-"+comment.id} labelText="评论回复" value={replyText} onChange={e=>setReplyText(e.target.value)}/><Button size="sm" disabled={busy||!replyText.trim()} onClick={()=>void replyComment(comment.id)}>提交回复</Button></div>}</Tile>)}</div></PageSection>}
   </ConfigurationPageTemplate>;
 }
