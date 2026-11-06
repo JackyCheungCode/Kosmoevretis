@@ -167,7 +167,7 @@
     max-width: var(--kosmo-content-max-width);
     margin-left: calc(
       var(--kosmo-shell-sidebar-width) +
-      max(0px, (100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2)
+      max(0px, calc((100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2))
     );
   }
 
