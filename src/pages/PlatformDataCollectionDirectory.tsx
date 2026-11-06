@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Button, Checkbox, Dropdown, Search, Tag } from "@carbon/react";
 import { ArrowRight, Filter, Search as SearchIcon } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
-import { PageSection } from "../design-system";
 import "./platform-data-collection-directory.css";
 
 type ChannelType = "ecommerce" | "social";
