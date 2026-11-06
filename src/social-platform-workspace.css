@@ -62,3 +62,14 @@
 @media(max-width:360px){
  .li-object-grid{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Platform picker replacement: always-visible Carbon-inspired horizontal line tabs. */
+.social-platform-workspace-shell{display:flex;flex-direction:column;gap:var(--kosmo-space-4);min-width:0}
+.platform-line-tabs{display:flex;align-items:stretch;gap:0;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--cds-border-subtle);scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.platform-line-tab{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;flex:0 0 auto;min-height:3rem;padding:0 1rem;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:transparent;color:var(--cds-text-secondary);font:inherit;font-size:.875rem;white-space:nowrap;cursor:pointer}
+.platform-line-tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
+.platform-line-tab:focus-visible{outline:2px solid var(--cds-focus);outline-offset:-2px}
+.platform-line-tab.is-selected{border-bottom-color:var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
+.platform-line-tab svg{flex:none}
+.social-platform-content{min-width:0}
+@media(max-width:671px){.platform-line-tab{min-height:2.875rem;padding:0 .875rem;font-size:.8125rem}}
