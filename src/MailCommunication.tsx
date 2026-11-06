@@ -3,6 +3,7 @@ import { supabase } from "./lib/supabase";
 import { Button, InlineNotification, Search, Tag } from "@carbon/react";
 import { Add, Archive, Document, Email, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
+import { PageHeader } from "./design-system/components";
 import "./mail-communication.css";
 
 type Folder = { id: string; label: string; icon: React.ElementType };
@@ -40,17 +41,7 @@ export default function MailCommunication() {
 
   return (
     <main className="mail-workspace" aria-label="邮件沟通工作区">
-      <header className="mail-workspace-header">
-        <div>
-          <div className="mail-eyebrow">COMMUNICATION & FOLLOW-UP</div>
-          <h2>邮件沟通</h2>
-          <p>统一管理多个邮箱账户，以 AI 辅助处理全球商务邮件。</p>
-        </div>
-        <div className="mail-header-actions">
-          <Button kind="secondary" renderIcon={Settings} onClick={() => navigate("/settings/mail")}>邮箱设置</Button>
-          <Button kind="primary" renderIcon={Add} onClick={() => setComposeOpen(true)}>写邮件</Button>
-        </div>
-      </header>
+      <PageHeader title="邮件沟通" description="统一管理多个邮箱账户，以 AI 辅助处理全球商务邮件。" actions={<div className="mail-header-actions"><Button kind="secondary" renderIcon={Settings} onClick={() => navigate("/settings/mail")}>邮箱设置</Button><Button kind="primary" renderIcon={Add} onClick={() => setComposeOpen(true)}>写邮件</Button></div>} />
 
       <InlineNotification
         kind="info"
