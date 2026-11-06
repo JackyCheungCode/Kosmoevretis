@@ -36,12 +36,15 @@ export function PageHeader({ title, description, scope, actions, headingLevel = 
   return (
     <header className="kosmo-page-header">
       <nav className="kosmo-page-header__breadcrumb" aria-label="面包屑导航">
-        {crumbs.map((crumb, index) => (
-          <span className="kosmo-page-header__breadcrumb-item" key={crumb.label + index}>
-            {index > 0 && <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>}
-            <Link to={crumb.to}>{crumb.label}</Link>
-          </span>
-        ))}
+        {crumbs.map((crumb, index) => {
+          const current = isCurrentAlreadyInGroup && index === crumbs.length - 1;
+          return (
+            <span className="kosmo-page-header__breadcrumb-item" key={crumb.label + index}>
+              {index > 0 && <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>}
+              {current ? <span aria-current="page">{crumb.label}</span> : <Link to={crumb.to}>{crumb.label}</Link>}
+            </span>
+          );
+        })}
         {!isCurrentAlreadyInGroup && (
           <span className="kosmo-page-header__breadcrumb-current" aria-current="page">
             <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>
