@@ -228,12 +228,12 @@ async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;
       for(const msg of Array.isArray(value.messages)?value.messages:[]){
         const sender=String(msg.from||"");const providerId=String(msg.id||"");if(!sender||!providerId)continue;
         const contact=(Array.isArray(value.contacts)?value.contacts:[]).find((x:any)=>String(x.wa_id||"")===sender);
-        const type=String(msg.type||"text");const text=String(msg.text?.body||msg.caption||"");
+        const type=String(msg.type||"text");const interactiveText=String(msg.interactive?.button_reply?.title||msg.interactive?.list_reply?.title||msg.button?.text||msg.location?.name||"");const text=String(msg.text?.body||msg.caption||interactiveText||"");
         const media=msg[type]&&typeof msg[type]==="object"?[{type,id:msg[type].id||null,mime_type:msg[type].mime_type||null,filename:msg[type].filename||null,caption:msg[type].caption||null}]:[];
         const received=webhookTime(msg.timestamp);
         const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"whatsapp_business",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:contact?.profile?.name||sender,phone:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
         if(conversationError||!conversation)throw conversationError||new Error("Unable to create WhatsApp conversation");
-        const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:providerId,direction:"inbound",sender_external_id:sender,body_text:text||("[WhatsApp "+type+" message]"),attachment_metadata:media,delivery_status:"received",provider_metadata:{type,context:msg.context||null},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
+        const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:providerId,direction:"inbound",sender_external_id:sender,body_text:text||("[WhatsApp "+type+" message]"),attachment_metadata:media,delivery_status:"received",provider_metadata:{type,context:msg.context||null,interactive:msg.interactive||null},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
         if(messageError)throw messageError;
       }
       for(const status of Array.isArray(value.statuses)?value.statuses:[]){
@@ -244,14 +244,14 @@ async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;
   }
   if(object==="page"&&connection.provider==="messenger"){
     for(const event of Array.isArray(entry.messaging)?entry.messaging:[]){
-      const sender=String(event?.sender?.id||"");const recipient=String(event?.recipient?.id||"");const page=String(event?.recipient?.id||entry.id||"");const message=event?.message||{};
+      const sender=String(event?.sender?.id||"");const recipient=String(event?.recipient?.id||"");const page=String(event?.recipient?.id||entry.id||"");const message=event?.message||{};const postback=event?.postback||null;
       if(Array.isArray(event?.delivery?.mids)){for(const mid of event.delivery.mids)await admin.from("crm_channel_messages").update({delivery_status:"delivered",provider_metadata:{messenger_delivery:event.delivery}}).eq("connection_id",connectionId).eq("provider_message_id",String(mid));continue;}
       if(event?.read?.watermark&&recipient){const {data:readConversation}=await admin.from("crm_channel_conversations").select("id").eq("connection_id",connectionId).eq("external_conversation_id",recipient).maybeSingle();if(readConversation)await admin.from("crm_channel_messages").update({delivery_status:"read",provider_metadata:{messenger_read:event.read}}).eq("connection_id",connectionId).eq("conversation_id",readConversation.id).eq("direction","outbound").lte("created_at",webhookTime(event.read.watermark));continue;}
-      if(!sender||!message.mid||message.is_echo)continue;
+      const messageId=String(message.mid||(postback?"postback:"+String(event.timestamp||"")+":"+sender+":"+String(postback.payload||postback.title||""):""));if(!sender||!messageId||message.is_echo)continue;
       const received=webhookTime(event.timestamp);const attachments=Array.isArray(message.attachments)?message.attachments:[];
       const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"messenger",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
       if(conversationError||!conversation)throw conversationError||new Error("Unable to create Messenger conversation");
-      const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:String(message.mid),direction:"inbound",sender_external_id:sender,body_text:String(message.text|| (attachments.length?"[Messenger attachment]":"")),attachment_metadata:attachments,delivery_status:"received",provider_metadata:{page_id:page,quick_reply:message.quick_reply||null},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
+      const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:messageId,direction:"inbound",sender_external_id:sender,body_text:String(message.text||message.quick_reply?.payload||(postback?"[按钮点击] "+String(postback.title||postback.payload||""):(attachments.length?"[Messenger attachment]":"[Messenger event]"))),attachment_metadata:attachments,delivery_status:"received",provider_metadata:{page_id:page,quick_reply:message.quick_reply||null,postback},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
       if(messageError)throw messageError;
     }
   }
