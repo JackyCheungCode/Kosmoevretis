@@ -165,6 +165,9 @@ function inspect(relative, source) {
       violations.push(relative + ": tab semantics must come from Carbon Tabs components, not hand-built tab roles.");
     }
   }
+  if (relative === "src/trade-access.css" && /\.cds--/.test(source)) {
+    violations.push(relative + ": use Carbon component defaults and scoped application classes instead of internal Carbon selectors.");
+  }
   if (relative.endsWith(".css")) {
     if (/var\(--kosmo-space-\d+\)/.test(source)) violations.push(relative + ": migrate legacy --kosmo-space-* aliases to canonical --kosmo-spacing-* tokens.");
     if (/(?:\d+var|\.var)\(--kosmo-spacing-\d+\)/.test(source)) violations.push(relative + ": malformed Carbon spacing expression detected.");
