@@ -244,7 +244,9 @@ async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;
   }
   if(object==="page"&&connection.provider==="messenger"){
     for(const event of Array.isArray(entry.messaging)?entry.messaging:[]){
-      const sender=String(event?.sender?.id||"");const page=String(event?.recipient?.id||entry.id||"");const message=event?.message||{};
+      const sender=String(event?.sender?.id||"");const recipient=String(event?.recipient?.id||"");const page=String(event?.recipient?.id||entry.id||"");const message=event?.message||{};
+      if(Array.isArray(event?.delivery?.mids)){for(const mid of event.delivery.mids)await admin.from("crm_channel_messages").update({delivery_status:"delivered",provider_metadata:{messenger_delivery:event.delivery}}).eq("connection_id",connectionId).eq("provider_message_id",String(mid));continue;}
+      if(event?.read?.watermark&&recipient){const {data:readConversation}=await admin.from("crm_channel_conversations").select("id").eq("connection_id",connectionId).eq("external_conversation_id",recipient).maybeSingle();if(readConversation)await admin.from("crm_channel_messages").update({delivery_status:"read",provider_metadata:{messenger_read:event.read}}).eq("connection_id",connectionId).eq("conversation_id",readConversation.id).eq("direction","outbound").lte("created_at",webhookTime(event.read.watermark));continue;}
       if(!sender||!message.mid||message.is_echo)continue;
       const received=webhookTime(event.timestamp);const attachments=Array.isArray(message.attachments)?message.attachments:[];
       const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"messenger",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
