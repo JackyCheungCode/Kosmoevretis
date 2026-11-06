@@ -9,8 +9,6 @@ type RuntimeEnv = {
   SUPABASE_SERVICE_ROLE_KEY: string;
   SETTINGS_ENCRYPTION_KEY: string;
   APP_ORIGIN: string;
-  SETTINGS_ENCRYPTION_KEY: string;
-  APP_ORIGIN: string;
 };
 const encoder = new TextEncoder();
 const json = (body: unknown, status = 200, headers: Record<string,string> = {}) =>
