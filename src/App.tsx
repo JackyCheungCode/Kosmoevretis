@@ -26,10 +26,8 @@ import {
   Settings,
   Logout,
   DataBase,
-  ShoppingCart,
   Search as SearchIcon,
   Email,
-  Forum,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -41,6 +39,7 @@ import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
 import PlatformDataCollection from "./pages/PlatformDataCollection";
+import PlatformDataCollectionDirectory from "./pages/PlatformDataCollectionDirectory";
 import EcommerceDiscovery, { type EcommercePlatform } from "./pages/EcommerceDiscovery";
 import SeoAnalysis from "./pages/SeoAnalysis";
 import GoogleMapsDiscovery from "./GoogleMapsDiscovery";
@@ -53,7 +52,7 @@ import GlobalPageIllustration from "./components/GlobalPageIllustration";
 type Viewport = "desktop" | "tablet" | "mobile";
 
 const validPaths = new Set([
-  "/intelligence", "/trade-access", "/social-discovery", "/social-discovery/facebook",
+  "/intelligence", "/trade-access", "/platform-data-collection", "/social-discovery", "/social-discovery/facebook",
   "/social-discovery/instagram", "/social-discovery/linkedin", "/social-discovery/google-maps",
   "/social-discovery/x", "/social-discovery/reddit", "/social-discovery/pinterest",
   "/social-discovery/tiktok", "/social-discovery/youtube",
@@ -340,8 +339,7 @@ function AppShell() {
     { id: "products", label: "产品中心", href: "/products", icon: Product, active: path === "/products" },
     { id: "intelligence", label: "全球情报中心", href: "/intelligence", icon: Dashboard, active: path === "/intelligence" },
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
-    { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
-    { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
+    { id: "platform-data-collection", label: "平台数据采集", href: "/platform-data-collection", icon: DataBase, active: path === "/platform-data-collection" },
     { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
     { id: "mail", label: "邮件沟通", href: "/communication/mail", icon: Email, active: isMailWorkspace },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
@@ -403,7 +401,7 @@ function AppShell() {
           <Link to="/intelligence" aria-current={path === "/intelligence" ? "page" : undefined}>全球情报</Link>
           <Link to="/products" aria-current={path === "/products" ? "page" : undefined}>产品中心</Link>
           <Link to="/social-discovery" aria-current={path.startsWith("/social-discovery") ? "page" : undefined}>客户发现</Link>
-          <Link to="/ecommerce-discovery/amazon" aria-current={path.startsWith("/ecommerce-discovery") ? "page" : undefined}>电商数据</Link>
+          <Link to="/platform-data-collection" aria-current={path === "/platform-data-collection" ? "page" : undefined}>平台采集</Link>
           <Link to="/settings/providers" aria-current={isSettings ? "page" : undefined}>设置</Link>
         </nav>
         <div className="kosmo-account-menu" ref={accountMenuRef}>
@@ -466,16 +464,15 @@ function AppShell() {
               </SideNavMenu>
               <SideNavMenu title="平台数据采集" defaultExpanded renderIcon={DataBase}>
                 {renderMenuItem(navItems[3])}
-                {renderMenuItem(navItems[4])}
               </SideNavMenu>
               <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
-                {renderMenuItem(navItems[5])}
+                {renderMenuItem(navItems[4])}
               </SideNavMenu>
               <SideNavMenu title="沟通与跟进" defaultExpanded renderIcon={Email}>
-                {renderMenuItem(navItems[6])}
+                {renderMenuItem(navItems[5])}
               </SideNavMenu>
               <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
-                {renderMenuItem(navItems[7])}
+                {renderMenuItem(navItems[6])}
               </SideNavMenu>
             </>
           )}
@@ -491,6 +488,7 @@ function AppShell() {
         {path === "/intelligence" && <GlobalIntelligence />}
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
+        {path === "/platform-data-collection" && <PlatformDataCollectionDirectory />}
         {path === "/seo-analysis" && <SeoAnalysis />}
         {isMailWorkspace && <MailCommunication />}
         
