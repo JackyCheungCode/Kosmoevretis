@@ -1,7 +1,7 @@
 /* Settings center — Carbon v11 composition using Kosmoevretis tokens */
 .settings-center{width:100%;max-width:none;min-width:0;overflow:visible}
 .settings-center .kosmo-template__configuration-layout{grid-template-columns:minmax(13rem,15rem) minmax(0,1fr);gap:var(--kosmo-spacing-06)}
-.settings-center .kosmo-page-header{margin-bottom:var(--kosmo-spacing-06)}
+
 .settings-center .settings-selected-section{min-width:0}
 .settings-navigation-shell{position:relative;min-width:0}
 .settings-local-nav{position:sticky;top:var(--kosmo-spacing-05);display:flex;flex-direction:column;gap:var(--kosmo-spacing-04);max-height:calc(100dvh - 2rem);overflow-y:auto;min-width:0;padding:var(--kosmo-spacing-04);background:var(--kosmo-color-layer)}

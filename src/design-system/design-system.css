@@ -36,33 +36,44 @@
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
 .ig-results-tabs { min-width:0; }
 
-/* Shared Carbon page heading: one implementation for every route using PageHeader. */
+/* Shared Carbon page heading: every business page uses this exact visual contract. */
 .page-header-section,
 .kosmo-page-header {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
+  margin: 0 0 var(--kosmo-spacing-07);
   padding: 0;
-  margin: 0;
-  background: transparent;
   border: 0;
+  background: transparent;
   color: var(--cds-text-primary);
   font-family: var(--cds-font-family-sans);
 }
+
+/* Templates already create a 24px vertical rhythm; add 8px here for a 32px total. */
+.kosmo-template > .kosmo-page-header {
+  margin-bottom: var(--kosmo-spacing-03);
+}
+
 .kosmo-page-header__body {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--kosmo-spacing-06);
   min-width: 0;
 }
-.kosmo-page-header__copy { min-width: 0; }
+.kosmo-page-header__copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .kosmo-page-header__eyebrow {
-  margin:0 0 var(--kosmo-spacing-02);
-  color:var(--cds-text-secondary);
-  font-size:var(--cds-label-01-font-size);
-  font-weight:600;
-  line-height:var(--cds-label-01-line-height);
+  margin: 0 0 var(--kosmo-spacing-02);
+  color: var(--cds-text-secondary);
+  font-size: var(--cds-label-01-font-size);
+  font-weight: 600;
+  line-height: var(--cds-label-01-line-height);
+  letter-spacing: 0;
 }
 .kosmo-page-header__title {
   max-width: 28ch;
@@ -73,10 +84,11 @@
   font-weight: 600;
   line-height: var(--kosmo-type-page-title-line-height);
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 .kosmo-page-header__description {
   max-width: 68ch;
-  margin: var(--kosmo-spacing-03) 0 0;
+  margin: var(--kosmo-spacing-02) 0 0;
   color: var(--cds-text-secondary);
   font-family: var(--cds-font-family-sans);
   font-size: var(--cds-body-01-font-size);
@@ -85,7 +97,8 @@
 }
 .kosmo-page-header__meta {
   display: flex;
-  align-items: flex-start;
+  flex: 0 0 auto;
+  align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: var(--kosmo-spacing-04);
@@ -93,6 +106,7 @@
 .kosmo-page-header__actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: var(--kosmo-spacing-04);
 }
@@ -104,24 +118,31 @@
   color: var(--cds-text-secondary);
   background: var(--cds-background);
   font-size: var(--cds-helper-text-01-font-size);
+  line-height: var(--cds-helper-text-01-line-height);
 }
 @media (max-width: 671px) {
+  .page-header-section,
+  .kosmo-page-header {
+    margin-bottom: var(--kosmo-spacing-06);
+  }
+  .kosmo-template > .kosmo-page-header {
+    margin-bottom: 0;
+  }
   .kosmo-page-header__body {
     align-items: flex-start;
     flex-direction: column;
-    gap: var(--kosmo-spacing-05);
+    gap: var(--kosmo-spacing-04);
   }
   .kosmo-page-header__title {
     max-width: none;
-    font-size: var(--kosmo-type-page-title);
-    line-height: var(--kosmo-type-page-title-line-height);
+    font-size: var(--kosmo-type-page-title-mobile);
+    line-height: var(--kosmo-type-page-title-mobile-line-height);
   }
   .kosmo-page-header__description {
-    margin-top: var(--kosmo-spacing-03);
-    font-size: var(--cds-body-01-font-size);
-    line-height: var(--cds-body-01-line-height);
+    margin-top: var(--kosmo-spacing-02);
   }
-  .kosmo-page-header__meta {
+  .kosmo-page-header__meta,
+  .kosmo-page-header__actions {
     justify-content: flex-start;
     width: 100%;
   }
