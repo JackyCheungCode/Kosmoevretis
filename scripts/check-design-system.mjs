@@ -20,6 +20,11 @@ const explicitFiles = [
   ["src/components/carbon-select.css", new URL("../src/components/carbon-select.css", import.meta.url)],
   ["src/mail-communication.css", new URL("../src/mail-communication.css", import.meta.url)],
   ["src/social-platform-workspace.css", new URL("../src/social-platform-workspace.css", import.meta.url)],
+  ["src/design-system-preview.css", new URL("../src/design-system-preview.css", import.meta.url)],
+  ["src/design-system/components/CollectionModeGrid.css", new URL("../src/design-system/components/CollectionModeGrid.css", import.meta.url)],
+  ["src/design-system/design-system.css", new URL("../src/design-system/design-system.css", import.meta.url)],
+  ["src/mail-settings.css", new URL("../src/mail-settings.css", import.meta.url)],
+  ["src/responsive-audit.css", new URL("../src/responsive-audit.css", import.meta.url)],
 ];
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
