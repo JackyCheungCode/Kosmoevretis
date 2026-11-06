@@ -257,7 +257,7 @@ async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;
   }
   if(object==="page"&&connection.provider==="facebook_pages"){
     for(const change of Array.isArray(entry.changes)?entry.changes:[]){
-      const value=change?.value||{};if(String(value.item||"")!=="comment"||!value.comment_id||!value.post_id)continue;
+      const value=change?.value||{};if(String(value.item||"")==="post"&&String(value.verb||"")==="add"){const externalPostId=String(value.post_id||value.id||"");if(externalPostId)await admin.from("crm_channel_posts").update({status:"published",published_at:webhookTime(value.created_time),provider_response:{webhook:value},updated_at:new Date().toISOString()}).eq("connection_id",connectionId).eq("external_post_id",externalPostId);continue;}if(String(value.item||"")!=="comment"||!value.comment_id||!value.post_id)continue;
       await admin.from("crm_channel_post_comments").upsert({organization_id:org,connection_id:connectionId,external_post_id:String(value.post_id),external_comment_id:String(value.comment_id),author_external_id:value.from?.id||null,author_name:value.from?.name||null,message_text:String(value.message||""),provider_created_at:webhookTime(value.created_time),provider_metadata:value},{onConflict:"connection_id,external_comment_id"});
     }
   }
