@@ -32,9 +32,8 @@
 .kosmo-template__results .kosmo-template__content { gap:0; }
 .kosmo-template__results .kosmo-page-section { min-width:0; }
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
-.ig-results-tabs { min-width:0; }
-@media(max-width:671px) {
- .kosmo-page-header {
+ .ig-results-tabs { min-width:0; }
+.kosmo-page-header {
   display: block;
   width: 100%;
   min-width: 0;
@@ -112,6 +111,7 @@
     justify-content: flex-start;
     width: 100%;
   }
+  .kosmo-template__results { padding: var(--kosmo-spacing-04); }
 }
 
 /* Shared brand logo tile; geometry is owned by semantic component tokens. */
