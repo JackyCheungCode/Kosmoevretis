@@ -2,7 +2,7 @@
 .social-platform-workspace-shell {
   display: flex;
   flex-direction: column;
-  gap: var(--kosmo-space-4);
+  gap: var(--kosmo-spacing-05);
   width: 100%;
   min-width: 0;
 }
