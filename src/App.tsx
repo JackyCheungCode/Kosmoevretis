@@ -237,7 +237,7 @@ function RouteBreadcrumbs({ path }: { path: string }) {
     items.push({ label: "电商平台发现", to: "/ecommerce-discovery" });
     items.push({ label: ecommerceLabels[platform] || "平台数据" });
   } else {
-    items.push({ label: routeLabels[path] || "工作区" });
+    items.push({ label: routeLabels[path] || "页面" });
   }
   return <nav className="kosmo-breadcrumb" aria-label="面包屑导航"><ol>
     {items.map((item, index) => <li key={item.label + index}>
