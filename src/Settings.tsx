@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle, Tabs, TabList, Tab } from "@carbon/react";
+import { useLocation } from "react-router-dom";
+import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
 import { Activity, Ai, Building, Document, DataBase, Earth, Email, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
 import SettingsBackend from "./SettingsBackend";
 import MailSettings from "./MailSettings";
@@ -10,12 +10,6 @@ import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
 
 type Item = { name: string; description: string; status?: string; statusType?: "green"|"blue"|"gray"|"warm-gray"|"red"; domain?: string; mark?: string; meta?: string };
-const navGroups = [
- { title:"API 与数据源", items:[["providers","服务商连接","plug"],["actors","采集能力目录","workflow"],["channels","数据渠道","database"],["runs","运行记录","activity"]] },
- { title:"AI 与模型", items:[["ai-providers","AI 服务商","brain"],["models","模型目录","boxes"],["routes","任务路由","route"],["prompts","提示词与成本","document"]] },
- { title:"系统管理", items:[["organization","组织与企业资料","building"],["members","用户与权限","users"],["locale","地区与语言","globe"],["notifications","通知策略","bell"],["mail","邮箱账户与邮件","mail"],["design-system","设计系统","document"]] },
- { title:"平台治理", items:[["governance","数据治理","shield"],["audit","安全与审计","clipboard"]] }
-] as const;
 const actorItems = [
  {name:"Google Trends",channel:"搜索与趋势",use:"搜索趋势、全球情报"},
  {name:"Amazon 商品采集",channel:"全球电商",use:"热销榜、竞品分析"},
@@ -33,7 +27,6 @@ const taskGroups = [
  {title:"市场与竞争情报",tasks:[["全球市场趋势","趋势归纳、市场机会与风险分析"],["竞品分析","品牌、型号、价格与产品对比"],["社交内容分析","内容理解、话题与消费者情绪"]]},
  {title:"客户发现与语言服务",tasks:[["客户发现","客户匹配、线索分类与评分"],["翻译与本地化","多语言翻译与市场表达适配"],["向量检索","Embedding 与语义检索"]]}
 ];
-const navIconMap = { plug: Plug, workflow: WorkflowAutomation, database: DataBase, activity: Activity, brain: Ai, boxes: Model, route: Flow, document: Document, building: Building, users: UserMultiple, globe: Earth, bell: Notification, shield: Security, clipboard: Document, mail: Email } as const;
 function Group({title,description,children}:{title:string;description:string;children:React.ReactNode}){return <section className="settings-catalog-group"><div className="settings-catalog-group-heading"><div><h4>{title}</h4><p>{description}</p></div></div><div className="settings-catalog-items">{children}</div></section>}
 function Resource({item,action}:{item:Item;action?:React.ReactNode}){return <Tile className="settings-catalog-item"><div className="settings-catalog-item-head"><div className="settings-catalog-identity">{item.domain||item.mark?<BrandLogo name={item.name} domain={item.domain} mark={item.mark}/>:<DataBase size={20} aria-label="资源"/>}<div className="settings-catalog-name"><strong>{item.name}</strong>{item.meta&&<span>{item.meta}</span>}</div></div>{item.status&&<Tag type={item.statusType||"gray"}>{item.status}</Tag>}</div><p className="settings-catalog-description">{item.description}</p>{action&&<div className="settings-catalog-actions">{action}</div>}</Tile>}
 function Pending({children="对应服务端接口尚未接入；当前不会伪造配置状态或运行数据。"}:{children?:string}){return <InlineNotification kind="info" lowContrast title="接口尚未接入" subtitle={children} hideCloseButton/>}
@@ -72,24 +65,9 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
 };
 export default function Settings(){
  const location=useLocation();
- const navigate=useNavigate();
  const active=location.pathname.split("/")[2]||"providers";
- const [search,setSearch]=useState("");
  const [notice,setNotice]=useState<string|null>(null);
  const selected=pageMeta[active]||pageMeta.providers;
- const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
- const navigation=<div className="settings-navigation-shell settings-tabs-shell">
-  <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
-  {(() => {
-    const items=filtered.flatMap(group=>group.items);
-    const selectedIndex=Math.max(0,items.findIndex(([id])=>id===active));
-    return <Tabs selectedIndex={selectedIndex} onChange={({selectedIndex:next})=>{const item=items[next];if(item)navigate("/settings/"+item[0]);}}>
-      <TabList id="settings-nav-panel" className="settings-line-tabs" aria-label="设置分类">
-       {items.map(([id,label,icon])=>{const Icon=navIconMap[icon];return <Tab key={id} className="settings-line-tab"><Icon size={18} aria-hidden="true"/><span>{label}</span></Tab>;})}
-      </TabList>
-    </Tabs>;
-  })()}
- </div>;
  const body=()=>{switch(active){
   case"providers":return <SettingsBackend/>;
   case"actors":return <Actors/>;
@@ -109,7 +87,6 @@ export default function Settings(){
   description="统一管理数据源连接、采集能力、AI 服务与平台治理配置。"
   eyebrow="平台管理"
   headingLevel={1}
-  navigation={navigation}
  >
   <PageSection title={selected.title} description={selected.desc} className="settings-selected-section" headingLevel={3}>
    {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
