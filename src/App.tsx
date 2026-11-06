@@ -323,7 +323,7 @@ function AppShell() {
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "platform-data-collection", label: "平台数据采集", href: "/platform-data-collection", icon: DataBase, active: path === "/platform-data-collection" },
     { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
-    { id: "mail", label: "邮箱", href: "/communication/mail", icon: Email, active: isMailWorkspace },
+    { id: "mail", label: "邮箱工作台", href: "/communication/mail", icon: Email, active: isMailWorkspace },
     { id: "settings-providers", label: "服务商连接", href: "/settings/providers", icon: Settings, active: path === "/settings/providers" },
     { id: "settings-actors", label: "采集能力目录", href: "/settings/actors", icon: Settings, active: path === "/settings/actors" },
     { id: "settings-channels", label: "数据渠道", href: "/settings/channels", icon: Settings, active: path === "/settings/channels" },
@@ -345,7 +345,7 @@ function AppShell() {
     { id: "workspace", label: "业务工作区", items: ["products", "intelligence", "trade", "seo-analysis"] },
     { id: "data", label: "数据与采集", items: ["platform-data-collection", "settings-providers", "settings-actors", "settings-channels", "settings-runs"] },
     { id: "ai", label: "AI 与模型", items: ["settings-ai-providers", "settings-models", "settings-routes", "settings-prompts"] },
-    { id: "communication", label: "沟通中心", items: ["mail"] },
+    { id: "mailbox", label: "邮箱", items: ["mail"] },
     { id: "admin", label: "系统管理", items: ["settings-organization", "settings-members", "settings-locale", "settings-notifications", "settings-mail", "settings-governance", "settings-audit", "settings-design-system"] },
   ];
 
