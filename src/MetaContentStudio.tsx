@@ -82,7 +82,7 @@ export default function MetaContentStudio(){
       {connections.length>0?<div className="meta-content-toolbar">
         <Dropdown id="meta-content-page" titleText="Facebook Page" label="选择主页" items={connectionItems} itemToString={(item)=>item?.text||""} selectedItem={connectionItems.find(i=>i.id===selectedConnection)||null} onChange={({selectedItem})=>setSelectedConnection(selectedItem?.id||"")}/>
         <Button kind="tertiary" renderIcon={Renew} disabled={busy||!selectedConnection} onClick={()=>void run("sync_posts",{connection_id:selectedConnection},"帖子同步完成")}>同步主页帖子</Button><Button kind="ghost" disabled={busy||!selectedConnection} onClick={()=>void loadInsights()}>查看主页数据</Button>
-      </div>:<InlineNotification kind="warning" lowContrast title="尚未连接 Facebook Page" subtitle="先在「Meta 渠道管理 → Facebook Pages」完成应用配置、授权和 Page 资产选择。"} />}
+      </div>:<InlineNotification kind="warning" lowContrast title="尚未连接 Facebook Page" subtitle="先在「Meta 渠道管理 → Facebook Pages」完成应用配置、授权和 Page 资产选择。"/>}
     </PageSection>
     <PageSection title="创建帖子" description="先保存草稿，再由有权限的组织管理员执行发布。请确保素材 URL 可被 Meta 服务器公开访问。" headingLevel={3}>
       <div className="meta-content-compose">
