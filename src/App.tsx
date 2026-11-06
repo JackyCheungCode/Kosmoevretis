@@ -25,7 +25,7 @@ import {
   Email,
   Forum,
 } from "@carbon/icons-react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import TradeAccessPage from "./TradeAccessPage";
@@ -187,6 +187,63 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
       <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
     </div>
   );
+}
+
+
+const routeLabels: Record<string, string> = {
+  "/intelligence": "全球情报中心", "/trade-access": "贸易与市场准入",
+  "/products": "产品中心", "/seo-analysis": "独立站智能诊断",
+  "/communication/mail": "邮件沟通", "/social-discovery": "社媒平台发现",
+  "/ecommerce-discovery": "电商平台发现",
+  "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
+  "/settings/channels": "数据渠道", "/settings/runs": "运行记录",
+  "/settings/ai-providers": "AI 服务商", "/settings/models": "模型目录",
+  "/settings/routes": "任务路由", "/settings/prompts": "提示词与成本",
+  "/settings/organization": "组织与企业资料", "/settings/members": "用户与权限",
+  "/settings/locale": "地区与语言", "/settings/notifications": "通知策略",
+  "/settings/governance": "数据治理", "/settings/audit": "安全与审计",
+  "/settings/design-system": "设计系统", "/settings/mail": "邮件设置",
+};
+const socialLabels: Record<string, string> = {
+  facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn",
+  "google-maps": "Google Maps", x: "X", reddit: "Reddit",
+  pinterest: "Pinterest", tiktok: "TikTok", youtube: "YouTube",
+};
+const ecommerceLabels: Record<string, string> = {
+  amazon: "Amazon", walmart: "Walmart", ebay: "eBay", aliexpress: "AliExpress",
+  temu: "Temu", etsy: "Etsy", shopify: "Shopify",
+  "mercado-libre": "Mercado Libre", rakuten: "Rakuten",
+};
+function RouteBreadcrumbs({ path }: { path: string }) {
+  const items: { label: string; to?: string }[] = [];
+  if (path !== "/intelligence") items.push({ label: "首页", to: "/intelligence" });
+  if (path.startsWith("/settings/")) {
+    items.push({ label: "系统设置", to: "/settings/providers" });
+    items.push({ label: routeLabels[path] || "设置项目" });
+  } else if (path.startsWith("/social-discovery/")) {
+    const platform = path.split("/")[2];
+    items.push({ label: "社媒平台发现", to: "/social-discovery" });
+    items.push({ label: socialLabels[platform] || "平台数据" });
+  } else if (path.startsWith("/leads/")) {
+    const platform = path.split("/")[2];
+    items.push({ label: "社媒平台发现", to: "/social-discovery" });
+    items.push({ label: (socialLabels[platform] || "平台") + "客户发现" });
+  } else if (path.startsWith("/platform-data/")) {
+    const platform = path.split("/")[2];
+    items.push({ label: "社媒平台发现", to: "/social-discovery" });
+    items.push({ label: (socialLabels[platform] || "平台") + "数据采集" });
+  } else if (path.startsWith("/ecommerce-discovery/")) {
+    const platform = path.split("/")[2];
+    items.push({ label: "电商平台发现", to: "/ecommerce-discovery" });
+    items.push({ label: ecommerceLabels[platform] || "平台数据" });
+  } else {
+    items.push({ label: routeLabels[path] || "工作区" });
+  }
+  return <nav className="kosmo-breadcrumb" aria-label="面包屑导航"><ol>
+    {items.map((item, index) => <li key={item.label + index}>
+      {item.to ? <Link to={item.to}>{item.label}</Link> : <span aria-current="page">{item.label}</span>}
+    </li>)}
+  </ol></nav>;
 }
 
 function AppShell() {
@@ -409,6 +466,7 @@ function AppShell() {
       <Content id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         <Grid fullWidth className="kosmo-content-grid">
           <Column sm={4} md={8} lg={16}>
+        <RouteBreadcrumbs path={path} />
         <GlobalPageIllustration path={path} />
 
         {path === "/intelligence" && <GlobalIntelligence />}
