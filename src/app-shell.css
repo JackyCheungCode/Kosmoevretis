@@ -329,3 +329,104 @@
   outline: 2px solid var(--cds-focus);
   outline-offset: -2px;
 }
+
+/* Route-aware editorial illustration band: one lightweight SVG scene per workspace family. */
+.kosmo-illustration {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 9.25rem;
+  margin: 0 0 1.25rem;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 76% 50%, rgba(120, 169, 255, .16), transparent 48%),
+    linear-gradient(105deg, rgba(237, 245, 255, .88), rgba(237, 245, 255, .18) 58%, rgba(8, 189, 186, .035));
+}
+.kosmo-illustration::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(255,255,255,.4), transparent 52%);
+  content: "";
+}
+.kosmo-illustration__label {
+  position: relative;
+  z-index: 1;
+  padding-left: clamp(1rem, 3vw, 2.5rem);
+  color: #525252;
+  font-size: .6875rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  line-height: 1.4;
+}
+.kosmo-illustration__art {
+  position: absolute;
+  top: 50%;
+  right: clamp(-1rem, 2vw, 1.5rem);
+  width: min(70%, 49rem);
+  height: 100%;
+  min-height: 9.25rem;
+  transform: translateY(-50%);
+  overflow: visible;
+}
+.kosmo-illustration__grid { opacity: .2; }
+.kosmo-illustration__orbit {
+  transform-origin: 540px 88px;
+  animation: kosmo-orbit-drift 28s linear infinite;
+}
+.kosmo-illustration__halo {
+  transform-origin: 540px 88px;
+  animation: kosmo-halo-breathe 7s ease-in-out infinite;
+}
+.kosmo-illustration__object {
+  transform-origin: 540px 88px;
+  animation: kosmo-object-float 8s ease-in-out infinite;
+}
+.kosmo-illustration__particles circle {
+  animation: kosmo-particle-pulse 4.5s ease-in-out infinite alternate;
+}
+.kosmo-illustration__particles circle:nth-child(2) { animation-delay: -1.4s; }
+.kosmo-illustration__particles circle:nth-child(3) { animation-delay: -2.7s; }
+.kosmo-illustration__particles circle:nth-child(4) { animation-delay: -3.6s; }
+.kosmo-illustration__signal {
+  opacity: .7;
+  animation: kosmo-signal-flow 12s linear infinite;
+}
+.kosmo-illustration--products .kosmo-illustration__object,
+.kosmo-illustration--commerce .kosmo-illustration__object { animation-duration: 9s; }
+.kosmo-illustration--social .kosmo-illustration__orbit { animation-duration: 34s; }
+.kosmo-illustration--settings .kosmo-illustration__object { animation-duration: 12s; }
+@keyframes kosmo-orbit-drift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes kosmo-halo-breathe {
+  0%, 100% { opacity: .55; transform: scale(.94); }
+  50% { opacity: .95; transform: scale(1.08); }
+}
+@keyframes kosmo-object-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes kosmo-particle-pulse {
+  from { opacity: .25; transform: scale(.75); }
+  to { opacity: .95; transform: scale(1.25); }
+}
+@keyframes kosmo-signal-flow {
+  to { stroke-dashoffset: -104; }
+}
+@media (max-width: 671px) {
+  .kosmo-illustration { min-height: 6.5rem; margin-bottom: 1rem; }
+  .kosmo-illustration__art { right: -2.5rem; width: 88%; min-height: 7rem; opacity: .88; }
+  .kosmo-illustration__label { max-width: 8rem; padding-left: .75rem; font-size: .5625rem; letter-spacing: .12em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kosmo-illustration *,
+  .kosmo-illustration *::before,
+  .kosmo-illustration *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
