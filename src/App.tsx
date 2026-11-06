@@ -446,17 +446,12 @@ function AppShell() {
                       <li className={"kosmo-nav-group-label" + (groupIndex === 0 ? " kosmo-nav-group-label--first" : "")}>
                         <button type="button" className="kosmo-nav-group-toggle"
                           aria-expanded={expandedNavGroup === group.id}
-                          aria-controls={"kosmo-nav-group-" + group.id}
                           onClick={() => setExpandedNavGroup((current) => current === group.id ? null : group.id)}>
                           <span>{group.label}</span>
                           <ChevronDown size={16} className={"kosmo-nav-group-chevron" + (expandedNavGroup === group.id ? " kosmo-nav-group-chevron--expanded" : "")} aria-hidden="true" />
                         </button>
                       </li>
-                      {expandedNavGroup === group.id && (
-                        <li id={"kosmo-nav-group-" + group.id} className="kosmo-nav-group-items" role="presentation">
-                          {navItems.filter((item) => group.items.includes(item.id)).map(renderRailLink)}
-                        </li>
-                      )}
+                      {expandedNavGroup === group.id && navItems.filter((item) => group.items.includes(item.id)).map(renderRailLink)}
                     </React.Fragment>
                   ))}
                 </SideNavItems>
