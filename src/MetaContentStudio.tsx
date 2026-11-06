@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Dropdown, InlineNotification, Tag, TextArea, TextInput, Tile } from "@carbon/react";
 import { Add, Checkmark, CloudUpload, Renew, TrashCan } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
@@ -29,7 +29,6 @@ export default function MetaContentStudio(){
   const [replyText,setReplyText]=useState("");
   const [replyingTo,setReplyingTo]=useState("");
   const [insights,setInsights]=useState<any[]>([]);
-  const selected=useMemo(()=>connections.find(c=>c.id===selectedConnection)||null,[connections,selectedConnection]);
   const call=useCallback(async(action:string,extra:Record<string,unknown>={})=>{
     const {data,error}=await supabase.functions.invoke("meta-operations",{body:{action,organization_id:organizationId,...extra}});
     if(error||data?.error)throw new Error(error?.message||data?.error||"操作失败");
