@@ -24,14 +24,14 @@ function breadcrumbGroup(path: string) {
   if (path === "/seo-analysis") return [{ label: "独立站运维", to: "/seo-analysis" }];
   if (path === "/communication/mail") return [{ label: "沟通与跟进", to: "/communication/mail" }];
   if (path.startsWith("/settings/")) return [{ label: "系统设置", to: "/settings/providers" }];
-  return [{ label: "工作空间", to: "/intelligence" }];
+  return [];
 }
 
 export function PageHeader({ title, description, scope, actions, headingLevel = 1 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   const { pathname } = useLocation();
   const group = breadcrumbGroup(pathname.replace(/\/$/, "") || "/");
-  const crumbs = [{ label: "Kosmoevretis", to: "/intelligence" }, ...group];
+  const crumbs = group;
   const isCurrentAlreadyInGroup = group.length > 0 && group[group.length - 1].label === title;
   return (
     <header className="kosmo-page-header">
