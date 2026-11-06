@@ -43,7 +43,7 @@ export default function CarbonSelect({
     return (
       <ComboBox
         id={controlId}
-        className={className}
+        className={"carbon-select " + className}
         items={options}
         itemToString={itemToString}
         selectedItem={selectedItem}
@@ -59,7 +59,7 @@ export default function CarbonSelect({
   return (
     <Dropdown
       id={controlId}
-      className={className}
+      className={"carbon-select " + className}
       items={options}
       itemToString={itemToString}
       selectedItem={selectedItem}
