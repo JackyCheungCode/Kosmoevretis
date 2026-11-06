@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import { Button, InlineNotification, PasswordInput, Checkbox, Search, TextArea, TextInput } from "@carbon/react";
-import { CarbonTabs } from "./design-system/components";
+import { CarbonTabs, PageHeader } from "./design-system/components";
 import CarbonSelect from "./components/CarbonSelect";
 import { AIAnalysisPanel, DataSourceSelector, HistoryTasksAccordion, IntelligenceDataExperience } from "./IntelligenceExperience";
 
@@ -160,6 +160,7 @@ export default function GlobalIntelligence(){
  if(!ready)return <div className="boot-screen">正在连接全球情报中心…</div>;
  if(!session)return <form className="auth-card product-auth" onSubmit={login}><div className="eyebrow">全球情报中心</div><h2>登录企业工作区</h2><p>登录后选择产品档案，或直接输入关键词开展市场研究。</p><TextInput id="gi-login-email" type="email" labelText="邮箱" value={email} onChange={e=>setEmail(e.target.value)} required/><PasswordInput id="gi-login-password" labelText="密码" value={password} onChange={e=>setPassword(e.target.value)} required/>{authError&&<InlineNotification kind="error" lowContrast title="登录失败" subtitle={authError} hideCloseButton/>}<Button kind="primary" type="submit">登录</Button></form>;
  return <section className="global-intelligence">
+  <PageHeader title="全球情报中心" description="配置产品或关键词、目标市场与分析范围，汇总全球电商、搜索和社交媒体市场信号。" />
   <div className="gi-history-top"><HistoryTasksAccordion history={trendHistory} onSelectHistory={openHistory}/></div>
   <section className="analysis-source">
    <div className="analysis-source-heading"><div><span className="eyebrow">01 / 分析来源</span><h2>分析对象与关键词</h2><p>选择企业产品并复用参数规格，或直接输入关键词；可使用 DeepL 生成多语言关键词。</p></div><span className="source-note">产品档案自动同步</span></div>
