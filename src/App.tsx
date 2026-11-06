@@ -28,7 +28,6 @@ import {
   Logout,
   DataBase,
   Email,
-  Share,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
