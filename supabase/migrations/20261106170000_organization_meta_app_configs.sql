@@ -8,7 +8,7 @@ create table if not exists public.crm_meta_app_configs (
   app_secret_iv text not null,
   webhook_verify_token_ciphertext text not null,
   webhook_verify_token_iv text not null,
-  graph_api_version text not null default 'vXX.X'
+  graph_api_version text not null
     check (graph_api_version ~ '^v[0-9]+\.[0-9]+$'),
   enabled boolean not null default true,
   last_validated_at timestamptz,
