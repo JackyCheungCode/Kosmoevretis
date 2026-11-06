@@ -58,6 +58,8 @@
   /* Shared typography and page rhythm; semantic values map to Carbon v11 type scale. */
   --kosmo-type-page-title: var(--cds-heading-05-font-size);
   --kosmo-type-page-title-line-height: var(--cds-heading-05-line-height);
+  --kosmo-type-page-title-mobile: 1.5rem;
+  --kosmo-type-page-title-mobile-line-height: 2rem;
   --kosmo-type-section-title: var(--cds-heading-compact-02-font-size);
   --kosmo-type-section-title-line-height: var(--cds-heading-compact-02-line-height);
   --kosmo-type-body: var(--cds-body-01-font-size);
