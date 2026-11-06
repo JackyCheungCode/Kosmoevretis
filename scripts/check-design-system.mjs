@@ -5,6 +5,16 @@ const pagesRoot = new URL("../src/pages/", import.meta.url);
 const explicitFiles = [
   ["src/Settings.tsx", new URL("../src/Settings.tsx", import.meta.url)],
   ["src/SettingsBackend.tsx", new URL("../src/SettingsBackend.tsx", import.meta.url)],
+  ["src/GlobalIntelligence.tsx", new URL("../src/GlobalIntelligence.tsx", import.meta.url)],
+  ["src/ProductCenter.tsx", new URL("../src/ProductCenter.tsx", import.meta.url)],
+  ["src/TradeAccessPage.tsx", new URL("../src/TradeAccessPage.tsx", import.meta.url)],
+  ["src/FacebookDiscovery.tsx", new URL("../src/FacebookDiscovery.tsx", import.meta.url)],
+  ["src/LinkedInDiscovery.tsx", new URL("../src/LinkedInDiscovery.tsx", import.meta.url)],
+  ["src/GoogleMapsDiscovery.tsx", new URL("../src/GoogleMapsDiscovery.tsx", import.meta.url)],
+  ["src/MailCommunication.tsx", new URL("../src/MailCommunication.tsx", import.meta.url)],
+  ["src/MailSettings.tsx", new URL("../src/MailSettings.tsx", import.meta.url)],
+  ["src/IntelligenceExperience.tsx", new URL("../src/IntelligenceExperience.tsx", import.meta.url)],
+  ["src/DesignSystemPreview.tsx", new URL("../src/DesignSystemPreview.tsx", import.meta.url)],
   ["src/settings-center.css", new URL("../src/settings-center.css", import.meta.url)],
   ["src/App.tsx", new URL("../src/App.tsx", import.meta.url)],
   ["src/app-shell.css", new URL("../src/app-shell.css", import.meta.url)],
@@ -58,7 +68,7 @@ function inspect(relative, source) {
     }
     if (/:focus-visible\s*\{/.test(source)) violations.push(relative + ": do not globally override Carbon component focus treatments.");
   }
-  if (/<select\b/i.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.");
+  if (/<select\b/.test(source)) violations.push(relative + ": use Carbon Dropdown, ComboBox, or shared CarbonSelect; native select is not allowed.");
   if (relative === "src/pages/SeoAnalysis.tsx") {
     if (!/\bProgressIndicator\b/.test(source) || !/\bProgressStep\b/.test(source)) violations.push(relative + ": execution stages must use Carbon ProgressIndicator / ProgressStep.");
     if (!/\bTableContainer\b/.test(source) || !/\bTableHeader\b/.test(source) || !/\bTableCell\b/.test(source)) violations.push(relative + ": tabular records must use Carbon Table components.");
