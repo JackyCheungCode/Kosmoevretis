@@ -284,11 +284,11 @@ Deno.serve(async (req: Request) => {
         const {data:oauth,error:oauthError}=await admin.from("crm_channel_oauth_states").select("*")
           .eq("state_hash",stateHash).eq("organization_id",organizationId).eq("user_id",user.id).eq("status","assets_ready").gt("expires_at",new Date().toISOString()).maybeSingle();
         if(oauthError||!oauth) return json({error:"OAuth state expired or already consumed"},409);
+        const asset=(oauth.discovered_assets as Asset[]).find(item=>item.id===assetId);
+        if(!asset) return json({error:"Selected asset was not authorized by Meta"},403);
         const {data:claim,error:claimError}=await admin.from("crm_channel_oauth_states").update({status:"processing"})
           .eq("id",oauth.id).eq("status","assets_ready").select("id").maybeSingle();
         if(claimError||!claim) return json({error:"OAuth state is already being completed"},409);
-        const asset=(oauth.discovered_assets as Asset[]).find(item=>item.id===assetId);
-        if(!asset) return json({error:"Selected asset was not authorized by Meta"},403);
         const provider=oauth.provider as Provider;
         if((provider==="whatsapp_business") !== (asset.asset_type==="whatsapp_business_account")) return json({error:"Asset type does not match channel"},400);
         let token=await decrypt(env,oauth.access_token_ciphertext,oauth.access_token_iv);
@@ -327,6 +327,6 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     if (error instanceof Response) return new Response(error.body,{status:error.status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"}});
     const message=error instanceof Error?error.message:"Unexpected Meta integration error";
-    return json({error:message},400);
+    return json({error:message},url.pathname.endsWith("/webhook") ? 500 : 400);
   }
 });
