@@ -75,7 +75,7 @@ export default function MetaAppSettings() {
     await loadConfig(organizationId);
   };
 
-  const copy=(value:string)=>{void navigator.clipboard?.writeText(value).then(()=>setNotice({kind:"success",title:"已复制",message:"回调地址已复制到剪贴板"})).catch(()=>setNotice({kind:"info",title:"无法自动复制",message:"请手动选择并复制地址"}));};
+  const copy=async(value:string)=>{try{if(!navigator.clipboard)throw new Error("Clipboard unavailable");await navigator.clipboard.writeText(value);setNotice({kind:"success",title:"已复制",message:"回调地址已复制到剪贴板"});}catch{setNotice({kind:"info",title:"无法自动复制",message:"请手动选择并复制地址"});}};
   if(loading&&!memberships.length)return <Tile><p>正在读取组织与 Meta 配置…</p></Tile>;
   if(!memberships.length)return <InlineNotification kind="warning" lowContrast title="当前账号未加入组织" subtitle="请先加入一个组织，再配置该组织的 Meta Developer App。" hideCloseButton/>;
   return <div className="meta-app-settings">
