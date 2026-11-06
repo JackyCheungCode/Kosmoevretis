@@ -12,7 +12,7 @@
 .mail-pane-label{padding:var(--kosmo-space-2);color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);font-weight:600}
 .mail-folder{display:flex;align-items:center;gap:var(--kosmo-space-3);width:100%;min-height:2.5rem;padding:var(--kosmo-space-2);border:0;background:transparent;color:var(--cds-text-secondary);text-align:left;cursor:pointer}
 .mail-folder:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
-.mail-folder.is-active{background:var(--cds-layer-selected);color:var(--cds-text-primary);font-weight:600;box-shadow:inset 3px 0 var(--cds-border-interactive)}
+.mail-folder.is-active{background:var(--cds-layer-selected);color:var(--cds-text-primary);font-weight:600;border-inline-start:3px solid var(--cds-border-interactive)}
 .mail-folder-divider{height:1px;margin:var(--kosmo-space-3) 0;background:var(--cds-border-subtle)}
 .mail-no-accounts{display:flex;align-items:center;gap:var(--kosmo-space-2);padding:var(--kosmo-space-2);color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
 .mail-list-heading{display:flex;align-items:center;justify-content:space-between}
