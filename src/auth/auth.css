@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2var(--kosmo-spacing-03) 3var(--kosmo-spacing-03) var(--kosmo-spacing-07);
+  padding: var(--kosmo-spacing-08) calc(var(--kosmo-spacing-09) + var(--kosmo-spacing-03)) var(--kosmo-spacing-07);
   background: var(--cds-background);
   color: var(--cds-text-primary);
   border-right: 1px solid var(--cds-border-subtle);
@@ -118,7 +118,7 @@
 }
 .kosmo-visual-metrics {
   display: flex;
-  gap: clamp(1var(--kosmo-spacing-03), 4vw, 4var(--kosmo-spacing-03));
+  gap: clamp(var(--kosmo-spacing-06), 4vw, var(--kosmo-spacing-10));
   z-index: 1;
 }
 .kosmo-visual-metrics div {
@@ -163,7 +163,7 @@
   max-width: 23rem;
   display: flex;
   flex-direction: column;
-  gap: 2var(--kosmo-spacing-02);
+  gap: calc(var(--kosmo-spacing-07) + var(--kosmo-spacing-02));
 }
 .kosmo-login-brand-mobile {
   display: none;
@@ -233,8 +233,8 @@
 }
 @media (max-width: 1055px) {
   .kosmo-login-screen { grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 1fr); }
-  .kosmo-login-visual { padding: var(--kosmo-spacing-07) 2var(--kosmo-spacing-02) 1var(--kosmo-spacing-03); }
-  .kosmo-login-panel { padding: 2var(--kosmo-spacing-03) var(--kosmo-spacing-07); }
+  .kosmo-login-visual { padding: var(--kosmo-spacing-07) calc(var(--kosmo-spacing-07) + var(--kosmo-spacing-02)) var(--kosmo-spacing-06); }
+  .kosmo-login-panel { padding: var(--kosmo-spacing-08) var(--kosmo-spacing-07); }
   .kosmo-visual-copy h1 { font-size: clamp(2.35rem, 4.5vw, 3.5rem); }
 }
 @media (max-width: 671px) {
@@ -242,9 +242,9 @@
   .kosmo-login-visual {
     min-height: 42vh;
     min-height: 42svh;
-    padding: 1var(--kosmo-spacing-02) 1var(--kosmo-spacing-03) var(--kosmo-spacing-05);
+    padding: calc(var(--kosmo-spacing-04) + var(--kosmo-spacing-03)) var(--kosmo-spacing-06) var(--kosmo-spacing-05);
   }
-  .kosmo-visual-copy { padding: 1var(--kosmo-spacing-03) 0; margin: auto 0; }
+  .kosmo-visual-copy { padding: var(--kosmo-spacing-06) 0; margin: auto 0; }
   .kosmo-visual-copy h1 { font-size: var(--cds-heading-compact-02-font-size); margin: var(--kosmo-spacing-03) 0; }
   .kosmo-visual-copy p { font-size: var(--cds-body-compact-01-font-size); }
   .kosmo-visual-metrics { gap: var(--kosmo-spacing-05); }
@@ -255,9 +255,9 @@
   .kosmo-login-panel {
     min-height: 58vh;
     min-height: 58svh;
-    padding: 2var(--kosmo-spacing-03) 1var(--kosmo-spacing-03) var(--kosmo-spacing-10);
+    padding: var(--kosmo-spacing-08) var(--kosmo-spacing-06) var(--kosmo-spacing-10);
   }
-  .kosmo-login-panel-inner { max-width: 28rem; gap: 1var(--kosmo-spacing-04); }
+  .kosmo-login-panel-inner { max-width: 28rem; gap: calc(var(--kosmo-spacing-06) + var(--kosmo-spacing-02)); }
   .kosmo-login-brand-mobile { display: flex; }
   .kosmo-login-panel-footer {
     bottom: var(--kosmo-spacing-04);
