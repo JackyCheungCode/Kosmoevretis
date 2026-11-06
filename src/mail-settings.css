@@ -1,0 +1,6 @@
+.mail-account-settings-row{display:flex;align-items:center;justify-content:space-between;gap:var(--kosmo-space-3);margin-top:var(--kosmo-space-3);color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
+.mail-account-settings-row .cds--select{width:min(14rem,100%)}
+.mail-account-form{display:flex;flex-direction:column;gap:var(--kosmo-space-4)}
+.mail-account-form .settings-form-grid{align-items:start}
+.mail-settings-page{display:flex;flex-direction:column;gap:var(--kosmo-space-4);min-width:0}
+@media(max-width:671px){.mail-account-settings-row{align-items:flex-start;flex-direction:column}.mail-account-settings-row .cds--select{width:100%}}
