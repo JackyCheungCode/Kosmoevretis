@@ -1,9 +1,6 @@
 import React from "react";
 import {
   Header,
-  Tabs,
-  TabList,
-  Tab,
   Content,
   Grid,
   Column,
@@ -104,6 +101,40 @@ const socialPlatformItems: { id: SocialPlatform; label: string; brand: BrandLogo
   { id: "tiktok", label: "TikTok", brand: "tiktok" },
   { id: "youtube", label: "YouTube", brand: "youtube" },
 ];
+type PlatformSwitcherItem = { id: string; label: string; brand: BrandLogoId };
+
+function PlatformSwitcher({ items, selectedId, ariaLabel, onSelect }: {
+  items: PlatformSwitcherItem[];
+  selectedId: string;
+  ariaLabel: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <nav className="platform-switcher" aria-label={ariaLabel}>
+      <div className="platform-switcher__list" role="tablist" aria-label={ariaLabel}>
+        {items.map((item) => {
+          const selected = item.id === selectedId;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              className="platform-switcher__tab"
+              aria-selected={selected}
+              aria-current={selected ? "page" : undefined}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => onSelect(item.id)}
+            >
+              <BrandLogo brand={item.brand} label={item.label} />
+              <span className="platform-switcher__label">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   const navigate = useNavigate();
   const pages = {
@@ -119,14 +150,12 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   };
   return (
     <div className="social-platform-workspace-shell">
-      <Tabs selectedIndex={Math.max(0, socialPlatformItems.findIndex(item => item.id === platform))}
-        onChange={({ selectedIndex }) => { const item = socialPlatformItems[selectedIndex]; if (item) navigate("/social-discovery/" + item.id); }}>
-        <TabList className="platform-line-tabs" aria-label="社交媒体平台">
-          {socialPlatformItems.map((item) => (
-            <Tab key={item.id} className="platform-line-tab"><BrandLogo brand={item.brand} label={item.label} /><span>{item.label}</span></Tab>
-          ))}
-        </TabList>
-      </Tabs>
+      <PlatformSwitcher
+        items={socialPlatformItems}
+        selectedId={platform}
+        ariaLabel="社交媒体平台"
+        onSelect={(id) => navigate("/social-discovery/" + id)}
+      />
       <div className="social-platform-content">{pages[platform]}</div>
     </div>
   );
@@ -148,14 +177,12 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
   const navigate = useNavigate();
   return (
     <div className="social-platform-workspace-shell">
-      <Tabs selectedIndex={Math.max(0, ecommercePlatformItems.findIndex(item => item.id === platform))}
-        onChange={({ selectedIndex }) => { const item = ecommercePlatformItems[selectedIndex]; if (item) navigate("/ecommerce-discovery/" + item.id); }}>
-        <TabList className="platform-line-tabs" aria-label="电商平台">
-          {ecommercePlatformItems.map((item) => (
-            <Tab key={item.id} className="platform-line-tab"><BrandLogo brand={item.brand} label={item.label} /><span>{item.label}</span></Tab>
-          ))}
-        </TabList>
-      </Tabs>
+      <PlatformSwitcher
+        items={ecommercePlatformItems}
+        selectedId={platform}
+        ariaLabel="电商平台"
+        onSelect={(id) => navigate("/ecommerce-discovery/" + id)}
+      />
       <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
     </div>
   );
