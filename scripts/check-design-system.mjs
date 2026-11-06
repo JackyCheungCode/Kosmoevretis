@@ -10,6 +10,10 @@ function inspect(relative, source) {
       (!/\bClickableTile\b/.test(source) || /<button\b/.test(source))) {
     violations.push(relative + ": mail folder and account selectors must use Carbon ClickableTile.");
   }
+  if (relative === "src/MailCommunication.tsx" &&
+      (!/\bTextInput\b/.test(source) || !/\bTextArea\b/.test(source) || /<(?:input|textarea)\b/.test(source))) {
+    violations.push(relative + ": mail composer fields must use Carbon TextInput and TextArea.");
+  }
   if (relative === "src/GoogleMapsDiscovery.tsx") {
     if (!/\bButton\b/.test(source) || /<button\b[^>]*className=["']gm-customer-link["']/.test(source)) {
       violations.push(relative + ": Google Maps customer actions must use Carbon Button.");
