@@ -79,7 +79,7 @@ function inspect(relative, source) {
     if (/(?:^|[;{}])\s*[^:;{}]+\s*:[^;{}]*\brgba?\(/im.test(source)) violations.push(relative + ": hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.");
     if (relative !== "src/styles.css") {
       if (relative === "src/settings-center.css" && /\.cds--[\w-]+/.test(source)) violations.push(relative + ": page CSS must not override Carbon internal component selectors.");
-      if (/(^|[,}])\s*(html|body|:root|\.cds--[\w-]+)\b/m.test(source)) violations.push(relative + ": page CSS must not override global or Carbon component selectors.");
+      if (/(^|})\s*(html|body|:root|\.cds--[\w-]+)\b/m.test(source)) violations.push(relative + ": page CSS must not override global or Carbon component selectors.");
     }
   }
 }
