@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, Dropdown, FileUploaderButton, InlineNotification, Tag, TextArea, TextInput, Tile } from "@carbon/react";
+import { Button, ContentSwitcher, Dropdown, FileUploaderButton, InlineNotification, Switch, Tag, TextArea, TextInput, Tile } from "@carbon/react";
 import { Add, Checkmark, CloudUpload, Renew, TrashCan } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
 import { useAuth } from "./auth/AuthProvider";
@@ -16,6 +16,7 @@ const tagFor=(status:string)=>status==="published"?"green":status==="failed"?"re
 export default function MetaContentStudio(){
   const {session}=useAuth();
   const [organizationId,setOrganizationId]=useState("");
+  const [publishChannel,setPublishChannel]=useState("facebook");
   const [connections,setConnections]=useState<Connection[]>([]);
   const [selectedConnection,setSelectedConnection]=useState("");
   const [posts,setPosts]=useState<Post[]>([]);
@@ -101,7 +102,14 @@ export default function MetaContentStudio(){
   const publish=async(post:Post)=>{await run("publish_post",{post_id:post.id},"Facebook 帖子已发布");};
   const remove=async(post:Post)=>{await run("delete_post",{post_id:post.id},"帖子已删除或取消");};
   const connectionItems=connections.map(c=>({id:c.id,text:c.display_name||c.external_asset_id}));
-  return <ConfigurationPageTemplate className="module meta-content-studio" title="Facebook 内容管理" description="管理已授权 Facebook Page 的帖子草稿、发布和内容同步。真实发布受 Meta App 权限、Page 任务权限及审核状态限制。" eyebrow="META PAGE PUBLISHING" headingLevel={1}>
+  return <ConfigurationPageTemplate className="module meta-content-studio" title="内容发布中心" description="在统一工作区管理各社交渠道的内容草稿、发布、排程与表现。当前开放 Facebook Pages；Instagram Business 发布待接入。真实发布受 Meta 权限与审核状态限制。" eyebrow="META PAGE PUBLISHING" headingLevel={1}>
+    <PageSection title="发布渠道" description="先选择发布渠道，再选择该渠道下已授权的账号。未接入渠道会明确标记，不提供虚假操作。" headingLevel={3}>
+      <ContentSwitcher selectedIndex={publishChannel==="facebook"?0:1} onChange={(item)=>setPublishChannel(item.name||"facebook")}>
+        <Switch name="facebook" text="Facebook" />
+        <Switch name="instagram" text="Instagram（待接入）" disabled />
+      </ContentSwitcher>
+      <div className="meta-content-channel-status"><Tag type="green">Facebook Pages · 当前可用</Tag><Tag type="cool-gray">Instagram Business · 待接入</Tag></div>
+    </PageSection>
     <PageSection title="发布目标" description="选择组织已授权的 Facebook Page。当前仅展示真实连接的 Page，不显示模拟资产。" headingLevel={3}>
       {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} onCloseButtonClick={()=>setNotice(null)}/>}
       {connections.length>0?<div className="meta-content-toolbar">
