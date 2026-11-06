@@ -312,7 +312,7 @@ Deno.serve(async (req: Request) => {
         }
         const encrypted=await encrypt(env,token);
         const {data:connection,error:connectionError}=await admin.from("crm_channel_connections").upsert({
-          organization_id:organizationId,provider,external_asset_id:asset.id,display_name:asset.name,status:"connected",
+          organization_id:organizationId,provider,external_asset_id:asset.id,display_name:asset.name,status:"pending",
           scopes:oauth.granted_scopes || [],token_expires_at:oauth.token_expires_at,
           provider_metadata:{asset_type:asset.asset_type,...(asset.details||{})},created_by:user.id,updated_at:new Date().toISOString(),
         },{onConflict:"organization_id,provider,external_asset_id"}).select("id").single();
@@ -321,6 +321,9 @@ Deno.serve(async (req: Request) => {
           connection_id:connection.id,access_token_ciphertext:encrypted.ciphertext,access_token_iv:encrypted.iv,updated_at:new Date().toISOString(),
         },{onConflict:"connection_id"});
         if(credentialError) throw credentialError;
+        const {error:activateError}=await admin.from("crm_channel_connections").update({status:"connected",updated_at:new Date().toISOString()})
+          .eq("id",connection.id).eq("organization_id",organizationId);
+        if(activateError) throw activateError;
         const {error:consumeError}=await admin.from("crm_channel_oauth_states").update({status:"consumed",consumed_at:new Date().toISOString(),access_token_ciphertext:null,access_token_iv:null,asset_tokens_ciphertext:null,asset_tokens_iv:null})
           .eq("id",oauth.id).eq("status","processing");
         if(consumeError) throw consumeError;
