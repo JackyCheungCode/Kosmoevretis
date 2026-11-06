@@ -40,6 +40,7 @@ import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
 import MailCommunication from "./MailCommunication";
 import FacebookDiscovery from "./FacebookDiscovery";
+import SocialDiscoveryDirectory from "./pages/SocialDiscoveryDirectory";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
 import PlatformDataCollection from "./pages/PlatformDataCollection";
@@ -377,7 +378,8 @@ function AppShell() {
         
         
         
-        {(path === "/social-discovery" || path.startsWith("/social-discovery/") || legacySocialPlatform !== null) && <SocialPlatformWorkspace platform={(path.startsWith("/social-discovery/") ? path.split("/")[2] : legacySocialPlatform || "facebook") as SocialPlatform} />}
+        {path === "/social-discovery" && <SocialDiscoveryDirectory />}
+        {(path.startsWith("/social-discovery/") || legacySocialPlatform !== null) && <SocialPlatformWorkspace platform={(path.startsWith("/social-discovery/") ? path.split("/")[2] : legacySocialPlatform) as SocialPlatform} />}
         {(path === "/ecommerce-discovery" || path.startsWith("/ecommerce-discovery/")) && <EcommercePlatformWorkspace platform={(path.startsWith("/ecommerce-discovery/") ? path.split("/")[2] : "amazon") as EcommercePlatformId} />}
         {isSettings && <SettingsPage />}
           </Column>
