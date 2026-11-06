@@ -1,4 +1,4 @@
-.ds-preview{display:flex;flex-direction:column;gap:var(--kosmo-spacing-08);color:var(--cds-text-primary);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif}
+.ds-preview{display:flex;flex-direction:column;gap:var(--kosmo-spacing-08);color:var(--cds-text-primary);font-family:var(--cds-font-family-sans)}
 .ds-intro{padding:var(--kosmo-spacing-06) 0 calc(var(--kosmo-spacing-06) + var(--kosmo-spacing-02));border-bottom:1px solid var(--cds-border-subtle)}
 .ds-overline{display:block;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);font-weight:600;letter-spacing:0;text-transform:none}
 .ds-intro h2{margin:.6rem 0 .5rem;font-size:var(--cds-heading-04-font-size);font-weight:400;line-height:1.25}
