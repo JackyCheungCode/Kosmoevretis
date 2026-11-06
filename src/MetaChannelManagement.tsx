@@ -1,4 +1,4 @@
-import { Accordion, AccordionItem, InlineNotification, Tag, Tile } from "@carbon/react";
+import { Accordion, AccordionItem, Button, InlineNotification, Tag, Tile } from "@carbon/react";
 import { Chat, Connect, DataBase, Locked, Share, Phone } from "@carbon/icons-react";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
