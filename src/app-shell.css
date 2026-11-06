@@ -12,36 +12,6 @@
   z-index: 9000;
 }
 
-.kosmo-header .cds--header__name {
-  display: inline-flex;
-  align-items: center;
-  width: var(--kosmo-shell-sidebar-width);
-  max-width: none;
-  padding-inline: var(--kosmo-spacing-05) var(--kosmo-spacing-07);
-  color: var(--cds-text-primary);
-  font-size: var(--cds-heading-compact-01-font-size);
-  line-height: var(--cds-heading-compact-01-line-height);
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-.kosmo-header .cds--header__name:hover {
-  background: var(--cds-background-hover);
-  color: var(--cds-text-primary);
-}
-
-.kosmo-header .cds--header__name--prefix {
-  display: none;
-}
-
-.kosmo-header-context {
-  align-self: center;
-  color: var(--cds-text-secondary);
-  font-size: var(--cds-body-compact-01-font-size);
-  line-height: var(--cds-body-compact-01-line-height);
-  white-space: nowrap;
-}
-
 .kosmo-header-menu-button.cds--header__menu-trigger {
   display: none;
   color: var(--cds-icon-primary);
@@ -97,11 +67,11 @@
 /* Carbon Content owns the header offset; Carbon Grid owns the page gutters. */
 .kosmo-main.cds--content {
   box-sizing: border-box;
-  width: calc(100% - var(--kosmo-shell-sidebar-width));
+  width: min(calc(100% - var(--kosmo-shell-sidebar-width)), var(--kosmo-content-max-width));
   max-width: var(--kosmo-content-max-width);
   min-height: calc(100vh - var(--kosmo-shell-header-height));
   margin-top: var(--kosmo-shell-header-height);
-  margin-left: var(--kosmo-shell-sidebar-width);
+  margin-left: calc(var(--kosmo-shell-sidebar-width) + max(0px, (100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2));
   padding: 0;
 }
 
@@ -128,15 +98,6 @@
 }
 
 @media (min-width: 672px) and (max-width: 1055px) {
-  .kosmo-header .cds--header__name {
-    width: var(--kosmo-shell-sidebar-collapsed-width);
-    padding-inline: var(--kosmo-spacing-03);
-  }
-
-  .kosmo-header-context {
-    display: none;
-  }
-
   .kosmo-header-menu-button.cds--header__menu-trigger {
     display: flex;
   }
@@ -179,23 +140,14 @@
   }
 
   .kosmo-main.cds--content {
-    width: calc(100% - var(--kosmo-shell-sidebar-collapsed-width));
-    margin-left: var(--kosmo-shell-sidebar-collapsed-width);
+    width: min(calc(100% - var(--kosmo-shell-sidebar-collapsed-width)), var(--kosmo-content-max-width));
+    margin-left: calc(var(--kosmo-shell-sidebar-collapsed-width) + max(0px, (100% - var(--kosmo-shell-sidebar-collapsed-width) - var(--kosmo-content-max-width)) / 2));
   }
 }
 
 @media (max-width: 671px) {
-  .kosmo-header .cds--header__name {
-    width: auto;
-    padding-inline: var(--kosmo-spacing-03);
-  }
-
   .kosmo-header-menu-button.cds--header__menu-trigger {
     display: flex;
-  }
-
-  .kosmo-header-context {
-    display: none;
   }
 
   .kosmo-side-nav.cds--side-nav {
@@ -222,11 +174,7 @@
     min-height: calc(100vh - var(--kosmo-shell-header-height));
   }
 
-  .kosmo-header-menu-button:focus-visible,
-  .kosmo-header .cds--header__name:focus-visible {
-    outline: 2px solid var(--cds-focus);
-    outline-offset: -2px;
-  }
+
 
   .kosmo-account-dropdown {
     max-width: calc(100vw - 2rem);
