@@ -300,11 +300,11 @@ Deno.serve(async (req: Request) => {
         if(oauthError||!oauth) return json({error:"OAuth state expired or already consumed"},409);
         const asset=(oauth.discovered_assets as Asset[]).find(item=>item.id===assetId);
         if(!asset) return json({error:"Selected asset was not authorized by Meta"},403);
+        const provider=oauth.provider as Provider;
+        if((provider==="whatsapp_business") !== (asset.asset_type==="whatsapp_business_account")) return json({error:"Asset type does not match channel"},400);
         const {data:claim,error:claimError}=await admin.from("crm_channel_oauth_states").update({status:"processing"})
           .eq("id",oauth.id).eq("status","assets_ready").select("id").maybeSingle();
         if(claimError||!claim) return json({error:"OAuth state is already being completed"},409);
-        const provider=oauth.provider as Provider;
-        if((provider==="whatsapp_business") !== (asset.asset_type==="whatsapp_business_account")) return json({error:"Asset type does not match channel"},400);
         let token=await decrypt(env,oauth.access_token_ciphertext,oauth.access_token_iv);
         if(asset.asset_type==="facebook_page"){
           const tokens=JSON.parse(await decrypt(env,oauth.asset_tokens_ciphertext,oauth.asset_tokens_iv)) as Record<string,string>;
