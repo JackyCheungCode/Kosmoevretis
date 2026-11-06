@@ -26,7 +26,6 @@ export default function MailCommunication() {
   const [composeOpen, setComposeOpen] = React.useState(false);
   const [accounts, setAccounts] = React.useState<MailAccount[]>([]);
   const [activeAccountId, setActiveAccountId] = React.useState("");
-  const [organizationId, setOrganizationId] = React.useState("");
   const [accountError, setAccountError] = React.useState("");
   React.useEffect(() => {
     let active = true;
@@ -38,8 +37,7 @@ export default function MailCommunication() {
       if (!active) return;
       if (membershipError) { setAccountError(membershipError.message); return; }
       const selectedOrganizationId = memberships?.[0]?.organization_id;
-      if (!selectedOrganizationId) { setOrganizationId(""); setAccounts([]); return; }
-      setOrganizationId(selectedOrganizationId);
+      if (!selectedOrganizationId) { setAccounts([]); return; }
       const { data, error } = await supabase.functions.invoke("mail-api", {
         body: { action: "list_accounts", organization_id: selectedOrganizationId },
       });
