@@ -27,7 +27,6 @@ import {
   Settings,
   Logout,
   DataBase,
-  Search as SearchIcon,
   Email,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
