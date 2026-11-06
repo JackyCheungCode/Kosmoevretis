@@ -37,6 +37,7 @@ create table if not exists public.crm_contacts (
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  unique (id, organization_id),
   constraint crm_contacts_company_org_fk foreign key (company_id, organization_id)
     references public.crm_companies(id, organization_id) on delete cascade
 );
@@ -59,6 +60,7 @@ create table if not exists public.crm_leads (
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  unique (id, organization_id),
   constraint crm_leads_company_org_fk foreign key (company_id, organization_id)
     references public.crm_companies(id, organization_id) on delete cascade,
   constraint crm_leads_contact_org_fk foreign key (contact_id, organization_id)
