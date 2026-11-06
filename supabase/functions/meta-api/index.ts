@@ -251,7 +251,8 @@ async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;
     }
   }
 }
-\nasync function handleWebhook(req: Request, env: RuntimeEnv) {
+
+async function handleWebhook(req: Request, env: RuntimeEnv) {
   const { admin } = clients(env);
   const { data: configs, error: configError } = await admin.from("crm_meta_app_configs").select("*").eq("enabled", true).limit(500);
   if (configError) throw configError;
