@@ -4,7 +4,7 @@
 - 仓库：`JackyCheungCode/Kosmoevretis`
 - 目标分支：`3c-platform`
 - 设计基准：IBM Carbon Design System v11；页面业务结构保持 Kosmoevretis 自身信息架构
-- 状态：P0 路由盘点完成；全站样式治理与视觉验收仍在进行
+- 状态：P0 路由盘点完成；P2 AppShell 静态结构核对已完成，PageHeader 间距已收紧；P1 令牌审计扩展进行中；全站视觉验收仍未完成
 
 ## 1. 页面与导航范围
 
@@ -27,13 +27,16 @@
 - 全站通过 `@carbon/styles` 加载 Carbon 样式；主题使用 Gray 10。
 - `src/design-tokens.scss` 已将 Carbon Sass spacing 映射为 `--kosmo-spacing-*`，并定义页面标题、描述、页面间距和 Shell 几何令牌。
 - `src/design-system/components/PagePrimitives.tsx` 已提供共享 PageHeader、PageSection、EmptyState 等原语。
-- 路由级插画由 `GlobalPageIllustration` 提供，颜色使用 Carbon 语义令牌。
+- 路由级插画由 `GlobalPageIllustration` 提供，当前插画 SVG 使用 Carbon 语义令牌。
+- AppShell 静态核对确认：Header 透明、无工作区标题文本；面包屑组件仍在主内容区并保留页面层级；桌面/平板/手机均有独立布局规则。
+- `src/design-system/design-system.css` 已移除共享 PageHeader 顶部额外 padding，避免插画与页面标题之间叠加留白。
 
 ## 3. 已修复的审计与样式问题
 
 - 修复设计规范检查中字体令牌正则的空白回溯误报。
 - 修复审计脚本递归目录时未保留子目录路径的问题。
 - 修复 Facebook 发现页、AppShell 插画区、共享 PageHeader、登录页中发现的无效 spacing 表达式。
+- 扩展 `scripts/check-design-system.mjs`：将 TSX/TS 中 SVG `fill`、`stroke`、`stopColor` 以及内联样式的 HEX 颜色纳入审计。
 - 上述修复仅写入 `3c-platform`，没有写入 `main`，没有修改数据库或后端业务逻辑。
 
 ## 4. 样式债务抽样结果
@@ -65,7 +68,15 @@
 - 设计系统构建检查新增全局规则：禁止页面 CSS 继续引用旧版 spacing alias，并检查损坏的 spacing 表达式。
 - 完整覆盖结果以最新 Cloudflare Build 中的设计系统检查为准；当前尚未完成浏览器逐页截图验收。
 
-## 6. 后续执行顺序
+## 6. 当前阶段执行记录
+
+- `58fc45f`：收紧共享 PageHeader 顶部间距（仅移除额外顶部 padding）。
+- `2010ee6`：首次扩展 TSX 内联颜色检查。
+- `a83062a`：修正并提交审计正则表达式。
+- 上述提交均位于 `3c-platform`。最新提交的 Cloudflare Pages 部署已创建，但尚未完成构建；不能将其标记为部署成功。
+- 当前 P2 仅完成源代码静态核对，尚无浏览器截图验证；P1 全量检查结果需以最新构建日志为准。
+
+## 7. 后续执行顺序
 
 ### P1 — Design Tokens
 - 逐项统一字体、字重、行高、间距、颜色、边框、层级和断点。
@@ -87,6 +98,6 @@
 - 对每个路由进行实际截图对照，检查元素坐标、尺寸、间距、字形、换行、颜色和响应式状态。
 - 逐页记录差异并复验部署版本。
 
-## 6. 验收边界
+## 8. 验收边界
 
 Carbon 规范与 IBM.com 营销网站并非同一套页面模板。没有指定的 IBM 参考 URL、页面截图和视口规格，不能诚实宣称达到 IBM 官网每个像素 100% 复刻。当前阶段也尚未完成线上浏览器逐页截图验收；构建或部署成功不能替代视觉验收。
