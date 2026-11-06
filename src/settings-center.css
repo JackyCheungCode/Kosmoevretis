@@ -75,3 +75,22 @@
  .settings-center .analysis-submit-row{flex-direction:column;align-items:stretch}
 }
 @media(prefers-reduced-motion:reduce){.settings-local-nav{transition:none}}
+
+/* Carbon line tabs: settings categories replace the former side drawer. */
+.settings-center .kosmo-template__configuration-layout{grid-template-columns:minmax(0,1fr)!important;gap:var(--kosmo-space-4)}
+.settings-tabs-shell{display:flex;flex-direction:column;gap:var(--kosmo-space-3);min-width:0}
+.settings-tabs-shell .settings-nav-search{width:min(22rem,100%);margin:0}
+.settings-center .settings-local-nav.settings-line-tabs{position:static;top:auto;display:flex;flex-direction:row;align-items:stretch;gap:0;width:100%;max-height:none;overflow-x:auto;overflow-y:hidden;min-width:0;padding:0;background:transparent;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.settings-line-tabs .settings-nav-group{display:contents}
+.settings-line-tabs .settings-nav-group-title{display:none}
+.settings-line-tabs .settings-nav-item{display:inline-flex;align-items:center;justify-content:flex-start;flex:0 0 auto;width:auto;min-height:3rem;gap:.5rem;padding:0 1rem;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;box-shadow:none;color:var(--cds-text-secondary);white-space:nowrap;text-decoration:none}
+.settings-line-tabs .settings-nav-item:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
+.settings-line-tabs .settings-nav-item[aria-current=page],.settings-line-tabs .settings-nav-item.is-active{border-bottom-color:var(--cds-border-interactive);background:transparent;color:var(--cds-text-primary);font-weight:600;box-shadow:none}
+.settings-line-tabs .settings-nav-item svg{width:1.125rem;height:1.125rem;flex:none}
+.settings-line-tabs .settings-nav-label{overflow:visible}
+@media(max-width:671px){
+ .settings-center .kosmo-template__configuration-layout{grid-template-columns:minmax(0,1fr)!important}
+ .settings-tabs-shell .settings-nav-search{width:100%}
+ .settings-center .settings-local-nav.settings-line-tabs{position:static;width:100%;max-height:none;transform:none;visibility:visible;overflow-x:auto;overflow-y:hidden;padding:0;background:transparent;box-shadow:none}
+ .settings-line-tabs .settings-nav-item{min-height:2.875rem;padding:0 .875rem}
+}
