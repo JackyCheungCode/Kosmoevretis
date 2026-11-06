@@ -7,7 +7,6 @@ import {
   Theme,
   HeaderMenuButton,
   HeaderName,
-  Button,
   SideNav,
   SideNavItems,
   SideNavLink,
@@ -33,7 +32,6 @@ import {
   DataBase,
   ShoppingCart,
   Search as SearchIcon,
-  Menu,
   Email,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -88,31 +86,6 @@ const socialPlatformItems = [
 ];
 function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   const navigate = useNavigate();
-  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
-  const navRef = React.useRef<HTMLElement>(null);
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
-  React.useEffect(() => {
-    if (!mobileNavOpen) return;
-    navRef.current?.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMobileNavOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [mobileNavOpen]);
-  const selectPlatform = (id: SocialPlatform) => {
-    navigate("/social-discovery/" + id);
-    if (mobileNavOpen) triggerRef.current?.focus();
-    setMobileNavOpen(false);
-  };
   const pages = {
     facebook: <FacebookDiscovery />,
     instagram: <InstagramDiscovery />,
@@ -126,117 +99,58 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   };
   return (
     <div className="social-platform-workspace-shell">
-      <Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu}
-        aria-label="打开平台导航" aria-expanded={mobileNavOpen} aria-controls="social-platform-nav"
-        onClick={() => setMobileNavOpen(open => !open)}>其他平台发现</Button>
-      <div className="social-platform-workspace">
-        <div className="settings-navigation-shell social-platform-navigation-shell">
-          {mobileNavOpen && <button type="button" className="settings-nav-backdrop" aria-label="关闭平台导航"
-            onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }} />}
-          <nav id="social-platform-nav" ref={navRef}
-            className={mobileNavOpen ? "settings-local-nav social-platform-navigation is-open" : "settings-local-nav social-platform-navigation"}
-            aria-label="社媒平台发现分类" role="group"
-            onTouchStart={event => { (navRef as React.RefObject<HTMLElement> & { touchX?: number }).touchX = event.touches[0]?.clientX; }}
-            onTouchEnd={event => { const ref = navRef as React.RefObject<HTMLElement> & { touchX?: number }; if (ref.touchX !== undefined && event.changedTouches[0].clientX - ref.touchX > 80) { setMobileNavOpen(false); triggerRef.current?.focus(); } ref.touchX = undefined; }}>
-            <div className="platform-drawer-heading">
-              <strong>选择社媒平台</strong>
-              <button type="button" aria-label="关闭平台导航" onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }}>×</button>
-            </div>
-            <div className="settings-nav-group">
-              <div className="settings-nav-group-title">社媒平台发现</div>
-              {socialPlatformItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button key={item.id} type="button" className="settings-nav-item social-platform-nav-item"
-                    aria-current={platform === item.id ? "page" : undefined}
-                    onClick={() => selectPlatform(item.id)}>
-                    <Icon size={16} aria-hidden="true" /><span className="settings-nav-label">{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
-        </div>
-        <div className="social-platform-content">{pages[platform]}</div>
-      </div>
+      <nav className="platform-line-tabs" role="tablist" aria-label="社交媒体平台">
+        {socialPlatformItems.map((item) => {
+          const Icon = item.icon;
+          const selected = platform === item.id;
+          return (
+            <button key={item.id} type="button" role="tab"
+              className={selected ? "platform-line-tab is-selected" : "platform-line-tab"}
+              aria-selected={selected} aria-current={selected ? "page" : undefined}
+              onClick={() => navigate("/social-discovery/" + item.id)}>
+              <Icon size={18} aria-hidden="true" />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+      <div className="social-platform-content">{pages[platform]}</div>
     </div>
   );
 }
 
-const ecommercePlatformItems: { id: EcommercePlatformId; label: string; mark: string }[] = [
-  { id: "amazon", label: "Amazon", mark: "a" },
-  { id: "walmart", label: "Walmart", mark: "✳" },
-  { id: "ebay", label: "eBay", mark: "ebay" },
-  { id: "aliexpress", label: "AliExpress", mark: "A" },
-  { id: "temu", label: "Temu", mark: "T" },
-  { id: "etsy", label: "Etsy", mark: "E" },
-  { id: "shopify", label: "Shopify", mark: "S" },
-  { id: "mercado-libre", label: "Mercado Libre", mark: "M" },
-  { id: "rakuten", label: "Rakuten", mark: "R" },
+const ecommercePlatformItems: { id: EcommercePlatformId; label: string; icon: React.ElementType }[] = [
+  { id: "amazon", label: "Amazon", icon: ShoppingCart },
+  { id: "walmart", label: "Walmart", icon: Dashboard },
+  { id: "ebay", label: "eBay", icon: Currency },
+  { id: "aliexpress", label: "AliExpress", icon: Product },
+  { id: "temu", label: "Temu", icon: ShoppingCart },
+  { id: "etsy", label: "Etsy", icon: Product },
+  { id: "shopify", label: "Shopify", icon: ShoppingCart },
+  { id: "mercado-libre", label: "Mercado Libre", icon: Map },
+  { id: "rakuten", label: "Rakuten", icon: DataBase },
 ];
 
 function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformId }) {
   const navigate = useNavigate();
-  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
-  const navRef = React.useRef<HTMLElement>(null);
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
-  React.useEffect(() => {
-    if (!mobileNavOpen) return;
-    navRef.current?.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMobileNavOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [mobileNavOpen]);
-  const selectPlatform = (id: EcommercePlatformId) => {
-    navigate("/ecommerce-discovery/" + id);
-    if (mobileNavOpen) triggerRef.current?.focus();
-    setMobileNavOpen(false);
-  };
   return (
     <div className="social-platform-workspace-shell">
-      <Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu}
-        aria-label="打开电商平台导航" aria-expanded={mobileNavOpen} aria-controls="ecommerce-platform-nav"
-        onClick={() => setMobileNavOpen(open => !open)}>
-        其他平台发现
-      </Button>
-      <div className="social-platform-workspace">
-        <div className="settings-navigation-shell social-platform-navigation-shell">
-          {mobileNavOpen && <button type="button" className="settings-nav-backdrop" aria-label="关闭电商平台导航"
-            onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }} />}
-          <nav id="ecommerce-platform-nav" ref={navRef}
-            className={mobileNavOpen ? "settings-local-nav is-open social-platform-navigation" : "settings-local-nav social-platform-navigation"}
-            aria-label="电商平台发现分类" role="group"
-            onTouchStart={event => { (navRef as React.RefObject<HTMLElement> & { touchX?: number }).touchX = event.touches[0]?.clientX; }}
-            onTouchEnd={event => { const ref = navRef as React.RefObject<HTMLElement> & { touchX?: number }; if (ref.touchX !== undefined && event.changedTouches[0].clientX - ref.touchX > 80) { setMobileNavOpen(false); triggerRef.current?.focus(); } ref.touchX = undefined; }}>
-            <div className="platform-drawer-heading">
-              <strong>选择电商平台</strong>
-              <button type="button" aria-label="关闭电商平台导航" onClick={() => { setMobileNavOpen(false); triggerRef.current?.focus(); }}>×</button>
-            </div>
-            <div className="settings-nav-group">
-              <div className="settings-nav-group-title">电商平台发现</div>
-              {ecommercePlatformItems.map(item => (
-                <button key={item.id} type="button" className="settings-nav-item social-platform-nav-item"
-                  aria-current={platform === item.id ? "page" : undefined}
-                  onClick={() => selectPlatform(item.id)}>
-                  <span className={"ecommerce-brand-mark ecommerce-brand-" + item.id} aria-hidden="true">{item.mark}</span>
-                  <span className="settings-nav-label">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </nav>
-        </div>
-        <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
-      </div>
+      <nav className="platform-line-tabs" role="tablist" aria-label="电商平台">
+        {ecommercePlatformItems.map((item) => {
+          const Icon = item.icon;
+          const selected = platform === item.id;
+          return (
+            <button key={item.id} type="button" role="tab"
+              className={selected ? "platform-line-tab is-selected" : "platform-line-tab"}
+              aria-selected={selected} aria-current={selected ? "page" : undefined}
+              onClick={() => navigate("/ecommerce-discovery/" + item.id)}>
+              <Icon size={18} aria-hidden="true" />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+      <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
     </div>
   );
 }
