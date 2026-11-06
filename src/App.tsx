@@ -253,7 +253,7 @@ function AppShell() {
   );
   const productActive = path === "/products" || path.startsWith("/ecommerce-discovery");
   const intelligenceActive = ["/trade-access", "/seo-analysis"].includes(path);
-  const customerActive = path === "/customers" || path === "/opportunities" || path === "/communication/inbox" || path === "/meta-content" || path.startsWith("/meta-channels") || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
+  const customerActive = path === "/customers" || path === "/opportunities" || path.startsWith("/meta-channels") || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
   
   return (
     <Theme theme="g10">
@@ -336,6 +336,8 @@ function AppShell() {
                     {menuItem("/products", "产品中心")}
                   </SideNavMenu>
                   {link("/platform-data-collection", "线索发现", DataBase, path === "/platform-data-collection")}
+                  {link("/meta-content", "内容发布中心", Product, path === "/meta-content")}
+                  {link("/communication/inbox", "统一消息中心", Email, path === "/communication/inbox")}
                   <SideNavMenu title="全球市场情报" renderIcon={Currency} defaultExpanded={intelligenceActive} isActive={intelligenceActive}>
                     {menuItem("/trade-access", "贸易与市场准入")}
                     {menuItem("/seo-analysis", "独立站智能诊断")}
@@ -344,8 +346,6 @@ function AppShell() {
                     {menuItem("/customers", "全球客户中心")}
                     {menuItem("/opportunities", "销售商机")}
                     {menuItem("/meta-channels", "渠道账号管理")}
-                    {menuItem("/meta-content", "内容发布中心")}
-                    {menuItem("/communication/inbox", "统一消息中心")}
                     {menuItem("/communication/mail", "邮件沟通")}
                   </SideNavMenu>
                   {link("/tasks", "分析任务", DataBase, path === "/tasks")}
