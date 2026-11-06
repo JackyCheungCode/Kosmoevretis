@@ -1,6 +1,22 @@
 # Meta Channel Integration Architecture
 
-Status: implementation contract for the next delivery slice. This document does not mean Meta credentials, OAuth, webhooks, or message delivery are configured.
+Status: OAuth, asset selection, token encryption, connection metadata, and webhook ingestion foundations are implemented on the feature branch. The Supabase migration and Edge Function are not deployed, Meta credentials and App Review are not configured, and message synchronization/send is not enabled.
+
+## Current implementation boundary
+
+Implemented in `feat/global-trade-social-crm`:
+- Meta OAuth start and callback with organization/user-bound, short-lived, single-use state.
+- Page and WABA asset discovery and explicit asset selection.
+- AES-GCM encryption for temporary OAuth tokens and saved connection credentials.
+- Organization-scoped connection metadata and audit events.
+- Webhook GET challenge verification, raw-body HMAC-SHA256 validation, and idempotent event inbox persistence.
+- Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.
+
+Not deployed or enabled:
+- `supabase/migrations/20261106150000_meta_channel_integration_foundation.sql` is pending review and application.
+- `supabase/functions/meta-api` is committed but not deployed.
+- Meta App secrets, callback registration, webhook subscription, Business Verification, and App Review remain external setup tasks.
+- Webhook event processing into conversations/messages, message send, templates, opt-in capture, and delivery receipts remain future work.
 
 ## 1. Scope and channel model
 
