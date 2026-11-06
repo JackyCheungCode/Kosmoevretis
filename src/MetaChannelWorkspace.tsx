@@ -59,7 +59,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
   const navigate = useNavigate();
   const { session } = useAuth();
   const [organizationId, setOrganizationId] = useState("");
-  const [connections, setConnections] = useState<Array<{id:string;provider:MetaProvider;display_name:string;status:string;external_asset_id:string}>>([]);
+  const [connections, setConnections] = useState<Array<{id:string;provider:MetaProvider;display_name:string;status:string;external_asset_id:string;provider_metadata?:Record<string,any>}>>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -161,7 +161,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           {connections.length ? connections.map(item => (
             <div className="meta-channel-workspace__connected-row" key={item.id}>
               <div><strong>{item.display_name}</strong><small>{item.external_asset_id}</small></div>
-              <Tag type={item.status === "connected" ? "green" : "cool-gray"}>{item.status === "connected" ? "已连接" : item.status}</Tag>
+              <div className="meta-channel-workspace__status-stack"><Tag type={item.status === "connected" ? "green" : "cool-gray"}>{item.status === "connected" ? "已连接" : item.status}</Tag>{item.provider_metadata?.webhook_subscription?.status&&<Tag type={item.provider_metadata.webhook_subscription.status==="subscribed"?"green":"warm-gray"}>{item.provider_metadata.webhook_subscription.status==="subscribed"?"Webhook 已订阅":item.provider_metadata.webhook_subscription.status==="failed"?"Webhook 订阅失败":"Webhook 待处理"}</Tag>}</div>
               <Button kind="ghost" size="sm" onClick={async () => {
                 if (!organizationId) return;
                 const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
