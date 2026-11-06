@@ -82,7 +82,7 @@ export default function MetaChannelConnect() {
     }
   };
 
-  const dropdownItems = assets.map(asset => ({ id:asset.id, text:asset.name, asset }));
+  const dropdownItems = assets.map(asset => ({ id:asset.id, text:asset.name }));
   const selectedItem = dropdownItems.find(item => item.id === selected?.id) || null;
 
   return (
@@ -108,7 +108,7 @@ export default function MetaChannelConnect() {
                   items={dropdownItems}
                   itemToString={item => item?.text || ""}
                   selectedItem={selectedItem}
-                  onChange={({ selectedItem: item }) => setSelected(item?.asset || null)}
+                  onChange={({ selectedItem: item }) => setSelected(assets.find(asset => asset.id === item?.id) || null)}
                 />
                 <div className="meta-channel-connect__asset-note">
                   {selected?.asset_type === "facebook_page" ? "Facebook Page 将以 Page access token 连接。" : "WhatsApp Business Account 将以获授权的业务访问令牌连接。"}
