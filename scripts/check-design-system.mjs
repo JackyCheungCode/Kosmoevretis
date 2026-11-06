@@ -59,7 +59,7 @@ function inspect(relative, source) {
   if (relative.endsWith(".css")) {
     if (/(?:^|[;{}])\s*[^:;{}]+\s*:[^;{}]*#[0-9a-f]{3,8}\b/im.test(source)) violations.push(relative + ": hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.");
     if (/(?:^|[;{}])\s*[^:;{}]+\s*:[^;{}]*\brgba?\(/im.test(source)) violations.push(relative + ": hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.");
-    if (/font-size\s*:\s*(?!var\(--cds-|var\(--kosmo-type-|clamp\()[^;}]+/i.test(source)) violations.push(relative + ": typography must use Carbon type tokens or an approved expressive clamp scale.");
+    if (/font-size\s*:\s*(?!\s*(?:var\(--cds-|var\(--kosmo-type-|clamp\())[^;}]+/i.test(source)) violations.push(relative + ": typography must use Carbon type tokens or an approved expressive clamp scale.");
     if (relative !== "src/styles.css") {
       if (relative === "src/settings-center.css" && /\.cds--[\w-]+/.test(source)) violations.push(relative + ": page CSS must not override Carbon internal component selectors.");
       if (/(^|})\s*(html|body|:root|\.cds--[\w-]+)\b/m.test(source)) violations.push(relative + ": page CSS must not override global or Carbon component selectors.");
