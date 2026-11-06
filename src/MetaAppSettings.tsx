@@ -96,7 +96,7 @@ export default function MetaAppSettings() {
       <div className="settings-actions">
         <Button kind="primary" onClick={()=>void save()} disabled={!canManage||saving||!appId.trim()||!graphVersion.trim()}>{saving?"正在加密保存…":"保存组织配置"}</Button>
         <Button kind="tertiary" onClick={()=>void test()} disabled={!canManage||testing||!config}>{testing?"正在验证…":"测试 Meta App 凭证"}</Button>
-        {config&&<Tag type={config.validation_status==="valid"?"green":config.validation_status==="invalid"?"red":"gray"}>{config.validation_status==="valid"?"验证通过":config.validation_status==="invalid"?"验证失败":"尚未验证"}</Tag>}
+        {config&&<Tag type={config.validation_status==="valid"?"green":config.validation_status==="invalid"?"red":"gray"}>{config.validation_status==="valid"?"凭证通过（非权限审批）":config.validation_status==="invalid"?"验证失败":"尚未验证"}</Tag>}
       </div>
       {config?.validation_message&&<p className="settings-helper-text">{config.validation_message}</p>}
     </section>
