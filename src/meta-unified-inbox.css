@@ -11,3 +11,5 @@
 .meta-inbox-media-upload{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}.meta-inbox-media-upload>span{color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);min-width:10rem;flex:1}
 
 .meta-inbox-template-media{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:var(--cds-spacing-05);align-items:end}.meta-inbox-template-create>p,.meta-inbox-messenger-structured>p{color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}.meta-inbox-messenger-structured{display:grid;gap:var(--cds-spacing-05);padding:var(--cds-spacing-05);background:var(--cds-layer-01)}
+
+.meta-inbox-channel-status{display:flex;gap:var(--cds-spacing-03);flex-wrap:wrap;margin-block:var(--cds-spacing-04)}
