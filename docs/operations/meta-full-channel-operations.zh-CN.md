@@ -38,7 +38,7 @@
 - 帖子、评论、模板和同意记录的写操作由服务端 Edge Function 执行。
 - 发送操作检查组织管理员权限、服务窗口、WhatsApp opt-in 和草稿状态；草稿发送采用状态抢占，降低重复发送风险。
 - Webhook 继续校验 Meta HMAC 签名并先持久化幂等事件，再归一化入站消息。
-- 已部署 Supabase Edge Functions：`meta-api` v9、`meta-operations` v10。
+- 已部署 Supabase Edge Functions：`meta-api` v10、`meta-operations` v10。
 
 ## 当前尚未交付 / 需要后续阶段完成
 
