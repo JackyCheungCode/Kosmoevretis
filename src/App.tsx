@@ -9,7 +9,6 @@ import {
   Column,
   Theme,
   HeaderMenuButton,
-  HeaderName,
   SideNav,
   SideNavItems,
   SideNavLink,
@@ -23,14 +22,6 @@ import {
   Map,
   Product,
   Settings,
-  LogoFacebook,
-  LogoLinkedin,
-  LogoInstagram,
-  LogoX,
-  LogoPinterest,
-  LogoYoutube,
-  Forum,
-  Music,
   Logout,
   DataBase,
   ShoppingCart,
@@ -76,16 +67,42 @@ const validPaths = new Set([
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
 type EcommercePlatformId = EcommercePlatform;
-const socialPlatformItems = [
-  { id: "facebook" as const, label: "Facebook", icon: LogoFacebook },
-  { id: "instagram" as const, label: "Instagram", icon: LogoInstagram },
-  { id: "linkedin" as const, label: "LinkedIn", icon: LogoLinkedin },
-  { id: "google-maps" as const, label: "Google Maps", icon: Map },
-  { id: "x" as const, label: "X", icon: LogoX },
-  { id: "reddit" as const, label: "Reddit", icon: Forum },
-  { id: "pinterest" as const, label: "Pinterest", icon: LogoPinterest },
-  { id: "tiktok" as const, label: "TikTok", icon: Music },
-  { id: "youtube" as const, label: "YouTube", icon: LogoYoutube },
+
+type BrandLogoId =
+  | "facebook" | "instagram" | "linkedin" | "googlemaps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube"
+  | "amazon" | "walmart" | "ebay" | "aliexpress" | "temu" | "etsy" | "shopify" | "mercadolibre" | "rakuten";
+
+const brandLogoColors: Record<BrandLogoId, string> = {
+  facebook: "0866FF", instagram: "E4405F", linkedin: "0A66C2", googlemaps: "4285F4",
+  x: "000000", reddit: "FF4500", pinterest: "BD081C", tiktok: "000000", youtube: "FF0000",
+  amazon: "FF9900", walmart: "0071CE", ebay: "3665F3", aliexpress: "FF4747", temu: "FB7701",
+  etsy: "F1641E", shopify: "7AB55C", mercadolibre: "2D3277", rakuten: "BF0000",
+};
+
+function BrandLogo({ brand, label }: { brand: BrandLogoId; label: string }) {
+  return (
+    <img
+      className={`platform-brand-logo platform-brand-logo--${brand}`}
+      src={`https://cdn.simpleicons.org/${brand}/${brandLogoColors[brand]}`}
+      alt=""
+      aria-hidden="true"
+      loading="eager"
+      decoding="async"
+      title={label}
+    />
+  );
+}
+
+const socialPlatformItems: { id: SocialPlatform; label: string; brand: BrandLogoId }[] = [
+  { id: "facebook", label: "Facebook", brand: "facebook" },
+  { id: "instagram", label: "Instagram", brand: "instagram" },
+  { id: "linkedin", label: "LinkedIn", brand: "linkedin" },
+  { id: "google-maps", label: "Google Maps", brand: "googlemaps" },
+  { id: "x", label: "X", brand: "x" },
+  { id: "reddit", label: "Reddit", brand: "reddit" },
+  { id: "pinterest", label: "Pinterest", brand: "pinterest" },
+  { id: "tiktok", label: "TikTok", brand: "tiktok" },
+  { id: "youtube", label: "YouTube", brand: "youtube" },
 ];
 function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   const navigate = useNavigate();
@@ -116,16 +133,16 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   );
 }
 
-const ecommercePlatformItems: { id: EcommercePlatformId; label: string; icon: React.ElementType }[] = [
-  { id: "amazon", label: "Amazon", icon: ShoppingCart },
-  { id: "walmart", label: "Walmart", icon: Dashboard },
-  { id: "ebay", label: "eBay", icon: Currency },
-  { id: "aliexpress", label: "AliExpress", icon: Product },
-  { id: "temu", label: "Temu", icon: ShoppingCart },
-  { id: "etsy", label: "Etsy", icon: Product },
-  { id: "shopify", label: "Shopify", icon: ShoppingCart },
-  { id: "mercado-libre", label: "Mercado Libre", icon: Map },
-  { id: "rakuten", label: "Rakuten", icon: DataBase },
+const ecommercePlatformItems: { id: EcommercePlatformId; label: string; brand: BrandLogoId }[] = [
+  { id: "amazon", label: "Amazon", brand: "amazon" },
+  { id: "walmart", label: "Walmart", brand: "walmart" },
+  { id: "ebay", label: "eBay", brand: "ebay" },
+  { id: "aliexpress", label: "AliExpress", brand: "aliexpress" },
+  { id: "temu", label: "Temu", brand: "temu" },
+  { id: "etsy", label: "Etsy", brand: "etsy" },
+  { id: "shopify", label: "Shopify", brand: "shopify" },
+  { id: "mercado-libre", label: "Mercado Libre", brand: "mercadolibre" },
+  { id: "rakuten", label: "Rakuten", brand: "rakuten" },
 ];
 
 function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformId }) {
