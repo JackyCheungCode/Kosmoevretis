@@ -80,7 +80,7 @@
 @media(max-width:560px){
  .fb-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .fb-object-card{min-width:0;align-items:flex-start}
- .fb-log-line{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-space-2)}
+ .fb-log-line{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
  .fb-log-line>span:last-child{overflow-wrap:anywhere;word-break:break-word}
 }
 @media(max-width:360px){.fb-object-grid{grid-template-columns:minmax(0,1fr)}}
