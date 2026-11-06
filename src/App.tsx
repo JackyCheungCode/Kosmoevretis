@@ -461,7 +461,7 @@ function AppShell() {
         }}
       />
 
-      <Content id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
+      <Content id="main-content" className={`kosmo-main page-main-container ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         <Grid fullWidth className="kosmo-content-grid">
           <Column sm={4} md={8} lg={16}>
         <RouteBreadcrumbs path={path} />

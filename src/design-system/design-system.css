@@ -33,6 +33,7 @@
 .kosmo-template__results .kosmo-page-section { min-width:0; }
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
  .ig-results-tabs { min-width:0; }
+.page-header-section,
 .kosmo-page-header {
   display: block;
   width: 100%;
