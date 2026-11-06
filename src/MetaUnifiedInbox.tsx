@@ -1,5 +1,5 @@
 import { useCallback,useEffect,useMemo,useState } from "react";
-import { Button,ClickableTile,Dropdown,FileUploaderButton,InlineNotification,Search,Tag,TextArea,TextInput,Tile } from "@carbon/react";
+import { Button,ClickableTile,ContentSwitcher,Dropdown,FileUploaderButton,InlineNotification,Search,Switch,Tag,TextArea,TextInput,Tile } from "@carbon/react";
 import { Chat,Email,Renew,Send } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
 import { useAuth } from "./auth/AuthProvider";
@@ -10,7 +10,6 @@ import "./meta-unified-inbox.css";
 type Conversation={id:string;connection_id:string;channel:string;external_contact_id:string|null;participant_summary:Record<string,unknown>;status:string;last_message_at:string|null;contact_id:string|null;company_id:string|null};
 type Template={id:string;connection_id:string;template_name:string;language_code:string;status:string;category:string|null;components?:Array<{type:string;text?:string}>};
 type Message={id:string;direction:string;body_text:string;delivery_status:string;created_at:string;attachment_metadata:unknown[]};
-const filters=[{id:"all",text:"全部 Meta 渠道"},{id:"whatsapp_business",text:"WhatsApp"},{id:"messenger",text:"Messenger"}];
 const channelName=(v:string)=>v==="whatsapp_business"?"WhatsApp":v==="messenger"?"Messenger":v;
 const mediaLimitMb=(channel:string,type:string)=>channel==="whatsapp_business"?({image:5,video:16,audio:16,document:100} as Record<string,number>)[type]||0:channel==="messenger"?({image:25,video:25,audio:25,file:25} as Record<string,number>)[type]||0:channel==="facebook_pages"?({image:30,video:1024} as Record<string,number>)[type]||0:0;
 export default function MetaUnifiedInbox(){
@@ -19,7 +18,7 @@ export default function MetaUnifiedInbox(){
  const [conversations,setConversations]=useState<Conversation[]>([]);
  const [selected,setSelected]=useState("");
  const [messages,setMessages]=useState<Message[]>([]);
- const [channel,setChannel]=useState("all");
+ const [channel,setChannel]=useState("messenger");
  const [query,setQuery]=useState("");
  const [body,setBody]=useState("");
  const [mediaType,setMediaType]=useState("image");
@@ -107,13 +106,19 @@ export default function MetaUnifiedInbox(){
  };
  const createTemplate=async()=>{if(!current||!newTemplateName.trim()||!newTemplateBody.trim())return;setSending(true);try{let buttons:any[];try{buttons=JSON.parse(newTemplateButtons||"[]");if(!Array.isArray(buttons))throw new Error("按钮必须是 JSON 数组");}catch(e){throw new Error("模板按钮 JSON 格式错误："+(e instanceof Error?e.message:""));}await call("create_template",{connection_id:current.connection_id,template_name:newTemplateName.trim(),language_code:newTemplateLanguage.trim(),category:newTemplateCategory,body_text:newTemplateBody.trim(),footer_text:newTemplateFooter.trim(),variable_examples:newTemplateExamples.split("\n").map(v=>v.trim()).filter(Boolean),header_type:newTemplateHeaderType,header_handle:newTemplateHeaderHandle,buttons});await call("sync_templates",{connection_id:current.connection_id});const d=await call("list_templates");const rows=(d.templates||[]).filter((t:Template)=>t.connection_id===current.connection_id);setTemplates(rows);setTemplateChoice(rows.find((t:Template)=>t.template_name===newTemplateName.trim()&&t.language_code===newTemplateLanguage.trim())?.id||"");setNewTemplateName("");setNewTemplateBody("");setNewTemplateFooter("");setNewTemplateExamples("");setNotice({kind:"success",title:"模板已提交 Meta 审核",message:"模板已创建；审核结果会在同步后更新，只有状态为 approved 才能发送。"});}catch(e){setNotice({kind:"error",title:"创建模板失败",message:e instanceof Error?e.message:"未知错误"});}finally{setSending(false);}};
  const approveSend=async()=>{if(!draftId)return;setSending(true);setNotice(null);try{await call("approve_and_send",{draft_id:draftId});setDraftId("");setNotice({kind:"success",title:"消息已提交 Meta",message:"已收到 Meta API 接受结果；最终送达状态以 Webhook 回执为准。"});const d=await call("list_messages",{conversation_id:selected});setMessages(d.messages||[]);await loadConversations();}catch(e){setNotice({kind:"error",title:"发送未完成",message:e instanceof Error?e.message:"未知错误"});}finally{setSending(false);}};
- return <ConfigurationPageTemplate className="module meta-unified-inbox" title="统一消息中心" description="集中处理 WhatsApp Business 与 Messenger 客户会话；消息通过服务端发送，并保留人工审批与渠道规则校验。" eyebrow="META CUSTOMER INBOX" headingLevel={1}>
+ return <ConfigurationPageTemplate className="module meta-unified-inbox" title="统一消息中心" description="在统一工作区处理 Messenger、Instagram 与 WhatsApp 客户对话。当前开放 Messenger 与 WhatsApp；Instagram DM 待接入。消息发送保留人工审批与渠道规则校验。" eyebrow="META CUSTOMER INBOX" headingLevel={1}>
   {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} onCloseButtonClick={()=>setNotice(null)}/>}
   <PageSection title="会话收件箱" description="仅展示真实 Webhook 已归档的客户会话，不创建演示消息。" headingLevel={3}>
+   <ContentSwitcher selectedIndex={channel==="messenger"?0:channel==="whatsapp_business"?1:2} onChange={(item)=>{if(item.name)setChannel(item.name);}}>
+    <Switch name="messenger" text="Messenger" />
+    <Switch name="whatsapp_business" text="WhatsApp" />
+    <Switch name="instagram" text="Instagram（待接入）" disabled />
+   </ContentSwitcher>
+   <div className="meta-inbox-channel-status"><Tag type="green">Messenger · WhatsApp 当前可用</Tag><Tag type="cool-gray">Instagram DM · 待接入</Tag></div>
    <InlineNotification kind="info" lowContrast title="发送安全规则" subtitle="WhatsApp 发送需有有效 opt-in 证据，并处于 24 小时服务窗口；Messenger 仅在允许的消息窗口内回复。媒体消息目前支持公开 HTTPS 图片、视频、音频及文件；WhatsApp 窗口外仍须使用已审核模板。群发和自动发送尚未启用。"/>
    <div className="meta-inbox-layout">
     <aside className="meta-inbox-list">
-     <div className="meta-inbox-filters"><Search size="lg" labelText="搜索联系人" placeholder="搜索名称或账号" value={query} onChange={e=>setQuery(e.target.value)}/><Dropdown id="meta-inbox-channel" titleText="渠道筛选" label="全部渠道" items={filters} itemToString={i=>i?.text||""} selectedItem={filters.find(i=>i.id===channel)||filters[0]} onChange={({selectedItem})=>setChannel(selectedItem?.id||"all")}/><Button kind="ghost" size="sm" renderIcon={Renew} onClick={()=>void loadConversations()} disabled={loading}>刷新</Button></div>
+     <div className="meta-inbox-filters"><Search size="lg" labelText="搜索联系人" placeholder="搜索名称或账号" value={query} onChange={e=>setQuery(e.target.value)}/><Button kind="ghost" size="sm" renderIcon={Renew} onClick={()=>void loadConversations()} disabled={loading}>刷新</Button></div>
      {loading?<p>正在读取会话…</p>:visible.length===0?<Tile><Chat size={24}/><p>暂无 Meta 会话。完成 Webhook 事件归一化并收到客户消息后，会话会显示在这里。</p></Tile>:visible.map(c=><ClickableTile className={"meta-inbox-conversation "+(selected===c.id?"is-selected":"")} key={c.id} onClick={()=>{setSelected(c.id);setDraftId("");}}><div><strong>{String(c.participant_summary?.name||c.external_contact_id||"未知联系人")}</strong><Tag type="cool-gray">{channelName(c.channel)}</Tag></div><span>{c.last_message_at?new Date(c.last_message_at).toLocaleString():"尚无消息时间"}</span></ClickableTile>)}
     </aside>
     <section className="meta-inbox-thread">
