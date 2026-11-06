@@ -266,6 +266,7 @@ function AppShell() {
   const isMailWorkspace = path === "/communication/mail";
   const isTemplatePage = path === "/platform-data-collection" || path === "/seo-analysis" || path === "/communication/mail" || path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = React.useState(false);
   const accountMenuRef = React.useRef<HTMLDivElement>(null);
@@ -277,6 +278,7 @@ function AppShell() {
     const updateViewport = () => {
       const next: Viewport = mobileQuery.matches ? "mobile" : tabletQuery.matches ? "tablet" : "desktop";
       setViewport(next);
+      setMobileOpen(false);
       setTabletExpanded(false);
     };
     updateViewport();
@@ -367,10 +369,10 @@ function AppShell() {
       <SkipToContent href="#main-content">跳转到主要内容</SkipToContent>
       <HeaderContainer
         render={(headerState: { isSideNavExpanded: boolean; onClickSideNavExpand: () => void }) => {
-          const { isSideNavExpanded, onClickSideNavExpand } = headerState;
-          const expanded = viewport === "desktop" || (viewport === "tablet" && tabletExpanded) || (viewport === "mobile" && isSideNavExpanded);
+          const { onClickSideNavExpand } = headerState;
+          const expanded = viewport === "desktop" || (viewport === "tablet" && tabletExpanded) || (viewport === "mobile" && mobileOpen);
           const closeMobileNav = () => {
-            if (isSideNavExpanded) onClickSideNavExpand();
+            setMobileOpen(false);
             document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
           };
           closeMobileNavRef.current = closeMobileNav;
@@ -384,6 +386,7 @@ function AppShell() {
                   aria-expanded={expanded}
                   onClick={() => {
                     if (viewport === "tablet") setTabletExpanded((value) => !value);
+                    else if (viewport === "mobile") setMobileOpen((value) => !value);
                     else onClickSideNavExpand();
                   }}
                   className="kosmo-header-menu-button"
