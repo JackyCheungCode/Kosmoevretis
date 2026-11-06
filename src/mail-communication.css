@@ -28,7 +28,7 @@
 .mail-ai-panel p{margin:0;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);line-height:1.5}
 .mail-ai-empty{display:flex;align-items:center;gap:var(--kosmo-space-2);padding:var(--kosmo-space-3);background:var(--cds-layer);color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
 .mail-compose-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;background:var(--cds-overlay)}
-.mail-compose-dialog{width:min(42rem,100%);max-height:min(90dvh,52rem);overflow:auto;padding:var(--kosmo-space-4);background:var(--cds-layer);box-shadow:0 1rem 3rem rgba(0,0,0,.25)}
+.mail-compose-dialog{width:min(42rem,100%);max-height:min(90dvh,52rem);overflow:auto;padding:var(--kosmo-space-4);background:var(--cds-layer);border:1px solid var(--cds-border-subtle)}
 .mail-compose-dialog>header,.mail-compose-dialog>footer{display:flex;align-items:center;justify-content:space-between;gap:var(--kosmo-space-3)}
 .mail-compose-dialog h3{margin:0;font-size:var(--cds-heading-compact-02-font-size)}
 .mail-compose-fields{display:grid;gap:var(--kosmo-space-3);margin:var(--kosmo-space-4) 0}
