@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, Dropdown, InlineNotification, Tag, TextArea, TextInput, Tile } from "@carbon/react";
+import { Button, Dropdown, FileUploaderButton, InlineNotification, Tag, TextArea, TextInput, Tile } from "@carbon/react";
 import { Add, Checkmark, CloudUpload, Renew, TrashCan } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
 import { useAuth } from "./auth/AuthProvider";
@@ -23,6 +23,8 @@ export default function MetaContentStudio(){
   const [link,setLink]=useState("");
   const [mediaUrls,setMediaUrls]=useState("");
   const [videoUrl,setVideoUrl]=useState("");
+  const [mediaFile,setMediaFile]=useState<File|null>(null);
+  const [uploadingMedia,setUploadingMedia]=useState(false);
   const [scheduleAt,setScheduleAt]=useState("");
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
@@ -68,6 +70,26 @@ export default function MetaContentStudio(){
   const loadInsights=async()=>{if(!selectedConnection)return;try{const d=await call("page_insights",{connection_id:selectedConnection});setInsights(d.insights||[]);setNotice({kind:"success",title:"主页数据已更新",message:"已读取当前 Page 可访问的 Insights 指标。"});}catch(err){setNotice({kind:"error",title:"读取主页数据失败",message:err instanceof Error?err.message:"未知错误"});}};
   const replyComment=async(commentId:string)=>{if(!selectedPost||!replyText.trim())return;await run("reply_comment",{connection_id:selectedPost.connection_id,comment_id:commentId,message:replyText.trim()},"评论回复已提交");setReplyText("");setReplyingTo("");await loadComments(selectedPost);};
   const moderateComment=async(commentId:string,hidden:boolean)=>{if(!selectedPost)return;await run("moderate_comment",{connection_id:selectedPost.connection_id,comment_id:commentId,hidden},hidden?"评论已隐藏":"评论已恢复显示");await loadComments(selectedPost);};
+  const uploadSelectedMedia=async()=>{
+    if(!mediaFile||!selectedConnection)return;
+    const mediaType=mediaFile.type.startsWith("image/")?"image":mediaFile.type.startsWith("video/")?"video":"";
+    const limitMb=mediaType==="image"?30:mediaType==="video"?500:0;
+    if(!limitMb||mediaFile.size>limitMb*1024*1024){setNotice({kind:"error",title:"素材格式或大小不符合要求",message:`Facebook ${mediaType||"未知类型"}素材上限为 ${limitMb||"不支持"} MB。`});return;}
+    setUploadingMedia(true);setNotice(null);
+    try{
+      const {data:prepared,error:prepareError}=await supabase.functions.invoke("meta-media",{body:{action:"create_upload",organization_id:organizationId,connection_id:selectedConnection,file_name:mediaFile.name,file_size:mediaFile.size,content_type:mediaFile.type,media_type:mediaType}});
+      if(prepareError||prepared?.error)throw new Error(prepareError?.message||prepared?.error||"无法准备媒体上传");
+      const {error:uploadError}=await supabase.storage.from(prepared.bucket).uploadToSignedUrl(prepared.path,prepared.token,mediaFile,{contentType:mediaFile.type,upsert:false});
+      if(uploadError)throw uploadError;
+      const {data:download,error:downloadError}=await supabase.functions.invoke("meta-media",{body:{action:"create_download_url",organization_id:organizationId,connection_id:selectedConnection,path:prepared.path,expires_in_seconds:21600}});
+      if(downloadError||download?.error||!download?.url)throw new Error(downloadError?.message||download?.error||"无法生成媒体访问地址");
+      if(mediaType==="image")setMediaUrls(current=>[...current.split("\\n").map(v=>v.trim()).filter(Boolean),download.url].join("\\n"));
+      else setVideoUrl(download.url);
+      setMediaFile(null);
+      setNotice({kind:"success",title:"素材上传完成",message:"已保存到组织私有媒体库，并将限时 HTTPS 地址加入帖子素材。请在链接有效期内立即发布；限时地址不适合未来排程。"});
+    }catch(error){setNotice({kind:"error",title:"素材上传失败",message:error instanceof Error?error.message:"未知错误"});}
+    finally{setUploadingMedia(false);}
+  };
   const createDraft=async()=>{
     if(!selectedConnection){setNotice({kind:"error",title:"尚未连接 Facebook Page",message:"先到 Meta 渠道管理完成 Page 授权。"});return;}
     setBusy(true);setNotice(null);
@@ -75,7 +97,7 @@ export default function MetaContentStudio(){
     catch(err){setNotice({kind:"error",title:"保存草稿失败",message:err instanceof Error?err.message:"未知错误"});}
     finally{setBusy(false);}
   };
-  const scheduleNewPost=async()=>{if(!selectedConnection||!scheduleAt)return;setBusy(true);setNotice(null);try{const created=await call("create_post",{connection_id:selectedConnection,content_text:content,link_url:link.trim()||null,media_items:[...mediaUrls.split("\n").map(url=>url.trim()).filter(Boolean).map(url=>({type:"image",url})),...(videoUrl.trim()?[{type:"video",url:videoUrl.trim()}]:[])]});await call("schedule_post",{post_id:created.post.id,scheduled_at:new Date(scheduleAt).toISOString()});setContent("");setLink("");setMediaUrls("");setVideoUrl("");setScheduleAt("");setNotice({kind:"success",title:"帖子已提交 Meta 排程",message:"Meta 已接受排程请求；实际发布时间以 Meta Page 的排程状态为准。"});await load();}catch(err){setNotice({kind:"error",title:"排程未完成",message:err instanceof Error?err.message:"未知错误"});await load();}finally{setBusy(false);}};
+  const scheduleNewPost=async()=>{if(!selectedConnection||!scheduleAt)return;if(/\/storage\/v1\/object\/sign\/meta-channel-media\//.test(mediaUrls+" "+videoUrl)){setNotice({kind:"error",title:"私有素材不支持远期排程",message:"私有素材签名链接会在 6 小时后失效。请改用长期可访问的公开 HTTPS 素材地址进行排程。"});return;}setBusy(true);setNotice(null);try{const created=await call("create_post",{connection_id:selectedConnection,content_text:content,link_url:link.trim()||null,media_items:[...mediaUrls.split("\n").map(url=>url.trim()).filter(Boolean).map(url=>({type:"image",url})),...(videoUrl.trim()?[{type:"video",url:videoUrl.trim()}]:[])]});await call("schedule_post",{post_id:created.post.id,scheduled_at:new Date(scheduleAt).toISOString()});setContent("");setLink("");setMediaUrls("");setVideoUrl("");setScheduleAt("");setNotice({kind:"success",title:"帖子已提交 Meta 排程",message:"Meta 已接受排程请求；实际发布时间以 Meta Page 的排程状态为准。"});await load();}catch(err){setNotice({kind:"error",title:"排程未完成",message:err instanceof Error?err.message:"未知错误"});await load();}finally{setBusy(false);}};
   const publish=async(post:Post)=>{await run("publish_post",{post_id:post.id},"Facebook 帖子已发布");};
   const remove=async(post:Post)=>{await run("delete_post",{post_id:post.id},"帖子已删除或取消");};
   const connectionItems=connections.map(c=>({id:c.id,text:c.display_name||c.external_asset_id}));
@@ -87,10 +109,10 @@ export default function MetaContentStudio(){
         <Button kind="tertiary" renderIcon={Renew} disabled={busy||!selectedConnection} onClick={()=>void run("sync_posts",{connection_id:selectedConnection},"帖子同步完成")}>同步主页帖子</Button><Button kind="ghost" disabled={busy||!selectedConnection} onClick={()=>void loadInsights()}>查看主页数据</Button>
       </div>:<InlineNotification kind="warning" lowContrast title="尚未连接 Facebook Page" subtitle="先在「Meta 渠道管理 → Facebook Pages」完成应用配置、授权和 Page 资产选择。"/>}
     </PageSection>
-    <PageSection title="创建帖子" description="先保存草稿，再由有权限的组织管理员执行发布。请确保素材 URL 可被 Meta 服务器公开访问。" headingLevel={3}>
+    <PageSection title="创建帖子" description="先保存草稿，再由有权限的组织管理员执行发布。可填写公开素材 URL，或将本地图片 / 视频上传至组织私有媒体库后加入帖子；私有素材签名链接有效期为 6 小时，不支持远期排程。" headingLevel={3}>
       <div className="meta-content-compose">
         <TextArea id="meta-post-content" labelText="帖子内容" placeholder="输入帖子文字…" rows={5} value={content} onChange={e=>setContent(e.target.value)}/>
-        <TextInput id="meta-post-link" labelText="链接（可选）" placeholder="https://…" value={link} onChange={e=>setLink(e.target.value)}/><TextArea id="meta-post-media" labelText="图片素材 URL（每行一条，可多张）" placeholder={"https://example.com/image-1.jpg\nhttps://example.com/image-2.jpg"} rows={3} value={mediaUrls} onChange={e=>setMediaUrls(e.target.value)}/><TextInput id="meta-post-video" labelText="视频 URL（单个视频；不可与图片混合）" placeholder="https://example.com/video.mp4" value={videoUrl} onChange={e=>setVideoUrl(e.target.value)}/><TextInput id="meta-post-schedule" type="datetime-local" labelText="排程发布时间（可选）" value={scheduleAt} onChange={e=>setScheduleAt(e.target.value)}/>
+        <TextInput id="meta-post-link" labelText="链接（可选）" placeholder="https://…" value={link} onChange={e=>setLink(e.target.value)}/><div className="meta-content-upload"><FileUploaderButton accept={["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/quicktime"]} buttonKind="tertiary" labelText="选择本地图片 / 视频" multiple={false} onChange={event=>setMediaFile(event.currentTarget.files?.[0]||null)} disabled={busy||uploadingMedia||!selectedConnection}/><span>{mediaFile?`${mediaFile.name} · ${(mediaFile.size/1024/1024).toFixed(1)} MB`:"未选择本地素材"}</span><Button kind="ghost" disabled={!mediaFile||busy||uploadingMedia} onClick={()=>void uploadSelectedMedia()}>{uploadingMedia?"正在上传…":"上传并加入帖子"}</Button></div><TextArea id="meta-post-media" labelText="图片素材 URL（每行一条，可多张）" placeholder={"https://example.com/image-1.jpg\nhttps://example.com/image-2.jpg"} rows={3} value={mediaUrls} onChange={e=>setMediaUrls(e.target.value)}/><TextInput id="meta-post-video" labelText="视频 URL（单个视频；不可与图片混合）" placeholder="https://example.com/video.mp4" value={videoUrl} onChange={e=>setVideoUrl(e.target.value)}/><TextInput id="meta-post-schedule" type="datetime-local" labelText="排程发布时间（可选）" value={scheduleAt} onChange={e=>setScheduleAt(e.target.value)}/>
         <div className="meta-content-actions"><Button kind="primary" renderIcon={Add} disabled={busy||!selectedConnection||(!content.trim()&&!link.trim()&&!mediaUrls.trim()&&!videoUrl.trim())} onClick={()=>void createDraft()}>保存帖子草稿</Button><Button kind="tertiary" disabled={busy||!selectedConnection||!scheduleAt||(!content.trim()&&!link.trim()&&!mediaUrls.trim()&&!videoUrl.trim())} onClick={()=>void scheduleNewPost()}>保存并排程</Button></div>
       </div>
       <InlineNotification kind="info" lowContrast title="当前发布范围" subtitle="本阶段支持文字、链接、单张/多张公开图片及单个公开视频 URL 发布；Reels、Stories、Instagram 发布及完整媒体库将在后续能力阶段接入；排程范围受 Meta 允许的时间窗口限制。Meta 不允许的内容和权限不会被绕过。"/>
