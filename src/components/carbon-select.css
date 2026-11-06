@@ -12,4 +12,4 @@
 .carbon-select-option:hover,.carbon-select-option.selected{background:var(--cds-layer-hover-01)}
 .carbon-select-option.selected{color:var(--cds-interactive);font-weight:600}
 .carbon-select-option:disabled{opacity:.45;cursor:not-allowed}
-.carbon-select-empty{padding:1rem;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);text-align:center}
+.carbon-select-empty{padding:var(--kosmo-spacing-05);color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);text-align:center}
