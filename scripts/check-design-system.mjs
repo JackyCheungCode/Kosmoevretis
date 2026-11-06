@@ -10,6 +10,12 @@ const explicitFiles = [
   ["src/app-shell.css", new URL("../src/app-shell.css", import.meta.url)],
   ["src/styles.css", new URL("../src/styles.css", import.meta.url)],
   ["src/design-tokens.scss", new URL("../src/design-tokens.scss", import.meta.url)],
+  ["src/intelligence.css", new URL("../src/intelligence.css", import.meta.url)],
+  ["src/product-center.css", new URL("../src/product-center.css", import.meta.url)],
+  ["src/trade-access.css", new URL("../src/trade-access.css", import.meta.url)],
+  ["src/facebook-discovery.css", new URL("../src/facebook-discovery.css", import.meta.url)],
+  ["src/google-maps-discovery.css", new URL("../src/google-maps-discovery.css", import.meta.url)],
+  ["src/linkedin-discovery.css", new URL("../src/linkedin-discovery.css", import.meta.url)],
 ];
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
