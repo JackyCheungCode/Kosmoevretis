@@ -207,3 +207,5 @@
 .pc-keyword-row span{color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
 .pc-market-profile .pc-attribute-summary{margin-top:0}
 @media(max-width:1055px){.pc-keyword-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+@media(max-width:671px){.pc-variant-form button{width:100%}.pc-variant-actions{width:100%;justify-content:space-between}.pc-variant-actions button{flex:1 1 auto}.pc-keyword-form{grid-template-columns:minmax(0,1fr)}.pc-keyword-form button{width:100%}}
