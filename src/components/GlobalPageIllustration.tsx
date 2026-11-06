@@ -1,3 +1,5 @@
+import "./global-page-illustration.css";
+
 type IllustrationKind = "intelligence" | "products" | "trade" | "social" | "commerce" | "seo" | "mail" | "settings";
 
 function getKind(path: string): IllustrationKind {
@@ -11,81 +13,64 @@ function getKind(path: string): IllustrationKind {
   return "intelligence";
 }
 
-const labels: Record<IllustrationKind, string> = {
-  intelligence: "GLOBAL SIGNALS",
-  products: "PRODUCT INTELLIGENCE",
-  trade: "GLOBAL TRADE NETWORK",
-  social: "SOCIAL GRAPH",
-  commerce: "COMMERCE PULSE",
-  seo: "DIGITAL VISIBILITY",
-  mail: "CONNECTED CONVERSATIONS",
-  settings: "SYSTEM ORCHESTRATION",
-};
-
 export default function GlobalPageIllustration({ path }: { path: string }) {
   const kind = getKind(path);
   return (
-    <section className={`kosmo-illustration kosmo-illustration--${kind}`} aria-label={labels[kind]}>
-      <div className="kosmo-illustration__label" aria-hidden="true">{labels[kind]}</div>
-      <svg className="kosmo-illustration__art" viewBox="0 0 760 176" role="img" aria-label={labels[kind]} preserveAspectRatio="xMidYMid meet">
+    <div className={`kosmo-page-art kosmo-page-art--${kind}`} aria-hidden="true">
+      <svg className="kosmo-page-art__canvas" viewBox="0 0 1200 190" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <linearGradient id="kosmo-art-line" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="var(--cds-blue-40)" />
+          <linearGradient id="kosmo-page-art-stroke" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="var(--cds-blue-50)" />
+            <stop offset=".55" stopColor="var(--cds-blue-40)" />
             <stop offset="1" stopColor="var(--cds-teal-50)" />
           </linearGradient>
-          <radialGradient id="kosmo-art-core">
-            <stop offset="0" stopColor="var(--cds-blue-20)" stopOpacity=".95" />
-            <stop offset="1" stopColor="var(--cds-blue-50)" stopOpacity=".08" />
+          <linearGradient id="kosmo-page-art-fill" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="var(--cds-blue-30)" stopOpacity=".55" />
+            <stop offset="1" stopColor="var(--cds-teal-20)" stopOpacity=".12" />
+          </linearGradient>
+          <radialGradient id="kosmo-page-art-glow">
+            <stop offset="0" stopColor="var(--cds-blue-40)" stopOpacity=".34" />
+            <stop offset="1" stopColor="var(--cds-blue-40)" stopOpacity="0" />
           </radialGradient>
         </defs>
-        <g className="kosmo-illustration__grid" fill="none" stroke="var(--cds-blue-30)" strokeWidth="1">
-          {Array.from({ length: 13 }, (_, i) => <path key={`v${i}`} d={`M${260 + i * 20} 12 V164`} />)}
-          {Array.from({ length: 7 }, (_, i) => <path key={`h${i}`} d={`M248 ${20 + i * 22} H744`} />)}
+        <g className="kosmo-page-art__ambient">
+          <ellipse cx="920" cy="92" rx="255" ry="115" fill="url(#kosmo-page-art-glow)" />
+          <path d="M0 150H1200" stroke="var(--cds-border-subtle)" strokeWidth="1" opacity=".5" />
+          <path d="M0 38H1200M0 76H1200M0 114H1200" stroke="var(--cds-border-subtle)" strokeWidth="1" opacity=".22" strokeDasharray="2 12" />
         </g>
-        <g className="kosmo-illustration__orbit" fill="none" stroke="url(#kosmo-art-line)" strokeWidth="1.5">
-          <ellipse cx="540" cy="88" rx="178" ry="60" transform="rotate(-15 540 88)" />
-          <ellipse cx="540" cy="88" rx="126" ry="82" transform="rotate(48 540 88)" />
-          <path d="M330 88 C410 16 594 12 708 88 C615 158 424 158 330 88Z" strokeDasharray="5 8" />
+        <g className="kosmo-page-art__flow" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.5">
+          <path d="M28 128C180 128 196 48 350 48S520 144 680 144 888 30 1172 30" strokeDasharray="3 10" />
+          <path d="M80 166C250 166 300 88 444 88S650 174 790 174 1010 72 1190 72" opacity=".55" />
         </g>
-        <circle className="kosmo-illustration__halo" cx="540" cy="88" r="52" fill="url(#kosmo-art-core)" />
-        {kind === "intelligence" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2">
-          <circle cx="540" cy="88" r="37" /><path d="M503 88h74M540 51c-18 18-18 56 0 74M540 51c18 18 18 56 0 74M510 66c18 10 42 10 60 0M510 110c18-10 42-10 60 0" />
-          <path d="M540 12v18M540 146v18M464 88h18M598 88h18" stroke="var(--cds-teal-50)" />
+        {kind === "intelligence" && <g className="kosmo-page-art__motif" transform="translate(920 94)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.6">
+          <circle r="65" fill="url(#kosmo-page-art-fill)" /><ellipse rx="65" ry="25" /><ellipse rx="65" ry="25" transform="rotate(60)" /><ellipse rx="65" ry="25" transform="rotate(120)" /><circle r="65" strokeDasharray="3 9" className="kosmo-page-art__orbit" /><path d="M-65 0H65M0-65V65" opacity=".6" />
         </g>}
-        {kind === "products" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2" strokeLinejoin="round">
-          <path d="m540 43 42 23v48l-42 23-42-23V66zM498 66l42 24 42-24M540 90v47" />
-          <path d="m516 54 42 24M564 54l-42 24" stroke="var(--cds-teal-50)" />
+        {kind === "products" && <g className="kosmo-page-art__motif" transform="translate(920 96)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.7" strokeLinejoin="round">
+          <path d="m0-67 58 33v66L0 66l-58-34v-66z" fill="url(#kosmo-page-art-fill)" /><path d="M-58-34 0 0l58-34M0 0v66" /><path d="m-28-83 58 33 58-33M-86 0l28 34v66M86 0 28 34v66" opacity=".5" />
         </g>}
-        {kind === "trade" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2">
-          <path d="M478 103h124l-14 24h-96zM496 103V76h88v27M510 76V59h60v17M526 59V44h28v15" />
-          <path d="M488 140h104M506 150h68" stroke="var(--cds-teal-50)" />
+        {kind === "trade" && <g className="kosmo-page-art__motif" transform="translate(920 96)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.7">
+          <path d="M-105-42H95L70 0h-150z" fill="url(#kosmo-page-art-fill)" /><path d="M-80-42v-34H70v34M-48-76v-27H38v27M-14-103v-19h18v19" /><path d="M-125 24H110M-96 42H82M-64 60H50" opacity=".6" />
         </g>}
-        {kind === "social" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2">
-          <path d="M540 88 486 52m54 36 67-42m-67 42 65 47m-65-47-62 49" />
-          <circle cx="540" cy="88" r="17" fill="var(--cds-blue-20)" /><circle cx="486" cy="52" r="9" /><circle cx="607" cy="46" r="9" /><circle cx="605" cy="135" r="9" /><circle cx="478" cy="137" r="9" />
+        {kind === "social" && <g className="kosmo-page-art__motif" transform="translate(920 94)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.8">
+          <path d="M0 0-94-47M0 0 78-64M0 0 100 43M0 0-72 67M-94-47-22-91M78-64 124-15M100 43 46 94M-72 67-125 18" /><circle r="22" fill="url(#kosmo-page-art-fill)" /><circle cx="-94" cy="-47" r="10" /><circle cx="78" cy="-64" r="10" /><circle cx="100" cy="43" r="10" /><circle cx="-72" cy="67" r="10" /><circle cx="-22" cy="-91" r="5" /><circle cx="124" cy="-15" r="5" /><circle cx="46" cy="94" r="5" /><circle cx="-125" cy="18" r="5" />
         </g>}
-        {kind === "commerce" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2" strokeLinejoin="round">
-          <path d="M487 58h18l15 67h72l15-49h-91M528 139h1m56 0h1" strokeLinecap="round" />
-          <circle cx="528" cy="139" r="7" fill="var(--cds-blue-20)" /><circle cx="585" cy="139" r="7" fill="var(--cds-blue-20)" />
-          <path d="M530 78h64M537 94h52" stroke="var(--cds-teal-50)" />
+        {kind === "commerce" && <g className="kosmo-page-art__motif" transform="translate(920 96)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.8" strokeLinejoin="round">
+          <path d="M-84-60h24l22 112h115l25-83h-145" /><circle cx="-20" cy="72" r="11" fill="url(#kosmo-page-art-fill)" /><circle cx="67" cy="72" r="11" fill="url(#kosmo-page-art-fill)" /><path d="M-33-22H76M-22 3H68" opacity=".7" />
         </g>}
-        {kind === "seo" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2" strokeLinejoin="round">
-          <path d="M485 122V88h22v34M521 122V64h22v58M557 122V43h22v79M593 122V77h22v45" />
-          <path d="m480 69 38-20 32 8 48-27" stroke="var(--cds-teal-50)" /><path d="M588 30h10v10" stroke="var(--cds-teal-50)" />
+        {kind === "seo" && <g className="kosmo-page-art__motif" transform="translate(920 96)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.8">
+          <path d="M-112 55V5h32v50M-58 55v-82h32v82M-4 55v-112h32V55M50 55v-64h32v64" fill="url(#kosmo-page-art-fill)" /><path d="m-125-36 55-28 49 16 68-45 70 12" /><circle cx="117" cy="-81" r="6" fill="var(--cds-teal-50)" />
         </g>}
-        {kind === "mail" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2" strokeLinejoin="round">
-          <rect x="484" y="53" width="112" height="72" rx="3" /><path d="m486 58 54 42 54-42" /><path d="M505 139h70" stroke="var(--cds-teal-50)" />
+        {kind === "mail" && <g className="kosmo-page-art__motif" transform="translate(920 96)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.8" strokeLinejoin="round">
+          <rect x="-94" y="-55" width="188" height="112" rx="3" fill="url(#kosmo-page-art-fill)" /><path d="m-92-51 92 72 92-72M-92 55l65-55M92 55 27 0" />
         </g>}
-        {kind === "settings" && <g className="kosmo-illustration__object" fill="none" stroke="var(--cds-interactive)" strokeWidth="2">
-          <circle cx="540" cy="88" r="17" /><circle cx="540" cy="88" r="39" strokeDasharray="4 6" />
-          <path d="M540 36v-16m0 136v-16m52-52h16m-136 0h16m89-37 12-12m-98 98 12-12m74 0 12 12m-98-98 12 12" stroke="var(--cds-teal-50)" />
+        {kind === "settings" && <g className="kosmo-page-art__motif" transform="translate(920 94)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.8">
+          <circle r="24" fill="url(#kosmo-page-art-fill)" /><circle r="58" strokeDasharray="4 8" /><path d="M0-88v-22M0 88v22M88 0h22M-88 0h-22M62-62l16-16M-62 62l-16 16M62 62l16 16M-62-62l-16-16" /><circle r="82" opacity=".45" />
         </g>}
-        <g className="kosmo-illustration__particles" fill="var(--cds-teal-50)">
-          <circle cx="376" cy="48" r="3" /><circle cx="688" cy="40" r="3" /><circle cx="675" cy="139" r="2.5" /><circle cx="408" cy="136" r="2.5" />
+        <g className="kosmo-page-art__nodes" fill="var(--cds-teal-50)">
+          <circle cx="720" cy="44" r="3" /><circle cx="790" cy="154" r="2.5" /><circle cx="1080" cy="40" r="3" /><circle cx="1110" cy="148" r="2.5" />
         </g>
-        <path className="kosmo-illustration__signal" d="M284 130 C340 130 352 62 408 62 S478 130 536 130 640 48 736 48" fill="none" stroke="url(#kosmo-art-line)" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 10" />
       </svg>
-      <div className="kosmo-illustration__accent" aria-hidden="true" />
-    </section>
+      <div className="kosmo-page-art__light" />
+    </div>
   );
 }
