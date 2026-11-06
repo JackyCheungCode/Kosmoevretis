@@ -34,7 +34,7 @@
 - 路由面包屑已迁移为 Carbon `Breadcrumb` / `BreadcrumbItem`，继续保留首页、页面分组和当前页的中文层级，以及 React Router 站内导航；分隔符交由 Carbon 组件提供，不再用 CSS 伪元素模拟。
 - 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
 - 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
-- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`，并加入设计规范防回归检查。
+- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集、Facebook 发现、LinkedIn 发现的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`，并加入设计规范防回归检查。
 
 ## 3. 已修复的审计与样式问题
 
@@ -101,7 +101,9 @@
 - `8a88b44`：产品目录整行选择控件迁移至 Carbon `ClickableTile`。
 - `25fbce2`：增加产品目录 `ClickableTile` 防回归检查。
 - `a161655`、`798fda3`：电商发现与平台数据采集历史任务行迁移为 Carbon `ClickableTile`。
-- `4e63513`：增加两个发现页面的 `ClickableTile` 防回归检查。
+- `4e63513`：增加电商发现与平台数据采集页面的 `ClickableTile` 防回归检查。
+- `a38b4fb`、`e059b43`：Facebook 与 LinkedIn 历史任务列表迁移为 Carbon `ClickableTile`。
+- `1923e2d`：增加 Facebook / LinkedIn 历史任务列表的 `ClickableTile` 防回归检查。
 - `17b720e`、`cfb34cd`：AppShell 面包屑迁移至 Carbon Breadcrumb，移除自定义分隔符。
 - `dc6d0ca`：关闭 Carbon Breadcrumb 的尾部分隔符，保持路径显示简洁。
 - `5c98bee`：移除面包屑列表自定义 gap，让 Carbon 自己控制分隔符两侧间距。
