@@ -85,3 +85,53 @@
 .platform-line-tabs .cds--tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
 .platform-line-tabs .cds--tab svg{flex:none}
 @media(max-width:671px){.platform-line-tabs .cds--tab{min-height:2.875rem;padding:0 .875rem;font-size:var(--cds-label-01-font-size)}}
+
+
+/* Official brand marks in the social and commerce platform switchers. */
+.platform-line-tabs .cds--tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  padding-inline: 1rem;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.platform-line-tabs .cds--tab-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 2rem;
+  white-space: nowrap;
+}
+.platform-line-tabs .platform-brand-logo {
+  display: block;
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  object-position: center;
+  vertical-align: middle;
+}
+.platform-line-tabs .cds--tab[aria-selected="true"] .platform-brand-logo {
+  transform: translateZ(0);
+}
+@media (max-width: 671px) {
+  .platform-line-tabs .cds--tab {
+    min-height: 3.5rem;
+    padding-inline: .875rem;
+    font-size: 1rem;
+  }
+  .platform-line-tabs .platform-brand-logo {
+    flex-basis: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/* The app header keeps navigation and account controls, but no workspace-name text. */
+.kosmo-header .cds--header__name,
+.kosmo-header .kosmo-header-context {
+  display: none !important;
+}
