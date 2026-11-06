@@ -62,7 +62,7 @@ export function CollectionModeGrid({
             aria-pressed={selectedId === option.id}
             onClick={() => onSelect(option.id)}
           >
-            <span className="kosmo-collection-mode-grid__icon"><Icon size={20} /></span>
+            <span className="kosmo-collection-mode-grid__icon"><Icon size={24} /></span>
             <span className="kosmo-collection-mode-grid__copy">
               <strong>{option.label}</strong>
               <span>{option.description}</span>
