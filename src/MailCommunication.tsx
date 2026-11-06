@@ -1,6 +1,6 @@
 import React from "react";
 import { supabase } from "./lib/supabase";
-import { Button, InlineNotification, Search, Tag } from "@carbon/react";
+import { ClickableTile, Button, InlineNotification, Search, Tag } from "@carbon/react";
 import { Add, Archive, Document, Email, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "./design-system/components";
@@ -64,15 +64,15 @@ export default function MailCommunication() {
           <div className="mail-pane-label">邮箱文件夹</div>
           {folders.map(item => {
             const Icon = item.icon;
-            return <button key={item.id} type="button" className={folder === item.id ? "mail-folder is-active" : "mail-folder"} onClick={() => setFolder(item.id)} aria-current={folder === item.id ? "page" : undefined}>
+            return <ClickableTile key={item.id} type="button" className={folder === item.id ? "mail-folder is-active" : "mail-folder"} onClick={() => setFolder(item.id)} aria-current={folder === item.id ? "page" : undefined}>
               <Icon size={16} /><span>{item.label}</span>
-            </button>;
+            </ClickableTile>;
           })}
           <div className="mail-folder-divider" />
           <div className="mail-pane-label">邮箱账户</div>
-          {accounts.length ? accounts.map(account => <button key={account.id} type="button" className={activeAccountId === account.id ? "mail-account-item is-active" : "mail-account-item"} onClick={() => setActiveAccountId(account.id)} title={account.email_address}>
+          {accounts.length ? accounts.map(account => <ClickableTile key={account.id} type="button" className={activeAccountId === account.id ? "mail-account-item is-active" : "mail-account-item"} onClick={() => setActiveAccountId(account.id)} title={account.email_address}>
             <Email size={16}/><span>{account.email_address}</span>
-          </button>) : <div className="mail-no-accounts"><Email size={18}/><span>尚未绑定邮箱</span></div>}
+          </ClickableTile>) : <div className="mail-no-accounts"><Email size={18}/><span>尚未绑定邮箱</span></div>}
           <Button kind="ghost" size="sm" renderIcon={Add} onClick={() => navigate("/settings/mail")}>{accounts.length ? "管理邮箱账户" : "添加邮箱账户"}</Button>
         </nav>
 
