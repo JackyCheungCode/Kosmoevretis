@@ -158,3 +158,26 @@
   .kosmo-page-header__description { margin-top:var(--kosmo-spacing-04); font-size: var(--cds-body-01-font-size); line-height: 1.5; }
   .kosmo-page-header__meta { justify-content: flex-start; width: 100%; }
 }
+
+
+/* Shared brand logo tile; geometry is owned by semantic component tokens. */
+.kosmo-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--kosmo-brand-logo-size);
+  height: var(--kosmo-brand-logo-size);
+  min-width: var(--kosmo-brand-logo-size);
+  padding: var(--kosmo-brand-logo-padding);
+  overflow: hidden;
+  border-radius: var(--kosmo-brand-logo-radius);
+  background: var(--cds-layer-02);
+  color: var(--cds-text-primary);
+}
+.kosmo-brand-logo__image {
+  display: block;
+  width: var(--kosmo-brand-logo-image-size);
+  height: var(--kosmo-brand-logo-image-size);
+  object-fit: contain;
+}
