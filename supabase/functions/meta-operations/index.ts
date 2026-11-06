@@ -2,7 +2,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 type Env = { SUPABASE_URL:string; SUPABASE_ANON_KEY:string; SUPABASE_SERVICE_ROLE_KEY:string; SETTINGS_ENCRYPTION_KEY:string; APP_ORIGIN:string };
-class HttpError extends Error { constructor(message:string,public status:number){super(message);} }\nconst enc = new TextEncoder();
+class HttpError extends Error { constructor(message:string,public status:number){super(message);} }
+const enc = new TextEncoder();
 const reply = (body:unknown,status=200,origin="*") => new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Access-Control-Allow-Origin":origin,"Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin"}});
 const need=(v:unknown,n:string)=>{if(typeof v!=="string"||!v.trim())throw new Error(n+" is required");return v.trim();};
 const b64=(v:Uint8Array)=>btoa(String.fromCharCode(...v));
