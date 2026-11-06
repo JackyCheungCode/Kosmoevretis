@@ -245,6 +245,12 @@ Deno.serve(async (req: Request) => {
     switch (body.action) {
       case "start_oauth": {
         if (!validProvider(body.provider)) return json({error:"Unsupported Meta provider"},400);
+        required(env.META_APP_ID,"META_APP_ID");
+        required(env.META_APP_SECRET,"META_APP_SECRET");
+        required(env.META_OAUTH_REDIRECT_URI,"META_OAUTH_REDIRECT_URI");
+        required(env.APP_ORIGIN,"APP_ORIGIN");
+        graphBase(env);
+        await encryptionKey(env);
         const stateBytes = crypto.getRandomValues(new Uint8Array(32));
         const state = base64url(stateBytes);
         const stateHash = await sha256(state);
