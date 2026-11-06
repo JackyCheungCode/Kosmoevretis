@@ -110,7 +110,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 const routeLabels: Record<string, string> = {
   "/intelligence": "工作台", "/tasks": "分析任务", "/trade-access": "贸易与市场准入",
   "/products": "产品中心", "/platform-data-collection": "线索发现", "/seo-analysis": "独立站智能诊断",
-  "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/meta-content": "Facebook 内容管理", "/meta-channels": "Meta 渠道管理", "/meta-channels/facebook": "Facebook Pages", "/meta-channels/whatsapp": "WhatsApp Business", "/meta-channels/messenger": "Messenger", "/meta-channels/connect": "选择授权企业资产", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
+  "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/meta-content": "内容发布中心", "/meta-channels": "渠道账号管理", "/meta-channels/facebook": "Facebook Pages", "/meta-channels/whatsapp": "WhatsApp Business", "/meta-channels/messenger": "Messenger", "/meta-channels/connect": "选择授权企业资产", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
   "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
   "/settings/channels": "数据渠道", "/settings/runs": "运行记录",
@@ -343,8 +343,8 @@ function AppShell() {
                   <SideNavMenu title="客户与渠道" renderIcon={Email} defaultExpanded={customerActive} isActive={customerActive}>
                     {menuItem("/customers", "全球客户中心")}
                     {menuItem("/opportunities", "销售商机")}
-                    {menuItem("/meta-channels", "Meta 渠道管理")}
-                    {menuItem("/meta-content", "Facebook 内容管理")}
+                    {menuItem("/meta-channels", "渠道账号管理")}
+                    {menuItem("/meta-content", "内容发布中心")}
                     {menuItem("/communication/inbox", "统一消息中心")}
                     {menuItem("/communication/mail", "邮件沟通")}
                   </SideNavMenu>
