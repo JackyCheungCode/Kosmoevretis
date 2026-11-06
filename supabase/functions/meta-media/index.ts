@@ -12,7 +12,7 @@ const MIME = new Set([
   "audio/mpeg","audio/mp4","audio/ogg","audio/wav",
   "application/pdf"
 ]);
-const headers = { "Content-Type":"application/json; charset=utf-8", "Cache-Control":"no-store", "X-Content-Type-Options":"nosniff" };
+const headers = { "Content-Type":"application/json; charset=utf-8", "Cache-Control":"no-store", "X-Content-Type-Options":"nosniff", "Access-Control-Allow-Origin": Deno.env.get("APP_ORIGIN") || "*", "Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods":"POST, OPTIONS", "Vary":"Origin" };
 const response = (body: unknown, status=200) => new Response(JSON.stringify(body), { status, headers });
 const fail = (message:string,status=400):never => { throw Object.assign(new Error(message),{status}); };
 
