@@ -1,41 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 
-const pagesRoot = new URL("../src/pages/", import.meta.url);
-const explicitFiles = [
-  ["src/Settings.tsx", new URL("../src/Settings.tsx", import.meta.url)],
-  ["src/SettingsBackend.tsx", new URL("../src/SettingsBackend.tsx", import.meta.url)],
-  ["src/GlobalIntelligence.tsx", new URL("../src/GlobalIntelligence.tsx", import.meta.url)],
-  ["src/ProductCenter.tsx", new URL("../src/ProductCenter.tsx", import.meta.url)],
-  ["src/TradeAccessPage.tsx", new URL("../src/TradeAccessPage.tsx", import.meta.url)],
-  ["src/FacebookDiscovery.tsx", new URL("../src/FacebookDiscovery.tsx", import.meta.url)],
-  ["src/LinkedInDiscovery.tsx", new URL("../src/LinkedInDiscovery.tsx", import.meta.url)],
-  ["src/GoogleMapsDiscovery.tsx", new URL("../src/GoogleMapsDiscovery.tsx", import.meta.url)],
-  ["src/MailCommunication.tsx", new URL("../src/MailCommunication.tsx", import.meta.url)],
-  ["src/MailSettings.tsx", new URL("../src/MailSettings.tsx", import.meta.url)],
-  ["src/IntelligenceExperience.tsx", new URL("../src/IntelligenceExperience.tsx", import.meta.url)],
-  ["src/DesignSystemPreview.tsx", "src/auth/LoginPage.tsx", new URL("../src/DesignSystemPreview.tsx", import.meta.url)],
-  ["src/settings-center.css", new URL("../src/settings-center.css", import.meta.url)],
-  ["src/App.tsx", new URL("../src/App.tsx", import.meta.url)],
-  ["src/app-shell.css", new URL("../src/app-shell.css", import.meta.url)],
-  ["src/styles.css", new URL("../src/styles.css", import.meta.url)],
-  ["src/design-tokens.scss", new URL("../src/design-tokens.scss", import.meta.url)],
-  ["src/intelligence.css", new URL("../src/intelligence.css", import.meta.url)],
-  ["src/product-center.css", new URL("../src/product-center.css", import.meta.url)],
-  ["src/trade-access.css", new URL("../src/trade-access.css", import.meta.url)],
-  ["src/facebook-discovery.css", new URL("../src/facebook-discovery.css", import.meta.url)],
-  ["src/google-maps-discovery.css", new URL("../src/google-maps-discovery.css", import.meta.url)],
-  ["src/linkedin-discovery.css", new URL("../src/linkedin-discovery.css", import.meta.url)],
-  ["src/auth/auth.css", new URL("../src/auth/auth.css", import.meta.url)],
-  ["src/components/carbon-select.css", new URL("../src/components/carbon-select.css", import.meta.url)],
-  ["src/mail-communication.css", new URL("../src/mail-communication.css", import.meta.url)],
-  ["src/social-platform-workspace.css", new URL("../src/social-platform-workspace.css", import.meta.url)],
-  ["src/design-system-preview.css", new URL("../src/design-system-preview.css", import.meta.url)],
-  ["src/design-system/components/CollectionModeGrid.css", new URL("../src/design-system/components/CollectionModeGrid.css", import.meta.url)],
-  ["src/design-system/design-system.css", new URL("../src/design-system/design-system.css", import.meta.url)],
-  ["src/mail-settings.css", new URL("../src/mail-settings.css", import.meta.url)],
-  ["src/responsive-audit.css", new URL("../src/responsive-audit.css", import.meta.url)],
-];
+const srcRoot = new URL("../src/", import.meta.url);
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
@@ -111,11 +77,7 @@ async function walk(directory, prefix = "src/pages/") {
   }
 }
 
-await walk(pagesRoot.pathname);
-for (const [relative, url] of explicitFiles) {
-  try { inspect(relative, await readFile(url, "utf8")); }
-  catch (error) { if (error?.code !== "ENOENT") throw error; }
-}
+await walk(srcRoot.pathname, "src/");
 if (violations.length) {
   console.error("Design-system guard failed:\n" + violations.map(item => " - " + item).join("\n"));
   process.exitCode = 1;
