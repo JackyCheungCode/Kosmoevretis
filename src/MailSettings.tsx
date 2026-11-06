@@ -1,6 +1,5 @@
-import React from "react";
 import { Button, InlineNotification, Tag, TextInput, Tile } from "@carbon/react";
-import { Add, LogoGoogle, LogoMicrosoft } from "@carbon/icons-react";
+import { Add, Building, Email } from "@carbon/icons-react";
 
 export default function MailSettings() {
   return <div className="mail-settings-page">
@@ -8,8 +7,8 @@ export default function MailSettings() {
     <section className="settings-catalog-group">
       <div className="settings-catalog-group-heading"><div><h4>主流邮箱平台</h4><p>在系统设置中统一管理个人及企业邮箱账户。</p></div></div>
       <div className="settings-catalog-items">
-        <Tile className="settings-catalog-item"><div className="settings-catalog-item-head"><div className="settings-catalog-identity"><LogoGoogle size={24}/><div className="settings-catalog-name"><strong>Gmail / Google Workspace</strong><span>通过 Google OAuth 2.0 和 Gmail API</span></div></div><Tag type="gray">待接入</Tag></div><div className="settings-catalog-actions"><Button kind="secondary" disabled>连接 Gmail</Button></div></Tile>
-        <Tile className="settings-catalog-item"><div className="settings-catalog-item-head"><div className="settings-catalog-identity"><LogoMicrosoft size={24}/><div className="settings-catalog-name"><strong>Outlook / Microsoft 365</strong><span>通过 Microsoft OAuth 2.0 和 Graph API</span></div></div><Tag type="gray">待接入</Tag></div><div className="settings-catalog-actions"><Button kind="secondary" disabled>连接 Outlook</Button></div></Tile>
+        <Tile className="settings-catalog-item"><div className="settings-catalog-item-head"><div className="settings-catalog-identity"><Email size={24}/><div className="settings-catalog-name"><strong>Gmail / Google Workspace</strong><span>通过 Google OAuth 2.0 和 Gmail API</span></div></div><Tag type="gray">待接入</Tag></div><div className="settings-catalog-actions"><Button kind="secondary" disabled>连接 Gmail</Button></div></Tile>
+        <Tile className="settings-catalog-item"><div className="settings-catalog-item-head"><div className="settings-catalog-identity"><Building size={24}/><div className="settings-catalog-name"><strong>Outlook / Microsoft 365</strong><span>通过 Microsoft OAuth 2.0 和 Graph API</span></div></div><Tag type="gray">待接入</Tag></div><div className="settings-catalog-actions"><Button kind="secondary" disabled>连接 Outlook</Button></div></Tile>
       </div>
     </section>
     <section className="settings-catalog-group">
