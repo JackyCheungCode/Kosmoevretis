@@ -241,7 +241,7 @@ Deno.serve(async (req: Request) => {
     if (req.method !== "POST") return json({error:"Method not allowed"},405);
     const body = await req.json();
     const organizationId = required(body.organization_id,"organization_id");
-    const { admin,user } = await authenticate(env,req,organizationId,true);
+    const { admin,user } = await authenticate(env,req,organizationId,body.action !== "list_connections");
     switch (body.action) {
       case "start_oauth": {
         if (!validProvider(body.provider)) return json({error:"Unsupported Meta provider"},400);
