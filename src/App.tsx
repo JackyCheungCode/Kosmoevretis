@@ -194,7 +194,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 
 const routeLabels: Record<string, string> = {
   "/intelligence": "全球情报中心", "/trade-access": "贸易与市场准入",
-  "/products": "产品中心", "/seo-analysis": "独立站智能诊断",
+  "/products": "产品中心", "/platform-data-collection": "平台数据采集", "/seo-analysis": "独立站智能诊断",
   "/communication/mail": "邮件沟通", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
   "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
