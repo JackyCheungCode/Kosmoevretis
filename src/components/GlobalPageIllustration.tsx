@@ -38,12 +38,11 @@ export default function GlobalPageIllustration({ path }: { path: string }) {
           <ellipse cx="920" cy="92" rx="255" ry="115" fill="url(#kosmo-page-art-glow)" />
           <path d="M0 150H1200" stroke="var(--cds-border-subtle)" strokeWidth="1" opacity=".5" />
           <path d="M0 38H1200M0 76H1200M0 114H1200" stroke="var(--cds-border-subtle)" strokeWidth="1" opacity=".22" strokeDasharray="2 12" />
-        </g>
+        </g>}
         {kind !== "collection" && <g className="kosmo-page-art__flow" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.5">
           <path d="M28 128C180 128 196 48 350 48S520 144 680 144 888 30 1172 30" strokeDasharray="3 10" />
           <path d="M80 166C250 166 300 88 444 88S650 174 790 174 1010 72 1190 72" opacity=".55" />
-        </g>
-                    </g>}
+        </g>}
         {kind === "collection" && <g className="kosmo-page-art__collection" fill="none" stroke="var(--cds-icon-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <g className="kosmo-page-art__sources">
             <g transform="translate(170 68)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-29-20h3m8 0h3M-24 2h48M-24 12h34"/></g>
@@ -82,7 +81,7 @@ export default function GlobalPageIllustration({ path }: { path: string }) {
         </g>}
         {kind !== "collection" && <g className="kosmo-page-art__nodes" fill="var(--cds-teal-50)">
           <circle cx="720" cy="44" r="3" /><circle cx="790" cy="154" r="2.5" /><circle cx="1080" cy="40" r="3" /><circle cx="1110" cy="148" r="2.5" />
-        </g>
+        </g>}
       </svg>
       {kind !== "collection" && <div className="kosmo-page-art__light" />}
     </div>
