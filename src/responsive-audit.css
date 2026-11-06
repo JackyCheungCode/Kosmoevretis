@@ -1,0 +1,180 @@
+/* Site-wide mobile visual alignment — IBM Carbon v11 tokens and component geometry.
+   Loaded after page styles so shared rules win over legacy page-specific spacing. */
+
+/* Platform Line Tabs: balanced icon/label scale without introducing tabs on unrelated pages. */
+@media (max-width: 671px) {
+  .platform-line-tabs .cds--tab {
+    min-height: 3.75rem;
+    padding-inline: 1rem;
+    font-size: 1.0625rem;
+    line-height: 1.4;
+  }
+  .platform-line-tabs .cds--tab-content {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .platform-line-tabs .cds--tab svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 1.5rem;
+  }
+  .platform-line-tabs,
+  .settings-line-tabs {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .platform-line-tabs::-webkit-scrollbar,
+  .settings-line-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Shared page-introduction hierarchy. */
+@media (max-width: 671px) {
+  .kosmo-page-header {
+    gap: 1rem;
+    margin-block: 0 1.5rem;
+  }
+  .kosmo-page-header__title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .kosmo-page-header__description {
+    margin-top: .5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .kosmo-page-section__title,
+  .kosmo-discovery-object-selector__header h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+}
+
+/* Make all discovery-object cards use the same geometry on every discovery channel. */
+.kosmo-collection-mode-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+}
+.kosmo-collection-mode-grid__item.cds--btn {
+  min-height: 6.25rem;
+  padding: .875rem;
+  gap: .75rem;
+}
+.kosmo-collection-mode-grid__icon {
+  flex: 0 0 1.75rem;
+  width: 1.75rem !important;
+  height: 1.75rem;
+}
+.kosmo-collection-mode-grid__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.kosmo-collection-mode-grid__copy strong {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.kosmo-collection-mode-grid__copy > span {
+  font-size: .875rem;
+  line-height: 1.4;
+}
+@media (max-width: 671px) {
+  .kosmo-collection-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+  }
+  .kosmo-collection-mode-grid__item.cds--btn {
+    min-height: 6rem;
+    padding: .75rem;
+    gap: .625rem;
+  }
+  .kosmo-collection-mode-grid__icon {
+    flex-basis: 1.625rem;
+    width: 1.625rem !important;
+    height: 1.625rem;
+  }
+  .kosmo-collection-mode-grid__icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .kosmo-collection-mode-grid__copy strong { font-size: 1rem; }
+  .kosmo-collection-mode-grid__copy > span { font-size: .875rem; }
+}
+
+/* The intelligence template already supplies the white source surface.
+   Remove the extra outer padding when a page wraps its own source panel,
+   preventing Instagram/e-commerce/collection cards from being inset twice. */
+.kosmo-template__source:has(> .ig-config-panel),
+.kosmo-template__source:has(> .ec-config-panel),
+.kosmo-template__source:has(> .pdc-config-panel) {
+  padding: 0;
+  background: transparent;
+}
+
+/* Match the Facebook discovery panel's source spacing across all discovery pages. */
+.kosmo-app-shell :is(
+  .fb-config-panel,
+  .li-config,
+  .gm-config,
+  .ig-config-panel,
+  .ec-config-panel,
+  .pdc-config-panel
+) {
+  padding: 1.25rem;
+  min-width: 0;
+}
+@media (max-width: 671px) {
+  .kosmo-app-shell :is(
+    .fb-config-panel,
+    .li-config,
+    .gm-config,
+    .ig-config-panel,
+    .ec-config-panel,
+    .pdc-config-panel
+  ) {
+    padding: .9rem;
+  }
+}
+
+/* Form labels, controls and helper text share Carbon's hierarchy and vertical rhythm. */
+.kosmo-app-shell .cds--form-item {
+  min-width: 0;
+  margin-block-end: 1rem;
+}
+.kosmo-app-shell .cds--label {
+  margin-block-end: .375rem;
+  color: var(--cds-text-primary);
+  font-size: .875rem;
+  line-height: 1.35;
+}
+.kosmo-app-shell :is(.cds--form__helper-text, .cds--form-requirement, .ig-helper, .pdc-help, .fb-field small, .li-field small, .gm-field small, .ec-field small) {
+  color: var(--cds-text-helper);
+  font-size: .75rem;
+  line-height: 1.4;
+}
+.kosmo-app-shell :is(.fb-field, .li-field, .gm-field, .ec-field, .ig-control, .ig-form-source, .pdc-field) {
+  gap: .5rem;
+}
+@media (max-width: 671px) {
+  .kosmo-app-shell .cds--form-item { margin-block-end: .875rem; }
+  .kosmo-app-shell :is(.cds--text-input, .cds--text-area, .cds--list-box__field) {
+    font-size: 1rem;
+  }
+}
+
+/* Avoid accidental page-level horizontal overflow while preserving horizontal data tables. */
+.kosmo-main,
+.kosmo-content-grid,
+.kosmo-page-frame,
+.kosmo-template {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 671px) {
+  .kosmo-main { overflow-x: clip; }
+}
