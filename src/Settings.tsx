@@ -92,7 +92,8 @@ export default function Settings(){
   case"mail":return <MailSettings/>;
   default:return <SystemPage page={active}/>;
  }};
- const activeIndex=Math.max(0,settingsFlat.findIndex(item=>item.id===active));
+ const activeIndex=Math.max(0,settingsGroups.findIndex(group=>group.items.some(([id])=>id===active)));
+ const activeGroup=settingsGroups[activeIndex];
  const navigation=(
   <div className="settings-navigation-shell">
    <nav className="settings-local-nav" aria-label="系统设置分类">
@@ -103,11 +104,16 @@ export default function Settings(){
      </Link>)}
     </section>)}
    </nav>
-   <Tabs className="settings-mobile-tabs" selectedIndex={activeIndex} onChange={({selectedIndex}:{selectedIndex:number})=>{const item=settingsFlat[selectedIndex];if(item)navigate(item.href);}}>
-    <TabList aria-label="系统设置分类" contained>
-     {settingsFlat.map(item=><Tab key={item.id}>{item.label}</Tab>)}
-    </TabList>
-   </Tabs>
+   <div className="settings-mobile-navigation">
+    <Tabs className="settings-mobile-tabs" selectedIndex={activeIndex} onChange={({selectedIndex}:{selectedIndex:number})=>{const group=settingsGroups[selectedIndex];if(group && group.items[0])navigate("/settings/"+group.items[0][0]);}}>
+     <TabList aria-label="系统设置分类" contained>
+      {settingsGroups.map(group=><Tab key={group.title}>{group.title}</Tab>)}
+     </TabList>
+    </Tabs>
+    <nav className="settings-mobile-subnav" aria-label="当前设置分类子菜单">
+     {activeGroup.items.map(([id,label])=><Link key={id} to={"/settings/"+id} className="settings-mobile-subnav-item" aria-current={active===id?"page":undefined}>{label}</Link>)}
+    </nav>
+   </div>
   </div>
  );
  return <ConfigurationPageTemplate
