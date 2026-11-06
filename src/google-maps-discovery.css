@@ -3,18 +3,11 @@
 
 /* Carbon white result surface and consistent native tabs. */
 .gm-results { background:var(--cds-layer-01); }
-.gm-results .cds--tabs { min-width:0; margin:0; }
-.gm-results .cds--tab-list { display:flex; flex-wrap:nowrap; max-width:100%; overflow-x:auto; background:transparent; border-bottom:1px solid var(--cds-border-subtle); }
-.gm-results .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
-.gm-results .cds--tab-content { padding:var(--kosmo-spacing-05) 0 0; }
-.gm-results .cds--tab-panel { padding:0; }
 
 
 .gm-results,.gm-table,.gm-map-layout{min-width:0;max-width:100%}
 .gm-table{overscroll-behavior-x:contain;scrollbar-width:thin}
 .gm-table table{width:max-content;min-width:980px}
-.gm-results .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
-.gm-results .cds--tab{flex:0 0 auto;white-space:nowrap}
 .gm-map-canvas{max-width:100%;overscroll-behavior:contain}
 .gm-map-legend{max-width:calc(100% - 2rem);box-sizing:border-box}
 .gm-map-popup{max-width:min(16rem,70vw);overflow-wrap:anywhere}
@@ -22,7 +15,5 @@
  .gm-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
  .gm-map-canvas{height:300px}
  .gm-map-legend{left:.5rem;bottom:.5rem;padding:var(--kosmo-spacing-03)}
- .gm-results .cds--tab-list{scroll-snap-type:x proximity}
- .gm-results .cds--tab{scroll-snap-align:start}
  .gm-log{grid-template-columns:3.6rem .4rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
 }
