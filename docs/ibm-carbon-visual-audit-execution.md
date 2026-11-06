@@ -140,8 +140,8 @@
 ### P1（进行中）
 - [x] 在 HTML 入口明确加载 IBM Plex Sans（300–700）和 IBM Plex Mono（400–600），并设置字体 CDN preconnect。
 - [x] 将浏览器 theme-color 从旧深色 Header 色值调整为 Gray 10 画布色。
-- [ ] 全量清理旧 CSS 中仍被引用的硬编码颜色、字号与间距。
-- [ ] 扩展自动审计覆盖至所有 60 个 src 文件，并区分阻断项与历史债务。
+- [~] 已清理全局 styles.css 及首批 6 个业务样式文件的硬编码颜色；其余样式仍待处理。\n- [~] 首批 6 个业务样式文件的主要字号已改为 Carbon productive type tokens；间距仍待逐页校准。
+- [~] 自动门禁新增 6 个业务 CSS 文件，并开始对全局 styles.css 执行 HEX/RGB 阻断检查；尚未覆盖全部 60 个 src 文件。
 
 ### P2（进行中）
 - [x] AppShell Header 改为 Gray 10 主题、透明背景，不再使用独立深色背景层。
@@ -150,7 +150,7 @@
 - [ ] 共享页面标题、Tabs、表格、表单和反馈组件逐项统一。
 
 ### P3 / P4
-- [ ] 尚未开始逐页重构和截图像素差异验收。
+- [~] 已启动首批页面样式重构：全球情报中心、产品中心、贸易准入、Facebook、LinkedIn、Google Maps；尚未完成组件布局和截图像素差异验收。
 - [ ] 尚未完成桌面 / 平板 / 手机全路由视觉回归。
 - [ ] 尚未完成线上浏览器交互验收。
 
@@ -159,3 +159,20 @@
 - `20bfa46` — 加载 IBM Plex 字体与 Gray 10 浏览器主题色。
 - `567694e` / `cffba4e` / `91b1c22` — Header 透明化与 Gray 10 主题校准（最终样式提交为 `91b1c22`）。
 - `e2889a9` / `6f26262` / `db2a1fd` — 恢复路由面包屑与层级标签（最终路由组件提交为 `db2a1fd`）。
+
+- [ ] 继续迁移其余社媒、电商、SEO、邮件与设置页面。
+
+### P3 首批样式整改
+- [x] `src/intelligence.css`：清理硬编码颜色，使用 Carbon semantic / palette tokens；主要字号改为 Carbon productive type tokens。
+- [x] `src/GlobalIntelligence.tsx`：全球市场地图颜色改为 Carbon 交互与边框 tokens。
+- [x] `src/IntelligenceExperience.tsx`：Google Trends 地图色阶及图例改为 Carbon blue palette tokens。
+- [x] `src/product-center.css`：颜色和主要字号映射到 Carbon tokens。
+- [x] `src/trade-access.css`：错误态和交互色改为 Carbon tokens，主要字号改为 Carbon tokens。
+- [x] `src/facebook-discovery.css`、`src/linkedin-discovery.css`：状态色和主要字号映射到 Carbon tokens。
+- [x] `src/google-maps-discovery.css`：颜色、主要字号和地图图例边界改为 Carbon tokens；移除该图例投影。
+- [x] `src/styles.css`：旧全局样式中的 HEX / RGB 颜色替换为 Carbon tokens / color-mix。
+- [x] `scripts/check-design-system.mjs`：把上述 6 个业务样式文件纳入 HEX/RGB 与全局选择器检查，并对 `src/styles.css` 增加 HEX/RGB 阻断检查。
+
+### 视觉基准补充
+- IBM Design Language 官方入口：https://www.ibm.com/design/language/
+- IBM Digital Design / ibm.com 与 Carbon 的关系：IBM 官方说明 ibm.com 的 Digital Design 以 IBM Design Language 为基础，并以 Carbon 作为核心设计系统。
