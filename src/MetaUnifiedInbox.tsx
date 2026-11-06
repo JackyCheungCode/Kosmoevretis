@@ -56,8 +56,11 @@ export default function MetaUnifiedInbox(){
    if(error||data?.error)throw new Error(error?.message||data?.error||"无法读取会话");
    const rows=(data?.conversations||[]) as Conversation[];
    setConversations(rows);
-   setSelected(current=>{const remembered=channelView[channel]?.selected||"";return rows.some(r=>r.id===remembered)?remembered:rows.some(r=>r.id===current)?current:rows[0]?.id||"";});
- },[org,channel,channelView]);
+   const remembered=channelView[channel]?.selected||"";
+   const nextSelected=rows.some(r=>r.id===remembered)?remembered:rows.some(r=>r.id===selected)?selected:rows[0]?.id||"";
+   setSelected(nextSelected);
+   setChannelView(prev=>({...prev,[channel]:{query:prev[channel]?.query||"",selected:nextSelected}}));
+ },[org,channel,channelView,selected]);
  useEffect(()=>{let active=true;(async()=>{try{if(!session?.user.id)return;const {data,error}=await supabase.from("organization_members").select("organization_id").eq("user_id",session.user.id).order("created_at",{ascending:true});if(error)throw error;const id=data?.[0]?.organization_id||"";if(!id){setNotice({kind:"info",title:"尚未加入组织",message:"请先加入企业工作区。"});return;}if(active){setOrg(id);const {data:rows,error:loadError}=await supabase.functions.invoke("meta-operations",{body:{action:"list_conversations",organization_id:id}});if(loadError||rows?.error)throw new Error(loadError?.message||rows?.error||"无法读取会话");setConversations(rows?.conversations||[]);setSelected(rows?.conversations?.[0]?.id||"");}}catch(e){if(active)setNotice({kind:"error",title:"消息中心加载失败",message:e instanceof Error?e.message:"未知错误"});}finally{if(active)setLoading(false);}})();return()=>{active=false;};},[session?.user.id]);
  useEffect(()=>{if(!org)return;void loadConversations().catch(e=>setNotice({kind:"error",title:"刷新会话失败",message:e.message}));},[channel,org,loadConversations]);
  useEffect(()=>{let active=true;if(!org||!selected){setMessages([]);return;}void call("list_messages",{conversation_id:selected}).then(d=>{if(active)setMessages(d.messages||[]);}).catch(e=>{if(active)setNotice({kind:"error",title:"读取消息失败",message:e.message});});return()=>{active=false;};},[org,selected,call]);
