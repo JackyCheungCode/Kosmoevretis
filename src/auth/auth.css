@@ -245,7 +245,7 @@
     padding: 1.25rem 1.5rem 1rem;
   }
   .kosmo-visual-copy { padding: 1.5rem 0; margin: auto 0; }
-  .kosmo-visual-copy h1 { font-size: 2rem; margin: var(--kosmo-spacing-03) 0; }
+  .kosmo-visual-copy h1 { font-size: var(--cds-heading-compact-02-font-size); margin: var(--kosmo-spacing-03) 0; }
   .kosmo-visual-copy p { font-size: var(--cds-body-compact-01-font-size); }
   .kosmo-visual-metrics { gap: var(--kosmo-spacing-05); }
   .kosmo-visual-coordinate {
