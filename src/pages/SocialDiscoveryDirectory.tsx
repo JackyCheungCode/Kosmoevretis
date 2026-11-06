@@ -1,5 +1,5 @@
-import { ClickableTile, Tag } from "@carbon/react";
-import { ArrowRight, Search } from "@carbon/icons-react";
+import { ClickableTile, Search, Tag } from "@carbon/react";
+import { ArrowRight } from "@carbon/icons-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../design-system/components";
@@ -34,8 +34,7 @@ export default function SocialDiscoveryDirectory() {
         <Tag type="blue">{platforms.length} 个平台</Tag>
       </section>
       <div className="sdd-search">
-        <Search size={20} aria-hidden="true" />
-        <input aria-label="搜索社交平台" placeholder="搜索平台、渠道或发现能力" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <Search size="lg" labelText="搜索社交平台" placeholder="搜索平台、渠道或发现能力" value={query} onChange={(event) => setQuery(event.target.value)} onClear={() => setQuery("")} />
       </div>
       {visible.length ? <div className="sdd-grid">
         {visible.map((platform) => (
