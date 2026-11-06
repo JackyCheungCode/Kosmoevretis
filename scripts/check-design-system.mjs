@@ -9,6 +9,9 @@ function inspect(relative, source) {
   if (/\.(?:tsx|ts)$/.test(relative) && /<(?:button|select|input|textarea)\b/.test(source)) {
     violations.push(relative + ": native interactive controls are not allowed; use Carbon React controls.");
   }
+  if (/\.(?:tsx|ts)$/.test(relative) && /<table\b/.test(source)) {
+    violations.push(relative + ": native HTML tables are not allowed; use Carbon React Table components.");
+  }
   if (relative === "src/MailCommunication.tsx" &&
       (!/\bClickableTile\b/.test(source) || /<button\b/.test(source))) {
     violations.push(relative + ": mail folder and account selectors must use Carbon ClickableTile.");
