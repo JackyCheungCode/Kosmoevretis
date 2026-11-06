@@ -41,7 +41,7 @@ import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
-import EmailCommunication from "./EmailCommunication";
+import MailCommunication from "./MailCommunication";
 import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
@@ -247,7 +247,7 @@ function AppShell() {
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
-  const isEmailWorkspace = path === "/communication/mail";
+  const isMailWorkspace = path === "/communication/mail";
   const isTemplatePage = path === "/seo-analysis" || path === "/communication/mail" || path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
@@ -322,7 +322,7 @@ function AppShell() {
     : path === "/products" ? "产品中心"
     : path === "/seo-analysis" ? "独立站智能诊断"
     : path === "/trade-access" ? "贸易与市场准入"
-    : isEmailWorkspace ? "邮件沟通"
+    : isMailWorkspace ? "邮件沟通"
     : path.startsWith("/leads/") ? "潜在客户"
     : isSettings ? "设置中心"
     : "全球情报中心";
@@ -340,7 +340,7 @@ function AppShell() {
     { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
     { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
     { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
-    { id: "mail", label: "邮件沟通", href: "/communication/mail", icon: Email, active: isEmailWorkspace },
+    { id: "mail", label: "邮件沟通", href: "/communication/mail", icon: Email, active: isMailWorkspace },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
@@ -495,7 +495,7 @@ function AppShell() {
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
         {path === "/seo-analysis" && <SeoAnalysis />}
-        {isEmailWorkspace && <EmailCommunication />}
+        {isMailWorkspace && <MailCommunication />}
         
         
         
