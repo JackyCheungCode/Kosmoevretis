@@ -115,7 +115,7 @@ export default function LinkedInDiscovery(){
    {meta?.actors?.length>0&&<div className="li-meta"><strong>采集执行信息</strong>{meta.actors.map((a:any)=><div key={a.run_id}><span>{a.actor_id}</span><small>Run：{a.run_id} · Dataset：{a.dataset_id}</small></div>)}</div>}
   </section>
   <section className="li-panel li-history"><div className="li-section-head"><div><span className="eyebrow">TASK HISTORY</span><h3>历史发现任务</h3></div><Button kind="ghost" size="sm" onClick={()=>loadHistory(org)}>刷新记录</Button></div>
-   {!history.length?<div className="li-empty">暂无历史 LinkedIn 发现任务</div>:<div className="li-history-list">{history.map(h=><ClickableTile key={h.id} type="button" className={historyId===h.id?"li-history-row selected":"li-history-row"} onClick={()=>openHistory(h)}><span><strong>{h.title}</strong><small>{new Date(h.created_at).toLocaleString()}</small></span><span><Tag type={h.status==="succeeded"?"green":h.status==="failed"?"red":"warm-gray"}>{statusName(h.status)}</Tag><small>{h.result_count||0} 条</small></span></ClickableTile>)}</div>}
+   {!history.length?<div className="li-empty">暂无历史 LinkedIn 发现任务</div>:<div className="li-history-list">{history.map(h=><ClickableTile key={h.id} className={historyId===h.id?"li-history-row selected":"li-history-row"} onClick={()=>openHistory(h)}><span><strong>{h.title}</strong><small>{new Date(h.created_at).toLocaleString()}</small></span><span><Tag type={h.status==="succeeded"?"green":h.status==="failed"?"red":"warm-gray"}>{statusName(h.status)}</Tag><small>{h.result_count||0} 条</small></span></ClickableTile>)}</div>}
   </section>
  </section>;
 }
