@@ -78,6 +78,12 @@
   --kosmo-collection-card-padding: var(--kosmo-spacing-04);
   --kosmo-collection-card-padding-mobile: var(--kosmo-spacing-03);
 
+  /* Shared brand logo tile geometry. */
+  --kosmo-brand-logo-size: 2.25rem;
+  --kosmo-brand-logo-image-size: 1.75rem;
+  --kosmo-brand-logo-padding: var(--kosmo-spacing-02);
+  --kosmo-brand-logo-radius: 0.5rem;
+
   /* Reusable business component dimensions, not global design scales. */
   --kosmo-collection-mode-card-min-width: 13rem;
   --kosmo-collection-mode-card-height: 6rem;
