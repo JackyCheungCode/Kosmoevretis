@@ -1,12 +1,12 @@
 import React from "react";
-import { Button, InlineNotification, Search, Tag, Tile } from "@carbon/react";
-import { Add, Archive, Document, Email, Inbox, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
+import { Button, InlineNotification, Search, Tag } from "@carbon/react";
+import { Add, Archive, Document, Email, Email, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import "./mail-communication.css";
 
 type Folder = { id: string; label: string; icon: React.ComponentType<{size?: number}> };
 const folders: Folder[] = [
-  { id: "inbox", label: "收件箱", icon: Inbox },
+  { id: "inbox", label: "收件箱", icon: Email },
   { id: "sent", label: "已发送", icon: Send },
   { id: "drafts", label: "草稿箱", icon: Document },
   { id: "starred", label: "星标邮件", icon: Star },
@@ -72,7 +72,7 @@ export default function MailCommunication() {
             <Button kind="ghost" size="sm" hasIconOnly renderIcon={SearchIcon} iconDescription="搜索邮件" onClick={() => document.getElementById("mail-search")?.focus()} />
           </div>
           <div className="mail-empty-state">
-            <Inbox size={28}/>
+            <Email size={28}/>
             <strong>{activeFolder.label}暂无邮件</strong>
             <span>连接邮箱账户并完成首次同步后，邮件将在这里显示。</span>
           </div>
