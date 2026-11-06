@@ -20,7 +20,8 @@ export default function MetaContentStudio(){
   const [selectedConnection,setSelectedConnection]=useState("");
   const [posts,setPosts]=useState<Post[]>([]);
   const [content,setContent]=useState("");
-  const [link,setLink]=useState("");\n  const [mediaUrls,setMediaUrls]=useState("");
+  const [link,setLink]=useState("");
+  const [mediaUrls,setMediaUrls]=useState("");
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
   const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);
