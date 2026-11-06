@@ -1,0 +1,88 @@
+
+name: Unzip ZIP for Preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unzip-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gemin branch
+        uses: actions/checkout@v4
+        with:
+          ref: gemin
+          fetch-depth: 0
+
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Extract project ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ZIP_FILE="Kosmoevretis-3c-platform-carbon-v11-rebuilt.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "找不到 ZIP 文件：$ZIP_FILE"
+            echo "当前仓库根目录文件："
+            ls -la
+            exit 1
+          fi
+
+          mkdir -p /tmp/kosmoevretis-extract
+          unzip -q "$ZIP_FILE" -d /tmp/kosmoevretis-extract
+
+          PROJECT_DIR=$(
+            find /tmp/kosmoevretis-extract \
+              -name package.json \
+              -not -path '*/node_modules/*' \
+              -printf '%d %h\n' |
+            sort -n |
+            head -1 |
+            cut -d' ' -f2-
+          )
+
+          if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/package.json" ]; then
+            echo "ZIP 中没有找到有效的项目 package.json"
+            exit 1
+          fi
+
+          echo "找到项目目录：$PROJECT_DIR"
+          echo "项目文件："
+          ls -la "$PROJECT_DIR"
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: Publish unpacked project to preview branch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TARGET_BRANCH="gemin-unpacked-preview"
+
+          git switch --orphan "$TARGET_BRANCH"
+
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name ".git" \
+            -exec rm -rf {} +
+
+          cp -a "$PROJECT_DIR"/. .
+
+          if [ ! -f package.json ]; then
+            echo "解压后的项目根目录缺少 package.json"
+            exit 1
+          fi
+
+          git add -A
+
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Publish unpacked ZIP for preview"
+
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
