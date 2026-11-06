@@ -48,7 +48,7 @@ function ResultsTable({rows,onSelect}:{rows:Row[];onSelect:(row:Row,index:number
  return <TableContainer className="gm-table" title="Google Maps 商家结果">
   <Table size="lg" useZebraStyles>
    <TableHead><TableRow>{fields.map(f=><TableHeader key={f.key}>{f.label}</TableHeader>)}</TableRow></TableHead>
-   <TableBody>{rows.map((r,i)=><TableRow key={String(r.placeId||r.place_id||r.url||i)+"-"+i}>{fields.map(f=>{const v=cellValue(r,f.key);const href=f.key==="website"?val(r,["website","websiteUrl"]):f.key==="url"?val(r,["url","googleMapsUrl","placeUrl"]):null;return <TableCell key={f.key}>{f.key==="title"?<button type="button" className="gm-customer-link" onClick={()=>onSelect(r,i)}>{text(v)}</button>:href?<a className="gm-link" href={String(href)} target="_blank" rel="noreferrer">{text(v)}</a>:<span title={text(v)}>{text(v)}</span>}</TableCell>;})}</TableRow>)}</TableBody>
+   <TableBody>{rows.map((r,i)=><TableRow key={String(r.placeId||r.place_id||r.url||i)+"-"+i}>{fields.map(f=>{const v=cellValue(r,f.key);const href=f.key==="website"?val(r,["website","websiteUrl"]):f.key==="url"?val(r,["url","googleMapsUrl","placeUrl"]):null;return <TableCell key={f.key}>{f.key==="title"?<Button kind="ghost" size="sm" className="gm-customer-link" onClick={()=>onSelect(r,i)}>{text(v)}</Button>:href?<a className="gm-link" href={String(href)} target="_blank" rel="noreferrer">{text(v)}</a>:<span title={text(v)}>{text(v)}</span>}</TableCell>;})}</TableRow>)}</TableBody>
   </Table>
  </TableContainer>;
 }
