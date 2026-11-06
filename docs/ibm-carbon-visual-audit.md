@@ -35,7 +35,7 @@
 - 路由面包屑已迁移为 Carbon `Breadcrumb` / `BreadcrumbItem`，继续保留首页、页面分组和当前页的中文层级，以及 React Router 站内导航；分隔符交由 Carbon 组件提供，不再用 CSS 伪元素模拟。
 - 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
 - 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
-- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集、Facebook 发现、LinkedIn 发现的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`；Google Maps 商家结果中的客户选择操作改为 Carbon `Button`，历史任务行改为 `ClickableTile`；邮件工作区文件夹与账户选择改为 `ClickableTile`，并加入设计规范防回归检查。 全站共享 `CarbonSelect` 已从手写 button/listbox 实现迁移为 Carbon React `Dropdown`（短选项）与 `ComboBox`（长选项可搜索）；移除自定义下拉样式入口，并增加防回归检查。 AppShell 账户头像入口与退出系统操作也已改为 Carbon `Button`；邮件撰写区的发件账户、收件人、抄送/密送、主题与正文改用 Carbon `TextInput` / `TextArea`。对 15 个核心页面组件的静态抽样中，除全球情报渠道选择卡片内仍保留 1 处原生 checkbox 外，未发现原生 button、select 或手工 tab role；邮件撰写区原生 input/textarea 已清除。
+- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集、Facebook 发现、LinkedIn 发现的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`；Google Maps 商家结果中的客户选择操作改为 Carbon `Button`，历史任务行改为 `ClickableTile`；邮件工作区文件夹与账户选择改为 `ClickableTile`，并加入设计规范防回归检查。 全站共享 `CarbonSelect` 已从手写 button/listbox 实现迁移为 Carbon React `Dropdown`（短选项）与 `ComboBox`（长选项可搜索）；移除自定义下拉样式入口，并增加防回归检查。 贸易与市场准入的合规范围选择已迁移为 Carbon `Checkbox`，城市检索结果操作已迁移为 Carbon `Button`；清除对应原生 input/button 和自定义原生控件皮肤，并增加防回归检查。 AppShell 账户头像入口与退出系统操作也已改为 Carbon `Button`；邮件撰写区的发件账户、收件人、抄送/密送、主题与正文改用 Carbon `TextInput` / `TextArea`。对 15 个核心页面组件的静态抽样中，除全球情报渠道选择卡片内仍保留 1 处原生 checkbox 外，未发现原生 button、select 或手工 tab role；邮件撰写区原生 input/textarea 已清除。
 
 ## 3. 已修复的审计与样式问题
 
