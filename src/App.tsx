@@ -395,7 +395,18 @@ function AppShell() {
           }}
           className="kosmo-header-menu-button"
         />
-<div className="kosmo-account-menu" ref={accountMenuRef}>
+        <Link to="/intelligence" className="kosmo-header-brand" aria-label="Kosmoevretis 首页">
+          <span className="kosmo-header-brand__mark" aria-hidden="true">K</span>
+          <span>KOSMOEVRETIS</span>
+        </Link>
+        <nav className="kosmo-header-primary-nav" aria-label="顶部主导航">
+          <Link to="/intelligence" aria-current={path === "/intelligence" ? "page" : undefined}>全球情报</Link>
+          <Link to="/products" aria-current={path === "/products" ? "page" : undefined}>产品中心</Link>
+          <Link to="/social-discovery" aria-current={path.startsWith("/social-discovery") ? "page" : undefined}>客户发现</Link>
+          <Link to="/ecommerce-discovery/amazon" aria-current={path.startsWith("/ecommerce-discovery") ? "page" : undefined}>电商数据</Link>
+          <Link to="/settings/providers" aria-current={isSettings ? "page" : undefined}>设置</Link>
+        </nav>
+        <div className="kosmo-account-menu" ref={accountMenuRef}>
           <Button
             kind="ghost"
             size="sm"
