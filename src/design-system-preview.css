@@ -1,7 +1,7 @@
 .ds-preview{display:flex;flex-direction:column;gap:var(--kosmo-spacing-08);color:var(--cds-text-primary);font-family:var(--cds-font-family-sans)}
 .ds-intro{padding:var(--kosmo-spacing-06) 0 calc(var(--kosmo-spacing-06) + var(--kosmo-spacing-02));border-bottom:1px solid var(--cds-border-subtle)}
 .ds-overline{display:block;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);font-weight:600;letter-spacing:0;text-transform:none}
-.ds-intro h2{margin:.6rem 0 .5rem;font-size:var(--cds-heading-04-font-size);font-weight:400;line-height:1.25}
+.ds-intro h2{margin:.6rem 0 var(--kosmo-spacing-03);font-size:var(--cds-heading-04-font-size);font-weight:400;line-height:1.25}
 .ds-intro>p,.ds-section-heading>p,.ds-final-note p{max-width:54rem;margin:0;color:var(--cds-text-secondary);font-size:var(--cds-body-compact-01-font-size);line-height:1.6}
 .ds-intro-meta{display:flex;align-items:center;flex-wrap:wrap;gap:.65rem;margin-top:1.1rem}
 .ds-intro-meta>span{color:var(--cds-text-secondary);font-size:var(--cds-helper-text-01-font-size)}
@@ -45,7 +45,7 @@
 .ds-table-wrap{overflow-x:auto;background:var(--cds-layer-01)}
 .ds-feedback-stack{display:flex;flex-direction:column;gap:.75rem}
 .ds-page-pattern{display:grid;grid-template-columns:1fr;gap:1px;background:var(--cds-border-subtle);padding:1px}
-.ds-page-pattern>div{min-height:var(--kosmo-spacing-09);display:flex;align-items:center;padding:.75rem var(--kosmo-spacing-05);background:var(--cds-layer-01);color:var(--cds-text-secondary);font-size:var(--cds-body-compact-01-font-size)}
+.ds-page-pattern>div{min-height:var(--kosmo-spacing-09);display:flex;align-items:center;padding:var(--kosmo-spacing-04) var(--kosmo-spacing-05);background:var(--cds-layer-01);color:var(--cds-text-secondary);font-size:var(--cds-body-compact-01-font-size)}
 .ds-pattern-header{min-height:5rem!important;background:var(--cds-background)!important}
 .ds-pattern-content{min-height:8rem!important;background:var(--cds-layer-02)!important}
 .ds-final-note{padding:calc(var(--kosmo-spacing-05) + var(--kosmo-spacing-02));background:var(--cds-layer-01)}
