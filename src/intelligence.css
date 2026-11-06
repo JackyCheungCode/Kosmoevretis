@@ -135,17 +135,12 @@
 .gi-ai-model-grid .gi-ai-field{min-width:0;margin:0}
 .gi-ai-provider-hint{display:block;margin-top:.55rem}
 .gi-ai-tabs{min-width:0;margin-top:.15rem}
-.gi-ai-tabs .cds--tab-list{border-bottom:1px solid var(--cds-border-subtle)}
-.gi-ai-tabs .cds--tab{min-height:2.5rem;padding-inline:.7rem;font-size: var(--cds-label-01-font-size)}
-.gi-ai-tabs .cds--tab--selected{color:var(--cds-text-primary)}
-.gi-ai-tabs .cds--tab-content{padding:.7rem 0 0;outline:0}
-.gi-ai-tabs .cds--tab-panel{padding:0;outline:0}
 .gi-ai-tab-description{font-size: var(--cds-label-01-font-size);line-height:1.6;color:var(--cds-text-secondary)}
 .gi-ai-tabs .gi-ai-field{margin:0}
 .gi-ai-tabs .gi-ai-checks{margin-top:.35rem}
 .gi-ai-tabs .gi-ai-field>small{font-size: var(--cds-label-01-font-size);color:var(--cds-text-secondary)}
 .gi-ai-run-note{display:block;margin-top:.35rem;font-size: var(--cds-label-01-font-size);line-height:1.5;color:var(--cds-text-secondary)}
-@media(max-width:671px){.gi-ai-model-grid{grid-template-columns:1fr}.gi-ai-tabs .cds--tab{padding-inline:.45rem;font-size: var(--cds-label-01-font-size)}}
+@media(max-width:671px){.gi-ai-model-grid{grid-template-columns:1fr}}
 
 
  
@@ -218,11 +213,6 @@
   }
   .world-map {
     max-width: 100%;
-  }
-  .gi-ai-tabs .cds--tab {
-    min-height: 2.65rem;
-    padding-inline:.65rem;
-    font-size: var(--cds-label-01-font-size);
   }
   .gi-ai-tab-description,
   .gi-ai-field > small,
@@ -353,9 +343,6 @@
 
 /* Carbon v11 tabs for the global intelligence result workspace. */
 .global-intelligence .intelligence-tabs{min-width:0;margin-bottom:0}
-.global-intelligence .intelligence-tabs .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
-.global-intelligence .intelligence-tabs .cds--tab{flex:0 0 auto;min-width:max-content;white-space:nowrap}
-.global-intelligence .intelligence-tabs .cds--tab-content{min-width:0;padding-top:var(--kosmo-spacing-03)}
 
 /* Layout constraints around Carbon data tables; visual states remain Carbon-owned. */
 .gi-table-wrap .cds--data-table{min-width:42rem}
@@ -371,7 +358,6 @@
 .global-intelligence,.global-intelligence section,.global-intelligence .intelligence-panel{min-width:0;max-width:100%}
 .global-intelligence .market-layout,.global-intelligence .market-map-panel,.global-intelligence .world-map-wrap{min-width:0;max-width:100%}
 .global-intelligence .world-map{width:100%;max-width:100%;overflow:hidden}
-.global-intelligence .intelligence-tabs .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
 .gi-chart-grid,.gi-chart-card,.gi-chart,.gi-live-results,.gi-live-results .gi-evidence-list{min-width:0;max-width:100%}
 .gi-chart-card{overflow:hidden}
 .gi-chart svg,.gi-trend-chart svg{max-width:100%}
