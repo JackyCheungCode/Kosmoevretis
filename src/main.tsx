@@ -9,4 +9,5 @@ import "./app-shell.css";
 import "./auth/auth.css";
 import "./design-system/design-system.css";
 import App from "./App";
+import "./responsive-audit.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(<React.StrictMode><App /></React.StrictMode>);
