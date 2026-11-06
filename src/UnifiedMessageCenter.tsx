@@ -1,4 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "./lib/supabase";
+import { useAuth } from "./auth/AuthProvider";
 import {
   Button, Dropdown, InlineNotification, Search, Tag, Tile
 } from "@carbon/react";
@@ -15,6 +18,7 @@ const channels = [
   { id: "facebook", text: "Facebook" },
   { id: "email", text: "邮件" },
 ];
+type MailAccount = { id: string; email_address: string; display_name: string | null; status: string; is_default: boolean; };
 const channelDetails = [
   { id: "whatsapp", name: "WhatsApp Business", description: "通过 WhatsApp Business Platform 管理客户业务消息。", status: "待配置", detail: "需要 Business Account、Phone Number ID、访问令牌与 Webhook。" },
   { id: "messenger", name: "Messenger", description: "集中处理 Facebook Page 收到的客户私信。", status: "待配置", detail: "需要 Meta App、Facebook Page 授权与消息权限审核。" },
@@ -24,9 +28,37 @@ const channelDetails = [
 const itemToString = (item: { id: string; text: string } | null) => item?.text || "";
 
 export default function UnifiedMessageCenter() {
+  const navigate = useNavigate();
+  const { session } = useAuth();
   const [channel, setChannel] = useState<ChannelId>("all");
   const [query, setQuery] = useState("");
   const [showPolicy, setShowPolicy] = useState(false);
+  const [organizationId, setOrganizationId] = useState("");
+  const [mailAccounts, setMailAccounts] = useState<MailAccount[]>([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
+  const [connectionError, setConnectionError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      if (!session?.user.id) { if (active) setLoadingAccounts(false); return; }
+      setLoadingAccounts(true); setConnectionError("");
+      const { data: memberships, error: membershipError } = await supabase
+        .from("organization_members").select("organization_id").eq("user_id", session.user.id).order("created_at", { ascending: true });
+      if (!active) return;
+      if (membershipError) { setConnectionError(membershipError.message); setLoadingAccounts(false); return; }
+      const selectedOrg = memberships?.[0]?.organization_id;
+      if (!selectedOrg) { setOrganizationId(""); setMailAccounts([]); setLoadingAccounts(false); return; }
+      setOrganizationId(selectedOrg);
+      const { data, error } = await supabase.functions.invoke("mail-api", { body: { action: "list_accounts", organization_id: selectedOrg } });
+      if (!active) return;
+      if (error || data?.error) setConnectionError(error?.message || data?.error || "无法读取邮箱连接");
+      else setMailAccounts((data?.accounts || []) as MailAccount[]);
+      setLoadingAccounts(false);
+    };
+    void load();
+    return () => { active = false; };
+  }, [session?.user.id]);
   const visibleChannels = useMemo(
     () => channelDetails.filter((item) => channel === "all" || item.id === channel),
     [channel]
@@ -55,7 +87,7 @@ export default function UnifiedMessageCenter() {
                 <span className={"umc-channel-icon umc-channel-icon--" + item.id}>
                   {item.id === "email" ? <Email size={22} /> : <Chat size={22} />}
                 </span>
-                <Tag type={item.id === "email" ? "blue" : "cool-gray"}>{item.status}</Tag>
+                <Tag type={item.id === "email" && mailAccounts.length ? "blue" : "cool-gray"}>{item.id === "email" ? emailStatus : item.status}</Tag>
               </div>
               <h4>{item.name}</h4>
               <p>{item.description}</p>
@@ -66,7 +98,7 @@ export default function UnifiedMessageCenter() {
             </Tile>
           ))}
         </div>
-        {showPolicy && (
+        {connectionError && <InlineNotification kind="error" lowContrast title="读取邮箱连接失败" subtitle={connectionError} /> }\n        {showPolicy && (
           <InlineNotification
             kind="warning"
             lowContrast
