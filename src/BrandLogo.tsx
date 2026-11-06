@@ -22,8 +22,8 @@ export default function BrandLogo({ name, domain }: BrandLogoProps) {
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
-        background: "var(--cds-layer-02, #e8e8e8)",
-        color: "var(--cds-text-primary, #161616)",
+        background: "var(--cds-layer-02)",
+        color: "var(--cds-text-primary)",
         padding: 4,
       }}
     >
