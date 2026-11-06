@@ -160,6 +160,13 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
       const longBody = await longResponse.json().catch(()=>({}));
       if (longResponse.ok && longBody.access_token) { accessToken = String(longBody.access_token); expiresIn = Number(longBody.expires_in || expiresIn); }
     } catch { /* Keep the short-lived token; UI will surface the expiry metadata. */ }
+    let grantedScopes: string[] = [];
+    try {
+      const permissionResult = await graphGet(env, "/me/permissions", accessToken);
+      grantedScopes = (Array.isArray(permissionResult.data) ? permissionResult.data : [])
+        .filter((item: {permission?:string;status?:string}) => item.status === "granted" && typeof item.permission === "string")
+        .map((item: {permission:string}) => item.permission);
+    } catch { /* Keep the actual-grant list empty if Meta does not return permission metadata. */ }
     const discovered = await discoverAssets(env, row.provider as Provider, accessToken);
     const encryptedUserToken = await encrypt(env, accessToken);
     const encryptedPageTokens = await encrypt(env, JSON.stringify(discovered.pageTokens));
@@ -171,6 +178,7 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
       asset_tokens_ciphertext: encryptedPageTokens.ciphertext,
       asset_tokens_iv: encryptedPageTokens.iv,
       token_expires_at: expiry,
+      granted_scopes: grantedScopes,
       discovered_assets: discovered.assets,
     }).eq("id",row.id);
     if (saveError) throw saveError;
@@ -305,7 +313,7 @@ Deno.serve(async (req: Request) => {
         const encrypted=await encrypt(env,token);
         const {data:connection,error:connectionError}=await admin.from("crm_channel_connections").upsert({
           organization_id:organizationId,provider,external_asset_id:asset.id,display_name:asset.name,status:"connected",
-          scopes:oauth.requested_scopes,token_expires_at:oauth.token_expires_at,
+          scopes:oauth.granted_scopes || [],token_expires_at:oauth.token_expires_at,
           provider_metadata:{asset_type:asset.asset_type,...(asset.details||{})},created_by:user.id,updated_at:new Date().toISOString(),
         },{onConflict:"organization_id,provider,external_asset_id"}).select("id").single();
         if(connectionError||!connection) throw connectionError||new Error("Unable to save Meta connection");
