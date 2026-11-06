@@ -1,6 +1,6 @@
 import React from "react";
 import { supabase } from "./lib/supabase";
-import { ClickableTile, Button, InlineNotification, Search, Tag } from "@carbon/react";
+import { ClickableTile, Button, InlineNotification, Search, Tag, TextInput, TextArea } from "@carbon/react";
 import { Add, Archive, Document, Email, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "./design-system/components";
@@ -107,11 +107,11 @@ export default function MailCommunication() {
         <section className="mail-compose-dialog" role="dialog" aria-modal="true" aria-labelledby="mail-compose-title">
           <header><h3 id="mail-compose-title">新建邮件</h3><Button kind="ghost" size="sm" onClick={() => setComposeOpen(false)}>关闭</Button></header>
           <div className="mail-compose-fields">
-            <label>发件账户<input disabled value={activeAccount?.email_address || ""} placeholder="请先在系统设置中绑定邮箱"/></label>
-            <label>收件人<input placeholder="name@example.com"/></label>
-            <label>抄送 / 密送<input placeholder="可选"/></label>
-            <label>主题<input placeholder="邮件主题"/></label>
-            <label>正文<textarea rows={8} placeholder="撰写邮件内容…"/></label>
+            <TextInput id="mail-from-account" labelText="发件账户" disabled value={activeAccount?.email_address || ""} placeholder="请先在系统设置中绑定邮箱"/>
+            <TextInput id="mail-recipient" labelText="收件人" placeholder="name@example.com"/>
+            <TextInput id="mail-cc-bcc" labelText="抄送 / 密送" placeholder="可选"/>
+            <TextInput id="mail-subject" labelText="主题" placeholder="邮件主题"/>
+            <TextArea id="mail-body" labelText="正文" rows={8} placeholder="撰写邮件内容…"/>
           </div>
           <InlineNotification kind="info" lowContrast hideCloseButton title="发送服务尚未接入" subtitle="当前先完成邮件工作区和撰写交互结构；真实发送将在邮箱授权与后端服务完成后启用。"/>
           <footer><Button kind="secondary" onClick={() => setComposeOpen(false)}>关闭</Button><Button kind="primary" disabled renderIcon={Send}>发送邮件</Button></footer>
