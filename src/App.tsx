@@ -42,6 +42,7 @@ import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
 import LoginPage from "./auth/LoginPage";
 import "./social-platform-workspace.css";
+import "./page-header.css";
 
 type Viewport = "desktop" | "tablet" | "mobile";
 
@@ -417,23 +418,38 @@ function AppShell() {
       <Content id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         <Grid fullWidth className="kosmo-content-grid">
           <Column sm={4} md={8} lg={16}>
-        {!isTemplatePage && <>
-        <div className="eyebrow">Kosmoevretis / 全球情报中心</div>
-        <div className="page-head">
-          <div>
-            <h1>{currentLabel}</h1>
-            <p>
-              {path === "/intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。"
-                : path === "/products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。"
-                : path === "/trade-access" ? "评估目标市场的关税、贸易条件、产品准入与法规合规要求。"
-                : path.startsWith("/platform-data/") ? "统一采集 X、Reddit、Pinterest、TikTok 与 YouTube 的公开内容、账号、评论和趋势数据。"
-                : path.startsWith("/leads/") ? "通过不同公开渠道发现潜在客户、企业主页、内容与商业机会。"
-                : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}
-            </p>
-          </div>
-          <span className="scope">● GLOBAL　全球市场</span>
-        </div>
-        </>}
+        {!isTemplatePage && (
+          <header className="kosmo-page-header" aria-labelledby="kosmo-page-title">
+            <div className="kosmo-page-header__breadcrumb" aria-label="面包屑导航">
+              <span>Kosmoevretis</span>
+              <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>
+              <span>工作空间</span>
+              <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>
+              <span className="kosmo-page-header__breadcrumb-current" aria-current="page">{currentLabel}</span>
+            </div>
+            <div className="kosmo-page-header__main">
+              <div className="kosmo-page-header__copy">
+                <div className="kosmo-page-header__eyebrow">GLOBAL INTELLIGENCE PLATFORM</div>
+                <h1 id="kosmo-page-title">{currentLabel}</h1>
+                <p>
+                  {path === "/intelligence" ? "统一配置分析对象，在同一工作台查看全球市场多维情报。"
+                    : path === "/products" ? "统一管理产品分类、属性模板、产品模板与 SKU 变体，为全球情报、报价与合同提供统一产品主数据。"
+                    : path === "/trade-access" ? "评估目标市场的关税、贸易条件、产品准入与法规合规要求。"
+                    : path.startsWith("/platform-data/") ? "统一采集 X、Reddit、Pinterest、TikTok 与 YouTube 的公开内容、账号、评论和趋势数据。"
+                    : path.startsWith("/leads/") ? "通过不同公开渠道发现潜在客户、企业主页、内容与商业机会。"
+                    : "集中管理平台 API、Apify Actor、AI 模型和系统偏好。"}
+                </p>
+              </div>
+              <div className="kosmo-page-header__context" aria-label="当前市场范围">
+                <span className="kosmo-page-header__context-indicator" aria-hidden="true" />
+                <span className="kosmo-page-header__context-label">市场范围</span>
+                <strong>GLOBAL</strong>
+                <span className="kosmo-page-header__context-divider" aria-hidden="true" />
+                <span className="kosmo-page-header__context-value">全球市场</span>
+              </div>
+            </div>
+          </header>
+        )}
         {path === "/intelligence" && <GlobalIntelligence />}
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
