@@ -148,7 +148,7 @@ export default function FacebookDiscovery() {
    {meta?.actors?.length>0&&<div className="fb-actor-meta"><strong>采集执行信息</strong>{meta.actors.map((actor:any)=><div key={actor.run_id}><span>{actor.actor_id}</span><small>Run：{actor.run_id} · Dataset：{actor.dataset_id}</small></div>)}</div>}
   </section>
   <section className="fb-history-section"><div className="fb-section-head"><div><span className="eyebrow">04 / TASK HISTORY</span><h3>历史发现任务</h3></div><Button kind="ghost" size="sm" onClick={()=>loadHistory(organizationId)}>刷新记录</Button></div>
-   {!history.length?<div className="fb-history-empty">暂无历史发现记录</div>:<div className="fb-history-list">{history.map(row=><ClickableTile type="button" key={row.id} className={historyId===row.id?"fb-history-row selected":"fb-history-row"} onClick={()=>openHistory(row)}><span><strong>{row.title}</strong><small>{new Date(row.created_at).toLocaleString()}</small></span><span><Tag type={row.status==="succeeded"?"green":row.status==="failed"?"red":"warm-gray"}>{statusLabel(row.status)}</Tag><small>{row.result_count||0} 条</small></span></ClickableTile>)}</div>}
+   {!history.length?<div className="fb-history-empty">暂无历史发现记录</div>:<div className="fb-history-list">{history.map(row=><ClickableTile key={row.id} className={historyId===row.id?"fb-history-row selected":"fb-history-row"} onClick={()=>openHistory(row)}><span><strong>{row.title}</strong><small>{new Date(row.created_at).toLocaleString()}</small></span><span><Tag type={row.status==="succeeded"?"green":row.status==="failed"?"red":"warm-gray"}>{statusLabel(row.status)}</Tag><small>{row.result_count||0} 条</small></span></ClickableTile>)}</div>}
   </section>
  </section>;
 }
