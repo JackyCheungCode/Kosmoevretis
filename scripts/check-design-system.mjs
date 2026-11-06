@@ -73,7 +73,7 @@ async function walk(directory, prefix = "src/pages/") {
   catch (error) { if (error?.code === "ENOENT") return; throw error; }
   for (const entry of entries) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) await walk(path, prefix);
+    if (entry.isDirectory()) await walk(path, prefix + entry.name + "/");
     else if (allowedExtensions.has(extname(entry.name))) inspect(prefix + entry.name, await readFile(path, "utf8"));
   }
 }
