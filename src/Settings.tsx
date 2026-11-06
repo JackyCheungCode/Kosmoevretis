@@ -71,8 +71,6 @@ const settingsGroups = [
  {title:"系统管理与安全",items:[["locale","地区与语言"],["notifications","通知策略"],["mail","邮箱账户与邮件"],["governance","数据治理"],["audit","安全与审计"],["design-system","设计系统"]]},
  {title:"运行监控与日志",items:[["runs","运行记录"]]}
 ] as const;
-const settingsFlat = settingsGroups.flatMap(group=>group.items.map(([id,label])=>({id,label,href:"/settings/"+id})));
-
 export default function Settings(){
  const location=useLocation();
  const navigate=useNavigate();
