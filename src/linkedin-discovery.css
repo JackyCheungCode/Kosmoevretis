@@ -15,7 +15,7 @@
 .li-console{overscroll-behavior:contain;scrollbar-width:thin}
 @media(max-width:560px){
  .li-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .li-object{min-width:0;align-items:flex-start;padding:var(--kosmo-space-3)}
- .li-log{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-space-2)}
+ .li-object{min-width:0;align-items:flex-start;padding:var(--kosmo-spacing-04)}
+ .li-log{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
 }
 @media(max-width:360px){.li-object-grid{grid-template-columns:minmax(0,1fr)}}
