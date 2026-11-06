@@ -51,13 +51,13 @@ function WorldMarketMap({selected,onToggle}:{selected:string[];onToggle:(code:st
    try{
     const response=await fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson");if(!response.ok)throw new Error("国家边界数据暂不可用");
     const geo=await response.json();if(cancelled)return;
-    layerRef.current=L.geoJSON(geo,{style:(feature:any)=>{const code=feature?.properties?.["ISO3166-1-Alpha-2"]||feature?.properties?.ISO_A2||feature?.properties?.iso_a2;const active=selected.includes(code==="CN"?"CN-MAINLAND":code);return{color:active?"#0f62fe":"#8d8d8d",weight:active?2:0.7,fillColor:"#0f62fe",fillOpacity:active?0.5:0.025};},onEachFeature:(feature:any,layer:any)=>{const p=feature.properties||{},code=p["ISO3166-1-Alpha-2"]||p.ISO_A2||p.iso_a2;if(code)layer.on({click:()=>onToggle(code==="CN"?"CN-MAINLAND":code)}).bindTooltip(p.ADMIN||p.name||code);}}).addTo(map);
+    layerRef.current=L.geoJSON(geo,{style:(feature:any)=>{const code=feature?.properties?.["ISO3166-1-Alpha-2"]||feature?.properties?.ISO_A2||feature?.properties?.iso_a2;const active=selected.includes(code==="CN"?"CN-MAINLAND":code);return{color:active?"var(--cds-interactive)":"var(--cds-border-strong)",weight:active?2:0.7,fillColor:"var(--cds-interactive)",fillOpacity:active?0.5:0.025};},onEachFeature:(feature:any,layer:any)=>{const p=feature.properties||{},code=p["ISO3166-1-Alpha-2"]||p.ISO_A2||p.iso_a2;if(code)layer.on({click:()=>onToggle(code==="CN"?"CN-MAINLAND":code)}).bindTooltip(p.ADMIN||p.name||code);}}).addTo(map);
    }catch(e){setMapError(e instanceof Error?e.message:"地图边界加载失败");}
    window.setTimeout(()=>map.invalidateSize(),150);
   }).catch(e=>setMapError(e instanceof Error?e.message:"地图加载失败"));
   return()=>{cancelled=true;if(mapRef.current){mapRef.current.remove();mapRef.current=null;layerRef.current=null;}};
  },[]);
- useEffect(()=>{if(!layerRef.current)return;layerRef.current.setStyle((feature:any)=>{const code=feature?.properties?.["ISO3166-1-Alpha-2"]||feature?.properties?.ISO_A2||feature?.properties?.iso_a2;const active=selected.includes(code==="CN"?"CN-MAINLAND":code);return{color:active?"#0f62fe":"#8d8d8d",weight:active?2:0.7,fillColor:"#0f62fe",fillOpacity:active?0.5:0.025};});},[selected]);
+ useEffect(()=>{if(!layerRef.current)return;layerRef.current.setStyle((feature:any)=>{const code=feature?.properties?.["ISO3166-1-Alpha-2"]||feature?.properties?.ISO_A2||feature?.properties?.iso_a2;const active=selected.includes(code==="CN"?"CN-MAINLAND":code);return{color:active?"var(--cds-interactive)":"var(--cds-border-strong)",weight:active?2:0.7,fillColor:"var(--cds-interactive)",fillOpacity:active?0.5:0.025};});},[selected]);
  return <div className="world-map-wrap"><div ref={element} className="world-map" aria-label="OpenStreetMap 全球国家地图"/>{mapError&&<div className="map-error">{mapError}</div>}<div className="map-legend"><span/>已选市场 · IBM Carbon 蓝</div></div>;
 }
 
