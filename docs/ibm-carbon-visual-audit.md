@@ -71,6 +71,7 @@
 
 - 已将 **229 处**旧版 `--kosmo-space-*` 引用迁移为规范的 `--kosmo-spacing-*` Carbon 令牌，覆盖核心页面和嵌套页面 CSS。
 - 已将至少 **199 处**可精确映射的 rem 间距值迁移为 Carbon spacing token 或等值 token 组合；这些替换保持原像素值，不对非标准微间距、边框和组件尺寸做机械替换。
+- 本轮追加在 `src/auth/auth.css`、`src/design-system-preview.css`、`src/pages/ecommerce-discovery.css` 中完成 **5 处**精确等值迁移：仅把与 Carbon spacing 规格完全相同的 rem 值改为 `--kosmo-spacing-*`，不改变计算尺寸。非标准微间距、响应式宽度和组件尺寸保留待语义审查。
 - 设计系统构建检查新增全局规则：禁止页面 CSS 继续引用旧版 spacing alias，并检查损坏的 spacing 表达式。
 - 完整覆盖结果以最新 Cloudflare Build 中的设计系统检查为准；当前尚未完成浏览器逐页截图验收。
 
@@ -95,6 +96,8 @@
 - `4981c73`、`5f131d4`：修正展开按钮指示符的样式作用范围。
 - `27da24f`：补齐 ContentSwitcher 必需的 size 并处理可选 index；Cloudflare Build 与 Deploy 成功，设计系统 guard 通过。
 - `b906ced`：产品中心返回导航和属性值删除操作改用 Carbon Button；Build 与 Deploy 成功。
+- `72cc23d`、`be63595`、`63f46d2`：精确 Carbon 间距等值迁移，合计 5 处。
+- 生产部署最近一次已成功：Deployment ID `d90ce35e-814c-4281-8b30-8b650bcee1ad`，commit `81eee9745565b5a55689cf043b86f9d1fc50a82b`，URL `https://d90ce35e.kosmoevretis-platform.pages.dev`。此部署早于本轮 3 个 spacing commits；本轮变更需等待新部署 Build/Deploy 验证。
 - 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c`、`27da24f` 的部署均已成功。最新部署 `b906ced`：`https://2b845189.kosmoevretis-platform.pages.dev`，Deployment ID `2b845189-e532-48e6-8516-709b3547e33d`。中间提交 `8bc4623`、`5f131d4` 因 ContentSwitcher 的必需属性和可选索引类型检查失败；已在 `27da24f` 修正并通过构建。
 
 ## 7. 后续执行顺序
