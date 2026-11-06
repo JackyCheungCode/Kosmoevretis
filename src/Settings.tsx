@@ -108,7 +108,7 @@ export default function Settings(){
   title="配置管理中心"
   description="统一管理数据源连接、采集能力、AI 服务与平台治理配置。"
   eyebrow="平台管理"
-  headingLevel={2}
+  headingLevel={1}
   navigation={navigation}
  >
   <PageSection title={selected.title} description={selected.desc} className="settings-selected-section" headingLevel={3}>
