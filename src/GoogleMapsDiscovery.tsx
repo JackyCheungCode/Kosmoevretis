@@ -81,10 +81,14 @@ export default function GoogleMapsDiscovery(){
    map.addControl(new window.maplibregl.NavigationControl({showCompass:true}),"top-right");
    map.on("load",()=>{
     if(cancelled)return;
+    const mapTheme = getComputedStyle(map.getContainer());
+    const interactiveColor = mapTheme.getPropertyValue("--cds-interactive").trim();
+    const successColor = mapTheme.getPropertyValue("--cds-support-success").trim();
+    const surfaceColor = mapTheme.getPropertyValue("--cds-layer-01").trim();
     map.addSource("businesses",{type:"geojson",data:{type:"FeatureCollection",features:[]},cluster:true,clusterRadius:48,clusterMaxZoom:13});
-    map.addLayer({id:"business-clusters",type:"circle",source:"businesses",filter:["has","point_count"],paint:{"circle-color":"#0f62fe","circle-radius":["step",["get","point_count"],18,20,24,80,31],"circle-opacity":0.84,"circle-stroke-width":2,"circle-stroke-color":"#ffffff"}});
-    map.addLayer({id:"business-cluster-count",type:"symbol",source:"businesses",filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":12},paint:{"text-color":"#ffffff"}});
-    map.addLayer({id:"business-point",type:"circle",source:"businesses",filter:["!",["has","point_count"]],paint:{"circle-color":["case",["boolean",["get","selected"],false],"#0f62fe","#24a148"],"circle-radius":["case",["boolean",["get","selected"],false],11,7],"circle-stroke-width":2,"circle-stroke-color":"#ffffff"}});
+    map.addLayer({id:"business-clusters",type:"circle",source:"businesses",filter:["has","point_count"],paint:{"circle-color":interactiveColor,"circle-radius":["step",["get","point_count"],18,20,24,80,31],"circle-opacity":0.84,"circle-stroke-width":2,"circle-stroke-color":surfaceColor}});
+    map.addLayer({id:"business-cluster-count",type:"symbol",source:"businesses",filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":12},paint:{"text-color":surfaceColor}});
+    map.addLayer({id:"business-point",type:"circle",source:"businesses",filter:["!",["has","point_count"]],paint:{"circle-color":["case",["boolean",["get","selected"],false],interactiveColor,successColor],"circle-radius":["case",["boolean",["get","selected"],false],11,7],"circle-stroke-width":2,"circle-stroke-color":surfaceColor}});
     map.on("click","business-clusters",(e:any)=>{const features=map.queryRenderedFeatures(e.point,{layers:["business-clusters"]});const id=features[0]?.properties?.cluster_id;if(id!==undefined)map.getSource("businesses").getClusterExpansionZoom(id,(err:any,zoom:number)=>{if(!err)map.easeTo({center:features[0].geometry.coordinates,zoom});});});
     map.on("click","business-point",(e:any)=>{const f=e.features?.[0];if(!f)return;const p=f.properties||{};const node=document.createElement("div");node.className="gm-map-popup";const name=document.createElement("strong");name.textContent=String(p.name||"未命名商家");const address=document.createElement("span");address.textContent=String(p.address||"");node.append(name,address);new window.maplibregl.Popup({offset:12,maxWidth:"260px"}).setLngLat(e.lngLat).setDOMContent(node).addTo(map);});
     map.on("mouseenter","business-clusters",()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave","business-clusters",()=>map.getCanvas().style.cursor="");map.on("mouseenter","business-point",()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave","business-point",()=>map.getCanvas().style.cursor="");
