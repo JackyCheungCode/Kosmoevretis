@@ -35,7 +35,7 @@
 .trade-page-form .cds--form-item{min-width:0;width:100%}
 .trade-page-wide{grid-column:1/-1}
 .trade-page-help{margin:0;color:var(--cds-text-secondary);font-size: var(--cds-label-01-font-size)}
-.trade-page-error{padding:.7rem;background:var(--cds-support-error-inverse,#fff1f1);color:var(--cds-text-error)}
+.trade-page-error{padding:.7rem;background:var(--cds-support-error-inverse);color:var(--cds-text-error)}
 .trade-page-auth{padding:1.2rem;background:var(--cds-layer-01)}
 .trade-page-auth h2{margin:0 0 .4rem;font-size:1.1rem}
 .trade-page-auth p{margin:0;color:var(--cds-text-secondary);font-size:.82rem}
@@ -43,7 +43,7 @@
 .trade-compliance-panel>p{margin:0;color:var(--cds-text-secondary);font-size:.78rem;line-height:1.55}
 .trade-compliance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
 .trade-compliance-item{display:flex;align-items:flex-start;gap:.6rem;padding:.75rem;background:var(--cds-layer-02);cursor:pointer}
-.trade-compliance-item input{margin-top:.2rem;accent-color:#0f62fe}
+.trade-compliance-item input{margin-top:.2rem;accent-color:var(--cds-interactive)}
 .trade-compliance-item span{display:grid;gap:.2rem}
 .trade-compliance-item strong{font-size:.8rem;font-weight:600}
 .trade-compliance-item small{color:var(--cds-text-secondary);font-size: var(--cds-label-01-font-size);line-height:1.45}
