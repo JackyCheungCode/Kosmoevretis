@@ -16,6 +16,11 @@ function ParticleGlobe() {
     if (!canvas || !context) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const carbon = getComputedStyle(document.documentElement);
+    const blue30 = carbon.getPropertyValue("--cds-blue-30").trim();
+    const blue40 = carbon.getPropertyValue("--cds-blue-40").trim();
+    const blue60 = carbon.getPropertyValue("--cds-blue-60").trim();
+    const interactive = carbon.getPropertyValue("--cds-interactive").trim();
     let frame = 0;
     let width = 0;
     let height = 0;
@@ -55,11 +60,8 @@ function ParticleGlobe() {
         return { x: cx + x * radius * perspective, y: cy + point.y * radius * perspective, z, depth: (z + 1) / 2, phase: point.phase };
       });
 
-      const glow = context.createRadialGradient(cx, cy, radius * 0.12, cx, cy, radius * 1.2);
-      glow.addColorStop(0, "rgba(13, 105, 166, .18)");
-      glow.addColorStop(0.65, "rgba(0, 73, 125, .10)");
-      glow.addColorStop(1, "rgba(0, 30, 60, 0)");
-      context.fillStyle = glow;
+      context.globalAlpha = 0.1;
+      context.fillStyle = blue60;
       context.beginPath();
       context.arc(cx, cy, radius * 1.2, 0, Math.PI * 2);
       context.fill();
@@ -91,24 +93,16 @@ function ParticleGlobe() {
         const pulse = 0.72 + Math.sin((reduceMotion ? 0 : frame * 0.018) + point.phase) * 0.28;
         const size = (0.55 + point.depth * 1.25) * pulse;
         context.globalAlpha = 0.25 + point.depth * 0.72;
-        context.fillStyle = index % 13 === 0 ? "#B9F5FF" : index % 5 === 0 ? "#3CCBFF" : "#168BCE";
+        context.fillStyle = index % 13 === 0 ? blue30 : index % 5 === 0 ? blue40 : interactive;
         context.beginPath();
         context.arc(point.x, point.y, size, 0, Math.PI * 2);
         context.fill();
-        if (index % 47 === 0 && point.depth > 0.6) {
-          context.globalAlpha = 0.18;
-          context.shadowBlur = 12;
-          context.shadowColor = "#37CFFF";
-          context.beginPath();
-          context.arc(point.x, point.y, size * 2.8, 0, Math.PI * 2);
-          context.fill();
-          context.shadowBlur = 0;
-        }
+
       });
       context.globalAlpha = 1;
 
       // Fine orbital paths add depth without competing with the particle globe.
-      context.strokeStyle = "rgba(76, 190, 255, .18)";
+      context.strokeStyle = blue40;\n      context.globalAlpha = 0.18;
       context.lineWidth = 0.8;
       for (let orbit = 0; orbit < 3; orbit += 1) {
         context.beginPath();
