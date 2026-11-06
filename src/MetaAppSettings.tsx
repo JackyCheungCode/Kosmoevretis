@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, InlineNotification, PasswordInput, Select, SelectItem, Tag, TextInput, Tile } from "@carbon/react";
 import { supabase } from "./lib/supabase";
+import "./meta-app-settings.css";
 
 type Membership = { organization_id: string; role: string; organizations?: { name?: string } | null };
 type Config = { app_id: string; graph_api_version: string; enabled: boolean; validation_status: string; validation_message?: string | null; last_validated_at?: string | null; has_app_secret: boolean; has_webhook_verify_token: boolean };
