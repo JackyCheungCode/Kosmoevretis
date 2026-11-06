@@ -1,8 +1,9 @@
 import "./global-page-illustration.css";
 
-type IllustrationKind = "intelligence" | "products" | "trade" | "social" | "commerce" | "seo" | "mail" | "settings";
+type IllustrationKind = "intelligence" | "collection" | "products" | "trade" | "social" | "commerce" | "seo" | "mail" | "settings";
 
 function getKind(path: string): IllustrationKind {
+  if (path === "/platform-data-collection") return "collection";
   if (path === "/products") return "products";
   if (path === "/trade-access") return "trade";
   if (path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/")) return "social";
@@ -17,7 +18,7 @@ export default function GlobalPageIllustration({ path }: { path: string }) {
   const kind = getKind(path);
   return (
     <div className={`kosmo-page-art kosmo-page-art--${kind}`} aria-hidden="true">
-      <svg className="kosmo-page-art__canvas" viewBox="0 0 1200 190" preserveAspectRatio="xMidYMid meet">
+      <svg className="kosmo-page-art__canvas" viewBox={kind === "collection" ? "0 0 1200 240" : "0 0 1200 190"} preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="kosmo-page-art-stroke" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="var(--cds-blue-50)" />
@@ -33,15 +34,28 @@ export default function GlobalPageIllustration({ path }: { path: string }) {
             <stop offset="1" stopColor="var(--cds-blue-40)" stopOpacity="0" />
           </radialGradient>
         </defs>
-        <g className="kosmo-page-art__ambient">
+        {kind !== "collection" && <g className="kosmo-page-art__ambient">
           <ellipse cx="920" cy="92" rx="255" ry="115" fill="url(#kosmo-page-art-glow)" />
           <path d="M0 150H1200" stroke="var(--cds-border-subtle)" strokeWidth="1" opacity=".5" />
           <path d="M0 38H1200M0 76H1200M0 114H1200" stroke="var(--cds-border-subtle)" strokeWidth="1" opacity=".22" strokeDasharray="2 12" />
         </g>
-        <g className="kosmo-page-art__flow" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.5">
+        {kind !== "collection" && <g className="kosmo-page-art__flow" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.5">
           <path d="M28 128C180 128 196 48 350 48S520 144 680 144 888 30 1172 30" strokeDasharray="3 10" />
           <path d="M80 166C250 166 300 88 444 88S650 174 790 174 1010 72 1190 72" opacity=".55" />
         </g>
+                    </g>}
+        {kind === "collection" && <g className="kosmo-page-art__collection" fill="none" stroke="var(--cds-icon-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <g className="kosmo-page-art__sources">
+            <g transform="translate(170 68)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-29-20h3m8 0h3M-24 2h48M-24 12h34"/></g>
+            <g transform="translate(170 172)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-24 1h48M-24 12h30"/></g>
+            <g transform="translate(1030 68)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-24 1h48M-24 12h30"/></g>
+            <g transform="translate(1030 172)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-24 1h48M-24 12h30"/></g>
+          </g>
+          <g className="kosmo-page-art__collection-lines" stroke="var(--cds-link-primary)"><path d="M212 68H390Q430 68 462 100L520 120M212 172H390Q430 172 462 140L520 120M988 68H810Q770 68 738 100L680 120M988 172H810Q770 172 738 140L680 120" strokeDasharray="5 8"/><path d="M690 120H830" strokeDasharray="5 8"/></g>
+          <g className="kosmo-page-art__collector" transform="translate(600 120)"><path d="M-58-38H58L46 4H-46Z"/><path d="M-28-18v20m0 0-9-9m9 9 9-9M0-18V2m0 0-9-9m9 9 9-9M28-18V2m0 0-9-9m9 9 9-9"/><path d="M-46 18H46M-36 31H36" opacity=".65"/></g>
+          <g className="kosmo-page-art__dataset" transform="translate(900 120)"><path d="M-36-38H30L48-20V38H-36Z"/><path d="M30-38V-20H48M-20-7H28M-20 8H28M-20 23H16"/><path d="M-50-20H-44M-50-5H-44M-50 10H-44M-50 25H-44" opacity=".7"/></g>
+          <g className="kosmo-page-art__collection-points" fill="var(--cds-support-info)" stroke="none"><circle cx="300" cy="68" r="4"/><circle cx="300" cy="172" r="4"/><circle cx="900" cy="68" r="4"/><circle cx="900" cy="172" r="4"/></g>
+        </g>}
         {kind === "intelligence" && <g className="kosmo-page-art__motif" transform="translate(920 94)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.6">
           <circle r="65" fill="url(#kosmo-page-art-fill)" /><ellipse rx="65" ry="25" /><ellipse rx="65" ry="25" transform="rotate(60)" /><ellipse rx="65" ry="25" transform="rotate(120)" /><circle r="65" strokeDasharray="3 9" className="kosmo-page-art__orbit" /><path d="M-65 0H65M0-65V65" opacity=".6" />
         </g>}
@@ -66,11 +80,11 @@ export default function GlobalPageIllustration({ path }: { path: string }) {
         {kind === "settings" && <g className="kosmo-page-art__motif" transform="translate(920 94)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.8">
           <circle r="24" fill="url(#kosmo-page-art-fill)" /><circle r="58" strokeDasharray="4 8" /><path d="M0-88v-22M0 88v22M88 0h22M-88 0h-22M62-62l16-16M-62 62l-16 16M62 62l16 16M-62-62l-16-16" /><circle r="82" opacity=".45" />
         </g>}
-        <g className="kosmo-page-art__nodes" fill="var(--cds-teal-50)">
+        {kind !== "collection" && <g className="kosmo-page-art__nodes" fill="var(--cds-teal-50)">
           <circle cx="720" cy="44" r="3" /><circle cx="790" cy="154" r="2.5" /><circle cx="1080" cy="40" r="3" /><circle cx="1110" cy="148" r="2.5" />
         </g>
       </svg>
-      <div className="kosmo-page-art__light" />
+      {kind !== "collection" && <div className="kosmo-page-art__light" />}
     </div>
   );
 }
