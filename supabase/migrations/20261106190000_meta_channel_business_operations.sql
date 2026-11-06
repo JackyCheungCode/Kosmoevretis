@@ -26,7 +26,7 @@ create table if not exists public.crm_channel_posts (
     references public.crm_channel_connections(id, organization_id) on delete cascade
 );
 create unique index if not exists crm_channel_posts_external_uidx
-  on public.crm_channel_posts(connection_id, external_post_id) where external_post_id is not null;
+  on public.crm_channel_posts(connection_id, external_post_id);
 create index if not exists crm_channel_posts_org_status_idx
   on public.crm_channel_posts(organization_id, status, created_at desc);
 create index if not exists crm_channel_posts_schedule_idx
