@@ -1,4 +1,5 @@
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, Tile } from "@carbon/react";
+import { useSearchParams } from "react-router-dom";
 import { Chat, Connect, DataBase, Locked, Share, Phone } from "@carbon/icons-react";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
@@ -61,6 +62,8 @@ function ChannelCard({ channel }: { channel: typeof channels[number] }) {
 }
 
 export default function MetaChannelManagement() {
+  const [search] = useSearchParams();
+  const metaError = search.get("meta_error");
   return (
     <ConfigurationPageTemplate
       className="module meta-channel-management"
@@ -70,6 +73,7 @@ export default function MetaChannelManagement() {
       headingLevel={1}
     >
       <PageSection title="连接概览" description="所有连接均属于当前组织。完成 Meta App 配置和服务端授权能力后，才能启用真实数据同步与消息收发。" headingLevel={3}>
+        {metaError && <InlineNotification kind="error" lowContrast title="Meta 授权未完成" subtitle={metaError} />}
         <InlineNotification
           kind="info"
           lowContrast
