@@ -412,7 +412,7 @@
 }
 .kosmo-breadcrumb [aria-current="page"] { color: var(--cds-text-primary); }
 @media (max-width: 671px) {
-  .kosmo-breadcrumb { padding:var(--kosmo-spacing-03) var(--kosmo-spacing-03) var(--kosmo-spacing-04); }
+  .kosmo-breadcrumb { padding:var(--kosmo-spacing-03) var(--kosmo-spacing-03) var(--kosmo-spacing-06); }
 }
 
 
