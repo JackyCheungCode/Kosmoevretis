@@ -242,7 +242,7 @@ function RouteBreadcrumbs({ path }: { path: string }) {
     items.push({ label: routeLabels[path] || "页面" });
   }
   return (
-    <Breadcrumb className="kosmo-breadcrumb" aria-label="面包屑导航">
+    <Breadcrumb className="kosmo-breadcrumb" aria-label="面包屑导航" noTrailingSlash>
       {items.map((item, index) => (
         <BreadcrumbItem key={item.label + index} isCurrentPage={!item.to}>
           {item.to ? <Link to={item.to}>{item.label}</Link> : item.label}
