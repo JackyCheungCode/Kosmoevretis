@@ -140,6 +140,17 @@ export default function MetaUnifiedInbox(){
       <div className="meta-inbox-composer"><TextArea id="meta-inbox-reply" labelText="回复内容" placeholder="输入客户回复…" rows={3} value={body} onChange={e=>setBody(e.target.value)}/>{draftId?<div className="meta-inbox-send-actions"><Tag type="warm-gray">待人工审批</Tag><Button kind="primary" renderIcon={Send} disabled={sending} onClick={()=>void approveSend()}>{sending?"正在发送…":"审核并发送"}</Button><Button kind="ghost" disabled={sending} onClick={()=>setDraftId("")}>取消草稿</Button></div>:<Button kind="primary" renderIcon={Send} disabled={sending||!body.trim()} onClick={()=>void createDraft()}>创建待审批回复</Button>}</div>
      </>}
     </section>
+    <aside className="meta-inbox-profile" aria-label="客户资料">
+     <div className="meta-inbox-profile__heading"><strong>客户资料</strong><Tag type={current?"blue":"cool-gray"}>{current?"当前会话":"未选择"}</Tag></div>
+     {current?<dl>
+      <div><dt>联系人</dt><dd>{String(current.participant_summary?.name||"未知联系人")}</dd></div>
+      <div><dt>渠道</dt><dd>{channelName(current.channel)}</dd></div>
+      <div><dt>外部账号 ID</dt><dd>{current.external_contact_id||"暂无"}</dd></div>
+      <div><dt>会话状态</dt><dd>{current.status==="open"?"处理中":current.status}</dd></div>
+      <div><dt>CRM 联系人</dt><dd>{current.contact_id||"尚未关联"}</dd></div>
+      <div><dt>所属企业</dt><dd>{current.company_id||"尚未关联"}</dd></div>
+     </dl>:<p>选择会话后显示联系人、渠道和 CRM 关联信息。当前仅展示已归档字段，不生成推测资料。</p>}
+    </aside>
    </div>
   </PageSection>
   <PageSection title="其他沟通渠道" description="邮件仍由现有邮件工作区管理，后续会统一接入消息时间线。" headingLevel={3}><Tile><div className="meta-inbox-email"><Email size={22}/><div><strong>邮件沟通</strong><p>进入现有邮件工作区查看和处理企业邮件。</p></div><Button kind="tertiary" href="/communication/mail">进入邮件工作区</Button></div></Tile></PageSection>
