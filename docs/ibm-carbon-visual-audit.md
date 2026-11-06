@@ -31,6 +31,7 @@
 - AppShell 静态核对确认：Header 透明、无工作区标题文本；面包屑组件仍在主内容区并保留页面层级；桌面/平板/手机均有独立布局规则。
 - `src/design-system/design-system.css` 已移除共享 PageHeader 顶部额外 padding，避免插画与页面标题之间叠加留白。
 - AppShell 的社媒/电商平台导航已从手工 `role=tab` 按钮改为 Carbon `Tabs` / `TabList` / `Tab` 组件。
+- P2 静态响应式核对：桌面固定侧栏、平板 Rail / 展开态、手机覆盖式侧栏和 Carbon Content 偏移均已核对；Header 透明无阴影，Breadcrumb 仍保留层级导航且不显示工作区名称；页面插画提供 reduced-motion 降级。新增审计规则锁定平板/手机断点、独立导航状态、移动端不预留桌面侧栏宽度及 reduced-motion 规则。此项为源码结构核对，尚未做真实设备截图验收。
 - 路由面包屑已迁移为 Carbon `Breadcrumb` / `BreadcrumbItem`，继续保留首页、页面分组和当前页的中文层级，以及 React Router 站内导航；分隔符交由 Carbon 组件提供，不再用 CSS 伪元素模拟。
 - 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
 - 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
@@ -106,6 +107,7 @@
 - `1923e2d`：增加 Facebook / LinkedIn 历史任务列表的 `ClickableTile` 防回归检查。
 - `8206bc5`、`4a02ac4`：Google Maps 结果中的客户选择操作迁移为 Carbon `Button`，移除原生按钮的自定义皮肤。
 - `5b623f7`：增加 Google Maps 客户操作使用 Carbon `Button` 的防回归检查。
+- `aef58e5`：增加 AppShell 平板/手机响应式导航与 reduced-motion 静态防回归检查。
 - `17b720e`、`cfb34cd`：AppShell 面包屑迁移至 Carbon Breadcrumb，移除自定义分隔符。
 - `dc6d0ca`：关闭 Carbon Breadcrumb 的尾部分隔符，保持路径显示简洁。
 - `5c98bee`：移除面包屑列表自定义 gap，让 Carbon 自己控制分隔符两侧间距。
