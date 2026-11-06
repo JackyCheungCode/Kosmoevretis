@@ -40,6 +40,11 @@ function inspect(relative, source) {
     }
   }
   if (relative === "src/App.tsx") {
+    if (!/\bButton\b/.test(source) || /<button\b/.test(source)) {
+      violations.push(relative + ": AppShell account actions must use Carbon Button components, not native buttons.");
+    }
+  }
+  if (relative === "src/App.tsx") {
     for (const query of ["(max-width: 671px)", "(min-width: 672px) and (max-width: 1055px)"]) {
       if (!source.includes(query)) violations.push(relative + ": AppShell must explicitly track mobile and tablet breakpoints.");
     }
