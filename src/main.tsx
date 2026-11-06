@@ -4,7 +4,6 @@ import "@carbon/styles/css/styles.css";
 import "./design-tokens.scss";
 import "./styles.css";
 import "./settings-center.css";
-import "./components/carbon-select.css";
 import "./app-shell.css";
 import "./auth/auth.css";
 import "./design-system/design-system.css";
