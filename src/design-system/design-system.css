@@ -32,12 +32,7 @@
 .kosmo-template__results .kosmo-template__content { gap:0; }
 .kosmo-template__results .kosmo-page-section { min-width:0; }
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
-.kosmo-results-tabs .cds--tabs { min-width:0; margin:0; }
 .ig-results-tabs { min-width:0; }
-.kosmo-results-tabs .cds--tab-list { display:flex; flex-wrap:nowrap; max-width:100%; overflow-x:auto; overflow-y:hidden; border-bottom:1px solid var(--cds-border-subtle); background:transparent; overscroll-behavior-x:contain; }
-.kosmo-results-tabs .cds--tab { flex:0 0 auto; min-width:max-content; white-space:nowrap; }
-.kosmo-results-tabs .cds--tab-content { min-width:0; padding:var(--kosmo-spacing-05) 0 0; }
-.kosmo-results-tabs .cds--tab-panel { min-width:0; padding:0; }
 @media(max-width:671px) {
  .kosmo-page-header { align-items:flex-start; }
  .kosmo-page-header__title { font-size:var(--cds-heading-03-font-size); line-height:var(--cds-heading-03-line-height); }
@@ -74,17 +69,9 @@
 @media(max-width:671px){
  .kosmo-app-shell :is(.fb-config-panel,.li-config,.gm-config,.ec-config-panel,.ig-config-panel,.pdc-config-panel){padding:var(--kosmo-spacing-04)}
 }
-
-/* Carbon v11 tabs for the settings category navigation. */
-.settings-tabs-shell .cds--tabs{min-width:0;width:100%}
 .settings-tabs-shell .settings-line-tabs{display:flex;flex-wrap:nowrap;align-items:stretch;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--cds-border-subtle);background:transparent;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
 .settings-tabs-shell .settings-line-tabs::-webkit-scrollbar{display:none}
-.settings-tabs-shell .settings-line-tabs .cds--tab{display:inline-flex;align-items:center;flex:0 0 auto;min-height:3rem;padding:0 var(--kosmo-spacing-05);border-bottom:3px solid transparent;color:var(--cds-text-secondary);font:inherit;font-size:var(--cds-body-compact-01-font-size);white-space:nowrap}
-.settings-tabs-shell .settings-line-tabs .cds--tab-content{display:inline-flex;align-items:center;gap:var(--kosmo-spacing-03)}
-.settings-tabs-shell .settings-line-tabs .cds--tab[aria-selected=true]{border-bottom-color:var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
-.settings-tabs-shell .settings-line-tabs .cds--tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
-.settings-tabs-shell .settings-line-tabs .cds--tab svg{flex:none;width:1.125rem;height:1.125rem}
-@media(max-width:671px){.settings-tabs-shell .settings-line-tabs .cds--tab{min-height:2.875rem;padding:0 .875rem;font-size:var(--cds-label-01-font-size)}}
+@media(max-width:671px){}
 
 
 /* Shared page header: transparent canvas and compact rhythm above page content. */
