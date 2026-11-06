@@ -6,9 +6,13 @@ const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
-  if (relative === "src/GoogleMapsDiscovery.tsx" &&
-      (!/\bButton\b/.test(source) || /<button\b[^>]*className=["']gm-customer-link["']/.test(source))) {
-    violations.push(relative + ": Google Maps customer actions must use Carbon Button.");
+  if (relative === "src/GoogleMapsDiscovery.tsx") {
+    if (!/\bButton\b/.test(source) || /<button\b[^>]*className=["']gm-customer-link["']/.test(source)) {
+      violations.push(relative + ": Google Maps customer actions must use Carbon Button.");
+    }
+    if (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{historyId/.test(source)) {
+      violations.push(relative + ": Google Maps history rows must use Carbon ClickableTile.");
+    }
   }
   if (relative === "src/FacebookDiscovery.tsx" &&
       (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{historyId/.test(source))) {
