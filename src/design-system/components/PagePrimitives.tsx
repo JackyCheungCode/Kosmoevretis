@@ -10,12 +10,13 @@ export type PageHeaderProps = {
   headingLevel?: 1 | 2;
 };
 
-export function PageHeader({ title, description, scope, actions, headingLevel = 1 }: PageHeaderProps) {
+export function PageHeader({ title, description, eyebrow, scope, actions, headingLevel = 1 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   return (
     <header className="page-header-section kosmo-page-header">
       <div className="kosmo-page-header__body">
         <div className="kosmo-page-header__copy">
+          {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
           <HeadingTag className="cds--page-title kosmo-page-header__title">{title}</HeadingTag>
           {description && <p className="cds--page-subtitle kosmo-page-header__description">{description}</p>}
         </div>
@@ -28,7 +29,8 @@ export function PageHeader({ title, description, scope, actions, headingLevel = 
   );
 }
 
-export function PageSection({ title, description, actions, children, className = "", headingLevel = 2 }: {
+export function PageSection({ step, title, description, actions, children, className = "", headingLevel = 2 }: {
+  step?: string;
   title?: string;
   description?: string;
   actions?: ReactNode;
@@ -39,9 +41,10 @@ export function PageSection({ title, description, actions, children, className =
   const HeadingTag = headingLevel === 3 ? "h3" : "h2";
   return (
     <section className={["page-module-section", "kosmo-page-section", className].filter(Boolean).join(" ")}>
-      {(title || description || actions) && (
+      {(step || title || description || actions) && (
         <div className="kosmo-page-section__header">
           <div className="kosmo-page-section__copy">
+            {step && <p className="kosmo-page-section__eyebrow">{step}</p>}
             {title && <HeadingTag className="kosmo-page-section__title">{title}</HeadingTag>}
             {description && <p className="kosmo-page-section__description">{description}</p>}
           </div>
