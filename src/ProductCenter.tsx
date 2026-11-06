@@ -3,7 +3,7 @@ import {
   Button, Checkbox, InlineNotification, NumberInput, Search, Tabs, TabList, Tab, TabPanels, TabPanel, Tag, TextArea, TextInput
 } from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
-import { FormField } from "./design-system/components";
+import { FormField, PageHeader } from "./design-system/components";
 import { supabase } from "./lib/supabase";
 import "./product-center.css";
 
@@ -689,7 +689,7 @@ export default function ProductCenter() {
     finally{setBusy(false);}
   };
   return <section className="pc-workspace">
-    <div className="pc-heading"><div><div className="pc-kicker">PRODUCT MASTER / ODOO-STYLE CATALOG</div><h2>产品中心</h2><p>{orgName} · 统一产品主档案，供市场情报、报价与合同流程复用</p></div><div className="pc-heading-actions"><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></div></div>
+    <PageHeader title="产品中心" description={orgName + " · 统一产品主档案，供市场情报、报价与合同流程复用"} actions={<><Tag type="blue">企业产品主数据</Tag><Button kind="primary" onClick={startNew}>创建产品</Button></>} />
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.kind==="success"?"已保存":notice.kind==="error"?"操作失败":"提示"} subtitle={notice.text} onCloseButtonClick={()=>setNotice(null)}/>}
     <Tabs selectedIndex={tab} onChange={({selectedIndex})=>setTab(selectedIndex)}>
       <TabList aria-label="产品中心模块"><Tab>产品管理</Tab><Tab>产品分类</Tab><Tab>属性管理</Tab></TabList>
