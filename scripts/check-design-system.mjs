@@ -56,11 +56,11 @@ function inspect(relative, source) {
       !/from\s+["'][^"']*design-system/.test(source)) {
     violations.push(relative + ": page must use Carbon React components or an approved shared Carbon design-system primitive.");
   }
-  if (/\\.tsx?$/.test(relative)) {
-    if (/\\b(?:fill|stroke|stopColor)\\s*=\\s*["']#[0-9a-f]{3,8}\\b/i.test(source)) {
+  if (/\.tsx?$/.test(relative)) {
+    if (/\b(?:fill|stroke|stopColor)\s*=\s*["']#[0-9a-f]{3,8}\b/i.test(source)) {
       violations.push(relative + ": inline SVG colors must use Carbon semantic tokens, not hard-coded hex values.");
     }
-    if (/\\bstyle\\s*=\\s*\\{\\{[^}]*\\b(?:color|backgroundColor|borderColor|fill|stroke)\\s*:\\s*["']#[0-9a-f]{3,8}\\b/is.test(source)) {
+    if (/\bstyle\s*=\s*\{\{[^}]*\b(?:color|backgroundColor|borderColor|fill|stroke)\s*:\s*["']#[0-9a-f]{3,8}\b/is.test(source)) {
       violations.push(relative + ": inline style colors must use Carbon semantic tokens, not hard-coded hex values.");
     }
   }
