@@ -56,11 +56,10 @@
  .pdc-table-wrap .cds--data-table{min-width:620px}
 }
 
-
-/* Task activity log: enforce readable Carbon-like contrast in every theme. */
-.pdc-log-console{background:#f4f4f4;color:#161616}
-.pdc-log-line{color:#161616}
-.pdc-log-line time{color:#525252}
-.pdc-log-line.success{color:#198038}
-.pdc-log-line.error{color:#da1e28}
-.pdc-log-empty{color:#525252}
+/* Task activity log: semantic Carbon colors for accessible contrast. */
+.pdc-log-console{background:var(--cds-layer-01);color:var(--cds-text-primary)}
+.pdc-log-line{color:var(--cds-text-primary)}
+.pdc-log-line time{color:var(--cds-text-secondary)}
+.pdc-log-line.success{color:var(--cds-support-success)}
+.pdc-log-line.error{color:var(--cds-support-error)}
+.pdc-log-empty{color:var(--cds-text-secondary)}
