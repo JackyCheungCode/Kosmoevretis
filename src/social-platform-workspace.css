@@ -1,214 +1,15 @@
-.social-platform-workspace-shell{width:100%;min-width:0}
-.social-platform-workspace{display:grid;grid-template-columns:minmax(11.5rem,13rem) minmax(0,1fr);align-items:start;gap:var(--kosmo-space-5);width:100%;min-width:0}
-.social-platform-navigation-shell{min-width:0}
-.social-platform-navigation{width:100%;gap:2px}
-.social-platform-navigation .social-platform-nav-item{width:100%;font:inherit;text-align:left;border:0;background:transparent;cursor:pointer}
-.social-platform-content{min-width:0}
-.social-platform-content>.kosmo-template{min-width:0}
-.discovery-object-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem}
-.discovery-object-heading h3{margin:.35rem 0;font-size:1.25rem;font-weight:500;line-height:1.35}
-.discovery-object-heading p{margin:0;color:var(--cds-text-secondary);font-size:.8rem;line-height:1.6}
-.discovery-object-heading>span{font-size:.75rem;color:var(--cds-text-secondary)}
-.discovery-object-heading .eyebrow{display:block;margin:0;color:var(--cds-text-secondary);font-size:.75rem;letter-spacing:.04em;line-height:1.4}
-@media(max-width:1055px){.social-platform-workspace{grid-template-columns:minmax(10rem,11rem) minmax(0,1fr);gap:var(--kosmo-space-3)}}
-@media(max-width:671px){.social-platform-workspace{grid-template-columns:minmax(0,1fr);gap:var(--kosmo-space-3)}.social-platform-navigation-shell{position:static}.discovery-object-heading{align-items:flex-start}}
-@media(max-width:560px){.discovery-object-heading{flex-direction:column;gap:.35rem}}
-@media(prefers-reduced-motion:reduce){.settings-local-nav{transition:none}}
-
-
-/* Shared mobile platform drawer: right-aligned, compact and dismissible. */
-.platform-drawer-heading{display:none}
-.ecommerce-brand-mark{width:1.35rem;height:1.35rem;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--cds-text-primary);font-family:Arial,sans-serif;font-size:.92rem;font-weight:700;line-height:1;letter-spacing:-.06em}
-.ecommerce-brand-amazon{font-size:1.05rem;font-weight:700}
-.ecommerce-brand-walmart{font-size:1.25rem;color:#0071ce}
-.ecommerce-brand-ebay{font-size:.78rem;letter-spacing:-.08em;color:#3665f3}
-.ecommerce-brand-aliexpress{font-family:Georgia,serif;font-size:1.2rem;color:#e43225}
-.ecommerce-brand-temu{font-size:1.05rem;color:#fb7701}
-.ecommerce-brand-etsy{font-family:Georgia,serif;font-size:1.2rem;color:#f1641e}
-.ecommerce-brand-shopify{font-size:1rem;color:#6b9b42}
-.ecommerce-brand-mercado-libre{font-size:1rem;color:#f5c400;}
-.ecommerce-brand-rakuten{font-size:1rem;color:#bf0000}
-@media(max-width:671px){
- .settings-local-nav.social-platform-navigation{position:fixed;z-index:1002;inset:0 0 0 auto;width:min(22rem,84vw);max-width:22rem;height:100dvh;max-height:100dvh;overflow-y:auto;padding:calc(var(--kosmo-space-4) + env(safe-area-inset-top)) var(--kosmo-space-4) calc(var(--kosmo-space-4) + env(safe-area-inset-bottom));background:var(--kosmo-color-layer-raised);border-left:1px solid var(--cds-border-subtle);transform:translateX(105%);visibility:hidden;transition:transform .22s ease,visibility .22s ease}
- .settings-local-nav.social-platform-navigation.is-open{transform:translateX(0);visibility:visible}
- .settings-nav-backdrop{position:fixed;z-index:1001;inset:0;width:100%;height:100dvh;border:0;background:color-mix(in srgb, var(--cds-text-primary) 48%, transparent);cursor:pointer}
- .platform-drawer-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.25rem 0 .9rem;border-bottom:1px solid var(--cds-border-subtle)}
- .platform-drawer-heading strong{font-size:1rem;font-weight:600;color:var(--cds-text-primary)}
- .platform-drawer-heading button{width:2.5rem;height:2.5rem;display:grid;place-items:center;border:0;background:transparent;color:var(--cds-text-primary);font-size:1.8rem;line-height:1;cursor:pointer}
- .platform-drawer-heading button:focus-visible{outline:2px solid var(--cds-focus);outline-offset:-2px}
+/* Shared platform switcher for social and commerce discovery workspaces. */
+.social-platform-workspace-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kosmo-space-4);
+  width: 100%;
+  min-width: 0;
 }
-@media(prefers-reduced-motion:reduce){.settings-local-nav.social-platform-navigation{transition:none}}
-
-
-/* Mobile navigation and discovery card rhythm. */
-.settings-mobile-nav-trigger{min-height:2.75rem;max-width:100%;margin-bottom:var(--kosmo-space-3)}
-.settings-mobile-nav-trigger:focus-visible,.social-platform-nav-item:focus-visible{outline:2px solid var(--cds-focus);outline-offset:2px}
-.social-platform-navigation .social-platform-nav-item{min-height:2.75rem}
-.social-platform-content,.social-platform-content>*{min-width:0;max-width:100%}
-@media(max-width:671px){
- .settings-mobile-nav-trigger{display:inline-flex}
- .settings-local-nav.social-platform-navigation{overscroll-behavior:contain}
- .settings-local-nav.social-platform-navigation .social-platform-nav-item{min-height:3rem}
- .settings-nav-backdrop{touch-action:pan-y}
- .social-platform-content .fb-carbon-table,.social-platform-content .li-table,.social-platform-content .gm-table{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
- .social-platform-content .fb-results-section .cds--tab-list,
- .social-platform-content .li-results .cds--tab-list,
- .social-platform-content .gm-results .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
+.social-platform-content {
+  min-width: 0;
+  max-width: 100%;
 }
-@media(max-width:480px) and (min-width:361px){
- .li-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .li-object{min-height:5rem;align-items:flex-start}
-}
-@media(max-width:360px){
- .li-object-grid{grid-template-columns:minmax(0,1fr)}
-}
-
-/* Platform picker replacement: always-visible Carbon-inspired horizontal line tabs. */
-.social-platform-workspace-shell{display:flex;flex-direction:column;gap:var(--kosmo-space-4);min-width:0}
-.platform-line-tabs{display:flex;align-items:stretch;gap:0;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--cds-border-subtle);scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
-.platform-line-tab{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;flex:0 0 auto;min-height:3rem;padding:0 1rem;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:transparent;color:var(--cds-text-secondary);font:inherit;font-size:.875rem;white-space:nowrap;cursor:pointer}
-.platform-line-tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
-.platform-line-tab:focus-visible{outline:2px solid var(--cds-focus);outline-offset:-2px}
-.platform-line-tab.is-selected{border-bottom-color:var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
-.platform-line-tab svg{flex:none}
-.social-platform-content{min-width:0}
-@media(max-width:671px){.platform-line-tab{min-height:2.875rem;padding:0 .875rem;font-size:.8125rem}}
-
-/* Platform category tabs scroll by touch without displaying a native scrollbar. */
-.platform-line-tabs::-webkit-scrollbar,.settings-line-tabs::-webkit-scrollbar{display:none}
-.settings-center .settings-local-nav.settings-line-tabs{scrollbar-width:none;-ms-overflow-style:none}
-
-/* Carbon v11 TabList / Tab sizing for the platform switchers. */
-.platform-line-tabs .cds--tab{display:inline-flex;align-items:center;flex:0 0 auto;min-height:3rem;padding:0 1rem;border-bottom:3px solid transparent;color:var(--cds-text-secondary);font:inherit;font-size:var(--cds-body-compact-01-font-size);white-space:nowrap}
-.platform-line-tabs .cds--tab-content{display:inline-flex;align-items:center;gap:.5rem}
-.platform-line-tabs .cds--tab[aria-selected=true]{border-bottom-color:var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
-.platform-line-tabs .cds--tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
-.platform-line-tabs .cds--tab svg{flex:none}
-@media(max-width:671px){.platform-line-tabs .cds--tab{min-height:2.875rem;padding:0 .875rem;font-size:var(--cds-label-01-font-size)}}
-
-
-/* Official brand marks in the social and commerce platform switchers. */
-.platform-line-tabs .cds--tab {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3.5rem;
-  padding-inline: 1rem;
-  font-size: 1rem;
-  line-height: 1.35;
-}
-.platform-line-tabs .cds--tab-content {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .5rem;
-  min-height: 2rem;
-  white-space: nowrap;
-}
-.platform-line-tabs .platform-brand-logo {
-  display: block;
-  flex: 0 0 1.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  object-fit: contain;
-  object-position: center;
-  vertical-align: middle;
-}
-.platform-line-tabs .cds--tab[aria-selected="true"] .platform-brand-logo {
-  transform: translateZ(0);
-}
-@media (max-width: 671px) {
-  .platform-line-tabs .cds--tab {
-    min-height: 3.5rem;
-    padding-inline: .875rem;
-    font-size: 1rem;
-  }
-  .platform-line-tabs .platform-brand-logo {
-    flex-basis: 1.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-}
-
-/* The app header keeps navigation and account controls, but no workspace-name text. */
-.kosmo-header .cds--header__name,
-.kosmo-header .kosmo-header-context {
-  display: none !important;
-}
-
-/* Minimal platform switchers: keep brand and label on one row; remove arrows and rules. */
-.platform-line-tabs {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  border: 0 !important;
-  
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  -webkit-overflow-scrolling: touch;
-}
-.platform-line-tabs::-webkit-scrollbar { display: none !important; }
-.platform-line-tabs .cds--tab,
-.platform-line-tabs .cds--tab-content {
-  display: inline-flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-  
-}
-.platform-line-tabs .cds--tab {
-  flex: 0 0 auto !important;
-  min-height: 3rem !important;
-  padding: 0 1rem !important;
-  margin: 0 !important;
-  gap: .5rem !important;
-}
-.platform-line-tabs .cds--tab-content {
-  gap: .5rem !important;
-  min-height: 2rem;
-}
-.platform-line-tabs .platform-brand-logo {
-  display: block !important;
-  flex: 0 0 1.5rem !important;
-  width: 1.5rem !important;
-  height: 1.5rem !important;
-  object-fit: contain;
-}
-.platform-line-tabs .cds--tab::after,
-.platform-line-tabs .cds--tab[aria-selected="true"]::after,
-.platform-line-tabs .cds--tab[aria-selected="true"] {
-  border: 0 !important;
-  
-}
-.platform-line-tabs .cds--tab[aria-selected="true"] {
-  color: var(--cds-text-primary) !important;
-  background: var(--cds-layer-selected-01) !important;
-  font-weight: 600 !important;
-}
-.platform-line-tabs .cds--tab:hover {
-  background: var(--cds-layer-hover-01) !important;
-}
-.platform-line-tabs .cds--tabs__overflow-nav-button,
-.platform-line-tabs .cds--tab--overflow-nav-button,
-.platform-line-tabs .cds--tabs__overflow-nav-button--next,
-.platform-line-tabs .cds--tabs__overflow-nav-button--previous {
-  display: none !important;
-}
-@media (max-width: 671px) {
-  .platform-line-tabs .cds--tab {
-    min-height: 3rem !important;
-    padding-inline: .875rem !important;
-  }
-}
-
-
-/* Carbon-aligned platform switcher: explicit inline icon + label layout, independent of Carbon Tabs internals. */
 .platform-switcher {
   width: 100%;
   min-width: 0;
@@ -230,48 +31,57 @@
 .platform-switcher__list::-webkit-scrollbar { display: none; }
 .platform-switcher__tab {
   appearance: none;
-  display: inline-flex !important;
+  display: inline-flex;
   flex: 0 0 auto;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: center;
-  gap: .5rem;
+  gap: var(--kosmo-spacing-03);
   min-height: 3rem;
   margin: 0;
-  padding: 0 1rem;
+  padding: 0 var(--kosmo-spacing-05);
   border: 0;
   border-radius: 0;
   background: transparent;
   color: var(--cds-text-secondary);
-  font-family: var(--cds-font-family);
+  font-family: var(--cds-font-family-sans);
   font-size: var(--cds-body-compact-01-font-size);
   line-height: var(--cds-body-compact-01-line-height);
   white-space: nowrap;
   cursor: pointer;
 }
-.platform-switcher__tab:hover { background: var(--cds-layer-hover-01); color: var(--cds-text-primary); }
+.platform-switcher__tab:hover {
+  background: var(--cds-layer-hover-01);
+  color: var(--cds-text-primary);
+}
 .platform-switcher__tab[aria-selected="true"] {
   background: var(--cds-layer-selected-01);
   color: var(--cds-text-primary);
   font-weight: 600;
 }
-.platform-switcher__tab:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: -2px; }
-.platform-switcher__tab .platform-brand-logo {
-  display: block !important;
-  flex: 0 0 1.25rem !important;
-  width: 1.25rem !important;
-  height: 1.25rem !important;
+.platform-switcher__tab:focus-visible {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
+}
+.platform-brand-logo {
+  display: block;
+  flex: 0 0 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
   max-width: 1.25rem;
   max-height: 1.25rem;
   object-fit: contain;
 }
 .platform-switcher__label {
-  display: inline-block !important;
+  display: inline-block;
   flex: 0 0 auto;
   white-space: nowrap;
   line-height: 1.25rem;
 }
 @media (max-width: 671px) {
-  .platform-switcher__tab { min-height: 2.875rem; padding-inline: .875rem; }
+  .platform-switcher__tab {
+    min-height: 2.875rem;
+    padding-inline: var(--kosmo-spacing-04);
+  }
 }
