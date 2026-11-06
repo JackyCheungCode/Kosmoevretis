@@ -343,7 +343,7 @@ Deno.serve(async (req: Request) => {
       default: return json({error:"Unsupported action"},400);
     }
   } catch (error) {
-    if (error instanceof Response) return new Response(error.body,{status:error.status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"}});
+    if (error instanceof Response) return new Response(error.body,{status:error.status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info"}});
     const message=error instanceof Error?error.message:"Unexpected Meta integration error";
     return json({error:message},url.pathname.endsWith("/webhook") ? 500 : 400);
   }
