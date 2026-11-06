@@ -28,13 +28,26 @@ export function CollectionModeGrid({
   selectedId,
   onSelect,
   ariaLabel,
+  title,
+  description,
 }: {
   options: CollectionModeOption[];
   selectedId: string;
   onSelect: (id: string) => void;
   ariaLabel: string;
+  title?: string;
+  description?: string;
 }) {
   return (
+    <section className="kosmo-discovery-object-selector">
+      {(title || description) && (
+        <header className="kosmo-discovery-object-selector__header">
+          <div>
+            {title && <h3>{title}</h3>}
+            {description && <p>{description}</p>}
+          </div>
+        </header>
+      )}
     <div className="kosmo-collection-mode-grid" role="group" aria-label={ariaLabel}>
       {options.map((option) => {
         const Icon = iconFor(option);
@@ -58,5 +71,6 @@ export function CollectionModeGrid({
         );
       })}
     </div>
+    </section>
   );
 }
