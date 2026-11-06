@@ -225,8 +225,9 @@ async function handleWebhook(req: Request, env: RuntimeEnv) {
     const assetId = String(entry?.id || "");
     if (!assetId) continue;
     const providers: Provider[] = provider === "whatsapp_business" ? ["whatsapp_business"] : ["facebook_pages","messenger"];
-    const { data: connections } = await admin.from("crm_channel_connections").select("id,organization_id,provider")
+    const { data: connections, error: connectionLookupError } = await admin.from("crm_channel_connections").select("id,organization_id,provider")
       .eq("external_asset_id",assetId).eq("status","connected").in("provider",providers);
+    if (connectionLookupError) throw connectionLookupError;
     for (const connection of connections || []) {
       const digest = await sha256(encoder.encode(JSON.stringify(entry)));
       const dedupeKey = await sha256(String(connection.id) + ":" + object + ":" + digest);
