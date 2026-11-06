@@ -462,9 +462,7 @@ function AppShell() {
                 {renderMenuItem(navItems[1])}
                 {renderMenuItem(navItems[2])}
               </SideNavMenu>
-              <SideNavMenu title="平台数据采集" defaultExpanded renderIcon={DataBase}>
-                {renderMenuItem(navItems[3])}
-              </SideNavMenu>
+              {renderRailLink(navItems[3])}
               <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
                 {renderMenuItem(navItems[4])}
               </SideNavMenu>
