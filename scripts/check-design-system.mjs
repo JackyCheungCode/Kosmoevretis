@@ -6,6 +6,14 @@ const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
+  if (relative === "src/FacebookDiscovery.tsx" &&
+      (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{historyId/.test(source))) {
+    violations.push(relative + ": history rows must use Carbon ClickableTile.");
+  }
+  if (relative === "src/LinkedInDiscovery.tsx" &&
+      (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{historyId/.test(source))) {
+    violations.push(relative + ": history rows must use Carbon ClickableTile.");
+  }
   if (relative === "src/pages/EcommerceDiscovery.tsx" &&
       (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{selectedHistory/.test(source))) {
     violations.push(relative + ": history rows must use Carbon ClickableTile.");
