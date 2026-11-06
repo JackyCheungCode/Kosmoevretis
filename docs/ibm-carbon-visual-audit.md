@@ -31,6 +31,7 @@
 - AppShell 静态核对确认：Header 透明、无工作区标题文本；面包屑组件仍在主内容区并保留页面层级；桌面/平板/手机均有独立布局规则。
 - `src/design-system/design-system.css` 已移除共享 PageHeader 顶部额外 padding，避免插画与页面标题之间叠加留白。
 - AppShell 的社媒/电商平台导航已从手工 `role=tab` 按钮改为 Carbon `Tabs` / `TabList` / `Tab` 组件。
+- 路由面包屑已迁移为 Carbon `Breadcrumb` / `BreadcrumbItem`，继续保留首页、页面分组和当前页的中文层级，以及 React Router 站内导航；分隔符交由 Carbon 组件提供，不再用 CSS 伪元素模拟。
 - 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
 - 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
 - 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`，并加入设计规范防回归检查。
@@ -101,7 +102,9 @@
 - `25fbce2`：增加产品目录 `ClickableTile` 防回归检查。
 - `a161655`、`798fda3`：电商发现与平台数据采集历史任务行迁移为 Carbon `ClickableTile`。
 - `4e63513`：增加两个发现页面的 `ClickableTile` 防回归检查。
-- 生产部署最近一次已成功：Deployment ID `d90ce35e-814c-4281-8b30-8b650bcee1ad`，commit `81eee9745565b5a55689cf043b86f9d1fc50a82b`，URL `https://d90ce35e.kosmoevretis-platform.pages.dev`。此部署早于本轮 spacing 与 `ClickableTile` 变更；本轮最新提交 `4e63513` 已触发新部署，等待 Build/Deploy 验证。
+- `17b720e`、`cfb34cd`：AppShell 面包屑迁移至 Carbon Breadcrumb，移除自定义分隔符。
+- `3996c26`：增加 AppShell Carbon Breadcrumb 防回归检查。
+- 生产部署最近一次已成功：Deployment ID `d90ce35e-814c-4281-8b30-8b650bcee1ad`，commit `81eee9745565b5a55689cf043b86f9d1fc50a82b`，URL `https://d90ce35e.kosmoevretis-platform.pages.dev`。此部署早于本轮 spacing 与 `ClickableTile` 变更；本轮最新提交 `3996c26` 已触发新部署，等待 Build/Deploy 验证。
 - 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c`、`27da24f` 的部署均已成功。最新部署 `b906ced`：`https://2b845189.kosmoevretis-platform.pages.dev`，Deployment ID `2b845189-e532-48e6-8516-709b3547e33d`。中间提交 `8bc4623`、`5f131d4` 因 ContentSwitcher 的必需属性和可选索引类型检查失败；已在 `27da24f` 修正并通过构建。
 
 ## 7. 后续执行顺序
