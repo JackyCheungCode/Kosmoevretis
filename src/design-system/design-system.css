@@ -33,7 +33,8 @@
 .kosmo-template__results .kosmo-page-section { min-width:0; }
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
  .ig-results-tabs { min-width:0; }
-.page-header-section,\n.kosmo-page-header {
+.page-header-section,
+.kosmo-page-header {
   display: block;
   width: 100%;
   min-width: 0;
@@ -52,7 +53,8 @@
   min-width: 0;
 }
 .kosmo-page-header__copy { min-width: 0; }
-.cds--page-title,\n.kosmo-page-header__title {
+.cds--page-title,
+.kosmo-page-header__title {
   max-width: 28ch;
   margin: 0;
   color: var(--cds-text-primary);
@@ -62,7 +64,8 @@
   line-height: var(--cds-heading-05-line-height);
   letter-spacing: 0;
 }
-.cds--page-subtitle,\n.kosmo-page-header__description {
+.cds--page-subtitle,
+.kosmo-page-header__description {
   max-width: 68ch;
   margin: var(--kosmo-spacing-04) 0 0;
   color: var(--cds-text-secondary);
