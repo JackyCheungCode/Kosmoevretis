@@ -35,7 +35,7 @@
 - 路由面包屑已迁移为 Carbon `Breadcrumb` / `BreadcrumbItem`，继续保留首页、页面分组和当前页的中文层级，以及 React Router 站内导航；分隔符交由 Carbon 组件提供，不再用 CSS 伪元素模拟。
 - 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
 - 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
-- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集、Facebook 发现、LinkedIn 发现的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`；Google Maps 商家结果中的客户选择操作改为 Carbon `Button`，历史任务行改为 `ClickableTile`，并加入设计规范防回归检查。
+- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录整行选择控件，以及电商发现、平台数据采集、Facebook 发现、LinkedIn 发现的历史任务整行选择控件，现均迁移为 Carbon `ClickableTile`；Google Maps 商家结果中的客户选择操作改为 Carbon `Button`，历史任务行改为 `ClickableTile`；邮件工作区文件夹与账户选择改为 `ClickableTile`，并加入设计规范防回归检查。
 
 ## 3. 已修复的审计与样式问题
 
@@ -109,6 +109,8 @@
 - `5b623f7`：增加 Google Maps 客户操作使用 Carbon `Button` 的防回归检查。
 - `f2c7def`：Google Maps 历史任务行迁移为 Carbon `ClickableTile`，执行期间通过 `aria-disabled` 与事件守卫保持不可操作。
 - `6c674c0`：增加 Google Maps 历史任务行 `ClickableTile` 防回归检查。
+- `5aaa1d4`、`05397bb`：邮件工作区文件夹与邮箱账户选择控件迁移至 Carbon `ClickableTile`，并修正为 Carbon 组件支持的 props。
+- `9072271`：增加邮件工作区导航控件防回归检查。
 - `aef58e5`：增加 AppShell 平板/手机响应式导航与 reduced-motion 静态防回归检查。
 - `17b720e`、`cfb34cd`：AppShell 面包屑迁移至 Carbon Breadcrumb，移除自定义分隔符。
 - `dc6d0ca`：关闭 Carbon Breadcrumb 的尾部分隔符，保持路径显示简洁。
