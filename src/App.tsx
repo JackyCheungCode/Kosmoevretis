@@ -37,6 +37,7 @@ import CustomerCenter from "./CustomerCenter";
 import SalesPipeline from "./SalesPipeline";
 import UnifiedMessageCenter from "./UnifiedMessageCenter";
 import MetaChannelManagement from "./MetaChannelManagement";
+import MetaChannelWorkspace from "./MetaChannelWorkspace";
 import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
 import MailCommunication from "./MailCommunication";
@@ -70,7 +71,7 @@ const validPaths = new Set([
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
   "/settings/governance", "/settings/audit", "/settings/design-system", "/settings/mail",
-  "/communication/mail", "/communication/inbox", "/tasks", "/customers", "/opportunities", "/meta-channels",
+  "/communication/mail", "/communication/inbox", "/tasks", "/customers", "/opportunities", "/meta-channels", "/meta-channels/facebook", "/meta-channels/whatsapp", "/meta-channels/messenger",
 ]);
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
@@ -107,7 +108,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 const routeLabels: Record<string, string> = {
   "/intelligence": "工作台", "/tasks": "分析任务", "/trade-access": "贸易与市场准入",
   "/products": "产品中心", "/platform-data-collection": "线索发现", "/seo-analysis": "独立站智能诊断",
-  "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/meta-channels": "Meta 渠道管理", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
+  "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/meta-channels": "Meta 渠道管理", "/meta-channels/facebook": "Facebook Pages", "/meta-channels/whatsapp": "WhatsApp Business", "/meta-channels/messenger": "Messenger", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
   "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
   "/settings/channels": "数据渠道", "/settings/runs": "运行记录",
@@ -146,7 +147,7 @@ function RouteBreadcrumbs({ path }: { path: string }) {
     const platform = path.split("/")[2];
     items.push({ label: "社媒平台发现", to: "/social-discovery" });
     items.push({ label: (socialLabels[platform] || "平台") + "数据采集" });
-  } else if (path.startsWith("/ecommerce-discovery/")) {
+  } else if (path.startsWith("/meta-channels/")) {\n    items.push({ label: "Meta 渠道管理", to: "/meta-channels" });\n    items.push({ label: routeLabels[path] || "渠道管理" });\n  } else if (path.startsWith("/ecommerce-discovery/")) {
     const platform = path.split("/")[2];
     items.push({ label: "电商平台发现", to: "/ecommerce-discovery" });
     items.push({ label: ecommerceLabels[platform] || "平台数据" });
@@ -247,7 +248,7 @@ function AppShell() {
   );
   const productActive = path === "/products" || path.startsWith("/ecommerce-discovery");
   const intelligenceActive = ["/trade-access", "/seo-analysis"].includes(path);
-  const customerActive = path === "/customers" || path === "/opportunities" || path === "/communication/inbox" || path === "/meta-channels" || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
+  const customerActive = path === "/customers" || path === "/opportunities" || path === "/communication/inbox" || path.startsWith("/meta-channels") || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
   
   return (
     <Theme theme="g10">
@@ -365,7 +366,7 @@ function AppShell() {
         {path === "/opportunities" && <SalesPipeline />}
         {isMailWorkspace && <MailCommunication />}
         {path === "/communication/inbox" && <UnifiedMessageCenter />}
-        {path === "/meta-channels" && <MetaChannelManagement />}
+        {path === "/meta-channels" && <MetaChannelManagement />}\n        {path === "/meta-channels/facebook" && <MetaChannelWorkspace channel="facebook" />}\n        {path === "/meta-channels/whatsapp" && <MetaChannelWorkspace channel="whatsapp" />}\n        {path === "/meta-channels/messenger" && <MetaChannelWorkspace channel="messenger" />}
         
         
         
