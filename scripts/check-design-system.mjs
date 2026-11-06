@@ -6,6 +6,10 @@ const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
+  if (relative === "src/MailCommunication.tsx" &&
+      (!/\bClickableTile\b/.test(source) || /<button\b/.test(source))) {
+    violations.push(relative + ": mail folder and account selectors must use Carbon ClickableTile.");
+  }
   if (relative === "src/GoogleMapsDiscovery.tsx") {
     if (!/\bButton\b/.test(source) || /<button\b[^>]*className=["']gm-customer-link["']/.test(source)) {
       violations.push(relative + ": Google Maps customer actions must use Carbon Button.");
