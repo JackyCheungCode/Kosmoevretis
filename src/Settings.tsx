@@ -103,7 +103,7 @@ export default function Settings(){
     </section>)}
    </nav>
    <div className="settings-mobile-navigation">
-    <Tabs className="settings-mobile-tabs" selectedIndex={activeIndex} onChange={({selectedIndex}:{selectedIndex:number})=>{const group=settingsGroups[selectedIndex];if(group && group.items[0])navigate("/settings/"+group.items[0][0]);}}>
+    <div className="settings-mobile-tabs"><Tabs selectedIndex={activeIndex} onChange={({selectedIndex}:{selectedIndex:number})=>{const group=settingsGroups[selectedIndex];if(group && group.items[0])navigate("/settings/"+group.items[0][0]);}}>
      <TabList aria-label="系统设置分类" contained>
       {settingsGroups.map(group=><Tab key={group.title}>{group.title}</Tab>)}
      </TabList>
