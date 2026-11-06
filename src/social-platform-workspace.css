@@ -135,3 +135,74 @@
 .kosmo-header .kosmo-header-context {
   display: none !important;
 }
+
+/* Minimal platform switchers: keep brand and label on one row; remove arrows and rules. */
+.platform-line-tabs {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  -webkit-overflow-scrolling: touch;
+}
+.platform-line-tabs::-webkit-scrollbar { display: none !important; }
+.platform-line-tabs .cds--tab,
+.platform-line-tabs .cds--tab-content {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.platform-line-tabs .cds--tab {
+  flex: 0 0 auto !important;
+  min-height: 3rem !important;
+  padding: 0 1rem !important;
+  margin: 0 !important;
+  gap: .5rem !important;
+}
+.platform-line-tabs .cds--tab-content {
+  gap: .5rem !important;
+  min-height: 2rem;
+}
+.platform-line-tabs .platform-brand-logo {
+  display: block !important;
+  flex: 0 0 1.5rem !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  object-fit: contain;
+}
+.platform-line-tabs .cds--tab::after,
+.platform-line-tabs .cds--tab[aria-selected="true"]::after,
+.platform-line-tabs .cds--tab[aria-selected="true"] {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.platform-line-tabs .cds--tab[aria-selected="true"] {
+  color: var(--cds-text-primary) !important;
+  background: var(--cds-layer-selected-01) !important;
+  font-weight: 600 !important;
+}
+.platform-line-tabs .cds--tab:hover {
+  background: var(--cds-layer-hover-01) !important;
+}
+.platform-line-tabs .cds--tabs__overflow-nav-button,
+.platform-line-tabs .cds--tab--overflow-nav-button,
+.platform-line-tabs .cds--tabs__overflow-nav-button--next,
+.platform-line-tabs .cds--tabs__overflow-nav-button--previous {
+  display: none !important;
+}
+@media (max-width: 671px) {
+  .platform-line-tabs .cds--tab {
+    min-height: 3rem !important;
+    padding-inline: .875rem !important;
+  }
+}
