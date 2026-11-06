@@ -35,7 +35,7 @@ import TaskCenter from "./TaskCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import CustomerCenter from "./CustomerCenter";
 import SalesPipeline from "./SalesPipeline";
-import UnifiedMessageCenter from "./UnifiedMessageCenter";
+import MetaUnifiedInbox from "./MetaUnifiedInbox";
 import MetaChannelManagement from "./MetaChannelManagement";
 import MetaChannelWorkspace from "./MetaChannelWorkspace";
 import MetaChannelConnect from "./MetaChannelConnect";
@@ -371,7 +371,7 @@ function AppShell() {
         {path === "/customers" && <CustomerCenter />}
         {path === "/opportunities" && <SalesPipeline />}
         {isMailWorkspace && <MailCommunication />}
-        {path === "/communication/inbox" && <UnifiedMessageCenter />}
+        {path === "/communication/inbox" && <MetaUnifiedInbox />}
         {path === "/meta-channels" && <MetaChannelManagement />}
         {path === "/meta-channels/facebook" && <MetaChannelWorkspace channel="facebook" />}
         {path === "/meta-channels/whatsapp" && <MetaChannelWorkspace channel="whatsapp" />}
