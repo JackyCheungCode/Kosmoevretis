@@ -1,5 +1,6 @@
 import React from "react";
 import { supabase } from "./lib/supabase";
+import { useAuth } from "./auth/AuthProvider";
 import { ClickableTile, Button, InlineNotification, Search, Tag, TextInput, TextArea } from "@carbon/react";
 import { Add, Archive, Document, Email, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +9,6 @@ import "./mail-communication.css";
 
 type Folder = { id: string; label: string; icon: React.ElementType };
 type MailAccount = { id: string; email_address: string; display_name: string; is_default: boolean; status: string }; 
-const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 const folders: Folder[] = [
   { id: "inbox", label: "收件箱", icon: Email },
   { id: "sent", label: "已发送", icon: Send },
@@ -20,22 +20,38 @@ const folders: Folder[] = [
 
 export default function MailCommunication() {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [folder, setFolder] = React.useState("inbox");
   const [query, setQuery] = React.useState("");
   const [composeOpen, setComposeOpen] = React.useState(false);
   const [accounts, setAccounts] = React.useState<MailAccount[]>([]);
   const [activeAccountId, setActiveAccountId] = React.useState("");
+  const [organizationId, setOrganizationId] = React.useState("");
+  const [accountError, setAccountError] = React.useState("");
   React.useEffect(() => {
     let active = true;
-    supabase.functions.invoke("mail-api", { body: { action: "list_accounts", organization_id: ORGANIZATION_ID } })
-      .then(({data,error}) => {
-        if (!active || error || data?.error) return;
-        const list = (data?.accounts || []) as MailAccount[];
-        setAccounts(list);
-        setActiveAccountId(current => current || list.find(account => account.is_default)?.id || list[0]?.id || "");
-      }).catch(() => undefined);
+    const loadAccounts = async () => {
+      if (!session?.user.id) return;
+      setAccountError("");
+      const { data: memberships, error: membershipError } = await supabase
+        .from("organization_members").select("organization_id").eq("user_id", session.user.id).order("created_at", { ascending: true });
+      if (!active) return;
+      if (membershipError) { setAccountError(membershipError.message); return; }
+      const selectedOrganizationId = memberships?.[0]?.organization_id;
+      if (!selectedOrganizationId) { setOrganizationId(""); setAccounts([]); return; }
+      setOrganizationId(selectedOrganizationId);
+      const { data, error } = await supabase.functions.invoke("mail-api", {
+        body: { action: "list_accounts", organization_id: selectedOrganizationId },
+      });
+      if (!active) return;
+      if (error || data?.error) { setAccountError(error?.message || data?.error || "无法读取邮箱账户"); return; }
+      const list = (data?.accounts || []) as MailAccount[];
+      setAccounts(list);
+      setActiveAccountId(current => current || list.find(account => account.is_default)?.id || list[0]?.id || "");
+    };
+    void loadAccounts().catch(error => { if (active) setAccountError(error instanceof Error ? error.message : "无法读取邮箱账户"); });
     return () => { active = false; };
-  }, []);
+  }, [session?.user.id]);
   const activeAccount = accounts.find(account => account.id === activeAccountId) || null;
   const activeFolder = folders.find(item => item.id === folder) || folders[0];
 
@@ -43,13 +59,9 @@ export default function MailCommunication() {
     <main className="mail-workspace" aria-label="邮件沟通工作区">
       <PageHeader title="邮件沟通" description="统一管理多个邮箱账户，以 AI 辅助处理全球商务邮件。" actions={<div className="mail-header-actions"><Button kind="secondary" renderIcon={Settings} onClick={() => navigate("/settings/mail")}>邮箱设置</Button><Button kind="primary" renderIcon={Add} onClick={() => setComposeOpen(true)}>写邮件</Button></div>} />
 
-      <InlineNotification
-        kind="info"
-        lowContrast
-        hideCloseButton
-        title="邮箱服务尚未连接"
-        subtitle="请先前往系统设置绑定 Gmail、Outlook 或企业邮箱。当前工作区不会展示模拟邮件或虚构的同步状态。"
-      />
+      {accountError ? <InlineNotification kind="error" lowContrast title="邮箱账户读取失败" subtitle={accountError} /> :
+        !accounts.length ? <InlineNotification kind="info" lowContrast hideCloseButton title="邮箱服务尚未连接" subtitle="请先前往系统设置绑定 Gmail、Outlook 或企业邮箱。当前工作区不会展示模拟邮件或虚构的同步状态。" /> :
+        <InlineNotification kind="success" lowContrast hideCloseButton title="邮箱账户已读取" subtitle={accounts.length + " 个账户已配置；邮件同步与真实收发仍需后端服务启用。"} /> }
 
       <section className="mail-toolbar" aria-label="邮件工具栏">
         <Search id="mail-search" labelText="搜索邮件" placeholder="搜索发件人、主题或邮件内容" value={query} onChange={event => setQuery(event.target.value)} />
