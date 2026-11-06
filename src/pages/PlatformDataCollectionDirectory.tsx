@@ -121,11 +121,10 @@ export default function PlatformDataCollectionDirectory() {
                 <ClickableTile key={channel.id} className="pdc-directory-card" onClick={() => navigate(channel.route)}>
                   <div className="pdc-directory-card__top">
                     <img src={"https://cdn.simpleicons.org/" + channel.icon + "/" + channel.color} alt="" loading="lazy" />
-                    <Tag type={channel.type === "ecommerce" ? "blue" : "green"}>{channel.type === "ecommerce" ? "电商发现" : "社交发现"}</Tag>
                   </div>
                   <h3>{channel.name}</h3>
                   <p>{channel.description}</p>
-                  <span className="pdc-directory-card__action">进入采集页面 <ArrowRight size={16} /></span>
+                  <span className="pdc-directory-card__action" aria-hidden="true"><ArrowRight size={20} /></span>
                 </ClickableTile>
               ))}
             </div>
