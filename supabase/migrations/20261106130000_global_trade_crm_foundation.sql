@@ -107,9 +107,9 @@ create table if not exists public.crm_activities (
   constraint crm_activities_company_org_fk foreign key (company_id, organization_id)
     references public.crm_companies(id, organization_id) on delete cascade,
   constraint crm_activities_lead_org_fk foreign key (lead_id, organization_id)
-    references public.crm_leads(id, organization_id) on delete set null,
+    references public.crm_leads(id, organization_id) on delete set null (lead_id),
   constraint crm_activities_contact_org_fk foreign key (contact_id, organization_id)
-    references public.crm_contacts(id, organization_id) on delete set null
+    references public.crm_contacts(id, organization_id) on delete set null (contact_id)
 );
 create index if not exists crm_activities_org_company_time_idx on public.crm_activities (organization_id, company_id, occurred_at desc);
 
