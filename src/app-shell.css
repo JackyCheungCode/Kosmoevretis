@@ -390,7 +390,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap:var(--kosmo-spacing-03);
   margin:0;
   padding:0;
   list-style: none;
