@@ -43,17 +43,71 @@ export default function GlobalPageIllustration({ path }: { path: string }) {
           <path d="M28 128C180 128 196 48 350 48S520 144 680 144 888 30 1172 30" strokeDasharray="3 10" />
           <path d="M80 166C250 166 300 88 444 88S650 174 790 174 1010 72 1190 72" opacity=".55" />
         </g>}
-        {kind === "collection" && <g className="kosmo-page-art__collection" fill="none" stroke="var(--cds-icon-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <g className="kosmo-page-art__sources">
-            <g transform="translate(170 68)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-29-20h3m8 0h3M-24 2h48M-24 12h34"/></g>
-            <g transform="translate(170 172)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-24 1h48M-24 12h30"/></g>
-            <g transform="translate(1030 68)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-24 1h48M-24 12h30"/></g>
-            <g transform="translate(1030 172)"><rect x="-42" y="-27" width="84" height="58" rx="2"/><path d="M-42-12H42M-24 1h48M-24 12h30"/></g>
+        {kind === "collection" && <g className="kosmo-page-art__collection" strokeLinecap="round" strokeLinejoin="round">
+          <defs>
+            <linearGradient id="pdc-window" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#4589ff" stopOpacity=".16"/><stop offset="1" stopColor="#a56eff" stopOpacity=".06"/></linearGradient>
+            <linearGradient id="pdc-data" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#0f62fe"/><stop offset=".5" stopColor="#a56eff"/><stop offset="1" stopColor="#08bdba"/></linearGradient>
+            <linearGradient id="pdc-scan" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#08bdba" stopOpacity="0"/><stop offset=".5" stopColor="#08bdba" stopOpacity=".55"/><stop offset="1" stopColor="#08bdba" stopOpacity="0"/></linearGradient>
+          </defs>
+          <g className="pdc-window pdc-window--a" transform="translate(48 34)">
+            <rect width="218" height="108" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H218" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#ff9900" fontSize="11" fontWeight="700">amazon</text>
+            <rect x="12" y="34" width="52" height="58" rx="2" fill="#ff9900" opacity=".18"/><path d="M20 75l13-19 12 11 10-15" fill="none" stroke="#ff9900" strokeWidth="2"/><path d="M77 39H198M77 49H183M77 63H190M77 78H155M77 89H181" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
           </g>
-          <g className="kosmo-page-art__collection-lines" stroke="var(--cds-link-primary)"><path d="M212 68H390Q430 68 462 100L520 120M212 172H390Q430 172 462 140L520 120M988 68H810Q770 68 738 100L680 120M988 172H810Q770 172 738 140L680 120" strokeDasharray="5 8"/><path d="M690 120H830" strokeDasharray="5 8"/></g>
-          <g className="kosmo-page-art__collector" transform="translate(600 120)"><path d="M-58-38H58L46 4H-46Z"/><path d="M-28-18v20m0 0-9-9m9 9 9-9M0-18V2m0 0-9-9m9 9 9-9M28-18V2m0 0-9-9m9 9 9-9"/><path d="M-46 18H46M-36 31H36" opacity=".65"/></g>
-          <g className="kosmo-page-art__dataset" transform="translate(900 120)"><path d="M-36-38H30L48-20V38H-36Z"/><path d="M30-38V-20H48M-20-7H28M-20 8H28M-20 23H16"/><path d="M-50-20H-44M-50-5H-44M-50 10H-44M-50 25H-44" opacity=".7"/></g>
-          <g className="kosmo-page-art__collection-points" fill="var(--cds-support-info)" stroke="none"><circle cx="300" cy="68" r="4"/><circle cx="300" cy="172" r="4"/><circle cx="900" cy="68" r="4"/><circle cx="900" cy="172" r="4"/></g>
+          <g className="pdc-window pdc-window--b" transform="translate(302 18)">
+            <rect width="194" height="104" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H194" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#4285f4" fontSize="11" fontWeight="700">Google Trends</text>
+            <path d="M14 83L38 70 58 75 80 46 102 59 126 36 151 49 180 29" fill="none" stroke="#4285f4" strokeWidth="2.4"/><path d="M14 88H180M14 40V88" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="126" cy="36" r="3.5" fill="#4285f4"/>
+          </g>
+          <g className="pdc-window pdc-window--c" transform="translate(528 35)">
+            <rect width="190" height="100" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H190" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#e4405f" fontSize="11" fontWeight="700">Instagram</text>
+            <rect x="13" y="34" width="48" height="48" rx="3" fill="#e4405f" opacity=".18"/><circle cx="37" cy="58" r="12" fill="none" stroke="#e4405f" strokeWidth="2"/><path d="M72 39H175M72 50H166M72 63H179M72 76H151" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-window pdc-window--d" transform="translate(754 20)">
+            <rect width="194" height="106" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H194" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#ff4500" fontSize="11" fontWeight="700">reddit</text>
+            <circle cx="39" cy="57" r="20" fill="#ff4500" opacity=".16"/><circle cx="39" cy="57" r="11" fill="none" stroke="#ff4500" strokeWidth="2"/><path d="M73 40H180M73 53H168M73 66H181M73 80H150" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-window pdc-window--e" transform="translate(974 42)">
+            <rect width="178" height="100" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H178" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#0866ff" fontSize="11" fontWeight="700">Facebook</text>
+            <circle cx="31" cy="57" r="18" fill="#0866ff" opacity=".16"/><path d="M23 66V49h7v-5c0-6 4-9 10-9h6v7h-5c-3 0-4 1-4 4v3h9l-2 7h-7v10" fill="none" stroke="#0866ff" strokeWidth="2"/><path d="M65 40H164M65 53H153M65 66H163M65 79H140" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-window pdc-window--f" transform="translate(154 174)">
+            <rect width="204" height="92" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H204" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#ff0000" fontSize="11" fontWeight="700">YouTube</text>
+            <rect x="14" y="35" width="42" height="42" rx="5" fill="#ff0000" opacity=".17"/><path d="M31 46l14 10-14 10z" fill="#ff0000"/><path d="M69 41H190M69 53H178M69 66H188M69 77H158" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-window pdc-window--g" transform="translate(402 186)">
+            <rect width="202" height="82" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H202" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#25f4ee" fontSize="11" fontWeight="700">TikTok</text>
+            <path d="M18 43H183M18 55H165M18 68H178" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-window pdc-window--h" transform="translate(650 185)">
+            <rect width="202" height="84" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H202" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#7ab55c" fontSize="11" fontWeight="700">Shopify</text>
+            <rect x="16" y="35" width="28" height="35" rx="3" fill="#7ab55c" opacity=".2"/><path d="M60 42H186M60 54H174M60 67H182" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-window pdc-window--i" transform="translate(900 180)">
+            <rect width="194" height="88" rx="5" fill="url(#pdc-window)" stroke="#8d8d8d" strokeOpacity=".55"/><path d="M0 22H194" stroke="#8d8d8d" strokeOpacity=".5"/><circle cx="12" cy="11" r="2.5" fill="#fa4d56"/><circle cx="22" cy="11" r="2.5" fill="#f1c21b"/><circle cx="32" cy="11" r="2.5" fill="#42be65"/><text x="48" y="15" fill="#3665f3" fontSize="11" fontWeight="700">eBay</text>
+            <path d="M17 42H177M17 54H166M17 68H179" stroke="#8d8d8d" strokeOpacity=".65" strokeWidth="3"/>
+          </g>
+          <g className="pdc-data-routes" fill="none" stroke="url(#pdc-data)" strokeWidth="2.2">
+            <path d="M155 142C170 158 260 148 330 160S465 174 548 156L728 144Q800 137 876 157L1005 174"/>
+            <path d="M410 122C420 142 480 146 548 156L728 144Q800 137 876 157L1005 174"/>
+            <path d="M620 135L728 144Q800 137 876 157L1005 174"/>
+            <path d="M850 126Q865 146 876 157L1005 174"/>
+            <path d="M260 174Q390 195 548 156M500 186Q520 169 548 156M750 185Q760 168 876 157M995 142Q980 156 1005 174"/>
+          </g>
+          <g className="pdc-crawler" transform="translate(548 156)">
+            <circle r="28" fill="#0f62fe" fillOpacity=".10" stroke="#0f62fe" strokeOpacity=".75" strokeWidth="1.5"/>
+            <circle r="17" fill="#161616" stroke="#78a9ff" strokeWidth="1.5"/>
+            <path d="M-9-5L0-12 9-5 7 8H-7Z" fill="#4589ff" fillOpacity=".35" stroke="#78a9ff" strokeWidth="1.5"/>
+            <circle className="pdc-crawler-eye" cx="0" cy="-1" r="3.5" fill="#08bdba"/>
+            <path d="M-25-18l-10-9m60 9 10-9M-25 18l-10 9m60-9 10 9" stroke="#78a9ff" strokeWidth="2"/>
+            <path d="M-42-38H42V38H-42Z" fill="none" stroke="#08bdba" strokeOpacity=".4" strokeDasharray="3 5"/>
+          </g>
+          <g className="pdc-scan-beam"><path d="M80 150H1120" stroke="#08bdba" strokeOpacity=".28" strokeWidth="1"/><path d="M80 148H1120V161H80Z" fill="url(#pdc-scan)" opacity=".35"/></g>
+          <g className="pdc-server" transform="translate(1092 226)">
+            <rect x="-45" y="-43" width="90" height="80" rx="4" fill="#262626" stroke="#8d8d8d" strokeWidth="1.5"/>
+            <rect x="-35" y="-32" width="70" height="16" rx="2" fill="#393939" stroke="#6f6f6f"/><rect x="-35" y="-9" width="70" height="16" rx="2" fill="#393939" stroke="#6f6f6f"/><rect x="-35" y="14" width="70" height="14" rx="2" fill="#393939" stroke="#6f6f6f"/>
+            <circle className="pdc-server-led pdc-server-led--one" cx="25" cy="-24" r="3.2" fill="#42be65"/><circle className="pdc-server-led pdc-server-led--two" cx="25" cy="-1" r="3.2" fill="#42be65"/><circle className="pdc-server-led pdc-server-led--three" cx="25" cy="21" r="3.2" fill="#42be65"/>
+            <path d="M-25-24H12M-25-1H12M-25 21H12" stroke="#a8a8a8" strokeWidth="2"/>
+          </g>
+          <g className="pdc-packets" fill="#08bdba"><circle r="3.5"><animateMotion dur="3.6s" repeatCount="indefinite" path="M155 142C280 166 450 170 548 156L876 157L1005 174"/></animateMotion></circle><circle r="2.8"><animateMotion dur="4.4s" begin="-1.6s" repeatCount="indefinite" path="M410 122C470 150 500 160 548 156L876 157L1005 174"/></animateMotion></circle><circle r="3"><animateMotion dur="3.9s" begin="-2.1s" repeatCount="indefinite" path="M850 126Q865 146 876 157L1005 174L1092 183"/></animateMotion></circle></g>
         </g>}
         {kind === "intelligence" && <g className="kosmo-page-art__motif" transform="translate(920 94)" fill="none" stroke="url(#kosmo-page-art-stroke)" strokeWidth="1.6">
           <circle r="65" fill="url(#kosmo-page-art-fill)" /><ellipse rx="65" ry="25" /><ellipse rx="65" ry="25" transform="rotate(60)" /><ellipse rx="65" ry="25" transform="rotate(120)" /><circle r="65" strokeDasharray="3 9" className="kosmo-page-art__orbit" /><path d="M-65 0H65M0-65V65" opacity=".6" />
