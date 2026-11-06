@@ -63,7 +63,7 @@ export function DataSourceSelector({organizationId,selectedSourceIds,onChange,on
   <span className="gi-logo-fallback">{source.name.slice(0,2).toUpperCase()}</span>
   <span className="gi-source-name"><strong>{source.name}</strong><small>{capabilities.filter(cap=>cap.source_id===source.id).slice(0,2).map(cap=>cap.label).join(" · ")||source.channel}</small></span>
   <span className={"gi-status "+(statusTone[status]||"planned")}>{statusLabel[status]||"待接入"}</span>
- </span>} checked={selectedSourceIds.includes(source.id)} disabled={!canCollect} onChange={checked=>toggle(source.id,checked)} />;};
+ </span>} checked={selectedSourceIds.includes(source.id)} disabled={!canCollect} onChange={event=>toggle(source.id,event.target.checked)} />;};
  return <section className="gi-source-section" id="intelligence-data-sources">
   <div className="gi-section-head"><div><span className="eyebrow">03 / DATA SOURCES</span><h2>数据渠道与平台</h2><p>选择本次分析的数据来源</p></div><span className="gi-count-pill">{selected} 个已选</span></div>
   <div className="gi-source-actions"><div className="gi-source-actions-left"><Button kind="tertiary" size="sm" className="gi-quiet-button" onClick={()=>onChange(recommended.map(s=>s.id))} disabled={!recommended.length}>推荐组合</Button><Button kind="tertiary" size="sm" className="gi-quiet-button" onClick={()=>{onChange(recommended.map(s=>s.id));onLoadDemo();}} disabled={!recommended.length}>载入示例配置</Button></div><Button kind="ghost" size="sm" className="gi-expand-button" onClick={()=>setExpanded(v=>!v)} aria-expanded={expanded}>{expanded?"收起平台":"更多平台"} <span className="gi-expand-button__indicator">{expanded?"−":"＋"}</span></Button></div>
