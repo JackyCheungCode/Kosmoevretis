@@ -1,6 +1,6 @@
 # Meta channel backend setup
 
-This runbook applies to the organization-isolated Meta configuration in `feat/global-trade-social-crm`. The CRM and initial Meta channel migrations are applied to Supabase project `npkesfmszokmlgnzqelb`. The new organization Meta App migration and updated Edge Function still require rollout; the currently deployed function is the earlier global-credential version.
+This runbook applies to the organization-isolated Meta configuration in `feat/global-trade-social-crm`. The CRM and initial Meta channel migrations are applied to Supabase project `npkesfmszokmlgnzqelb`. The organization Meta App migration is applied, and the organization-aware `meta-api` Edge Function is deployed as version 2 with `verify_jwt=false`.
 
 ## Required Supabase Edge Function secrets
 
@@ -34,8 +34,8 @@ Register both URLs in every organization's own Meta App. The Verify Token entere
 
 1. [Completed] Apply the CRM foundation migration and initial Meta channel integration migration.
 2. [Completed] Apply `20261106170000_organization_meta_app_configs.sql` to project `npkesfmszokmlgnzqelb` and verify RLS plus service-role-only grants.
-3. [Pending] Deploy the updated `meta-api` Edge Function with `verify_jwt=false`; it performs its own user/org authorization and validates Meta webhook signatures.
-4. Confirm `SETTINGS_ENCRYPTION_KEY` and `APP_ORIGIN` are present in Edge Function secrets. Do not add global Meta App credentials.
+3. [Completed] Deploy the updated `meta-api` Edge Function (version 2) with `verify_jwt=false`; it performs its own user/org authorization and validates Meta webhook signatures.
+4. [Pending verification] Confirm `SETTINGS_ENCRYPTION_KEY` and `APP_ORIGIN` are present in Edge Function secrets. Do not add global Meta App credentials.
 5. Each organization Owner/Admin enters its App ID, App Secret, Verify Token, and currently supported Graph API version in the Settings center, then runs the credential test.
 6. Register callback and webhook URLs in the organization's Meta Developer App; enable the required Page and WhatsApp webhook fields.
 7. Complete Meta Business Verification and request App Review / Advanced Access for the permissions required by the actual use case.
