@@ -58,7 +58,7 @@ function inspect(relative, source) {
     "src/pages/InstagramDiscovery.tsx", "src/pages/PlatformDataCollection.tsx", "src/pages/SeoAnalysis.tsx",
   ];
   if (routePageComponents.includes(relative) &&
-      !/\\bPageHeader\\b|\\b(?:Intelligence|DataList|Configuration|Analysis)PageTemplate\\b/.test(source)) {
+      !/\bPageHeader\b|\b(?:Intelligence|DataList|Configuration|Analysis)PageTemplate\b/.test(source)) {
     violations.push(relative + ": route page must use the shared PageHeader or approved page template.");
   }
   if ((relative.startsWith("src/pages/") || relative === "src/Settings.tsx" || rootPageComponents.includes(relative)) && /\.(tsx|ts)$/.test(relative) &&
