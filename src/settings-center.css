@@ -94,3 +94,29 @@
  .settings-center .settings-local-nav.settings-line-tabs{position:static;width:100%;max-height:none;transform:none;visibility:visible;overflow-x:auto;overflow-y:hidden;padding:0;background:transparent;box-shadow:none}
  .settings-line-tabs .settings-nav-item{min-height:2.875rem;padding:0 .875rem}
 }
+
+
+/* System settings: desktop local navigation and mobile Carbon tabs. */
+.settings-center .settings-navigation-shell{display:flex;flex-direction:column;min-width:0}
+.settings-center .settings-local-nav{position:sticky;top:var(--kosmo-spacing-05);display:flex;flex-direction:column;gap:var(--kosmo-spacing-04);max-height:calc(100dvh - 5rem);overflow-y:auto;min-width:0;padding:var(--kosmo-spacing-03);background:var(--kosmo-color-layer)}
+.settings-center .settings-nav-group{display:flex;flex-direction:column;gap:2px}
+.settings-center .settings-nav-group-title{margin:0;padding:var(--kosmo-spacing-03) var(--kosmo-spacing-03) var(--kosmo-spacing-02);color:var(--kosmo-color-text-secondary);font-size:var(--cds-label-01-font-size);font-weight:600}
+.settings-center .settings-nav-item{display:flex;align-items:center;min-height:2.5rem;padding:var(--kosmo-spacing-03);color:var(--kosmo-color-text-secondary);text-decoration:none}
+.settings-center .settings-nav-item:hover{background:var(--cds-layer-hover-01);color:var(--kosmo-color-text)}
+.settings-center .settings-nav-item[aria-current="page"]{background:var(--kosmo-color-layer-raised);color:var(--kosmo-color-text);font-weight:600;box-shadow:inset 3px 0 0 var(--kosmo-color-interactive)}
+.settings-center .settings-nav-label{min-width:0;overflow-wrap:anywhere}
+.settings-center .settings-mobile-tabs{display:none;min-width:0}
+@media(max-width:671px){
+ .settings-center .kosmo-template__configuration-layout{grid-template-columns:minmax(0,1fr);gap:var(--kosmo-spacing-04)}
+ .settings-center .settings-local-nav{display:none}
+ .settings-center .settings-mobile-tabs{display:block;width:100%;max-width:100%;overflow-x:auto}
+}
+
+.settings-center .settings-mobile-navigation{display:none;min-width:0}
+.settings-center .settings-mobile-subnav{display:flex;gap:var(--kosmo-spacing-02);max-width:100%;overflow-x:auto;padding-block:var(--kosmo-spacing-03);white-space:nowrap}
+.settings-center .settings-mobile-subnav-item{flex:none;padding:var(--kosmo-spacing-02) var(--kosmo-spacing-03);color:var(--cds-text-secondary);text-decoration:none;font-size:var(--cds-label-01-font-size)}
+.settings-center .settings-mobile-subnav-item[aria-current="page"]{background:var(--cds-layer-selected);color:var(--cds-text-primary);font-weight:600}
+@media(max-width:671px){
+ .settings-center .settings-mobile-navigation{display:block}
+ .settings-center .settings-mobile-tabs{display:block}
+}

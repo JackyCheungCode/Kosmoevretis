@@ -16,6 +16,8 @@ import {
   SideNav,
   SideNavItems,
   SideNavLink,
+  SideNavMenu,
+  SideNavMenuItem,
   SkipToContent
 } from "@carbon/react";
 import {
@@ -25,12 +27,11 @@ import {
   Settings,
   Logout,
   DataBase,
-  Search as SearchIcon,
   Email,
-  ChevronDown,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
+import TaskCenter from "./TaskCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
@@ -64,7 +65,7 @@ const validPaths = new Set([
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
   "/settings/governance", "/settings/audit", "/settings/design-system", "/settings/mail",
-  "/communication/mail",
+  "/communication/mail", "/tasks",
 ]);
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
@@ -99,7 +100,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 
 
 const routeLabels: Record<string, string> = {
-  "/intelligence": "全球情报中心", "/trade-access": "贸易与市场准入",
+  "/intelligence": "工作台", "/tasks": "分析任务", "/trade-access": "贸易与市场准入",
   "/products": "产品中心", "/platform-data-collection": "平台数据采集", "/seo-analysis": "独立站智能诊断",
   "/communication/mail": "邮件沟通", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
@@ -170,7 +171,6 @@ function AppShell() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = React.useState(false);
-  const [expandedNavGroup, setExpandedNavGroup] = React.useState<string | null>(null);
   const accountMenuRef = React.useRef<HTMLDivElement>(null);
   const closeMobileNavRef = React.useRef<() => void>(() => {});
 
@@ -223,51 +223,28 @@ function AppShell() {
     if (viewport === "mobile") closeMobileNavRef.current();
   };
 
-  const navItems = [
-    { id: "products", label: "产品中心", href: "/products", icon: Product, active: path === "/products" },
-    { id: "intelligence", label: "全球情报中心", href: "/intelligence", icon: Dashboard, active: path === "/intelligence" },
-    { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
-    { id: "platform-data-collection", label: "平台数据采集", href: "/platform-data-collection", icon: DataBase, active: path === "/platform-data-collection" },
-    { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
-    { id: "mail", label: "邮箱工作台", href: "/communication/mail", icon: Email, active: isMailWorkspace },
-    { id: "settings-providers", label: "服务商连接", href: "/settings/providers", icon: Settings, active: path === "/settings/providers" },
-    { id: "settings-actors", label: "采集能力目录", href: "/settings/actors", icon: Settings, active: path === "/settings/actors" },
-    { id: "settings-channels", label: "数据渠道", href: "/settings/channels", icon: Settings, active: path === "/settings/channels" },
-    { id: "settings-runs", label: "运行记录", href: "/settings/runs", icon: Settings, active: path === "/settings/runs" },
-    { id: "settings-ai-providers", label: "AI 服务商", href: "/settings/ai-providers", icon: Settings, active: path === "/settings/ai-providers" },
-    { id: "settings-models", label: "模型目录", href: "/settings/models", icon: Settings, active: path === "/settings/models" },
-    { id: "settings-routes", label: "任务路由", href: "/settings/routes", icon: Settings, active: path === "/settings/routes" },
-    { id: "settings-prompts", label: "提示词与成本", href: "/settings/prompts", icon: Settings, active: path === "/settings/prompts" },
-    { id: "settings-organization", label: "组织与企业资料", href: "/settings/organization", icon: Settings, active: path === "/settings/organization" },
-    { id: "settings-members", label: "用户与权限", href: "/settings/members", icon: Settings, active: path === "/settings/members" },
-    { id: "settings-locale", label: "地区与语言", href: "/settings/locale", icon: Settings, active: path === "/settings/locale" },
-    { id: "settings-notifications", label: "通知策略", href: "/settings/notifications", icon: Settings, active: path === "/settings/notifications" },
-    { id: "settings-mail", label: "邮箱账户与邮件", href: "/settings/mail", icon: Email, active: path === "/settings/mail" },
-    { id: "settings-governance", label: "数据治理", href: "/settings/governance", icon: Settings, active: path === "/settings/governance" },
-    { id: "settings-audit", label: "安全与审计", href: "/settings/audit", icon: Settings, active: path === "/settings/audit" },
-    { id: "settings-design-system", label: "设计系统", href: "/settings/design-system", icon: Settings, active: path === "/settings/design-system" },
-  ];
-  const navGroups = [
-    { id: "workspace", label: "业务工作区", items: ["products", "intelligence", "trade", "seo-analysis"] },
-    { id: "data", label: "数据与采集", items: ["platform-data-collection", "settings-providers", "settings-actors", "settings-channels", "settings-runs"] },
-    { id: "ai", label: "AI 与模型", items: ["settings-ai-providers", "settings-models", "settings-routes", "settings-prompts"] },
-    { id: "mailbox", label: "邮箱", items: ["mail"] },
-    { id: "admin", label: "系统管理", items: ["settings-organization", "settings-members", "settings-locale", "settings-notifications", "settings-mail", "settings-governance", "settings-audit", "settings-design-system"] },
-  ];
-
-  const renderRailLink = (item: typeof navItems[number]) => (
+  const link = (href: string, label: string, Icon: React.ElementType, active: boolean) => (
     <SideNavLink
-      key={item.id}
-      href={item.href}
-      title={item.label}
-      aria-label={item.label}
-      aria-current={item.active ? "page" : undefined}
-      isActive={item.active}
-      onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, item.href)}
+      href={href}
+      title={label}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+      isActive={active}
+      onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, href)}
     >
-      <span className="kosmo-nav-item-content"><item.icon size={16} /><span>{item.label}</span></span>
+      <span className="kosmo-nav-item-content"><Icon size={16} /><span>{label}</span></span>
     </SideNavLink>
   );
+  const menuItem = (href: string, label: string) => (
+    <SideNavMenuItem key={href} href={href} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, href)}>
+      {label}
+    </SideNavMenuItem>
+  );
+  const productActive = path === "/products" || path.startsWith("/ecommerce-discovery");
+  const intelligenceActive = ["/trade-access", "/platform-data-collection", "/seo-analysis"].includes(path);
+  const customerActive = path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
+  const productPlatforms = ["amazon","walmart","ebay","aliexpress","temu","etsy","shopify","mercado-libre","rakuten"];
+  const socialPlatforms = ["facebook","instagram","linkedin","google-maps","x","reddit","pinterest","tiktok","youtube"];
 
   return (
     <Theme theme="g10">
@@ -345,19 +322,24 @@ function AppShell() {
                 className={`kosmo-side-nav ${viewport === "tablet" && tabletExpanded ? "kosmo-side-nav-tablet-expanded" : ""}`}
               >
                 <SideNavItems>
-                  {navGroups.map((group, groupIndex) => (
-                    <React.Fragment key={group.id}>
-                      <li className={"kosmo-nav-group-label" + (groupIndex === 0 ? " kosmo-nav-group-label--first" : "")}>
-                        <Button kind="ghost" size="sm" className="kosmo-nav-group-toggle"
-                          aria-expanded={expandedNavGroup === group.id}
-                          onClick={() => setExpandedNavGroup((current) => current === group.id ? null : group.id)}>
-                          <span>{group.label}</span>
-                          <ChevronDown size={16} className={"kosmo-nav-group-chevron" + (expandedNavGroup === group.id ? " kosmo-nav-group-chevron--expanded" : "")} aria-hidden="true" />
-                        </Button>
-                      </li>
-                      {expandedNavGroup === group.id && navItems.filter((item) => group.items.includes(item.id)).map(renderRailLink)}
-                    </React.Fragment>
-                  ))}
+                  {link("/intelligence", "工作台", Dashboard, path === "/intelligence")}
+                  <SideNavMenu title="产品与选品" renderIcon={Product} defaultExpanded={productActive} isActive={productActive}>
+                    {menuItem("/products", "产品中心")}
+                    {menuItem("/ecommerce-discovery", "全球电商发现")}
+                    {productPlatforms.map(id => menuItem("/ecommerce-discovery/" + id, ecommerceLabels[id] || id))}
+                  </SideNavMenu>
+                  <SideNavMenu title="全球市场情报" renderIcon={Currency} defaultExpanded={intelligenceActive} isActive={intelligenceActive}>
+                    {menuItem("/trade-access", "贸易与市场准入")}
+                    {menuItem("/platform-data-collection", "平台数据采集")}
+                    {menuItem("/seo-analysis", "独立站智能诊断")}
+                  </SideNavMenu>
+                  <SideNavMenu title="客户与渠道" renderIcon={Email} defaultExpanded={customerActive} isActive={customerActive}>
+                    {menuItem("/social-discovery", "社交平台发现")}
+                    {socialPlatforms.map(id => menuItem("/social-discovery/" + id, socialLabels[id] || id))}
+                    {menuItem("/communication/mail", "邮件沟通")}
+                  </SideNavMenu>
+                  {link("/tasks", "分析任务", DataBase, path === "/tasks")}
+                  {link("/settings/providers", "系统设置", Settings, isSettings)}
                 </SideNavItems>
               </SideNav>
             </>
@@ -371,6 +353,7 @@ function AppShell() {
         <RouteBreadcrumbs path={path} />
 
         {path === "/intelligence" && <GlobalIntelligence />}
+        {path === "/tasks" && <TaskCenter />}
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
         {path === "/platform-data-collection" && <PlatformDataCollectionDirectory />}

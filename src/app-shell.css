@@ -542,3 +542,12 @@
   .kosmo-side-nav.cds--side-nav { top: 3rem; }
   .kosmo-main.cds--content { margin-top: 3rem; }
 }
+
+
+/* Business-domain navigation hierarchy. */
+.kosmo-side-nav .cds--side-nav__menu{margin:0}
+.kosmo-side-nav .cds--side-nav__menu .cds--side-nav__submenu{min-height:2.75rem;padding-inline:1rem;color:var(--cds-text-primary);font-size:var(--cds-body-compact-01-font-size);font-weight:600}
+.kosmo-side-nav .cds--side-nav__menu .cds--side-nav__menu-item a{min-height:2.25rem;padding:.5rem 1rem .5rem 3rem;color:var(--cds-text-secondary);font-size:var(--cds-body-compact-01-font-size)}
+.kosmo-side-nav .cds--side-nav__menu .cds--side-nav__menu-item a:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
+.kosmo-side-nav .cds--side-nav__menu .cds--side-nav__menu-item a[aria-current="page"]{background:var(--cds-layer-selected);border-inline-start:3px solid var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
+.kosmo-side-nav .cds--side-nav__menu[aria-expanded="true"]>.cds--side-nav__submenu{background:transparent}
