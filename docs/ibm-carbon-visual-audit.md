@@ -31,7 +31,8 @@
 - AppShell 静态核对确认：Header 透明、无工作区标题文本；面包屑组件仍在主内容区并保留页面层级；桌面/平板/手机均有独立布局规则。
 - `src/design-system/design-system.css` 已移除共享 PageHeader 顶部额外 padding，避免插画与页面标题之间叠加留白。
 - AppShell 的社媒/电商平台导航已从手工 `role=tab` 按钮改为 Carbon `Tabs` / `TabList` / `Tab` 组件。
-- 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃。
+- 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
+- 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
 
 ## 3. 已修复的审计与样式问题
 
@@ -85,8 +86,14 @@
 - `aefbc69`：PageHeader 字体统一使用 Carbon font-family token。
 - `8dc160e`：清理共享 PageHeader 重复 CSS 规则。
 - `97854c9`：删除 Cloudflare Pages 冗余 SPA 重写规则。
-- `7006d3c`：移除设置页 eyebrow 中的工作区名称；该版本 Cloudflare Build 与 Deploy 均成功，设计系统 guard 通过，且部署日志不再出现 `_redirects` 无限循环警告。
-- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c` 的部署均已成功。最新部署 `7006d3c`：`https://ab388534.kosmoevretis-platform.pages.dev`，Deployment ID `ab388534-2666-4799-8fb6-05435a60bd14`。
+- `7006d3c`：移除设置页 eyebrow 中的工作区名称；该版本 Cloudflare Build 与 Deploy 均成功，且部署日志不再出现 `_redirects` 无限循环警告。
+- `e9ccf82`、`ac80088`：全球情报中心数据渠道筛选改为 Carbon ContentSwitcher。
+- `267fa63`、`bf972b6`、`d1181cb`：全球情报中心主要操作与市场选择改为 Carbon Button。
+- `936c880`、`6cbe236`：为全球情报中心 Carbon Button 增加防回归检查。
+- `8bc4623`：修正 ContentSwitcher 的 Switch 子项和回调 API。
+- `4981c73`、`5f131d4`：修正展开按钮指示符的样式作用范围。
+- `27da24f`：补齐 ContentSwitcher 必需的 size 并处理可选 index；Cloudflare Build 与 Deploy 成功，设计系统 guard 通过。
+- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c`、`27da24f` 的部署均已成功。最新部署 `27da24f`：`https://353fdec9.kosmoevretis-platform.pages.dev`，Deployment ID `353fdec9-1ab6-4bd8-99f4-259e824b77df`。中间提交 `8bc4623`、`5f131d4` 因 ContentSwitcher 的必需属性和可选索引类型检查失败；已在 `27da24f` 修正并通过构建。
 
 ## 7. 后续执行顺序
 
