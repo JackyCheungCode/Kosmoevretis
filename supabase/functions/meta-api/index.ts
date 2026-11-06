@@ -209,7 +209,49 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
     return Response.redirect(target,302);
   }
 }
-async function handleWebhook(req: Request, env: RuntimeEnv) {
+
+function webhookTime(value:unknown){const n=Number(value||0);return new Date(n>0?(n<1e12?n*1000:n):Date.now()).toISOString();}
+async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;organization_id:string;provider:string},object:string,entry:Record<string,any>){
+  const org=connection.organization_id,connectionId=connection.id;
+  if(object==="whatsapp_business_account"&&connection.provider==="whatsapp_business"){
+    for(const change of Array.isArray(entry.changes)?entry.changes:[]){
+      const value=change?.value||{};
+      for(const msg of Array.isArray(value.messages)?value.messages:[]){
+        const sender=String(msg.from||"");const providerId=String(msg.id||"");if(!sender||!providerId)continue;
+        const contact=(Array.isArray(value.contacts)?value.contacts:[]).find((x:any)=>String(x.wa_id||"")===sender);
+        const type=String(msg.type||"text");const text=String(msg.text?.body||msg.caption||"");
+        const media=msg[type]&&typeof msg[type]==="object"?[{type,id:msg[type].id||null,mime_type:msg[type].mime_type||null,filename:msg[type].filename||null,caption:msg[type].caption||null}]:[];
+        const received=webhookTime(msg.timestamp);
+        const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"whatsapp_business",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:contact?.profile?.name||sender,phone:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
+        if(conversationError||!conversation)throw conversationError||new Error("Unable to create WhatsApp conversation");
+        const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:providerId,direction:"inbound",sender_external_id:sender,body_text:text||("[WhatsApp "+type+" message]"),attachment_metadata:media,delivery_status:"received",provider_metadata:{type,context:msg.context||null},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
+        if(messageError)throw messageError;
+      }
+      for(const status of Array.isArray(value.statuses)?value.statuses:[]){
+        const state=String(status.status||"");const mapped=["sent","delivered","read","failed"].includes(state)?state:null;
+        if(mapped&&status.id)await admin.from("crm_channel_messages").update({delivery_status:mapped,provider_metadata:{status,updated_by_webhook:true}}).eq("connection_id",connectionId).eq("provider_message_id",String(status.id));
+      }
+    }
+  }
+  if(object==="page"&&connection.provider==="messenger"){
+    for(const event of Array.isArray(entry.messaging)?entry.messaging:[]){
+      const sender=String(event?.sender?.id||"");const page=String(event?.recipient?.id||entry.id||"");const message=event?.message||{};
+      if(!sender||!message.mid||message.is_echo)continue;
+      const received=webhookTime(event.timestamp);const attachments=Array.isArray(message.attachments)?message.attachments:[];
+      const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"messenger",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
+      if(conversationError||!conversation)throw conversationError||new Error("Unable to create Messenger conversation");
+      const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:String(message.mid),direction:"inbound",sender_external_id:sender,body_text:String(message.text|| (attachments.length?"[Messenger attachment]":"")),attachment_metadata:attachments,delivery_status:"received",provider_metadata:{page_id:page,quick_reply:message.quick_reply||null},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
+      if(messageError)throw messageError;
+    }
+  }
+  if(object==="page"&&connection.provider==="facebook_pages"){
+    for(const change of Array.isArray(entry.changes)?entry.changes:[]){
+      const value=change?.value||{};if(String(value.item||"")!=="comment"||!value.comment_id||!value.post_id)continue;
+      await admin.from("crm_channel_post_comments").upsert({organization_id:org,connection_id:connectionId,external_post_id:String(value.post_id),external_comment_id:String(value.comment_id),author_external_id:value.from?.id||null,author_name:value.from?.name||null,message_text:String(value.message||""),provider_created_at:webhookTime(value.created_time),provider_metadata:value},{onConflict:"connection_id,external_comment_id"});
+    }
+  }
+}
+\nasync function handleWebhook(req: Request, env: RuntimeEnv) {
   const { admin } = clients(env);
   const { data: configs, error: configError } = await admin.from("crm_meta_app_configs").select("*").eq("enabled", true).limit(500);
   if (configError) throw configError;
@@ -246,8 +288,9 @@ async function handleWebhook(req: Request, env: RuntimeEnv) {
     if (lookupError) throw lookupError;
     for (const connection of connections || []) {
       const digest=await sha256(encoder.encode(JSON.stringify(entry))), dedupeKey=await sha256(String(connection.id)+":"+object+":"+digest);
-      const {error}=await admin.from("crm_channel_webhook_events").insert({organization_id:connection.organization_id,connection_id:connection.id,provider:connection.provider,dedupe_key:dedupeKey,provider_event_id:assetId+":"+digest,payload:{object,entry}});
+      const {data:stored,error}=await admin.from("crm_channel_webhook_events").insert({organization_id:connection.organization_id,connection_id:connection.id,provider:connection.provider,dedupe_key:dedupeKey,provider_event_id:assetId+":"+digest,payload:{object,entry}}).select("id").maybeSingle();
       if(error&&error.code!=="23505") throw error;
+      if(stored) await normalizeWebhookEntry(admin,connection,object,entry);
     }
   }
   return new Response("EVENT_RECEIVED",{status:200,headers:{"Content-Type":"text/plain; charset=utf-8"}});
