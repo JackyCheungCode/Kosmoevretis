@@ -1,0 +1,25 @@
+.customer-center { min-width: 0; }
+.crm-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--kosmo-spacing-04); margin-bottom:var(--kosmo-spacing-05); }
+.crm-metrics .cds--tile { min-height:6rem; display:flex; flex-direction:column; justify-content:space-between; background:var(--cds-layer-01); }
+.crm-metric-label { color:var(--cds-text-secondary); font-size:var(--cds-label-01-font-size); }
+.crm-metrics strong { color:var(--cds-text-primary); font-size:1.75rem; line-height:1.2; font-weight:600; }
+.crm-toolbar { display:grid; grid-template-columns:minmax(12rem,1fr) minmax(10rem,14rem) auto auto; align-items:end; gap:var(--kosmo-spacing-03); margin-bottom:var(--kosmo-spacing-05); }
+.crm-toolbar .cds--search { min-width:0; }
+.crm-toolbar .cds--btn { min-height:3rem; }
+.crm-create-panel { margin-bottom:var(--kosmo-spacing-05); background:var(--cds-layer-01); }
+.crm-form-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--kosmo-spacing-04); margin-bottom:var(--kosmo-spacing-05); }
+.crm-form-heading h3 { margin:0 0 var(--kosmo-spacing-02); color:var(--cds-text-primary); font-size:var(--cds-heading-compact-01-font-size); }
+.crm-form-heading p { margin:0; color:var(--cds-text-secondary); font-size:var(--cds-body-compact-01-font-size); }
+.crm-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--kosmo-spacing-04); }
+.crm-form-grid > :last-child { grid-column:1 / -1; }
+.crm-form-actions { display:flex; justify-content:flex-end; gap:var(--kosmo-spacing-03); margin-top:var(--kosmo-spacing-05); }
+.crm-table-wrap { width:100%; overflow-x:auto; background:var(--cds-layer-01); }
+.crm-company-cell { display:flex; align-items:flex-start; gap:var(--kosmo-spacing-03); min-width:12rem; }
+.crm-company-cell > svg { flex:0 0 auto; margin-top:.2rem; color:var(--cds-icon-secondary); }
+.crm-company-cell div { display:flex; flex-direction:column; gap:.2rem; min-width:0; }
+.crm-company-cell strong { color:var(--cds-text-primary); font-weight:600; }
+.crm-company-cell a { max-width:16rem; overflow:hidden; color:var(--cds-link-primary); font-size:var(--cds-label-01-font-size); text-overflow:ellipsis; white-space:nowrap; }
+.crm-empty { min-height:13rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--kosmo-spacing-03); background:var(--cds-layer-01); color:var(--cds-text-secondary); text-align:center; padding:var(--kosmo-spacing-07); }
+.crm-empty strong { color:var(--cds-text-primary); }
+@media(max-width:900px) { .crm-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .crm-toolbar { grid-template-columns:1fr 1fr; } }
+@media(max-width:600px) { .crm-form-grid { grid-template-columns:1fr; } .crm-form-grid > :last-child { grid-column:auto; } .crm-toolbar { grid-template-columns:1fr; } .crm-form-actions { flex-wrap:wrap; } }
