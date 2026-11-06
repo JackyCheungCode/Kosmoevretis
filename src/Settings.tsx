@@ -107,7 +107,7 @@ export default function Settings(){
   className="module settings-center settings-workspace"
   title="配置管理中心"
   description="统一管理数据源连接、采集能力、AI 服务与平台治理配置。"
-  eyebrow="Kosmoevretis / 平台管理"
+  eyebrow="平台管理"
   headingLevel={2}
   navigation={navigation}
  >
