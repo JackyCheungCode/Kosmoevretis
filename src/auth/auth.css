@@ -155,7 +155,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: var(--kosmo-spacing-09) clamp(var(--kosmo-spacing-07), 4.4vw, 5rem);
+  padding: var(--kosmo-spacing-09) clamp(var(--kosmo-spacing-07), 4.4vw, var(--kosmo-spacing-11));
   background: var(--cds-layer-01);
 }
 .kosmo-login-panel-inner {
