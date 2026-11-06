@@ -2,7 +2,7 @@
 .crm-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--kosmo-spacing-04); margin-bottom:var(--kosmo-spacing-05); }
 .crm-metrics .cds--tile { min-height:6rem; display:flex; flex-direction:column; justify-content:space-between; background:var(--cds-layer-01); }
 .crm-metric-label { color:var(--cds-text-secondary); font-size:var(--cds-label-01-font-size); }
-.crm-metrics strong { color:var(--cds-text-primary); font-size:1.75rem; line-height:1.2; font-weight:600; }
+.crm-metrics strong { color:var(--cds-text-primary); font-size:var(--cds-heading-04-font-size); line-height:1.2; font-weight:600; }
 .crm-toolbar { display:grid; grid-template-columns:minmax(12rem,1fr) minmax(10rem,14rem) auto auto; align-items:end; gap:var(--kosmo-spacing-03); margin-bottom:var(--kosmo-spacing-05); }
 .crm-toolbar .cds--search { min-width:0; }
 .crm-toolbar .cds--btn { min-height:3rem; }
