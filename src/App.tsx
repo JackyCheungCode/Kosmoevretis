@@ -122,10 +122,9 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
       <Tabs selectedIndex={Math.max(0, socialPlatformItems.findIndex(item => item.id === platform))}
         onChange={({ selectedIndex }) => { const item = socialPlatformItems[selectedIndex]; if (item) navigate("/social-discovery/" + item.id); }}>
         <TabList className="platform-line-tabs" aria-label="社交媒体平台">
-          {socialPlatformItems.map((item) => {
-            const Icon = item.icon;
-            return <Tab key={item.id} className="platform-line-tab"><Icon size={18} aria-hidden="true" /><span>{item.label}</span></Tab>;
-          })}
+          {socialPlatformItems.map((item) => (
+            <Tab key={item.id} className="platform-line-tab"><BrandLogo brand={item.brand} label={item.label} /><span>{item.label}</span></Tab>
+          ))}
         </TabList>
       </Tabs>
       <div className="social-platform-content">{pages[platform]}</div>
@@ -152,10 +151,9 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
       <Tabs selectedIndex={Math.max(0, ecommercePlatformItems.findIndex(item => item.id === platform))}
         onChange={({ selectedIndex }) => { const item = ecommercePlatformItems[selectedIndex]; if (item) navigate("/ecommerce-discovery/" + item.id); }}>
         <TabList className="platform-line-tabs" aria-label="电商平台">
-          {ecommercePlatformItems.map((item) => {
-            const Icon = item.icon;
-            return <Tab key={item.id} className="platform-line-tab"><Icon size={18} aria-hidden="true" /><span>{item.label}</span></Tab>;
-          })}
+          {ecommercePlatformItems.map((item) => (
+            <Tab key={item.id} className="platform-line-tab"><BrandLogo brand={item.brand} label={item.label} /><span>{item.label}</span></Tab>
+          ))}
         </TabList>
       </Tabs>
       <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
@@ -314,11 +312,7 @@ function AppShell() {
           }}
           className="kosmo-header-menu-button"
         />
-        <HeaderName href="/intelligence" onClick={(event) => handleNavigate(event, "/intelligence")}>
-          kosmoevretis
-        </HeaderName>
-        <span className="kosmo-header-context">全球情报平台</span>
-        <div className="kosmo-account-menu" ref={accountMenuRef}>
+<div className="kosmo-account-menu" ref={accountMenuRef}>
           <button
             type="button"
             className="kosmo-account-avatar"
