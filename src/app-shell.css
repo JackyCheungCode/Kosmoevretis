@@ -9,7 +9,6 @@
   background: transparent;
   color: var(--cds-text-primary);
   border-bottom: 0;
-  box-shadow: none;
   z-index: 9000;
 }
 
