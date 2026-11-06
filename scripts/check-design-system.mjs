@@ -14,7 +14,7 @@ const explicitFiles = [
   ["src/MailCommunication.tsx", new URL("../src/MailCommunication.tsx", import.meta.url)],
   ["src/MailSettings.tsx", new URL("../src/MailSettings.tsx", import.meta.url)],
   ["src/IntelligenceExperience.tsx", new URL("../src/IntelligenceExperience.tsx", import.meta.url)],
-  ["src/DesignSystemPreview.tsx", new URL("../src/DesignSystemPreview.tsx", import.meta.url)],
+  ["src/DesignSystemPreview.tsx", "src/auth/LoginPage.tsx", new URL("../src/DesignSystemPreview.tsx", import.meta.url)],
   ["src/settings-center.css", new URL("../src/settings-center.css", import.meta.url)],
   ["src/App.tsx", new URL("../src/App.tsx", import.meta.url)],
   ["src/app-shell.css", new URL("../src/app-shell.css", import.meta.url)],
