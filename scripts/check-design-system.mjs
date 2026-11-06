@@ -99,7 +99,7 @@ function inspect(relative, source) {
     if (/:focus-visible\s*\{/.test(source)) violations.push(relative + ": do not globally override Carbon component focus treatments.");
   }
   if (relative === "src/components/TradeAccessAnalysis.tsx" &&
-      (!/\\bCheckbox\\b/.test(source) || !/\\bButton\\b/.test(source) || /<(?:button|input)\\b/.test(source))) {
+      (!/\bCheckbox\b/.test(source) || !/\bButton\b/.test(source) || /<(?:button|input)\b/.test(source))) {
     violations.push(relative + ": trade compliance and city suggestions must use Carbon Checkbox / Button controls.");
   }
   if (/<select\b/.test(source)) violations.push(relative + ": use Carbon Dropdown or ComboBox; native select is not allowed.");
