@@ -79,6 +79,15 @@ async function graphGet(version: string, path: string, token: string) {
   if (!response.ok || body.error) throw new Error(String(body?.error?.message || "Meta Graph API request failed"));
   return body;
 }
+async function graphPost(version:string,path:string,token:string,params:Record<string,unknown>={}) {
+  const url = new URL(graphBase(version) + path);
+  const body = new URLSearchParams(); body.set("access_token",token);
+  for (const [key,value] of Object.entries(params)) if (value !== undefined && value !== null) body.set(key,typeof value === "string" ? value : JSON.stringify(value));
+  const response = await fetch(url,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","Accept":"application/json"},body});
+  const result = await response.json().catch(()=>({}));
+  if (!response.ok || result.error) throw new Error(String(result?.error?.message || "Meta Graph API request failed"));
+  return result;
+}
 async function discoverAssets(version: string, provider: Provider, token: string): Promise<{ assets: Asset[]; pageTokens: Record<string,string> }> {
   const assets: Asset[] = [];
   const pageTokens: Record<string,string> = {};
@@ -412,6 +421,15 @@ Deno.serve(async (req: Request) => {
         const {error:activateError}=await admin.from("crm_channel_connections").update({status:"connected",updated_at:new Date().toISOString()})
           .eq("id",connection.id).eq("organization_id",organizationId);
         if(activateError) throw activateError;
+        let webhookSubscription: Record<string,unknown> = { status: "pending" };
+        try {
+          const fields = provider === "messenger" ? "messages,messaging_postbacks,messaging_optins" : provider === "facebook_pages" ? "feed" : null;
+          const result = await graphPost(meta.config.graph_api_version, "/" + encodeURIComponent(asset.id) + "/subscribed_apps", token, fields ? { subscribed_fields: fields } : {});
+          webhookSubscription = { status: "subscribed", subscribed_fields: fields, response: result };
+        } catch (subscriptionError) {
+          webhookSubscription = { status: "failed", message: (subscriptionError instanceof Error ? subscriptionError.message : "Webhook subscription failed").slice(0,240) };
+        }
+        await admin.from("crm_channel_connections").update({ provider_metadata: { asset_type: asset.asset_type, ...(asset.details || {}), webhook_subscription: webhookSubscription }, updated_at: new Date().toISOString() }).eq("id",connection.id).eq("organization_id",organizationId);
         const {error:consumeError}=await admin.from("crm_channel_oauth_states").update({status:"consumed",consumed_at:new Date().toISOString(),access_token_ciphertext:null,access_token_iv:null,asset_tokens_ciphertext:null,asset_tokens_iv:null})
           .eq("id",oauth.id).eq("status","processing");
         if(consumeError) throw consumeError;
