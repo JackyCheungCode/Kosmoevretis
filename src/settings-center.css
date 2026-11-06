@@ -83,7 +83,7 @@
 .settings-center .settings-local-nav.settings-line-tabs{position:static;top:auto;display:flex;flex-direction:row;align-items:stretch;gap:0;width:100%;max-height:none;overflow-x:auto;overflow-y:hidden;min-width:0;padding:0;background:transparent;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 .settings-line-tabs .settings-nav-group{display:contents}
 .settings-line-tabs .settings-nav-group-title{display:none}
-.settings-line-tabs .settings-nav-item{display:inline-flex;align-items:center;justify-content:flex-start;flex:0 0 auto;width:auto;min-height:3rem;gap:.5rem;padding:0 1rem;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;box-shadow:none;color:var(--cds-text-secondary);white-space:nowrap;text-decoration:none}
+.settings-line-tabs .settings-nav-item{display:inline-flex;align-items:center;justify-content:flex-start;flex:0 0 auto;width:auto;min-height:3rem;gap:var(--kosmo-spacing-03);padding:0 var(--kosmo-spacing-05);border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;box-shadow:none;color:var(--cds-text-secondary);white-space:nowrap;text-decoration:none}
 .settings-line-tabs .settings-nav-item:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
 .settings-line-tabs .settings-nav-item[aria-current=page],.settings-line-tabs .settings-nav-item.is-active{border-bottom-color:var(--cds-border-interactive);background:transparent;color:var(--cds-text-primary);font-weight:600;box-shadow:none}
 .settings-line-tabs .settings-nav-item svg{width:1.125rem;height:1.125rem;flex:none}
