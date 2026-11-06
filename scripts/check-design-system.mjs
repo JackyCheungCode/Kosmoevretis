@@ -57,6 +57,8 @@ function inspect(relative, source) {
     violations.push(relative + ": page must use Carbon React components or an approved shared Carbon design-system primitive.");
   }
   if (relative.endsWith(".css")) {
+    if (/var\(--kosmo-space-\d+\)/.test(source)) violations.push(relative + ": migrate legacy --kosmo-space-* aliases to canonical --kosmo-spacing-* tokens.");
+    if (/(?:\d+var|\.var)\(--kosmo-spacing-\d+\)/.test(source)) violations.push(relative + ": malformed Carbon spacing expression detected.");
     if (/(?:^|[;{}])\s*[^:;{}]+\s*:[^;{}]*#[0-9a-f]{3,8}\b/im.test(source)) violations.push(relative + ": hard-coded hex colors are not allowed; use Carbon/Kosmo tokens.");
     if (/(?:^|[;{}])\s*[^:;{}]+\s*:[^;{}]*\brgba?\(/im.test(source)) violations.push(relative + ": hard-coded RGB colors are not allowed; use Carbon/Kosmo tokens.");
     if (/font-size\s*:\s*(?!\s*var\(--cds-)(?!\s*var\(--kosmo-type-)(?!\s*clamp\()[^;}]+/i.test(source)) violations.push(relative + ": typography must use Carbon type tokens or an approved expressive clamp scale.");
