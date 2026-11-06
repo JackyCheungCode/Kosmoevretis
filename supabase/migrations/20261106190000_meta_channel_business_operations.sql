@@ -114,13 +114,6 @@ alter table public.crm_channel_recipient_consents enable row level security;
 
 create policy crm_channel_posts_read_member on public.crm_channel_posts
   for select to authenticated using (private.is_org_member(organization_id));
-create policy crm_channel_posts_create_member on public.crm_channel_posts
-  for insert to authenticated with check (private.is_org_member(organization_id));
-create policy crm_channel_posts_update_member on public.crm_channel_posts
-  for update to authenticated using (private.is_org_member(organization_id)) with check (private.is_org_member(organization_id));
-create policy crm_channel_posts_delete_admin on public.crm_channel_posts
-  for delete to authenticated using (private.is_org_admin(organization_id));
-
 create policy crm_channel_post_comments_read_member on public.crm_channel_post_comments
   for select to authenticated using (private.is_org_member(organization_id));
 create policy crm_channel_templates_read_member on public.crm_channel_templates
@@ -128,6 +121,6 @@ create policy crm_channel_templates_read_member on public.crm_channel_templates
 create policy crm_channel_recipient_consents_read_member on public.crm_channel_recipient_consents
   for select to authenticated using (private.is_org_member(organization_id));
 
-grant select, insert, update, delete on public.crm_channel_posts to authenticated;
+grant select on public.crm_channel_posts to authenticated;
 grant select on public.crm_channel_post_comments, public.crm_channel_templates, public.crm_channel_recipient_consents to authenticated;
 grant all on public.crm_channel_posts, public.crm_channel_post_comments, public.crm_channel_templates, public.crm_channel_recipient_consents to service_role;
