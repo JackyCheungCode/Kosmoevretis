@@ -20,7 +20,7 @@ function inspect(relative, source) {
     }
   }
   if (relative === "src/App.tsx") {
-    for (const component of ["Header", "SideNav", "Content", "Grid", "Column"]) {
+    for (const component of ["Header", "SideNav", "Content", "Grid", "Column", "Breadcrumb", "BreadcrumbItem"]) {
       if (!new RegExp("\\b" + component + "\\b").test(source)) {
         violations.push(relative + ": Carbon UI Shell foundation must include " + component + ".");
       }
@@ -30,6 +30,9 @@ function inspect(relative, source) {
         !/<Column\b[^>]*sm=\{4\}[^>]*md=\{8\}[^>]*lg=\{16\}/.test(source)) {
       violations.push(relative + ": page content must use Carbon Content > full-width Grid > responsive 2x Grid Column.");
     }
+  }
+  if (relative === "src/App.tsx" && /<nav className="kosmo-breadcrumb"/.test(source)) {
+    violations.push(relative + ": route hierarchy must use Carbon Breadcrumb / BreadcrumbItem components.");
   }
   if (relative === "src/app-shell.css") {
     if (/\bbox-shadow\s*:/i.test(source)) violations.push(relative + ": AppShell must use Carbon layer and border tokens, not shadows.");
