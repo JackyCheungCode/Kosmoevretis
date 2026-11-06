@@ -107,8 +107,10 @@ export default function CustomerCenter() {
         source_url: form.sourceUrl.trim() || null, product_interest: form.product.trim() || null,
         intent_summary: form.summary.trim() || null, status: "new", score: 0,
         created_by: (await supabase.auth.getUser()).data.user?.id
-      });
+      }).select("id").single();
       if (leadError) throw leadError;
+      const { error: activityError } = await supabase.from("crm_activities").insert({ organization_id: organizationId, company_id: companyId, lead_id: createdLead.id, channel: "internal", activity_type: "system", subject: "新增客户线索", body: "通过" + (sourceLabels[form.source] || form.source) + "创建客户线索。" });
+      if (activityError) console.warn("CRM activity timeline insert failed:", activityError.message);
       setForm(emptyForm); setShowForm(false); setNotice("客户线索已保存。");
       await loadLeads(organizationId);
     } catch (cause) {
