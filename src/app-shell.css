@@ -356,7 +356,7 @@
   z-index: 1;
   padding-left: clamp(1rem, 3vw, 2.5rem);
   color: var(--cds-text-secondary);
-  font-size: .6875rem;
+  font-size: var(--cds-label-01-font-size);
   font-weight: 600;
   letter-spacing: .16em;
   line-height: 1.4;
@@ -420,7 +420,7 @@
 @media (max-width: 671px) {
   .kosmo-illustration { min-height: 6.5rem; margin-bottom: 1rem; }
   .kosmo-illustration__art { right: -2.5rem; width: 88%; min-height: 7rem; opacity: .88; }
-  .kosmo-illustration__label { max-width: 8rem; padding-left: .75rem; font-size: .5625rem; letter-spacing: .12em; }
+  .kosmo-illustration__label { max-width: 8rem; padding-left: var(--kosmo-spacing-04); font-size: var(--cds-helper-text-01-font-size); letter-spacing: .12em; }
 }
 @media (prefers-reduced-motion: reduce) {
   .kosmo-illustration *,
