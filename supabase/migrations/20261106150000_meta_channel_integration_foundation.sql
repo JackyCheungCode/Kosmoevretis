@@ -169,10 +169,12 @@ create table if not exists public.crm_channel_audit_logs (
   id bigint generated always as identity primary key,
   organization_id uuid not null references public.organizations(id) on delete cascade,
   actor_id uuid references auth.users(id) on delete set null,
-  connection_id uuid references public.crm_channel_connections(id) on delete set null,
+  connection_id uuid,
   action text not null,
   metadata jsonb not null default '{}'::jsonb check (jsonb_typeof(metadata) = 'object'),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  foreign key (connection_id, organization_id)
+    references public.crm_channel_connections(id, organization_id) on delete set null (connection_id)
 );
 create index if not exists crm_channel_audit_logs_org_time_idx
   on public.crm_channel_audit_logs (organization_id, created_at desc);
@@ -197,3 +199,7 @@ create policy crm_channel_audit_logs_read_member on public.crm_channel_audit_log
 grant select on public.crm_channel_connections, public.crm_channel_conversations,
   public.crm_channel_messages, public.crm_channel_message_drafts, public.crm_channel_audit_logs
   to authenticated;
+
+grant all on public.crm_channel_connections, public.crm_channel_conversations,
+  public.crm_channel_messages, public.crm_channel_message_drafts, public.crm_channel_audit_logs
+  to service_role;
