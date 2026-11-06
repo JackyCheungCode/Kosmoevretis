@@ -1,6 +1,12 @@
 import React from "react";
 import {
   Header,
+  HeaderContainer,
+  HeaderName,
+  HeaderNavigation,
+  HeaderMenuItem,
+  HeaderGlobalBar,
+  HeaderGlobalAction,
   Content,
   Breadcrumb,
   BreadcrumbItem,
@@ -261,7 +267,6 @@ function AppShell() {
   const isTemplatePage = path === "/platform-data-collection" || path === "/seo-analysis" || path === "/communication/mail" || path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
-  const [mobileOpen, setMobileOpen] = React.useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = React.useState(false);
   const accountMenuRef = React.useRef<HTMLDivElement>(null);
 
@@ -272,7 +277,6 @@ function AppShell() {
       const next: Viewport = mobileQuery.matches ? "mobile" : tabletQuery.matches ? "tablet" : "desktop";
       setViewport(next);
       setTabletExpanded(false);
-      setMobileOpen(false);
     };
     updateViewport();
     mobileQuery.addEventListener("change", updateViewport);
@@ -283,12 +287,7 @@ function AppShell() {
     };
   }, []);
 
-  const sideNavExpanded = viewport === "desktop" || (viewport === "tablet" && tabletExpanded) || (viewport === "mobile" && mobileOpen);
   const sideNavPersistent = viewport !== "mobile";
-  const closeMobileNav = React.useCallback(() => {
-    setMobileOpen(false);
-    document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
-  }, []);
 
   React.useEffect(() => {
     if (!accountMenuOpen) return;
@@ -306,19 +305,6 @@ function AppShell() {
     };
   }, [accountMenuOpen]);
 
-  React.useEffect(() => {
-    if (viewport !== "mobile" || !mobileOpen) return;
-    const firstLink = document.querySelector<HTMLElement>(".kosmo-side-nav a");
-    firstLink?.focus();
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMobileOpen(false);
-        document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [mobileOpen, viewport]);
 
   if (!validPaths.has(path)) return <Navigate to="/intelligence" replace />;
 
@@ -380,101 +366,111 @@ function AppShell() {
     <Theme theme="g10">
     <div className="shell kosmo-app-shell">
       <SkipToContent href="#main-content">跳转到主要内容</SkipToContent>
-      {/* Header shares the Gray 10 application canvas; no separate opaque surface. */}
-      <Header aria-label="Kosmoevretis 全球情报平台" className="kosmo-header">
-        <HeaderMenuButton
-          aria-label={sideNavExpanded && viewport !== "desktop" ? "收起导航菜单" : "展开导航菜单"}
-          aria-controls="kosmo-primary-navigation"
-          isActive={sideNavExpanded && viewport !== "desktop"}
-          onClick={() => {
-            if (viewport === "mobile") setMobileOpen((open) => !open);
-            if (viewport === "tablet") setTabletExpanded((expanded) => !expanded);
-          }}
-          className="kosmo-header-menu-button"
-        />
-        <Link to="/intelligence" className="kosmo-header-brand" aria-label="Kosmoevretis 首页">
-          <span className="kosmo-header-brand__mark" aria-hidden="true">K</span>
-          <span>KOSMOEVRETIS</span>
-        </Link>
-        <nav className="kosmo-header-primary-nav" aria-label="顶部主导航">
-          <Link to="/intelligence" aria-current={path === "/intelligence" ? "page" : undefined}>全球情报</Link>
-          <Link to="/products" aria-current={path === "/products" ? "page" : undefined}>产品中心</Link>
-          <Link to="/social-discovery" aria-current={path.startsWith("/social-discovery") ? "page" : undefined}>客户发现</Link>
-          <Link to="/platform-data-collection" aria-current={path === "/platform-data-collection" ? "page" : undefined}>平台采集</Link>
-          <Link to="/settings/providers" aria-current={isSettings ? "page" : undefined}>设置</Link>
-        </nav>
-        <div className="kosmo-account-menu" ref={accountMenuRef}>
-          <Button
-            kind="ghost"
-            size="sm"
-            className="kosmo-account-avatar"
-            aria-label="打开账户菜单"
-            aria-haspopup="menu"
-            aria-expanded={accountMenuOpen}
-            onClick={() => setAccountMenuOpen((open) => !open)}
-          >
-            {session?.user.user_metadata?.avatar_url || session?.user.user_metadata?.picture ? (
-              <img src={String(session.user.user_metadata.avatar_url || session.user.user_metadata.picture)} alt="" />
-            ) : (
-              <span>{(session?.user.email?.trim().charAt(0) || "U").toUpperCase()}</span>
-            )}
-          </Button>
-          {accountMenuOpen && (
-            <div className="kosmo-account-dropdown" role="menu" aria-label="账户菜单">
-              <div className="kosmo-account-email">{session?.user.email}</div>
-              <Button
-                kind="ghost"
-                size="md"
-                role="menuitem"
-                className="kosmo-account-signout"
-                onClick={() => {
-                  setAccountMenuOpen(false);
-                  void signOut().catch((error) => console.error("Sign out failed:", error));
-                }}
-              >
-                <Logout size={16} aria-hidden="true" />
-                <span>退出系统</span>
-              </Button>
-            </div>
-          )}
-        </div>
-      </Header>
-
-      <SideNav
-        id="kosmo-primary-navigation"
-        aria-label="主导航"
-        expanded={sideNavExpanded}
-        isPersistent={sideNavPersistent}
-        isRail={viewport === "tablet" && !tabletExpanded}
-        onOverlayClick={closeMobileNav}
-        className={`kosmo-side-nav ${viewport === "tablet" && tabletExpanded ? "kosmo-side-nav-tablet-expanded" : ""}`}
-      >
-        <SideNavItems>
-          {viewport === "tablet" && !tabletExpanded ? (
-            navItems.map(renderRailLink)
-          ) : (
+      <HeaderContainer
+        render={({ isSideNavExpanded, onClickSideNavExpand }) => {
+          const expanded = viewport === "desktop" || (viewport === "tablet" && tabletExpanded) || (viewport === "mobile" && isSideNavExpanded);
+          const closeMobileNav = () => {
+            if (isSideNavExpanded) onClickSideNavExpand();
+            document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
+          };
+          return (
             <>
-              <SideNavMenu title="企业数据" defaultExpanded renderIcon={Product}>
-                {renderMenuItem(navItems[0])}
-              </SideNavMenu>
-              <SideNavMenu title="全球情报中心" defaultExpanded renderIcon={Dashboard}>
-                {renderMenuItem(navItems[1])}
-                {renderMenuItem(navItems[2])}
-              </SideNavMenu>
-              {renderRailLink(navItems[3])}
-              <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
-                {renderMenuItem(navItems[4])}
-              </SideNavMenu>
-              <SideNavMenu title="沟通与跟进" defaultExpanded renderIcon={Email}>
-                {renderMenuItem(navItems[5])}
-              </SideNavMenu>
-              <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
-                {renderMenuItem(navItems[6])}
-              </SideNavMenu>
+              <Header aria-label="Kosmoevretis 全球情报平台" className="kosmo-header">
+                <HeaderMenuButton
+                  aria-label={expanded && viewport !== "desktop" ? "收起导航菜单" : "展开导航菜单"}
+                  aria-controls="kosmo-primary-navigation"
+                  isActive={expanded && viewport !== "desktop"}
+                  aria-expanded={expanded}
+                  onClick={() => {
+                    if (viewport === "tablet") setTabletExpanded((value) => !value);
+                    else onClickSideNavExpand();
+                  }}
+                  className="kosmo-header-menu-button"
+                />
+                <HeaderName href="/intelligence" prefix="" className="kosmo-header-brand">
+                  KOSMOEVRETIS
+                </HeaderName>
+                <HeaderNavigation aria-label="顶部主导航" className="kosmo-header-primary-nav">
+                  <HeaderMenuItem href="/intelligence" aria-current={path === "/intelligence" ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/intelligence")}>全球情报</HeaderMenuItem>
+                  <HeaderMenuItem href="/products" aria-current={path === "/products" ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/products")}>产品中心</HeaderMenuItem>
+                  <HeaderMenuItem href="/social-discovery" aria-current={path.startsWith("/social-discovery") ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/social-discovery")}>客户发现</HeaderMenuItem>
+                  <HeaderMenuItem href="/platform-data-collection" aria-current={path === "/platform-data-collection" ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/platform-data-collection")}>平台采集</HeaderMenuItem>
+                  <HeaderMenuItem href="/settings/providers" aria-current={isSettings ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/settings/providers")}>设置</HeaderMenuItem>
+                </HeaderNavigation>
+                <HeaderGlobalBar>
+                  <div className="kosmo-account-menu" ref={accountMenuRef}>
+                    <HeaderGlobalAction
+                      aria-label="打开账户菜单"
+                      tooltipAlignment="end"
+                      isActive={accountMenuOpen}
+                      onClick={() => setAccountMenuOpen((open) => !open)}
+                    >
+                      {session?.user.user_metadata?.avatar_url || session?.user.user_metadata?.picture ? (
+                        <img className="kosmo-account-avatar-image" src={String(session.user.user_metadata.avatar_url || session.user.user_metadata.picture)} alt="" />
+                      ) : (
+                        <span className="kosmo-account-avatar-fallback">{(session?.user.email?.trim().charAt(0) || "U").toUpperCase()}</span>
+                      )}
+                    </HeaderGlobalAction>
+                    {accountMenuOpen && (
+                      <div className="kosmo-account-dropdown" role="menu" aria-label="账户菜单">
+                        <div className="kosmo-account-email">{session?.user.email}</div>
+                        <Button
+                          kind="ghost"
+                          size="md"
+                          role="menuitem"
+                          className="kosmo-account-signout"
+                          onClick={() => {
+                            setAccountMenuOpen(false);
+                            void signOut().catch((error) => console.error("Sign out failed:", error));
+                          }}
+                        >
+                          <Logout size={16} aria-hidden="true" />
+                          <span>退出系统</span>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </HeaderGlobalBar>
+              </Header>
+              <SideNav
+                id="kosmo-primary-navigation"
+                aria-label="主导航"
+                expanded={expanded}
+                isPersistent={viewport !== "mobile"}
+                isRail={viewport === "tablet" && !tabletExpanded}
+                onOverlayClick={closeMobileNav}
+                className={`kosmo-side-nav ${viewport === "tablet" && tabletExpanded ? "kosmo-side-nav-tablet-expanded" : ""}`}
+              >
+                <SideNavItems>
+                  {viewport === "tablet" && !tabletExpanded ? (
+                    navItems.map(renderRailLink)
+                  ) : (
+                    <>
+                      <SideNavMenu title="企业数据" defaultExpanded renderIcon={Product}>
+                        {renderMenuItem(navItems[0])}
+                      </SideNavMenu>
+                      <SideNavMenu title="全球情报中心" defaultExpanded renderIcon={Dashboard}>
+                        {renderMenuItem(navItems[1])}
+                        {renderMenuItem(navItems[2])}
+                      </SideNavMenu>
+                      {renderRailLink(navItems[3])}
+                      <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
+                        {renderMenuItem(navItems[4])}
+                      </SideNavMenu>
+                      <SideNavMenu title="沟通与跟进" defaultExpanded renderIcon={Email}>
+                        {renderMenuItem(navItems[5])}
+                      </SideNavMenu>
+                      <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
+                        {renderMenuItem(navItems[6])}
+                      </SideNavMenu>
+                    </>
+                  )}
+                </SideNavItems>
+              </SideNav>
             </>
-          )}
-        </SideNavItems>
-      </SideNav>
+          );
+        }}
+      />
 
       <Content id="main-content" className={`kosmo-main ${isTemplatePage ? "kosmo-main--template-page" : ""}`}>
         <Grid fullWidth className="kosmo-content-grid">
