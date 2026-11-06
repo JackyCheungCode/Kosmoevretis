@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, InlineNotification, PasswordInput, Select, SelectItem, Tag, TextInput, Tile } from "@carbon/react";
+import { Button, Dropdown, InlineNotification, PasswordInput, Tag, TextInput, Tile } from "@carbon/react";
 import { supabase } from "./lib/supabase";
 import "./meta-app-settings.css";
 
@@ -79,12 +79,11 @@ export default function MetaAppSettings() {
   if(loading&&!memberships.length)return <Tile><p>正在读取组织与 Meta 配置…</p></Tile>;
   if(!memberships.length)return <InlineNotification kind="warning" lowContrast title="当前账号未加入组织" subtitle="请先加入一个组织，再配置该组织的 Meta Developer App。" hideCloseButton/>;
   return <div className="meta-app-settings">
+    <InlineNotification kind="warning" lowContrast hideCloseButton title="Meta 审核尚未完成也可以先准备" subtitle="可以先创建 Meta Developer App、填写基础资料、保存应用凭证并登记回调地址。应用审核、Business Verification 和权限 Advanced Access 由 Meta 控制台决定；本页面不会将待审核状态误标为已获批。开发阶段可先用 App 角色和测试资产验证基础流程。"/>
     <section className="settings-catalog-group">
       <div className="settings-catalog-group-heading"><div><h4>组织 Meta 应用</h4><p>每个组织使用自己的 Meta Developer App；凭证加密保存在服务端，并与其他组织隔离。</p></div></div>
       <div className="settings-form-grid">
-        <Select id="meta-org" labelText="配置所属组织" value={organizationId} onChange={e=>setOrganizationId(e.target.value)}>
-          {memberships.map(m=><SelectItem key={m.organization_id} value={m.organization_id} text={m.organizations?.name||m.organization_id}/>)}
-        </Select>
+        <Dropdown id="meta-org" titleText="配置所属组织" label="选择组织" items={memberships.map(m=>({id:m.organization_id,text:m.organizations?.name||m.organization_id}))} itemToString={item=>item?.text||""} selectedItem={memberships.map(m=>({id:m.organization_id,text:m.organizations?.name||m.organization_id})).find(item=>item.id===organizationId)||null} onChange={({selectedItem})=>{if(selectedItem)setOrganizationId(selectedItem.id);}}/>
         <div className="meta-app-role"><span>当前组织角色</span><Tag type={canManage?"green":"gray"}>{role||"成员"}</Tag></div>
       </div>
       {!canManage&&<InlineNotification kind="warning" lowContrast title="需要组织管理员权限" subtitle="只有该组织的 Owner 或 Admin 可以查看和修改 Meta 应用配置。" hideCloseButton/>}
@@ -97,7 +96,7 @@ export default function MetaAppSettings() {
       <div className="settings-actions">
         <Button kind="primary" onClick={()=>void save()} disabled={!canManage||saving||!appId.trim()||!graphVersion.trim()}>{saving?"正在加密保存…":"保存组织配置"}</Button>
         <Button kind="tertiary" onClick={()=>void test()} disabled={!canManage||testing||!config}>{testing?"正在验证…":"测试 Meta App 凭证"}</Button>
-        {config&&<Tag type={config.validation_status==="valid"?"green":config.validation_status==="invalid"?"red":"gray"}>{config.validation_status==="valid"?"验证通过":config.validation_status==="invalid"?"验证失败":"尚未验证"}</Tag>}
+        {config&&<Tag type={config.validation_status==="valid"?"green":config.validation_status==="invalid"?"red":"gray"}>{config.validation_status==="valid"?"凭证通过（非权限审批）":config.validation_status==="invalid"?"验证失败":"尚未验证"}</Tag>}
       </div>
       {config?.validation_message&&<p className="settings-helper-text">{config.validation_message}</p>}
     </section>
@@ -105,6 +104,16 @@ export default function MetaAppSettings() {
       <div className="settings-catalog-group-heading"><div><h4>Meta 平台回调地址</h4><p>请将以下地址登记到当前组织自己的 Meta App 设置中。所有组织共用平台回调端点，但凭证和验签按组织区分。</p></div></div>
       <div className="meta-app-endpoint"><TextInput id="meta-oauth-uri" labelText="OAuth Redirect URI" value={redirectUri} readOnly/><Button kind="ghost" onClick={()=>copy(redirectUri)}>复制</Button></div>
       <div className="meta-app-endpoint"><TextInput id="meta-webhook-uri" labelText="Webhook Callback URL" value={webhookUrl} readOnly/><Button kind="ghost" onClick={()=>copy(webhookUrl)}>复制</Button></div>
+    </section>
+    <section className="settings-catalog-group">
+      <div className="settings-catalog-group-heading"><div><h4>Meta 应用申请准备</h4><p>以下项目可在等待审核前完成；具体审核材料和状态以 Meta Developer Console 为准。</p></div></div>
+      <div className="meta-app-preparation-grid">
+        <div><strong>应用基础资料</strong><p>应用名称、类别、联系邮箱、应用图标、隐私政策、服务条款和应用域名。</p><Tag type="cool-gray">可先准备</Tag></div>
+        <div><strong>企业验证</strong><p>按业务需要关联 Business Portfolio，准备企业主体资料和验证材料。</p><Tag type="warm-gray">待 Meta 验证</Tag></div>
+        <div><strong>权限申请</strong><p>仅申请当前已实现功能实际需要的 Page、Messenger 或 WhatsApp 权限。</p><Tag type="warm-gray">待提交审核</Tag></div>
+        <div><strong>测试资产</strong><p>配置 App 角色、测试 Page / 测试号码和可复现的开发模式测试流程。</p><Tag type="cool-gray">可先准备</Tag></div>
+      </div>
+      <div className="meta-app-official-links"><Button kind="ghost" href="https://developers.facebook.com/apps/" target="_blank" rel="noreferrer">打开 Meta Developer Console</Button><Button kind="ghost" href="https://developers.facebook.com/docs/permissions/" target="_blank" rel="noreferrer">查看权限说明</Button></div>
     </section>
     <InlineNotification kind="info" lowContrast title="密钥安全说明" subtitle="App Secret 和 Verify Token 仅在提交时发送至受保护的 Edge Function，并使用 SETTINGS_ENCRYPTION_KEY 做 AES-GCM 加密。读取配置时只返回是否已保存，不返回密钥明文或密文。" hideCloseButton/>
     {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} onCloseButtonClick={()=>setNotice(null)}/>}
