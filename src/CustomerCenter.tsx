@@ -24,7 +24,7 @@ type Lead = {
 type FormState = { company: string; website: string; country: string; industry: string; product: string; source: string; sourceUrl: string; summary: string };
 const emptyForm: FormState = { company: "", website: "", country: "", industry: "消费电子", product: "", source: "manual", sourceUrl: "", summary: "" };
 const statusLabels: Record<string, string> = { new: "新线索", qualified: "已筛选", contacted: "已联系", negotiating: "洽谈中", converted: "已转化", disqualified: "已排除" };
-const sourceLabels: Record<string, string> = { manual: "手动录入", facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", google_maps: "Google Maps", website: "网站", trade_show: "展会", referral: "客户推荐", other: "其他" };
+const sourceLabels: Record<string, string> = { manual: "手动录入", facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", google_maps: "Google Maps", whatsapp: "WhatsApp", messenger: "Messenger", website: "网站", trade_show: "展会", referral: "客户推荐", other: "其他" };
 
 export default function CustomerCenter() {
   const [organizationId, setOrganizationId] = useState("");
@@ -102,7 +102,7 @@ export default function CustomerCenter() {
         if (companyError) throw companyError;
         companyId = company.id;
       }
-      const { error: leadError } = await supabase.from("crm_leads").insert({
+      const { data: createdLead, error: leadError } = await supabase.from("crm_leads").insert({
         organization_id: organizationId, company_id: companyId, source: form.source,
         source_url: form.sourceUrl.trim() || null, product_interest: form.product.trim() || null,
         intent_summary: form.summary.trim() || null, status: "new", score: 0,
@@ -116,7 +116,7 @@ export default function CustomerCenter() {
     } finally { setSaving(false); }
   };
 
-  const counts = useMemo(() => ({
+  const updateLeadStatus = async (lead: Lead, nextStatus: string) => {\n    const { error: updateError } = await supabase.from("crm_leads").update({ status: nextStatus, updated_at: new Date().toISOString() }).eq("id", lead.id).eq("organization_id", organizationId);\n    if (updateError) { setError(updateError.message); return; }\n    const { error: activityError } = await supabase.from("crm_activities").insert({ organization_id: organizationId, company_id: lead.company_id, lead_id: lead.id, channel: "internal", activity_type: "follow_up", subject: "更新线索状态", body: "线索状态更新为：" + (statusLabels[nextStatus] || nextStatus) });\n    if (activityError) console.warn("CRM activity timeline insert failed:", activityError.message);\n    await loadLeads(organizationId);\n  };\n\n  const counts = useMemo(() => ({
     total: leads.length,
     new: leads.filter((item) => item.status === "new").length,
     active: leads.filter((item) => ["qualified", "contacted", "negotiating"].includes(item.status)).length,
@@ -171,11 +171,11 @@ export default function CustomerCenter() {
       {loading ? <div className="crm-empty">正在加载客户数据…</div> : filteredLeads.length === 0 ? <div className="crm-empty"><UserMultiple size={28}/><strong>暂无匹配的客户线索</strong><span>可先新增客户，或将市场情报与社媒发现的线索接入客户中心。</span></div> :
         <div className="crm-table-wrap"><TableContainer title="客户线索列表"><Table size="lg" useZebraStyles>
           <TableHead><TableRow>
-            <TableHeader>企业</TableHeader><TableHeader>国家 / 地区</TableHeader><TableHeader>产品兴趣</TableHeader><TableHeader>来源</TableHeader><TableHeader>状态</TableHeader><TableHeader>评分</TableHeader><TableHeader>创建时间</TableHeader>
+            <TableHeader>企业</TableHeader><TableHeader>国家 / 地区</TableHeader><TableHeader>产品兴趣</TableHeader><TableHeader>来源</TableHeader><TableHeader>状态 / 跟进</TableHeader><TableHeader>评分</TableHeader><TableHeader>创建时间</TableHeader>
           </TableRow></TableHead><TableBody>{filteredLeads.map((lead) => <TableRow key={lead.id}>
             <TableCell><div className="crm-company-cell"><Building size={16}/><div><strong>{lead.crm_companies?.name || "未命名企业"}</strong>{lead.crm_companies?.website && <a href={lead.crm_companies.website} target="_blank" rel="noreferrer">{lead.crm_companies.website}</a>}</div></div></TableCell>
             <TableCell>{lead.crm_companies?.country || "—"}</TableCell><TableCell>{lead.product_interest || "—"}</TableCell>
-            <TableCell>{sourceLabels[lead.source] || lead.source}</TableCell><TableCell><Tag type={lead.status === "converted" ? "green" : lead.status === "new" ? "blue" : "cool-gray"}>{statusLabels[lead.status] || lead.status}</Tag></TableCell>
+            <TableCell>{sourceLabels[lead.source] || lead.source}</TableCell><TableCell><Select id={"crm-lead-status-" + lead.id} labelText="" hideLabel size="sm" value={lead.status} onChange={(event) => void updateLeadStatus(lead, event.target.value)}>{Object.entries(statusLabels).map(([value, label]) => <SelectItem key={value} value={value} text={label} />)}</Select></TableCell>
             <TableCell>{lead.score}</TableCell><TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
           </TableRow>)}</TableBody>
         </Table></TableContainer></div>}
