@@ -5,6 +5,7 @@ import { supabase } from "./lib/supabase";
 import { useAuth } from "./auth/AuthProvider";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
+import "./meta-content-studio.css";
 
 type Connection = { id:string; provider:string; external_asset_id:string; display_name:string; status:string };
 type Post = { id:string; connection_id:string; content_text:string; link_url:string|null; status:string; external_post_id:string|null; permalink_url:string|null; published_at:string|null; created_at:string; last_error_message:string|null };
