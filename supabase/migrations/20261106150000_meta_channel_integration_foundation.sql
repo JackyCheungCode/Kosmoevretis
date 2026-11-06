@@ -41,15 +41,15 @@ create table if not exists public.crm_channel_oauth_states (
   user_id uuid not null references auth.users(id) on delete cascade,
   provider text not null check (provider in ('facebook_pages','whatsapp_business','messenger')),
   requested_scopes text[] not null default '{}',
-  status text not null default 'pending' check (status in ('pending','assets_ready','consumed','failed')),
+  status text not null default 'pending' check (status in ('pending','processing','assets_ready','consumed','failed')),
   access_token_ciphertext text,
   access_token_iv text,
   token_expires_at timestamptz,
-  discovered_assets jsonb not null default '[]'::jsonb check (jsonb_typeof(discovered_assets) = 'array'),
+  discovered_assets jsonb not null default '[]'::jsonb check (jsonb_typeof(discovered_assets) = 'array'),\n  asset_tokens_ciphertext text,\n  asset_tokens_iv text,
   expires_at timestamptz not null,
   consumed_at timestamptz,
   created_at timestamptz not null default now(),
-  check ((access_token_ciphertext is null) = (access_token_iv is null))
+  check ((access_token_ciphertext is null) = (access_token_iv is null)),\n  check ((asset_tokens_ciphertext is null) = (asset_tokens_iv is null))
 );
 alter table public.crm_channel_oauth_states enable row level security;
 revoke all on public.crm_channel_oauth_states from public, anon, authenticated;
@@ -82,7 +82,7 @@ create policy crm_channel_webhook_events_service_role_access
 create index if not exists crm_channel_webhook_events_queue_idx
   on public.crm_channel_webhook_events (processing_status, received_at);
 
-create table if not exists public.crm_channel_conversations (
+alter table public.crm_contacts add constraint crm_contacts_id_org_unique unique (id, organization_id);\nalter table public.crm_leads add constraint crm_leads_id_org_unique unique (id, organization_id);\n\ncreate table if not exists public.crm_channel_conversations (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
   connection_id uuid not null,
