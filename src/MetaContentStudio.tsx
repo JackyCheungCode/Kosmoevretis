@@ -22,6 +22,7 @@ export default function MetaContentStudio(){
   const [content,setContent]=useState("");
   const [link,setLink]=useState("");
   const [mediaUrls,setMediaUrls]=useState("");
+  const [videoUrl,setVideoUrl]=useState("");
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
   const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);
@@ -69,7 +70,7 @@ export default function MetaContentStudio(){
   const createDraft=async()=>{
     if(!selectedConnection){setNotice({kind:"error",title:"尚未连接 Facebook Page",message:"先到 Meta 渠道管理完成 Page 授权。"});return;}
     setBusy(true);setNotice(null);
-    try{await call("create_post",{connection_id:selectedConnection,content_text:content,link_url:link.trim()||null,media_items:mediaUrls.split("\n").map(url=>url.trim()).filter(Boolean).map(url=>({type:"image",url}))});setContent("");setLink("");setMediaUrls("");setNotice({kind:"success",title:"帖子草稿已保存",message:"草稿已保存到当前组织，可在确认内容后发布。"});await load();}
+    try{await call("create_post",{connection_id:selectedConnection,content_text:content,link_url:link.trim()||null,media_items:mediaUrls.split("\n").map(url=>url.trim()).filter(Boolean).map(url=>({type:"image",url}))});setContent("");setLink("");setMediaUrls("");setVideoUrl("");setNotice({kind:"success",title:"帖子草稿已保存",message:"草稿已保存到当前组织，可在确认内容后发布。"});await load();}
     catch(err){setNotice({kind:"error",title:"保存草稿失败",message:err instanceof Error?err.message:"未知错误"});}
     finally{setBusy(false);}
   };
@@ -88,9 +89,9 @@ export default function MetaContentStudio(){
       <div className="meta-content-compose">
         <TextArea id="meta-post-content" labelText="帖子内容" placeholder="输入帖子文字…" rows={5} value={content} onChange={e=>setContent(e.target.value)}/>
         <TextInput id="meta-post-link" labelText="链接（可选）" placeholder="https://…" value={link} onChange={e=>setLink(e.target.value)}/><TextArea id="meta-post-media" labelText="图片素材 URL（每行一条，可多张）" placeholder={"https://example.com/image-1.jpg\nhttps://example.com/image-2.jpg"} rows={3} value={mediaUrls} onChange={e=>setMediaUrls(e.target.value)}/>
-        <div className="meta-content-actions"><Button kind="primary" renderIcon={Add} disabled={busy||!selectedConnection||(!content.trim()&&!link.trim()&&!mediaUrls.trim())} onClick={()=>void createDraft()}>{busy?"正在保存…":"保存帖子草稿"}</Button></div>
+        <div className="meta-content-actions"><Button kind="primary" renderIcon={Add} disabled={busy||!selectedConnection||(!content.trim()&&!link.trim()&&!mediaUrls.trim()&&!videoUrl.trim())} onClick={()=>void createDraft()}>{busy?"正在保存…":"保存帖子草稿"}</Button></div>
       </div>
-      <InlineNotification kind="info" lowContrast title="当前发布范围" subtitle="本阶段支持文字、链接及单张/多张公开图片 URL 发布；视频、Reels、故事、排程、Instagram 发布及完整媒体库将在后续能力阶段接入。Meta 不允许的内容和权限不会被绕过。"/>
+      <InlineNotification kind="info" lowContrast title="当前发布范围" subtitle="本阶段支持文字、链接、单张/多张公开图片及单个公开视频 URL 发布；Reels、故事、排程、Instagram 发布及完整媒体库将在后续能力阶段接入。Meta 不允许的内容和权限不会被绕过。"/>
     </PageSection>
     <PageSection title="帖子列表" description="显示已保存的草稿及从当前 Meta Page 同步的帖子。" headingLevel={3}>
       {loading?<p>正在读取帖子…</p>:posts.length===0?<Tile><p>目前没有帖子。创建草稿或同步 Page 帖子后会显示在这里。</p></Tile>:<div className="meta-content-post-list">
