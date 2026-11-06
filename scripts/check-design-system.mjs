@@ -6,6 +6,14 @@ const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
+  if (relative === "src/pages/EcommerceDiscovery.tsx" &&
+      (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{selectedHistory/.test(source))) {
+    violations.push(relative + ": history rows must use Carbon ClickableTile.");
+  }
+  if (relative === "src/pages/PlatformDataCollection.tsx" &&
+      (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=\{["']pdc-history-row/.test(source))) {
+    violations.push(relative + ": history rows must use Carbon ClickableTile.");
+  }
   if (relative === "src/ProductCenter.tsx") {
     if (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=["']pc-product-row["']/.test(source)) {
       violations.push(relative + ": product catalog rows must use Carbon ClickableTile, not hand-built button tiles.");
