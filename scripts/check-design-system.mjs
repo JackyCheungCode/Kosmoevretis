@@ -79,7 +79,13 @@ function inspect(relative, source) {
     if (/(?:^|[;{}])\s*(?:margin|padding|gap|row-gap|column-gap)\s*:[^;{}]*(?:\b(?:8|12|16|24|32|40|48)px\b)/im.test(source)) violations.push(relative + ": use Carbon spacing tokens instead of hard-coded spacing values.");
     if (/\b(?:seo-event-row|seo-detail-list|seo-history-list)\b/.test(source)) violations.push(relative + ": tabular data must not be simulated with page-specific list/grid layouts.");
   }
-  if ((relative.startsWith("src/pages/") || relative === "src/Settings.tsx") && /\.(tsx|ts)$/.test(relative) &&
+  const rootPageComponents = [
+    "src/GlobalIntelligence.tsx", "src/ProductCenter.tsx", "src/TradeAccessPage.tsx",
+    "src/FacebookDiscovery.tsx", "src/LinkedInDiscovery.tsx", "src/GoogleMapsDiscovery.tsx",
+    "src/MailCommunication.tsx", "src/MailSettings.tsx", "src/IntelligenceExperience.tsx",
+    "src/DesignSystemPreview.tsx",
+  ];
+  if ((relative.startsWith("src/pages/") || relative === "src/Settings.tsx" || rootPageComponents.includes(relative)) && /\.(tsx|ts)$/.test(relative) &&
       !/from\s+["']@carbon\/react["']/.test(source) &&
       !/from\s+["'][^"']*design-system/.test(source)) {
     violations.push(relative + ": page must use Carbon React components or an approved shared Carbon design-system primitive.");
