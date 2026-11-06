@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import {
   Button, Dropdown, InlineNotification, Search, Tag, Tile
 } from "@carbon/react";
-import { Add, Chat, Email, LogoFacebook, LogoWhatsapp, SettingsAdjust } from "@carbon/icons-react";
+import { Add, Chat, Email, SettingsAdjust } from "@carbon/icons-react";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
 import "./unified-message-center.css";
@@ -53,9 +53,7 @@ export default function UnifiedMessageCenter() {
             <Tile key={item.id} className="umc-channel-tile">
               <div className="umc-channel-topline">
                 <span className={"umc-channel-icon umc-channel-icon--" + item.id}>
-                  {item.id === "whatsapp" ? <LogoWhatsapp size={22} /> :
-                    item.id === "messenger" ? <Chat size={22} /> :
-                    item.id === "facebook" ? <LogoFacebook size={22} /> : <Email size={22} />}
+                  {item.id === "email" ? <Email size={22} /> : <Chat size={22} />}
                 </span>
                 <Tag type={item.id === "email" ? "blue" : "cool-gray"}>{item.status}</Tag>
               </div>
