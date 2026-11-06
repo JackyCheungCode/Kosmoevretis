@@ -34,3 +34,12 @@
 @media(max-width:560px){
  .fb-log-line{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
 }
+
+
+/* Task activity log: enforce readable Carbon-like contrast in every theme. */
+.fb-log-console{background:#f4f4f4;color:#161616}
+.fb-log-line{color:#161616}
+.fb-log-line time{color:#525252}
+.fb-log-line.success{color:#198038}
+.fb-log-line.error{color:#da1e28}
+.fb-log-placeholder{color:#525252}
