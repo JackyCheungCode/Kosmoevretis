@@ -33,6 +33,7 @@
 - AppShell 的社媒/电商平台导航已从手工 `role=tab` 按钮改为 Carbon `Tabs` / `TabList` / `Tab` 组件。
 - 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃；设置页 eyebrow 中的工作区名称已移除。
 - 全球情报中心与 `IntelligenceExperience` 的主要操作按钮已统一使用 Carbon `Button`；数据渠道筛选使用 Carbon `ContentSwitcher`，国家/地区多选使用 Carbon `Button`，两处核心组件已无原生 `<button>`。
+- 产品中心的返回导航和属性值删除操作已改用 Carbon `Button`；产品目录行仍保留语义化按钮作为整行选择控件，后续结合视觉验收再决定是否迁移为 Carbon ClickableTile。
 
 ## 3. 已修复的审计与样式问题
 
@@ -93,7 +94,8 @@
 - `8bc4623`：修正 ContentSwitcher 的 Switch 子项和回调 API。
 - `4981c73`、`5f131d4`：修正展开按钮指示符的样式作用范围。
 - `27da24f`：补齐 ContentSwitcher 必需的 size 并处理可选 index；Cloudflare Build 与 Deploy 成功，设计系统 guard 通过。
-- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c`、`27da24f` 的部署均已成功。最新部署 `27da24f`：`https://353fdec9.kosmoevretis-platform.pages.dev`，Deployment ID `353fdec9-1ab6-4bd8-99f4-259e824b77df`。中间提交 `8bc4623`、`5f131d4` 因 ContentSwitcher 的必需属性和可选索引类型检查失败；已在 `27da24f` 修正并通过构建。
+- `b906ced`：产品中心返回导航和属性值删除操作改用 Carbon Button；Build 与 Deploy 成功。
+- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c`、`27da24f` 的部署均已成功。最新部署 `b906ced`：`https://2b845189.kosmoevretis-platform.pages.dev`，Deployment ID `2b845189-e532-48e6-8516-709b3547e33d`。中间提交 `8bc4623`、`5f131d4` 因 ContentSwitcher 的必需属性和可选索引类型检查失败；已在 `27da24f` 修正并通过构建。
 
 ## 7. 后续执行顺序
 
