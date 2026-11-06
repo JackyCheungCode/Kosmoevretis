@@ -21,8 +21,8 @@
 @media(max-width:600px){
  .gm-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
  .gm-map-canvas{height:300px}
- .gm-map-legend{left:.5rem;bottom:.5rem;padding:var(--kosmo-space-2)}
+ .gm-map-legend{left:.5rem;bottom:.5rem;padding:var(--kosmo-spacing-03)}
  .gm-results .cds--tab-list{scroll-snap-type:x proximity}
  .gm-results .cds--tab{scroll-snap-align:start}
- .gm-log{grid-template-columns:3.6rem .4rem minmax(0,1fr);gap:var(--kosmo-space-2)}
+ .gm-log{grid-template-columns:3.6rem .4rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
 }
