@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { DataBase } from "@carbon/icons-react";
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
 import SettingsBackend from "./SettingsBackend";
 import MailSettings from "./MailSettings";
