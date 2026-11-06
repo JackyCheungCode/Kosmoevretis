@@ -1,6 +1,6 @@
 # Meta Channel Integration Architecture
 
-Status: Organization-isolated Meta App configuration, server-side encrypted credential storage, OAuth routing, and organization-aware webhook verification are implemented on the feature branch. The organization Meta App migration and updated Edge Function have not yet been applied/deployed. The currently deployed function is the earlier global-credential version; message synchronization/send is not enabled.
+Status: Organization-isolated Meta App configuration, server-side encrypted credential storage, OAuth routing, and organization-aware webhook verification are implemented on the feature branch. The organization Meta App migration has been applied to Supabase project `npkesfmszokmlgnzqelb`; the updated Edge Function is not yet deployed. The currently deployed function is the earlier global-credential version; message synchronization/send is not enabled.
 
 ## Current implementation boundary
 
