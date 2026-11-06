@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, InlineNotification, Tag, TextInput, Tile } from "@carbon/react";
-import { Add, Email, LogoGoogle, LogoMicrosoft, ServerProxy } from "@carbon/icons-react";
+import { Add, LogoGoogle, LogoMicrosoft } from "@carbon/icons-react";
 
 export default function MailSettings() {
   return <div className="mail-settings-page">
