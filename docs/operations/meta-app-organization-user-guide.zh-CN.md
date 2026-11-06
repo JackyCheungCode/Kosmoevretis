@@ -1,6 +1,6 @@
 # Meta 应用配置与渠道接入操作指南
 
-适用范围：Kosmoevretis 组织独立 Meta App 模式。每个组织使用自己的 Meta Developer App；组织 Owner/Admin 管理本组织配置。本文不代表 Meta 已批准应用权限，也不代表消息收发能力已上线。
+适用范围：Kosmoevretis 组织独立 Meta App 模式。每个组织使用自己的 Meta Developer App；组织 Owner/Admin 管理本组织配置。本文不代表 Meta 已批准应用权限，也不代表消息收发能力已上线。Meta App 尚未通过审核时，仍可先创建应用、配置基础资料、保存组织凭证并准备回调；开发模式下只能在 Meta 允许的应用角色和测试资产范围内验证。
 
 ## 1. 开始前的准备
 
@@ -26,7 +26,7 @@
 
 首次保存时四项必需。后续修改时，Secret 字段留空表示保留服务端已保存的值；系统不会把明文或密文返回浏览器。
 
-点击保存后，使用“测试凭证”执行服务端校验。测试失败时先核对 App ID/Secret 是否属于同一个 App、版本格式及 Meta App 状态。
+点击保存后，使用“测试 Meta App 凭证”执行服务端校验。该测试仅验证 App ID / App Secret 能否通过 Graph API 的应用凭证流程，不代表 Business Verification、App Review 或任何权限的 Advanced Access 已获批。测试失败时先核对 App ID/Secret 是否属于同一个 App、版本格式及 Meta App 状态。
 
 ## 4. 在 Meta Developer App 注册回调与 Webhook
 
@@ -60,13 +60,21 @@ OAuth state 与组织和发起用户绑定，短时有效且单次使用。若�
 - **页面提示服务端加密配置缺失**：由平台管理员在 Supabase Edge Function secrets 检查 `SETTINGS_ENCRYPTION_KEY` 和 `APP_ORIGIN`。不要在浏览器或聊天中粘贴密钥。
 - **权限/资产不可见**：确认登录 Meta 用户对目标 Page / WABA 有足够业务资产权限，并确认 App 已获得对应权限。
 
-## 7. 当前能力边界
+## 7. Meta 尚未审核通过时的使用方式
+
+- 可以先完成应用基础资料、隐私政策/服务条款 URL、应用域名、OAuth Redirect URI 和 Webhook Callback URL 准备。
+- 可以先在 Kosmoevretis 保存 App ID、App Secret、Verify Token 和 Graph API 版本，并执行凭证基础测试。
+- 可以使用 Meta App 角色（管理员、开发者、测试者）及测试 Page / 测试号码进行受限联调，具体可用范围由 Meta 当前开发模式规则决定。
+- 不要将“凭证测试通过”理解为“权限审核通过”；正式客户授权、Advanced Access 和生产消息能力仍以 Meta 控制台审核结果为准。
+- 页面会在凭证未验证时阻止发起渠道 OAuth，避免误以为尚未准备好的 App 已可直接连接。
+
+## 8. 当前能力边界
 
 当前版本提供组织级 App 配置、凭证加密、OAuth 授权入口、资产选择、连接管理，以及 Webhook challenge / HMAC 验签和事件收件箱持久化基础。
 
 以下能力尚未交付：Webhook 事件归一化到 CRM 会话/消息、消息发送、模板管理、Opt-in 证据管理、送达回执、自动化审批执行。系统不会因为完成 Meta 连接就自动发送消息。Meta Business Verification、App Review 和 Advanced Access 由各组织按实际权限需求自行完成。
 
-## 8. 官方入口
+## 9. 官方入口
 
 - Meta for Developers: https://developers.facebook.com/
 - Meta Apps: https://developers.facebook.com/apps/
