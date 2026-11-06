@@ -68,7 +68,7 @@ export default function GlobalIntelligence(){
  const [keywords,setKeywords]=useState(""),[selectedMarkets,setSelectedMarkets]=useState<string[]>([]),[marketQuery,setMarketQuery]=useState(""),[period,setPeriod]=useState("12m");
  const [activeTab,setActiveTab]=useState("overview"),[analyzed,setAnalyzed]=useState(false),[task,setTask]=useState<{title:string;filters:string[]}|null>(null),[loading,setLoading]=useState(false),[collecting,setCollecting]=useState(false),[error,setError]=useState("");
  const [translationStatus,setTranslationStatus]=useState(""),[translations,setTranslations]=useState<Record<string,string>>({}),[extraLanguage,setExtraLanguage]=useState("EN"),[targetLanguages,setTargetLanguages]=useState<string[]>([]),[translating,setTranslating]=useState(false);
- const [liveTrendResults,setLiveTrendResults]=useState<any[]>([]),[liveTrendMeta,setLiveTrendMeta]=useState<any|null>(null),[trendHistory,setTrendHistory]=useState<any[]>([]),[historyView,setHistoryView]=useState(false);
+ const [,setLiveTrendResults]=useState<any[]>([]),[liveTrendMeta,setLiveTrendMeta]=useState<any|null>(null),[trendHistory,setTrendHistory]=useState<any[]>([]),[historyView,setHistoryView]=useState(false);
  const [currentTaskId,setCurrentTaskId]=useState<string|null>(null),[liveEvidence,setLiveEvidence]=useState<any[]>([]),[sourceRuns,setSourceRuns]=useState<any[]>([]);
  const pendingHistorySnapshot=useRef<any>(null);
  useEffect(()=>{supabase.auth.getSession().then(({data})=>{setSession(data.session);setReady(true);});const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);setReady(true);});return()=>subscription.unsubscribe();},[]);
