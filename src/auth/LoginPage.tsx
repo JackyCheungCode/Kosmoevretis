@@ -102,7 +102,8 @@ function ParticleGlobe() {
       context.globalAlpha = 1;
 
       // Fine orbital paths add depth without competing with the particle globe.
-      context.strokeStyle = blue40;\n      context.globalAlpha = 0.18;
+      context.strokeStyle = blue40;
+      context.globalAlpha = 0.18;
       context.lineWidth = 0.8;
       for (let orbit = 0; orbit < 3; orbit += 1) {
         context.beginPath();
