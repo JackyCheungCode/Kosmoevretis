@@ -10,7 +10,9 @@ Implemented in `feat/global-trade-social-crm`:
 - AES-GCM encryption for temporary OAuth tokens and saved connection credentials.
 - Organization-scoped connection metadata and audit events.
 - Webhook GET challenge verification, raw-body HMAC-SHA256 validation, and idempotent event inbox persistence.
-- Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.\n- Settings center provides per-organization Meta App ID, App Secret, Webhook Verify Token, and Graph API version configuration; secret fields are encrypted server-side and never returned to the browser.\n- OAuth callback selects the organization's Meta App using the organization-bound OAuth state. Webhook challenge tokens and POST signatures are matched against enabled organization configurations; accepted events are restricted to connections in the matched organization.
+- Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.
+- Settings center provides per-organization Meta App ID, App Secret, Webhook Verify Token, and Graph API version configuration; secret fields are encrypted server-side and never returned to the browser.
+- OAuth callback selects the organization's Meta App using the organization-bound OAuth state. Webhook challenge tokens and POST signatures are matched against enabled organization configurations; accepted events are restricted to connections in the matched organization.
 
 Not yet configured or enabled:
 - The CRM, Meta channel, and organization Meta App schema migrations are applied to the connected Supabase project.
