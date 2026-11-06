@@ -119,8 +119,8 @@ async function discoverAssets(version: string, provider: Provider, token: string
   return { assets, pageTokens };
 }
 const scopes: Record<Provider,string[]> = {
-  facebook_pages: ["pages_show_list","pages_read_engagement","pages_manage_metadata"],
-  messenger: ["pages_show_list","pages_messaging","pages_manage_metadata"],
+  facebook_pages: ["pages_show_list","pages_read_engagement","pages_manage_metadata","pages_manage_posts","pages_manage_engagement","pages_read_user_content","read_insights"],
+  messenger: ["pages_show_list","pages_messaging","pages_manage_metadata","pages_read_engagement"],
   whatsapp_business: ["business_management","whatsapp_business_management","whatsapp_business_messaging"],
 };
 const validProvider = (value: unknown): value is Provider => ["facebook_pages","whatsapp_business","messenger"].includes(String(value));
