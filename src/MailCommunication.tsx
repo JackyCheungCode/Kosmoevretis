@@ -1,10 +1,13 @@
 import React from "react";
+import { supabase } from "./lib/supabase";
 import { Button, InlineNotification, Search, Tag } from "@carbon/react";
 import { Add, Archive, Document, Email, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import "./mail-communication.css";
 
 type Folder = { id: string; label: string; icon: React.ComponentType<{size?: number}> };
+type MailAccount = { id: string; email_address: string; display_name: string; is_default: boolean; status: string }; 
+const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 const folders: Folder[] = [
   { id: "inbox", label: "收件箱", icon: Email },
   { id: "sent", label: "已发送", icon: Send },
@@ -19,6 +22,20 @@ export default function MailCommunication() {
   const [folder, setFolder] = React.useState("inbox");
   const [query, setQuery] = React.useState("");
   const [composeOpen, setComposeOpen] = React.useState(false);
+  const [accounts, setAccounts] = React.useState<MailAccount[]>([]);
+  const [activeAccountId, setActiveAccountId] = React.useState("");
+  React.useEffect(() => {
+    let active = true;
+    supabase.functions.invoke("mail-api", { body: { action: "list_accounts", organization_id: ORGANIZATION_ID } })
+      .then(({data,error}) => {
+        if (!active || error || data?.error) return;
+        const list = (data?.accounts || []) as MailAccount[];
+        setAccounts(list);
+        setActiveAccountId(current => current || list.find(account => account.is_default)?.id || list[0]?.id || "");
+      }).catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+  const activeAccount = accounts.find(account => account.id === activeAccountId) || null;
   const activeFolder = folders.find(item => item.id === folder) || folders[0];
 
   return (
@@ -46,7 +63,7 @@ export default function MailCommunication() {
       <section className="mail-toolbar" aria-label="邮件工具栏">
         <Search id="mail-search" labelText="搜索邮件" placeholder="搜索发件人、主题或邮件内容" value={query} onChange={event => setQuery(event.target.value)} />
         <div className="mail-toolbar-meta">
-          <Tag type="gray">尚未连接账户</Tag>
+          <Tag type={accounts.length ? "blue" : "gray"}>{accounts.length ? accounts.length + " 个邮箱账户" : "尚未连接账户"}</Tag>
           <Button kind="ghost" size="sm" renderIcon={Settings} onClick={() => navigate("/settings/mail")}>管理账户</Button>
         </div>
       </section>
@@ -62,8 +79,10 @@ export default function MailCommunication() {
           })}
           <div className="mail-folder-divider" />
           <div className="mail-pane-label">邮箱账户</div>
-          <div className="mail-no-accounts"><Email size={18}/><span>尚未绑定邮箱</span></div>
-          <Button kind="ghost" size="sm" renderIcon={Add} onClick={() => navigate("/settings/mail")}>添加邮箱账户</Button>
+          {accounts.length ? accounts.map(account => <button key={account.id} type="button" className={activeAccountId === account.id ? "mail-account-item is-active" : "mail-account-item"} onClick={() => setActiveAccountId(account.id)} title={account.email_address}>
+            <Email size={16}/><span>{account.email_address}</span>
+          </button>) : <div className="mail-no-accounts"><Email size={18}/><span>尚未绑定邮箱</span></div>}
+          <Button kind="ghost" size="sm" renderIcon={Add} onClick={() => navigate("/settings/mail")}>{accounts.length ? "管理邮箱账户" : "添加邮箱账户"}</Button>
         </nav>
 
         <section className="mail-list-pane" aria-label={activeFolder.label}>
@@ -73,8 +92,8 @@ export default function MailCommunication() {
           </div>
           <div className="mail-empty-state">
             <Email size={28}/>
-            <strong>{activeFolder.label}暂无邮件</strong>
-            <span>连接邮箱账户并完成首次同步后，邮件将在这里显示。</span>
+            <strong>{activeFolder.label}{accounts.length ? "暂无邮件" : "暂无邮件"}</strong>
+            <span>{accounts.length ? "当前账户已配置，但邮件连接与同步服务尚未启用。" : "请先在系统设置中绑定邮箱账户并完成授权。"}</span>
           </div>
         </section>
 
@@ -87,7 +106,7 @@ export default function MailCommunication() {
           <aside className="mail-ai-panel">
             <div className="mail-ai-heading"><span>AI 邮件助手</span><Tag type="cool-gray">高级模式</Tag></div>
             <p>AI 将自动分类邮件、提取商务需求并生成回复草稿。</p>
-            <div className="mail-ai-empty"><UserMultiple size={18}/><span>连接邮箱后开始分析</span></div>
+            <div className="mail-ai-empty"><UserMultiple size={18}/><span>{accounts.length ? "邮件同步服务启用后开始分析" : "连接邮箱后开始分析"}</span></div>
             <Button kind="tertiary" size="sm" disabled>分析当前邮件</Button>
           </aside>
         </section>
@@ -97,7 +116,7 @@ export default function MailCommunication() {
         <section className="mail-compose-dialog" role="dialog" aria-modal="true" aria-labelledby="mail-compose-title">
           <header><h3 id="mail-compose-title">新建邮件</h3><Button kind="ghost" size="sm" onClick={() => setComposeOpen(false)}>关闭</Button></header>
           <div className="mail-compose-fields">
-            <label>发件账户<input disabled placeholder="请先在系统设置中绑定邮箱"/></label>
+            <label>发件账户<input disabled value={activeAccount?.email_address || ""} placeholder="请先在系统设置中绑定邮箱"/></label>
             <label>收件人<input placeholder="name@example.com"/></label>
             <label>抄送 / 密送<input placeholder="可选"/></label>
             <label>主题<input placeholder="邮件主题"/></label>
