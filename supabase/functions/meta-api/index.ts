@@ -17,7 +17,7 @@ type RuntimeEnv = {
 };
 const encoder = new TextEncoder();
 const json = (body: unknown, status = 200, headers: Record<string,string> = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", ...headers } });
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods": "GET, POST, OPTIONS", ...headers } });
 const required = (value: unknown, name: string) => {
   if (typeof value !== "string" || !value.trim()) throw new Error(name + " is not configured");
   return value.trim();
@@ -284,6 +284,9 @@ Deno.serve(async (req: Request) => {
         const {data:oauth,error:oauthError}=await admin.from("crm_channel_oauth_states").select("*")
           .eq("state_hash",stateHash).eq("organization_id",organizationId).eq("user_id",user.id).eq("status","assets_ready").gt("expires_at",new Date().toISOString()).maybeSingle();
         if(oauthError||!oauth) return json({error:"OAuth state expired or already consumed"},409);
+        const {data:claim,error:claimError}=await admin.from("crm_channel_oauth_states").update({status:"processing"})
+          .eq("id",oauth.id).eq("status","assets_ready").select("id").maybeSingle();
+        if(claimError||!claim) return json({error:"OAuth state is already being completed"},409);
         const asset=(oauth.discovered_assets as Asset[]).find(item=>item.id===assetId);
         if(!asset) return json({error:"Selected asset was not authorized by Meta"},403);
         const provider=oauth.provider as Provider;
@@ -305,7 +308,7 @@ Deno.serve(async (req: Request) => {
         },{onConflict:"connection_id"});
         if(credentialError) throw credentialError;
         const {error:consumeError}=await admin.from("crm_channel_oauth_states").update({status:"consumed",consumed_at:new Date().toISOString(),access_token_ciphertext:null,access_token_iv:null,asset_tokens_ciphertext:null,asset_tokens_iv:null})
-          .eq("id",oauth.id).eq("status","assets_ready");
+          .eq("id",oauth.id).eq("status","processing");
         if(consumeError) throw consumeError;
         await audit(admin,organizationId,user.id,"meta.connection.created",connection.id,{provider,asset_id:asset.id});
         return json({success:true,connection_id:connection.id});
