@@ -69,9 +69,9 @@
   margin: 0;
   color: var(--cds-text-primary);
   font-family: "IBM Plex Sans", "IBM Plex Sans TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  font-size: 1.75rem;
+  font-size: var(--kosmo-type-page-title);
   font-weight: 600;
-  line-height: 2rem;
+  line-height: var(--kosmo-type-page-title-line-height);
   letter-spacing: 0;
 }
 .kosmo-page-header__description {
@@ -79,9 +79,9 @@
   margin: var(--kosmo-spacing-03) 0 0;
   color: var(--cds-text-secondary);
   font-family: var(--cds-font-family-sans);
-  font-size: 0.875rem;
+  font-size: var(--cds-body-01-font-size);
   font-weight: 400;
-  line-height: 1.25rem;
+  line-height: var(--cds-body-01-line-height);
 }
 .kosmo-page-header__meta {
   display: flex;
@@ -113,13 +113,13 @@
   }
   .kosmo-page-header__title {
     max-width: none;
-    font-size: 1.75rem;
-    line-height: 2rem;
+    font-size: var(--kosmo-type-page-title);
+    line-height: var(--kosmo-type-page-title-line-height);
   }
   .kosmo-page-header__description {
     margin-top: var(--kosmo-spacing-03);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--cds-body-01-font-size);
+    line-height: var(--cds-body-01-line-height);
   }
   .kosmo-page-header__meta {
     justify-content: flex-start;
