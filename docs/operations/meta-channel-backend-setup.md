@@ -1,46 +1,45 @@
 # Meta channel backend setup
 
-This runbook applies to the `feat/global-trade-social-crm` delivery. The CRM and Meta database migrations have been applied to Supabase project `npkesfmszokmlgnzqelb`; Edge Function `meta-api` is deployed as version 1 with custom authentication. Meta credentials, App Review, Business Verification, and webhook subscriptions are not yet configured.
+This runbook applies to the organization-isolated Meta configuration in `feat/global-trade-social-crm`. The CRM and initial Meta channel migrations are applied to Supabase project `npkesfmszokmlgnzqelb`. The new organization Meta App migration and updated Edge Function still require rollout; the currently deployed function is the earlier global-credential version.
 
 ## Required Supabase Edge Function secrets
 
-Configure these with the Supabase Edge Function secret manager. Never put them in Vite variables, `wrangler.jsonc`, source files, browser storage, or chat messages.
+Keep these platform secrets in the Supabase Edge Function secret manager. Never put them in Vite variables, source files, browser storage, or chat messages.
 
 | Secret | Purpose |
 |---|---|
-| `SUPABASE_URL` | Existing Supabase project URL |
-| `SUPABASE_ANON_KEY` | Supabase publishable/anon key used to validate the caller's JWT |
-| `SUPABASE_SERVICE_ROLE_KEY` | Backend-only database access; never expose to clients |
-| `META_APP_ID` | Meta Developer App ID |
-| `META_APP_SECRET` | Meta Developer App Secret; OAuth code exchange and webhook HMAC |
-| `META_OAUTH_REDIRECT_URI` | Exact callback URL registered in Meta |
-| `META_WEBHOOK_VERIFY_TOKEN` | Random high-entropy webhook verification secret |
-| `META_GRAPH_API_VERSION` | A Graph API version currently enabled for the Meta App, formatted as `vNN.N` |
-| `SETTINGS_ENCRYPTION_KEY` | At least 32 characters; AES-GCM key material for provider tokens |
-| `APP_ORIGIN` | Exact Kosmoevretis app origin, e.g. the approved Preview or Production origin |
+| `SUPABASE_URL` | Existing Supabase project URL (platform-injected) |
+| `SUPABASE_ANON_KEY` | JWT validation client key (platform-injected) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Backend-only database access (platform-injected; never expose to clients) |
+| `SETTINGS_ENCRYPTION_KEY` | At least 32 characters; AES-GCM key material for Meta App secrets and channel tokens |
+| `APP_ORIGIN` | Exact Kosmoevretis app origin used for OAuth completion redirects |
 
-The callback URL must be:
+Meta App ID, App Secret, Webhook Verify Token, and Graph API Version are no longer global Edge Function secrets. Each organization Owner/Admin configures its own Meta Developer App in **系统设置 → 渠道集成 → Meta 应用配置**. App Secret and Verify Token are encrypted by the Edge Function and are never returned to the browser.
+
+The callback URL is generated from the Supabase project URL:
 
 ```text
 https://<SUPABASE_PROJECT_REF>.supabase.co/functions/v1/meta-api?action=oauth_callback
 ```
 
-The webhook URL must be:
+The webhook URL is:
 
 ```text
 https://<SUPABASE_PROJECT_REF>.supabase.co/functions/v1/meta-api/webhook
 ```
 
-Register the callback URL exactly in the Meta App. Configure the webhook Verify Token to match `META_WEBHOOK_VERIFY_TOKEN`.
+Register both URLs in every organization's own Meta App. The Verify Token entered in that organization's settings must match the value configured in that Meta App.
 
 ## Deployment order
 
-1. [Completed] Apply the CRM foundation migration, followed by the Meta channel integration migration.
-2. [Completed] Deploy the `meta-api` Supabase Edge Function (version 1, `verify_jwt=false`; the function performs its own user/org authorization and validates Meta webhook signatures).
-3. Configure the secrets above using the Supabase Dashboard's Edge Function Secrets page. The current ChatGPT Supabase connection does not expose a secret-management action, so no Meta secret has been written by this deployment.
-4. Register the callback and webhook URLs in the Meta Developer App; enable the Page and WhatsApp webhook fields required by the connected products.
-5. Complete Meta Business Verification and request App Review / Advanced Access for the permissions required by the actual use case.
-6. Test with a development Business Portfolio, test Page, and WhatsApp test number before connecting production assets.
+1. [Completed] Apply the CRM foundation migration and initial Meta channel integration migration.
+2. [Pending] Apply `20261106170000_organization_meta_app_configs.sql` to project `npkesfmszokmlgnzqelb`.
+3. [Pending] Deploy the updated `meta-api` Edge Function with `verify_jwt=false`; it performs its own user/org authorization and validates Meta webhook signatures.
+4. Confirm `SETTINGS_ENCRYPTION_KEY` and `APP_ORIGIN` are present in Edge Function secrets. Do not add global Meta App credentials.
+5. Each organization Owner/Admin enters its App ID, App Secret, Verify Token, and currently supported Graph API version in the Settings center, then runs the credential test.
+6. Register callback and webhook URLs in the organization's Meta Developer App; enable the required Page and WhatsApp webhook fields.
+7. Complete Meta Business Verification and request App Review / Advanced Access for the permissions required by the actual use case.
+8. Test with a development Business Portfolio, test Page, and WhatsApp test number before connecting production assets.
 
 ## Implemented API behavior
 
