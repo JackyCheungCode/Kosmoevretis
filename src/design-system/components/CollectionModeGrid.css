@@ -87,3 +87,11 @@
 @media(max-width:360px) {
   .kosmo-collection-mode-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Shared heading for every page that exposes a discovery-object selector. */
+.kosmo-discovery-object-selector{display:flex;flex-direction:column;gap:var(--kosmo-spacing-04);min-width:0}
+.kosmo-discovery-object-selector__header{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--kosmo-spacing-04);min-width:0}
+.kosmo-discovery-object-selector__header h3{margin:0;color:var(--cds-text-primary);font-size:var(--kosmo-type-section-title);font-weight:600;line-height:var(--kosmo-type-section-title-line-height)}
+.kosmo-discovery-object-selector__header p{margin:var(--kosmo-spacing-02) 0 0;color:var(--cds-text-secondary);font-size:var(--kosmo-type-helper);line-height:var(--kosmo-type-helper-line-height)}
+.kosmo-discovery-object-selector .kosmo-collection-mode-grid{margin:0}
+@media(max-width:560px){.kosmo-discovery-object-selector__header{flex-direction:column;gap:var(--kosmo-spacing-02)}}
