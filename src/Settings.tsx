@@ -107,7 +107,7 @@ export default function Settings(){
      <TabList aria-label="系统设置分类" contained>
       {settingsGroups.map(group=><Tab key={group.title}>{group.title}</Tab>)}
      </TabList>
-    </Tabs>
+    </Tabs></div>
     <nav className="settings-mobile-subnav" aria-label="当前设置分类子菜单">
      {activeGroup.items.map(([id,label])=><Link key={id} to={"/settings/"+id} className="settings-mobile-subnav-item" aria-current={active===id?"page":undefined}>{label}</Link>)}
     </nav>
