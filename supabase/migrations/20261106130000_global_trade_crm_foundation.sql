@@ -62,7 +62,7 @@ create table if not exists public.crm_leads (
   constraint crm_leads_company_org_fk foreign key (company_id, organization_id)
     references public.crm_companies(id, organization_id) on delete cascade,
   constraint crm_leads_contact_org_fk foreign key (contact_id, organization_id)
-    references public.crm_contacts(id, organization_id) on delete set null
+    references public.crm_contacts(id, organization_id)
 );
 create index if not exists crm_leads_org_created_idx on public.crm_leads (organization_id, created_at desc);
 create index if not exists crm_leads_org_status_idx on public.crm_leads (organization_id, status);
@@ -87,7 +87,7 @@ create table if not exists public.crm_opportunities (
   constraint crm_opportunities_company_org_fk foreign key (company_id, organization_id)
     references public.crm_companies(id, organization_id) on delete cascade,
   constraint crm_opportunities_lead_org_fk foreign key (lead_id, organization_id)
-    references public.crm_leads(id, organization_id) on delete set null
+    references public.crm_leads(id, organization_id)
 );
 create index if not exists crm_opportunities_org_stage_idx on public.crm_opportunities (organization_id, stage, updated_at desc);
 
