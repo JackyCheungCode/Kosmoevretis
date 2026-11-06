@@ -25,6 +25,7 @@ const explicitFiles = [
   ["src/design-system/design-system.css", new URL("../src/design-system/design-system.css", import.meta.url)],
   ["src/mail-settings.css", new URL("../src/mail-settings.css", import.meta.url)],
   ["src/responsive-audit.css", new URL("../src/responsive-audit.css", import.meta.url)],
+  ["src/settings-center.css", new URL("../src/settings-center.css", import.meta.url)],
 ];
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
