@@ -171,6 +171,10 @@ function inspect(relative, source) {
   if (relative === "src/product-center.css" && /\.cds--/.test(source)) {
     violations.push(relative + ": use Carbon component defaults and scoped application classes instead of internal Carbon selectors.");
   }
+  if (["src/facebook-discovery.css", "src/google-maps-discovery.css", "src/linkedin-discovery.css"].includes(relative) &&
+      /\\.cds--(?:tabs|tab-list|tab|tab-content|tab-panel)\\b/.test(source)) {
+    violations.push(relative + ": let Carbon Tabs own its component styling; keep only page-scoped layout styles.");
+  }
   if (relative.endsWith(".css")) {
     if (/var\(--kosmo-space-\d+\)/.test(source)) violations.push(relative + ": migrate legacy --kosmo-space-* aliases to canonical --kosmo-spacing-* tokens.");
     if (/(?:\d+var|\.var)\(--kosmo-spacing-\d+\)/.test(source)) violations.push(relative + ": malformed Carbon spacing expression detected.");
