@@ -33,7 +33,7 @@ Register both URLs in every organization's own Meta App. The Verify Token entere
 ## Deployment order
 
 1. [Completed] Apply the CRM foundation migration and initial Meta channel integration migration.
-2. [Pending] Apply `20261106170000_organization_meta_app_configs.sql` to project `npkesfmszokmlgnzqelb`.
+2. [Completed] Apply `20261106170000_organization_meta_app_configs.sql` to project `npkesfmszokmlgnzqelb` and verify RLS plus service-role-only grants.
 3. [Pending] Deploy the updated `meta-api` Edge Function with `verify_jwt=false`; it performs its own user/org authorization and validates Meta webhook signatures.
 4. Confirm `SETTINGS_ENCRYPTION_KEY` and `APP_ORIGIN` are present in Edge Function secrets. Do not add global Meta App credentials.
 5. Each organization Owner/Admin enters its App ID, App Secret, Verify Token, and currently supported Graph API version in the Settings center, then runs the credential test.
