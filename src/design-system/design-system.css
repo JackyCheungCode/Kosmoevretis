@@ -100,7 +100,7 @@
   min-width: 0;
   padding: 2rem 0 2.5rem;
   margin: 0 0 var(--kosmo-spacing-06);
-  background: #fff;
+  background: transparent;
   color: #161616;
   font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
 }
