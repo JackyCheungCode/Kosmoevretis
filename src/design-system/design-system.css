@@ -91,3 +91,98 @@
 .settings-tabs-shell .settings-line-tabs .cds--tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
 .settings-tabs-shell .settings-line-tabs .cds--tab svg{flex:none;width:1.125rem;height:1.125rem}
 @media(max-width:671px){.settings-tabs-shell .settings-line-tabs .cds--tab{min-height:2.875rem;padding:0 .875rem;font-size:var(--cds-label-01-font-size)}}
+
+
+/* IBM product-page inspired shared header: quiet breadcrumb, expressive title, concise copy. */
+.kosmo-page-header {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 2rem 0 2.5rem;
+  margin: 0 0 var(--kosmo-spacing-06);
+  background: #fff;
+  color: #161616;
+  font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
+}
+.kosmo-page-header__breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .45rem;
+  min-height: 1.25rem;
+  margin: 0 0 1.5rem;
+  color: #6f6f6f;
+  font-size: .75rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+.kosmo-page-header__breadcrumb-item,
+.kosmo-page-header__breadcrumb-current {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+}
+.kosmo-page-header__breadcrumb a {
+  color: #525252;
+  text-decoration: none;
+}
+.kosmo-page-header__breadcrumb a:hover {
+  color: #0f62fe;
+  text-decoration: underline;
+}
+.kosmo-page-header__breadcrumb-current { color: #161616; }
+.kosmo-page-header__breadcrumb-separator { color: #a8a8a8; }
+.kosmo-page-header__body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  min-width: 0;
+}
+.kosmo-page-header__copy { min-width: 0; }
+.kosmo-page-header__title {
+  margin: 0;
+  color: #161616;
+  font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+}
+.kosmo-page-header__description {
+  max-width: 68ch;
+  margin: 1rem 0 0;
+  color: #525252;
+  font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.55;
+}
+.kosmo-page-header__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+.kosmo-page-header__actions { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.kosmo-page-header__scope {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: .25rem .5rem;
+  color: #525252;
+  background: #f4f4f4;
+  font-size: .75rem;
+}
+@media (max-width: 671px) {
+  .kosmo-page-header {
+    padding: 1.25rem 0 1.5rem;
+    margin-bottom: var(--kosmo-spacing-05);
+  }
+  .kosmo-page-header__breadcrumb { margin-bottom: 1rem; font-size: .6875rem; }
+  .kosmo-page-header__body { align-items: flex-start; flex-direction: column; gap: 1rem; }
+  .kosmo-page-header__title { font-size: 2rem; line-height: 1.2; letter-spacing: -.025em; }
+  .kosmo-page-header__description { margin-top: .75rem; font-size: .9375rem; line-height: 1.5; }
+  .kosmo-page-header__meta { justify-content: flex-start; width: 100%; }
+}
