@@ -430,3 +430,45 @@
     transition: none !important;
   }
 }
+
+
+/* Route hierarchy: keep navigation context without repeating the product brand. */
+.kosmo-breadcrumb {
+  min-width: 0;
+  padding: var(--kosmo-spacing-04) var(--kosmo-spacing-05) 0;
+  color: var(--cds-text-secondary);
+}
+.kosmo-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--kosmo-spacing-03);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--cds-label-01-font-size);
+  line-height: var(--cds-label-01-line-height);
+}
+.kosmo-breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+.kosmo-breadcrumb li + li::before {
+  content: "/";
+  margin-right: var(--kosmo-spacing-03);
+  color: var(--cds-text-helper);
+}
+.kosmo-breadcrumb a {
+  color: var(--cds-link-primary);
+  text-decoration: none;
+}
+.kosmo-breadcrumb a:hover { text-decoration: underline; }
+.kosmo-breadcrumb a:focus-visible {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: 2px;
+}
+.kosmo-breadcrumb [aria-current="page"] { color: var(--cds-text-primary); }
+@media (max-width: 671px) {
+  .kosmo-breadcrumb { padding: var(--kosmo-spacing-03) var(--kosmo-spacing-03) 0; }
+}
