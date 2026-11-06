@@ -10,6 +10,7 @@
 - Page 帖子草稿、文字/链接发布。
 - 单张/多张公开图片 URL 发布（图片由 Meta 服务器读取）。
 - 单个公开视频 URL 发布（Page `/videos` 接口；不可与图片素材混合）。
+- Facebook 原生排程发布：文字/链接、图片组和单个视频；使用 Meta 的 10 分钟至 75 天排程窗口，并支持取消排程。
 - 同步最近 50 条 Page 帖子到本地内容列表。
 - 同步评论、回复评论、隐藏/取消隐藏评论。
 - Page Insights 基础查询（按日指标，取决于获批权限）。
@@ -36,11 +37,11 @@
 - 帖子、评论、模板和同意记录的写操作由服务端 Edge Function 执行。
 - 发送操作检查组织管理员权限、服务窗口、WhatsApp opt-in 和草稿状态；草稿发送采用状态抢占，降低重复发送风险。
 - Webhook 继续校验 Meta HMAC 签名并先持久化幂等事件，再归一化入站消息。
-- 已部署 Supabase Edge Functions：`meta-api` v8、`meta-operations` v8。
+- 已部署 Supabase Edge Functions：`meta-api` v8、`meta-operations` v9。
 
 ## 当前尚未交付 / 需要后续阶段完成
 
-- Facebook 轮播视频组合、Reels、Stories、直播、排程发布、批量内容日历。
+- Facebook Reels、Stories、直播、批量内容日历及完整内容日历管理。
 - 完整媒体上传/下载、附件代理与病毒扫描。
 - 更完整的 Page 互动类型、评论分页、私信附件和对话分页同步。
 - WhatsApp 媒体上传/下载代理、模板创建/编辑/提交审核、模板变量编辑器、质量评级与号码健康监控。
