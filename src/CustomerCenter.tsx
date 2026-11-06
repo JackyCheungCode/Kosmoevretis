@@ -118,7 +118,15 @@ export default function CustomerCenter() {
     } finally { setSaving(false); }
   };
 
-  const updateLeadStatus = async (lead: Lead, nextStatus: string) => {\n    const { error: updateError } = await supabase.from("crm_leads").update({ status: nextStatus, updated_at: new Date().toISOString() }).eq("id", lead.id).eq("organization_id", organizationId);\n    if (updateError) { setError(updateError.message); return; }\n    const { error: activityError } = await supabase.from("crm_activities").insert({ organization_id: organizationId, company_id: lead.company_id, lead_id: lead.id, channel: "internal", activity_type: "follow_up", subject: "更新线索状态", body: "线索状态更新为：" + (statusLabels[nextStatus] || nextStatus) });\n    if (activityError) console.warn("CRM activity timeline insert failed:", activityError.message);\n    await loadLeads(organizationId);\n  };\n\n  const counts = useMemo(() => ({
+  const updateLeadStatus = async (lead: Lead, nextStatus: string) => {
+    const { error: updateError } = await supabase.from("crm_leads").update({ status: nextStatus, updated_at: new Date().toISOString() }).eq("id", lead.id).eq("organization_id", organizationId);
+    if (updateError) { setError(updateError.message); return; }
+    const { error: activityError } = await supabase.from("crm_activities").insert({ organization_id: organizationId, company_id: lead.company_id, lead_id: lead.id, channel: "internal", activity_type: "follow_up", subject: "更新线索状态", body: "线索状态更新为：" + (statusLabels[nextStatus] || nextStatus) });
+    if (activityError) console.warn("CRM activity timeline insert failed:", activityError.message);
+    await loadLeads(organizationId);
+  };
+
+  const counts = useMemo(() => ({
     total: leads.length,
     new: leads.filter((item) => item.status === "new").length,
     active: leads.filter((item) => ["qualified", "contacted", "negotiating"].includes(item.status)).length,
