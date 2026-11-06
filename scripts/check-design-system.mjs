@@ -171,7 +171,7 @@ function inspect(relative, source) {
   if (relative === "src/product-center.css" && /\.cds--/.test(source)) {
     violations.push(relative + ": use Carbon component defaults and scoped application classes instead of internal Carbon selectors.");
   }
-  if (["src/facebook-discovery.css", "src/google-maps-discovery.css", "src/linkedin-discovery.css", "src/intelligence.css", "src/design-system/design-system.css"].includes(relative) &&
+  if (["src/facebook-discovery.css", "src/google-maps-discovery.css", "src/linkedin-discovery.css", "src/intelligence.css", "src/design-system/design-system.css", "src/pages/ecommerce-discovery.css", "src/pages/instagram-discovery.css", "src/pages/platform-data-collection.css"].includes(relative) &&
       /\.cds--(?:tabs|tab-list|tab|tab-content|tab-panel)\b/.test(source)) {
     violations.push(relative + ": let Carbon Tabs own its component styling; keep only page-scoped layout styles.");
   }
