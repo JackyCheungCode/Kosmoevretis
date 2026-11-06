@@ -285,7 +285,7 @@
   align-items: center;
   width: 100%;
   min-height: 9.25rem;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1var(--kosmo-spacing-02);
   overflow: hidden;
   isolation: isolate;
   background:
