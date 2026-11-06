@@ -91,9 +91,9 @@ export default function MetaContentStudio(){
       <div className="meta-content-compose">
         <TextArea id="meta-post-content" labelText="帖子内容" placeholder="输入帖子文字…" rows={5} value={content} onChange={e=>setContent(e.target.value)}/>
         <TextInput id="meta-post-link" labelText="链接（可选）" placeholder="https://…" value={link} onChange={e=>setLink(e.target.value)}/><TextArea id="meta-post-media" labelText="图片素材 URL（每行一条，可多张）" placeholder={"https://example.com/image-1.jpg\nhttps://example.com/image-2.jpg"} rows={3} value={mediaUrls} onChange={e=>setMediaUrls(e.target.value)}/><TextInput id="meta-post-video" labelText="视频 URL（单个视频；不可与图片混合）" placeholder="https://example.com/video.mp4" value={videoUrl} onChange={e=>setVideoUrl(e.target.value)}/><TextInput id="meta-post-schedule" type="datetime-local" labelText="排程发布时间（可选）" value={scheduleAt} onChange={e=>setScheduleAt(e.target.value)}/>
-        <div className="meta-content-actions"><Button kind="primary" renderIcon={Add} disabled={busy||!selectedConnection||(!content.trim()&&!link.trim()&&!mediaUrls.trim()&&!videoUrl.trim())} onClick={()=>void createDraft()}>{busy?"正在保存…":"保存帖子草稿"}</Button></div>
+        <div className="meta-content-actions"><Button kind="primary" renderIcon={Add} disabled={busy||!selectedConnection||(!content.trim()&&!link.trim()&&!mediaUrls.trim()&&!videoUrl.trim())} onClick={()=>void createDraft()}>保存帖子草稿</Button><Button kind="tertiary" disabled={busy||!selectedConnection||!scheduleAt||(!content.trim()&&!link.trim()&&!mediaUrls.trim()&&!videoUrl.trim())} onClick={()=>void scheduleNewPost()}>保存并排程</Button></div>
       </div>
-      <InlineNotification kind="info" lowContrast title="当前发布范围" subtitle="本阶段支持文字、链接、单张/多张公开图片及单个公开视频 URL 发布；Reels、故事、排程、Instagram 发布及完整媒体库将在后续能力阶段接入。Meta 不允许的内容和权限不会被绕过。"/>
+      <InlineNotification kind="info" lowContrast title="当前发布范围" subtitle="本阶段支持文字、链接、单张/多张公开图片及单个公开视频 URL 发布；Reels、Stories、Instagram 发布及完整媒体库将在后续能力阶段接入；排程范围受 Meta 允许的时间窗口限制。Meta 不允许的内容和权限不会被绕过。"/>
     </PageSection>
     <PageSection title="帖子列表" description="显示已保存的草稿及从当前 Meta Page 同步的帖子。" headingLevel={3}>
       {loading?<p>正在读取帖子…</p>:posts.length===0?<Tile><p>目前没有帖子。创建草稿或同步 Page 帖子后会显示在这里。</p></Tile>:<div className="meta-content-post-list">
