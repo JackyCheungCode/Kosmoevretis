@@ -4,7 +4,7 @@
 - 仓库：`JackyCheungCode/Kosmoevretis`
 - 目标分支：`3c-platform`
 - 设计基准：IBM Carbon Design System v11；页面业务结构保持 Kosmoevretis 自身信息架构
-- 状态：P0 路由盘点完成；P2 AppShell 静态结构核对已完成，PageHeader 间距已收紧；P1 令牌审计扩展进行中；全站视觉验收仍未完成
+- 状态：P0 路由盘点完成；P2 AppShell 静态结构核对完成；P1 源码首轮令牌扫描完成、残余尺寸债务继续治理；P3 共享组件整改进行中；全站视觉验收仍未完成
 
 ## 1. 页面与导航范围
 
@@ -30,13 +30,16 @@
 - 路由级插画由 `GlobalPageIllustration` 提供，当前插画 SVG 使用 Carbon 语义令牌。
 - AppShell 静态核对确认：Header 透明、无工作区标题文本；面包屑组件仍在主内容区并保留页面层级；桌面/平板/手机均有独立布局规则。
 - `src/design-system/design-system.css` 已移除共享 PageHeader 顶部额外 padding，避免插画与页面标题之间叠加留白。
+- AppShell 的社媒/电商平台导航已从手工 `role=tab` 按钮改为 Carbon `Tabs` / `TabList` / `Tab` 组件。
+- 共享 `PageHeader` 已恢复渲染已声明的 `eyebrow` 属性，避免模板传入的页面标识被静默丢弃。
 
 ## 3. 已修复的审计与样式问题
 
 - 修复设计规范检查中字体令牌正则的空白回溯误报。
 - 修复审计脚本递归目录时未保留子目录路径的问题。
 - 修复 Facebook 发现页、AppShell 插画区、共享 PageHeader、登录页中发现的无效 spacing 表达式。
-- 扩展 `scripts/check-design-system.mjs`：将 TSX/TS 中 SVG `fill`、`stroke`、`stopColor` 以及内联样式的 HEX 颜色纳入审计。
+- 扩展 `scripts/check-design-system.mjs`：将 TSX/TS 中 SVG `fill`、`stroke`、`stopColor`、内联颜色、内联布局间距、内联字体样式，以及手工 tab 语义纳入审计。
+- 对 `src/` 下 60 个 TSX/TS/CSS/SCSS 文件完成首轮静态扫描：未发现旧 spacing alias、损坏 spacing 表达式、CSS HEX/RGB 颜色、原生 `<select>` 或 SVG HEX 颜色；发现的 `BrandLogo.tsx` 内联尺寸已迁移到共享组件令牌和 CSS。此轮扫描不等于浏览器视觉验收，也不代表所有非标准 CSS 尺寸都已迁移。
 - 上述修复仅写入 `3c-platform`，没有写入 `main`，没有修改数据库或后端业务逻辑。
 
 ## 4. 样式债务抽样结果
@@ -76,7 +79,18 @@
 - 上述提交均位于 `3c-platform`。最新提交的 Cloudflare Pages 部署已创建，但尚未完成构建；不能将其标记为部署成功。
 - 当前 P2 仅完成源代码静态核对，尚无浏览器截图验证；P1 全量检查结果需以最新构建日志为准。
 
-## 7. 后续执行顺序
+## 7. 当前阶段提交与部署记录
+
+- `58fc45f`：收紧共享 PageHeader 顶部间距。
+- `a83062a`：修正 TSX/SVG 内联颜色审计表达式。
+- `61d0b40`、`c7e7cea`、`c3c4b0f`：将 BrandLogo 尺寸迁移至共享令牌与样式。
+- `41e1468`：扩展 inline layout/typography 检查；Cloudflare Build 和 Deploy 已成功。
+- `0b5f02a`、`7d420a0`：平台导航改用 Carbon Tabs。
+- `dd2c872`：恢复共享 PageHeader eyebrow 渲染。
+- `0f7afed`：增加手工 tab 语义防回归检查。
+- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468` 的部署已成功；包含后续 Carbon Tabs / PageHeader 改动的部署仍需以最新部署状态为准。
+
+## 8. 后续执行顺序
 
 ### P1 — Design Tokens
 - 逐项统一字体、字重、行高、间距、颜色、边框、层级和断点。
@@ -98,6 +112,6 @@
 - 对每个路由进行实际截图对照，检查元素坐标、尺寸、间距、字形、换行、颜色和响应式状态。
 - 逐页记录差异并复验部署版本。
 
-## 8. 验收边界
+## 9. 验收边界
 
 Carbon 规范与 IBM.com 营销网站并非同一套页面模板。没有指定的 IBM 参考 URL、页面截图和视口规格，不能诚实宣称达到 IBM 官网每个像素 100% 复刻。当前阶段也尚未完成线上浏览器逐页截图验收；构建或部署成功不能替代视觉验收。
