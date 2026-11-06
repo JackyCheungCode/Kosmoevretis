@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle, Tabs, TabList, Tab } from "@carbon/react";
 import { Activity, Ai, Building, Document, DataBase, Earth, Email, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
 import SettingsBackend from "./SettingsBackend";
 import MailSettings from "./MailSettings";
@@ -72,6 +72,7 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
 };
 export default function Settings(){
  const location=useLocation();
+ const navigate=useNavigate();
  const active=location.pathname.split("/")[2]||"providers";
  const [search,setSearch]=useState("");
  const [notice,setNotice]=useState<string|null>(null);
@@ -79,16 +80,15 @@ export default function Settings(){
  const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
  const navigation=<div className="settings-navigation-shell settings-tabs-shell">
   <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
-  <nav id="settings-nav-panel" className="settings-local-nav settings-line-tabs" role="tablist" aria-label="设置分类">
-   {filtered.flatMap(group=>group.items.map(([id,label,icon])=>{
-    const Icon=navIconMap[icon];
-    return <NavLink key={id} to={"/settings/"+id} end role="tab"
-      className={({isActive})=>isActive?"settings-nav-item is-active":"settings-nav-item"}
-      aria-label={label} aria-selected={active===id}>
-      <Icon size={18} aria-hidden="true"/><span className="settings-nav-label">{label}</span>
-    </NavLink>;
-   }))}
-  </nav>
+  {(() => {
+    const items=filtered.flatMap(group=>group.items);
+    const selectedIndex=Math.max(0,items.findIndex(([id])=>id===active));
+    return <Tabs selectedIndex={selectedIndex} onChange={({selectedIndex:next})=>{const item=items[next];if(item)navigate("/settings/"+item[0]);}}>
+      <TabList id="settings-nav-panel" className="settings-line-tabs" aria-label="设置分类">
+       {items.map(([id,label,icon])=>{const Icon=navIconMap[icon];return <Tab key={id} className="settings-line-tab"><Icon size={18} aria-hidden="true"/><span>{label}</span></Tab>;})}
+      </TabList>
+    </Tabs>;
+  })()}
  </div>;
  const body=()=>{switch(active){
   case"providers":return <SettingsBackend/>;
