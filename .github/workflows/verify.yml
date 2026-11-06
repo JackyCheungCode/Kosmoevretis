@@ -1,7 +1,7 @@
 name: Build and typecheck
 on:
   push:
-    branches: [3c-platform, main]
+    branches: [3c-platform, main, feat/business-navigation-settings-center, feat/global-trade-social-crm]
   pull_request:
     branches: [3c-platform, main]
   workflow_dispatch:
