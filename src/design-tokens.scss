@@ -55,10 +55,9 @@
   --kosmo-shell-breakpoint-mobile: 671px;
   --kosmo-content-max-width: 1584px;
 
-
   /* Shared typography and page rhythm; semantic values map to Carbon v11 type scale. */
-  --kosmo-type-page-title: var(--cds-heading-04-font-size);
-  --kosmo-type-page-title-line-height: var(--cds-heading-04-line-height);
+  --kosmo-type-page-title: var(--cds-heading-05-font-size);
+  --kosmo-type-page-title-line-height: var(--cds-heading-05-line-height);
   --kosmo-type-section-title: var(--cds-heading-compact-02-font-size);
   --kosmo-type-section-title-line-height: var(--cds-heading-compact-02-line-height);
   --kosmo-type-body: var(--cds-body-01-font-size);
@@ -100,4 +99,3 @@ body {
   color: var(--kosmo-color-text);
   background: var(--kosmo-color-background);
 }
-

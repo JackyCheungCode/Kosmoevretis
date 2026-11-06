@@ -4,6 +4,8 @@
 .kosmo-page-section__actions { display: flex; align-items: center; flex-wrap: wrap; gap:var(--kosmo-spacing-03); }
 .kosmo-page-section { min-width: 0; }
 .kosmo-page-section__header { display: flex; justify-content: space-between; align-items: flex-start; gap:var(--kosmo-spacing-04); margin-bottom:var(--kosmo-spacing-04); }
+.kosmo-page-section__copy { min-width: 0; }
+.kosmo-page-section__eyebrow { margin:0 0 var(--kosmo-spacing-02); color:var(--cds-text-secondary); font-size:var(--cds-label-01-font-size); font-weight:600; line-height:var(--cds-label-01-line-height); letter-spacing:0; }
 .kosmo-page-section__title { margin:0; font-size: var(--kosmo-type-section-title); font-weight: var(--cds-heading-compact-02-font-weight); line-height: var(--kosmo-type-section-title-line-height); }
 .kosmo-page-section__description { margin:var(--kosmo-spacing-02) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-helper-text-01-font-size); line-height: var(--cds-helper-text-01-line-height); }
 .kosmo-page-section__content { min-width: 0; }
@@ -32,7 +34,9 @@
 .kosmo-template__results .kosmo-template__content { gap:0; }
 .kosmo-template__results .kosmo-page-section { min-width:0; }
 .kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
- .ig-results-tabs { min-width:0; }
+.ig-results-tabs { min-width:0; }
+
+/* Shared Carbon page heading: one implementation for every route using PageHeader. */
 .page-header-section,
 .kosmo-page-header {
   display: block;
@@ -49,27 +53,34 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--kosmo-spacing-07);
+  gap: var(--kosmo-spacing-06);
   min-width: 0;
 }
 .kosmo-page-header__copy { min-width: 0; }
+.kosmo-page-header__eyebrow {
+  margin:0 0 var(--kosmo-spacing-02);
+  color:var(--cds-text-secondary);
+  font-size:var(--cds-label-01-font-size);
+  font-weight:600;
+  line-height:var(--cds-label-01-line-height);
+}
 .kosmo-page-header__title {
   max-width: 28ch;
   margin: 0;
   color: var(--cds-text-primary);
   font-family: "IBM Plex Sans", "IBM Plex Sans TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  font-size: var(--cds-heading-05-font-size);
-  font-weight: var(--cds-heading-05-font-weight);
-  line-height: var(--cds-heading-05-line-height);
+  font-size: var(--kosmo-type-page-title);
+  font-weight: 600;
+  line-height: var(--kosmo-type-page-title-line-height);
   letter-spacing: 0;
 }
 .kosmo-page-header__description {
   max-width: 68ch;
-  margin: var(--kosmo-spacing-04) 0 0;
+  margin: var(--kosmo-spacing-03) 0 0;
   color: var(--cds-text-secondary);
   font-family: var(--cds-font-family-sans);
   font-size: var(--cds-body-01-font-size);
-  font-weight: var(--cds-body-01-font-weight);
+  font-weight: 400;
   line-height: var(--cds-body-01-line-height);
 }
 .kosmo-page-header__meta {
@@ -102,8 +113,8 @@
   }
   .kosmo-page-header__title {
     max-width: none;
-    font-size: var(--cds-heading-04-font-size);
-    line-height: var(--cds-heading-04-line-height);
+    font-size: var(--kosmo-type-page-title);
+    line-height: var(--kosmo-type-page-title-line-height);
   }
   .kosmo-page-header__description {
     margin-top: var(--kosmo-spacing-03);
