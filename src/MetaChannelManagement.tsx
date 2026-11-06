@@ -1,6 +1,6 @@
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, Tile } from "@carbon/react";
 import { Chat, Connect, DataBase, Locked, Share, Phone, Launch, CheckmarkOutline, Time } from "@carbon/icons-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
 import "./meta-channel-management.css";
