@@ -6,7 +6,7 @@ const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
-  if (/\\.(?:tsx|ts)$/.test(relative) && /<(?:button|select|input|textarea)\\b/.test(source)) {
+  if (/\.(?:tsx|ts)$/.test(relative) && /<(?:button|select|input|textarea)\b/.test(source)) {
     violations.push(relative + ": native interactive controls are not allowed; use Carbon React controls.");
   }
   if (relative === "src/MailCommunication.tsx" &&
