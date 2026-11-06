@@ -3,8 +3,6 @@ import {
   Header,
   HeaderContainer,
   HeaderName,
-  HeaderNavigation,
-  HeaderMenuItem,
   HeaderGlobalBar,
   HeaderGlobalAction,
   Content,
@@ -18,8 +16,6 @@ import {
   SideNav,
   SideNavItems,
   SideNavLink,
-  SideNavMenu,
-  SideNavMenuItem,
   SkipToContent,
   Tabs,
   TabList,
@@ -328,7 +324,22 @@ function AppShell() {
     { id: "platform-data-collection", label: "平台数据采集", href: "/platform-data-collection", icon: DataBase, active: path === "/platform-data-collection" },
     { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
     { id: "mail", label: "邮件沟通", href: "/communication/mail", icon: Email, active: isMailWorkspace },
-    { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
+    { id: "settings-providers", label: "服务商连接", href: "/settings/providers", icon: Settings, active: path === "/settings/providers" },
+    { id: "settings-actors", label: "采集能力目录", href: "/settings/actors", icon: Settings, active: path === "/settings/actors" },
+    { id: "settings-channels", label: "数据渠道", href: "/settings/channels", icon: Settings, active: path === "/settings/channels" },
+    { id: "settings-runs", label: "运行记录", href: "/settings/runs", icon: Settings, active: path === "/settings/runs" },
+    { id: "settings-ai-providers", label: "AI 服务商", href: "/settings/ai-providers", icon: Settings, active: path === "/settings/ai-providers" },
+    { id: "settings-models", label: "模型目录", href: "/settings/models", icon: Settings, active: path === "/settings/models" },
+    { id: "settings-routes", label: "任务路由", href: "/settings/routes", icon: Settings, active: path === "/settings/routes" },
+    { id: "settings-prompts", label: "提示词与成本", href: "/settings/prompts", icon: Settings, active: path === "/settings/prompts" },
+    { id: "settings-organization", label: "组织与企业资料", href: "/settings/organization", icon: Settings, active: path === "/settings/organization" },
+    { id: "settings-members", label: "用户与权限", href: "/settings/members", icon: Settings, active: path === "/settings/members" },
+    { id: "settings-locale", label: "地区与语言", href: "/settings/locale", icon: Settings, active: path === "/settings/locale" },
+    { id: "settings-notifications", label: "通知策略", href: "/settings/notifications", icon: Settings, active: path === "/settings/notifications" },
+    { id: "settings-mail", label: "邮箱账户与邮件", href: "/settings/mail", icon: Email, active: path === "/settings/mail" },
+    { id: "settings-governance", label: "数据治理", href: "/settings/governance", icon: Settings, active: path === "/settings/governance" },
+    { id: "settings-audit", label: "安全与审计", href: "/settings/audit", icon: Settings, active: path === "/settings/audit" },
+    { id: "settings-design-system", label: "设计系统", href: "/settings/design-system", icon: Settings, active: path === "/settings/design-system" },
   ];
 
   const renderRailLink = (item: typeof navItems[number]) => (
@@ -344,24 +355,6 @@ function AppShell() {
       <span className="kosmo-nav-item-content"><item.icon size={16} /><span>{item.label}</span></span>
     </SideNavLink>
   );
-
-  const renderMenuItem = (item: typeof navItems[number]) => {
-    const ItemIcon = item.icon;
-    return (
-      <SideNavMenuItem
-        key={item.id}
-        href={item.href}
-        aria-current={item.active ? "page" : undefined}
-        isActive={item.active}
-        onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, item.href)}
-      >
-        <span className="kosmo-nav-item-content">
-          <ItemIcon size={16} aria-hidden="true" />
-          <span>{item.label}</span>
-        </span>
-      </SideNavMenuItem>
-    );
-  };
 
   return (
     <Theme theme="g10">
@@ -394,13 +387,6 @@ function AppShell() {
                 <HeaderName href="/intelligence" prefix="" className="kosmo-header-brand">
                   KOSMOEVRETIS
                 </HeaderName>
-                <HeaderNavigation aria-label="顶部主导航" className="kosmo-header-primary-nav">
-                  <HeaderMenuItem href="/intelligence" aria-current={path === "/intelligence" ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/intelligence")}>全球情报</HeaderMenuItem>
-                  <HeaderMenuItem href="/products" aria-current={path === "/products" ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/products")}>产品中心</HeaderMenuItem>
-                  <HeaderMenuItem href="/social-discovery" aria-current={path.startsWith("/social-discovery") ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/social-discovery")}>客户发现</HeaderMenuItem>
-                  <HeaderMenuItem href="/platform-data-collection" aria-current={path === "/platform-data-collection" ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/platform-data-collection")}>平台采集</HeaderMenuItem>
-                  <HeaderMenuItem href="/settings/providers" aria-current={isSettings ? "page" : undefined} onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, "/settings/providers")}>设置</HeaderMenuItem>
-                </HeaderNavigation>
                 <HeaderGlobalBar>
                   <div className="kosmo-account-menu" ref={accountMenuRef}>
                     <HeaderGlobalAction
@@ -446,29 +432,7 @@ function AppShell() {
                 className={`kosmo-side-nav ${viewport === "tablet" && tabletExpanded ? "kosmo-side-nav-tablet-expanded" : ""}`}
               >
                 <SideNavItems>
-                  {viewport === "tablet" && !tabletExpanded ? (
-                    navItems.map(renderRailLink)
-                  ) : (
-                    <>
-                      <SideNavMenu title="企业数据" defaultExpanded renderIcon={Product}>
-                        {renderMenuItem(navItems[0])}
-                      </SideNavMenu>
-                      <SideNavMenu title="全球情报中心" defaultExpanded renderIcon={Dashboard}>
-                        {renderMenuItem(navItems[1])}
-                        {renderMenuItem(navItems[2])}
-                      </SideNavMenu>
-                      {renderRailLink(navItems[3])}
-                      <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
-                        {renderMenuItem(navItems[4])}
-                      </SideNavMenu>
-                      <SideNavMenu title="沟通与跟进" defaultExpanded renderIcon={Email}>
-                        {renderMenuItem(navItems[5])}
-                      </SideNavMenu>
-                      <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
-                        {renderMenuItem(navItems[6])}
-                      </SideNavMenu>
-                    </>
-                  )}
+                  {navItems.map(renderRailLink)}
                 </SideNavItems>
               </SideNav>
             </>
