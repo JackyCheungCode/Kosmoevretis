@@ -98,7 +98,7 @@
   display: block;
   width: 100%;
   min-width: 0;
-  padding: 1var(--kosmo-spacing-02) 0 0;
+  padding: var(--kosmo-spacing-05) 0 0;
   margin: 0;
   background: transparent;
   background-color: transparent;
