@@ -10,30 +10,12 @@ type BrandLogoProps = {
 export default function BrandLogo({ name, domain }: BrandLogoProps) {
   const [failed, setFailed] = useState(!domain);
   return (
-    <span
-      aria-label={name + " Logo"}
-      title={name}
-      style={{
-        width: 36,
-        height: 36,
-        minWidth: 36,
-        borderRadius: 8,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        background: "var(--cds-layer-02)",
-        color: "var(--cds-text-primary)",
-        padding: 4,
-      }}
-    >
+    <span className="kosmo-brand-logo" aria-label={name + " Logo"} title={name}>
       {!failed && domain ? (
         <img
+          className="kosmo-brand-logo__image"
           src={`https://${domain}/favicon.ico`}
           alt={name}
-          width={28}
-          height={28}
-          style={{ objectFit: "contain" }}
           onError={() => setFailed(true)}
         />
       ) : (
