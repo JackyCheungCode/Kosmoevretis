@@ -19,6 +19,7 @@ const explicitFiles = [
   ["src/auth/auth.css", new URL("../src/auth/auth.css", import.meta.url)],
   ["src/components/carbon-select.css", new URL("../src/components/carbon-select.css", import.meta.url)],
   ["src/mail-communication.css", new URL("../src/mail-communication.css", import.meta.url)],
+  ["src/social-platform-workspace.css", new URL("../src/social-platform-workspace.css", import.meta.url)],
 ];
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
