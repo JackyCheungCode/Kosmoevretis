@@ -32,6 +32,14 @@ function inspect(relative, source) {
     }
   }
   if (relative === "src/App.tsx") {
+    for (const query of ["(max-width: 671px)", "(min-width: 672px) and (max-width: 1055px)"]) {
+      if (!source.includes(query)) violations.push(relative + ": AppShell must explicitly track mobile and tablet breakpoints.");
+    }
+    if (!/const \[mobileOpen, setMobileOpen\]/.test(source) || !/const \[tabletExpanded, setTabletExpanded\]/.test(source)) {
+      violations.push(relative + ": mobile overlay and tablet rail navigation states must remain independent.");
+    }
+  }
+  if (relative === "src/App.tsx") {
     for (const component of ["Header", "SideNav", "Content", "Grid", "Column", "Breadcrumb", "BreadcrumbItem"]) {
       if (!new RegExp("\\b" + component + "\\b").test(source)) {
         violations.push(relative + ": Carbon UI Shell foundation must include " + component + ".");
@@ -45,6 +53,17 @@ function inspect(relative, source) {
   }
   if (relative === "src/App.tsx" && /<nav className="kosmo-breadcrumb"/.test(source)) {
     violations.push(relative + ": route hierarchy must use Carbon Breadcrumb / BreadcrumbItem components.");
+  }
+  if (relative === "src/app-shell.css") {
+    if (!/@media \(min-width: 672px\) and \(max-width: 1055px\)/.test(source) ||
+        !/@media \(max-width: 671px\)/.test(source) ||
+        !/@media \(prefers-reduced-motion: reduce\)/.test(source)) {
+      violations.push(relative + ": AppShell must define tablet, mobile, and reduced-motion behavior.");
+    }
+    if (!/\.kosmo-side-nav\.cds--side-nav:not\(\.cds--side-nav--expanded\)\s*\{[^}]*width:\s*0/s.test(source) ||
+        !/\.kosmo-main\.cds--content\s*\{[^}]*width:\s*100%[^}]*margin-left:\s*0/s.test(source)) {
+      violations.push(relative + ": mobile navigation must overlay without reserving desktop sidebar width.");
+    }
   }
   if (relative === "src/app-shell.css") {
     if (/\bbox-shadow\s*:/i.test(source)) violations.push(relative + ": AppShell must use Carbon layer and border tokens, not shadows.");
