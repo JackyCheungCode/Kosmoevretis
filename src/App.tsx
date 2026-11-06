@@ -373,7 +373,8 @@ function AppShell() {
         {path === "/meta-channels" && <MetaChannelManagement />}
         {path === "/meta-channels/facebook" && <MetaChannelWorkspace channel="facebook" />}
         {path === "/meta-channels/whatsapp" && <MetaChannelWorkspace channel="whatsapp" />}
-        {path === "/meta-channels/messenger" && <MetaChannelWorkspace channel="messenger" />}\n        {path === "/meta-channels/connect" && <MetaChannelConnect />}
+        {path === "/meta-channels/messenger" && <MetaChannelWorkspace channel="messenger" />}
+        {path === "/meta-channels/connect" && <MetaChannelConnect />}
         
         
         
