@@ -1,0 +1,35 @@
+.meta-app-settings {
+  display: grid;
+  gap: var(--kosmo-space-7, 2rem);
+}
+.meta-app-role {
+  display: flex;
+  align-items: center;
+  gap: var(--kosmo-space-3, 0.75rem);
+  min-height: 3rem;
+  color: var(--cds-text-secondary);
+}
+.meta-app-endpoint {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--kosmo-space-3, 0.75rem);
+  margin-block: var(--kosmo-space-4, 1rem);
+  padding: var(--kosmo-space-4, 1rem);
+  background: var(--cds-layer-01);
+}
+.meta-app-settings .settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--kosmo-space-3, 0.75rem);
+  margin-top: var(--kosmo-space-5, 1.25rem);
+}
+.meta-app-settings .settings-helper-text {
+  color: var(--cds-text-secondary);
+  font-size: var(--cds-body-compact-01-font-size);
+}
+@media (max-width: 671px) {
+  .meta-app-endpoint { grid-template-columns: minmax(0, 1fr); }
+  .meta-app-endpoint button { justify-self: start; }
+}

@@ -55,3 +55,11 @@
  .pdc-history-meta{max-width:40%;align-items:flex-end;overflow-wrap:anywhere}
  .pdc-table-wrap .cds--data-table{min-width:620px}
 }
+
+/* Task activity log: semantic Carbon colors for accessible contrast. */
+.pdc-log-console{background:var(--cds-layer-01);color:var(--cds-text-primary)}
+.pdc-log-line{color:var(--cds-text-primary)}
+.pdc-log-line time{color:var(--cds-text-secondary)}
+.pdc-log-line.success{color:var(--cds-support-success)}
+.pdc-log-line.error{color:var(--cds-support-error)}
+.pdc-log-empty{color:var(--cds-text-secondary)}
