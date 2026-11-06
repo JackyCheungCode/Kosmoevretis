@@ -2,60 +2,59 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin: 0 0 1.5rem;
+  gap: var(--kosmo-spacing-04);
+  margin: 0 0 var(--kosmo-spacing-05);
 }
 .meta-channel-workspace__summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--kosmo-spacing-04);
+  margin-top: var(--kosmo-spacing-04);
 }
-.meta-channel-workspace__summary .cds--tile {
+.meta-channel-workspace__metric-tile {
   min-height: 8.5rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: .45rem;
-  background: var(--cds-layer);
+  gap: var(--kosmo-spacing-02);
+  background: var(--cds-layer-01);
 }
-.meta-channel-workspace__summary .cds--tile > span {
+.meta-channel-workspace__metric-tile > span {
   color: var(--cds-text-secondary);
-  font-size: .75rem;
+  font-size: var(--cds-label-01-font-size);
 }
-.meta-channel-workspace__summary .cds--tile strong {
+.meta-channel-workspace__metric-tile strong {
   color: var(--cds-text-primary);
-  font-size: 1.125rem;
+  font-size: var(--cds-heading-compact-02-font-size);
   font-weight: 600;
 }
-.meta-channel-workspace__summary .cds--tile small {
+.meta-channel-workspace__metric-tile small {
   color: var(--cds-text-secondary);
   line-height: 1.4;
 }
 .meta-channel-workspace__columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: var(--kosmo-spacing-04);
 }
-.meta-channel-workspace__columns .cds--tile {
-  background: var(--cds-layer);
+.meta-channel-workspace__detail-tile {
+  background: var(--cds-layer-01);
   min-width: 0;
 }
 .meta-channel-workspace__columns h3 {
-  margin: 0 0 1rem;
-  font-size: 1rem;
+  margin: 0 0 var(--kosmo-spacing-04);
+  font-size: var(--cds-heading-compact-02-font-size);
   font-weight: 600;
 }
-.meta-channel-workspace__columns ul,
-.meta-channel-workspace .cds--accordion__content ul {
+.meta-channel-workspace__columns ul {
   margin: 0;
   padding-left: 1.25rem;
   color: var(--cds-text-secondary);
+  font-size: var(--cds-body-compact-01-font-size);
   line-height: 1.7;
 }
-.meta-channel-workspace__columns li + li,
-.meta-channel-workspace .cds--accordion__content li + li {
-  margin-top: .5rem;
+.meta-channel-workspace__columns li + li {
+  margin-top: var(--kosmo-spacing-02);
 }
 @media (max-width: 1055px) {
   .meta-channel-workspace__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
