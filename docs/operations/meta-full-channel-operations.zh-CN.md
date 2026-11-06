@@ -20,7 +20,8 @@
 - Webhook 入站消息归一化为 CRM 会话和消息。
 - 发送状态回执更新（sent / delivered / read / failed）。
 - 同步 WhatsApp 模板及其审核状态。
-- 发送 Meta 已批准模板（需要有效 opt-in 证据）。
+- 创建 Utility / Marketing 模板并提交 Meta 审核；支持正文变量及示例值、页脚。
+- 发送 Meta 已批准模板（支持按行填写正文变量；需要有效 opt-in 证据）。
 - 在 24 小时服务窗口内发送文本回复（仍要求有效 opt-in）。
 - 在 24 小时服务窗口内发送公开 HTTPS 图片、视频、音频和文件链接（仍要求有效 opt-in）。
 - 组织级 opt-in / opt-out 证据记录。
@@ -37,14 +38,14 @@
 - 帖子、评论、模板和同意记录的写操作由服务端 Edge Function 执行。
 - 发送操作检查组织管理员权限、服务窗口、WhatsApp opt-in 和草稿状态；草稿发送采用状态抢占，降低重复发送风险。
 - Webhook 继续校验 Meta HMAC 签名并先持久化幂等事件，再归一化入站消息。
-- 已部署 Supabase Edge Functions：`meta-api` v8、`meta-operations` v9。
+- 已部署 Supabase Edge Functions：`meta-api` v9、`meta-operations` v10。
 
 ## 当前尚未交付 / 需要后续阶段完成
 
 - Facebook Reels、Stories、直播、批量内容日历及完整内容日历管理。
 - 完整媒体上传/下载、附件代理与病毒扫描。
 - 更完整的 Page 互动类型、评论分页、私信附件和对话分页同步。
-- WhatsApp 媒体上传/下载代理、模板创建/编辑/提交审核、模板变量编辑器、质量评级与号码健康监控。
+- WhatsApp 媒体上传/下载代理、模板编辑能力、媒体模板 Header、按钮模板和质量评级与号码健康监控。
 - Messenger 媒体上传/下载代理、结构化消息、按钮/菜单、标签与人工接管规则的完整 UI。
 - Instagram Business / Creator 资产连接与内容能力。
 - Webhook 事件重试工作台、死信队列、后台定时消费者和可观测性面板。
