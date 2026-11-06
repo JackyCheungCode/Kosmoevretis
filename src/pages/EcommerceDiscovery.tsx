@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Button, Checkbox, Dropdown, InlineNotification, NumberInput, Tabs, TabList, Tab, TabPanels, TabPanel,
+  ClickableTile, Button, Checkbox, Dropdown, InlineNotification, NumberInput, Tabs, TabList, Tab, TabPanels, TabPanel,
   Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer, Tag, TextArea, TextInput,
 } from "@carbon/react";
 import { Download, Search, ShoppingCart, Store, Star, Currency, Chat, UserMultiple, Activity } from "@carbon/icons-react";
@@ -380,7 +380,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
           <TabPanel><ResultTable rows={tabRows} type="reviews" /></TabPanel>
           <TabPanel><ResultTable rows={tabRows} type="sellers" /></TabPanel>
           <TabPanel><div className="ec-raw-actions"><Button kind="secondary" renderIcon={Download} disabled={!rows.length} onClick={() => exportJson(rows, platform)}>导出完整 JSON</Button></div>{rows.length ? <pre className="ec-raw-json">{JSON.stringify(rows, null, 2)}</pre> : <EmptyState title="暂无原始数据" description="执行采集后，可在这里查看 Actor 返回的全部 JSON 字段。" />}</TabPanel>
-          <TabPanel>{historyLoading ? <div className="fb-history-empty">正在读取历史任务…</div> : !history.length ? <div className="fb-history-empty">暂无历史发现记录</div> : <div className="fb-history-list">{history.map(item => <button type="button" key={item.id} className={selectedHistory === item.id ? "fb-history-row selected" : "fb-history-row"} onClick={() => void openHistory(item)}><span><strong>{item.title}</strong><small>{new Date(item.created_at).toLocaleString()}</small></span><span><Tag type={item.status === "succeeded" ? "green" : item.status === "failed" ? "red" : "warm-gray"}>{statusLabel(item.status)}</Tag><small>{item.result_count || 0} 条</small></span></button>)}</div>}</TabPanel>
+          <TabPanel>{historyLoading ? <div className="fb-history-empty">正在读取历史任务…</div> : !history.length ? <div className="fb-history-empty">暂无历史发现记录</div> : <div className="fb-history-list">{history.map(item => <ClickableTile key={item.id} className={selectedHistory === item.id ? "fb-history-row selected" : "fb-history-row"} onClick={() => void openHistory(item)}><span><strong>{item.title}</strong><small>{new Date(item.created_at).toLocaleString()}</small></span><span><Tag type={item.status === "succeeded" ? "green" : item.status === "failed" ? "red" : "warm-gray"}>{statusLabel(item.status)}</Tag><small>{item.result_count || 0} 条</small></span></ClickableTile>)}</div>}</TabPanel>
         </TabPanels>
       </Tabs>
       {activeTab !== "history" && <div className="ec-history-refresh"><Button kind="ghost" size="sm" onClick={() => void loadHistory()}>刷新历史记录</Button></div>}
