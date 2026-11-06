@@ -70,7 +70,7 @@ const validPaths = new Set([
   "/ecommerce-discovery/shopify", "/ecommerce-discovery/mercado-libre", "/ecommerce-discovery/rakuten",
   "/products", "/seo-analysis", "/settings/providers", "/settings/actors", "/settings/channels", "/settings/runs",
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
-  "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
+  "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications", "/settings/meta-apps",
   "/settings/governance", "/settings/audit", "/settings/design-system", "/settings/mail",
   "/communication/mail", "/communication/inbox", "/tasks", "/customers", "/opportunities", "/meta-channels", "/meta-channels/facebook", "/meta-channels/whatsapp", "/meta-channels/messenger", "/meta-channels/connect",
 ]);
@@ -115,7 +115,7 @@ const routeLabels: Record<string, string> = {
   "/settings/channels": "数据渠道", "/settings/runs": "运行记录",
   "/settings/ai-providers": "AI 服务商", "/settings/models": "模型目录",
   "/settings/routes": "任务路由", "/settings/prompts": "提示词与成本",
-  "/settings/organization": "组织与企业资料", "/settings/members": "用户与权限",
+  "/settings/organization": "组织与企业资料", "/settings/members": "用户与权限", "/settings/meta-apps": "Meta 应用配置",
   "/settings/locale": "地区与语言", "/settings/notifications": "通知策略",
   "/settings/governance": "数据治理", "/settings/audit": "安全与审计",
   "/settings/design-system": "设计系统", "/settings/mail": "邮件设置",
