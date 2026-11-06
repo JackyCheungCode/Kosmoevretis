@@ -1,6 +1,9 @@
 import React from "react";
 import {
   Header,
+  Tabs,
+  TabList,
+  Tab,
   Content,
   Grid,
   Column,
@@ -99,21 +102,15 @@ function SocialPlatformWorkspace({ platform }: { platform: SocialPlatform }) {
   };
   return (
     <div className="social-platform-workspace-shell">
-      <nav className="platform-line-tabs" role="tablist" aria-label="社交媒体平台">
-        {socialPlatformItems.map((item) => {
-          const Icon = item.icon;
-          const selected = platform === item.id;
-          return (
-            <button key={item.id} type="button" role="tab"
-              className={selected ? "platform-line-tab is-selected" : "platform-line-tab"}
-              aria-selected={selected} aria-current={selected ? "page" : undefined}
-              onClick={() => navigate("/social-discovery/" + item.id)}>
-              <Icon size={18} aria-hidden="true" />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      <Tabs selectedIndex={Math.max(0, socialPlatformItems.findIndex(item => item.id === platform))}
+        onChange={({ selectedIndex }) => { const item = socialPlatformItems[selectedIndex]; if (item) navigate("/social-discovery/" + item.id); }}>
+        <TabList className="platform-line-tabs" aria-label="社交媒体平台">
+          {socialPlatformItems.map((item) => {
+            const Icon = item.icon;
+            return <Tab key={item.id} className="platform-line-tab"><Icon size={18} aria-hidden="true" /><span>{item.label}</span></Tab>;
+          })}
+        </TabList>
+      </Tabs>
       <div className="social-platform-content">{pages[platform]}</div>
     </div>
   );
@@ -135,21 +132,15 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
   const navigate = useNavigate();
   return (
     <div className="social-platform-workspace-shell">
-      <nav className="platform-line-tabs" role="tablist" aria-label="电商平台">
-        {ecommercePlatformItems.map((item) => {
-          const Icon = item.icon;
-          const selected = platform === item.id;
-          return (
-            <button key={item.id} type="button" role="tab"
-              className={selected ? "platform-line-tab is-selected" : "platform-line-tab"}
-              aria-selected={selected} aria-current={selected ? "page" : undefined}
-              onClick={() => navigate("/ecommerce-discovery/" + item.id)}>
-              <Icon size={18} aria-hidden="true" />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      <Tabs selectedIndex={Math.max(0, ecommercePlatformItems.findIndex(item => item.id === platform))}
+        onChange={({ selectedIndex }) => { const item = ecommercePlatformItems[selectedIndex]; if (item) navigate("/ecommerce-discovery/" + item.id); }}>
+        <TabList className="platform-line-tabs" aria-label="电商平台">
+          {ecommercePlatformItems.map((item) => {
+            const Icon = item.icon;
+            return <Tab key={item.id} className="platform-line-tab"><Icon size={18} aria-hidden="true" /><span>{item.label}</span></Tab>;
+          })}
+        </TabList>
+      </Tabs>
       <div className="social-platform-content"><EcommerceDiscovery platform={platform} /></div>
     </div>
   );
