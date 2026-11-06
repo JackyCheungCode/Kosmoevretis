@@ -69,6 +69,9 @@ function inspect(relative, source) {
     if (/\bstyle\s*=\s*\{\{[^}]*\b(?:fontSize|fontFamily|fontWeight|lineHeight)\s*:/is.test(source)) {
       violations.push(relative + ": inline typography must use Carbon type tokens and shared CSS classes.");
     }
+    if (/\brole\s*=\s*["']tab(?:list)?["']/i.test(source)) {
+      violations.push(relative + ": tab semantics must come from Carbon Tabs components, not hand-built tab roles.");
+    }
   }
   if (relative.endsWith(".css")) {
     if (/var\(--kosmo-space-\d+\)/.test(source)) violations.push(relative + ": migrate legacy --kosmo-space-* aliases to canonical --kosmo-spacing-* tokens.");
