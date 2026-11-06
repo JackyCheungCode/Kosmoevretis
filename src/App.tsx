@@ -269,6 +269,7 @@ function AppShell() {
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = React.useState(false);
   const accountMenuRef = React.useRef<HTMLDivElement>(null);
+  const closeMobileNavRef = React.useRef<() => void>(() => {});
 
   React.useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 671px)");
@@ -286,8 +287,6 @@ function AppShell() {
       tabletQuery.removeEventListener("change", updateViewport);
     };
   }, []);
-
-  const sideNavPersistent = viewport !== "mobile";
 
   React.useEffect(() => {
     if (!accountMenuOpen) return;
@@ -317,7 +316,7 @@ function AppShell() {
   const handleNavigate = (event: React.MouseEvent<HTMLAnchorElement>, destination: string) => {
     event.preventDefault();
     navigate(destination);
-    if (viewport === "mobile") closeMobileNav();
+    if (viewport === "mobile") closeMobileNavRef.current();
   };
 
   const navItems = [
@@ -367,12 +366,14 @@ function AppShell() {
     <div className="shell kosmo-app-shell">
       <SkipToContent href="#main-content">跳转到主要内容</SkipToContent>
       <HeaderContainer
-        render={({ isSideNavExpanded, onClickSideNavExpand }) => {
+        render={(headerState: { isSideNavExpanded: boolean; onClickSideNavExpand: () => void }) => {
+          const { isSideNavExpanded, onClickSideNavExpand } = headerState;
           const expanded = viewport === "desktop" || (viewport === "tablet" && tabletExpanded) || (viewport === "mobile" && isSideNavExpanded);
           const closeMobileNav = () => {
             if (isSideNavExpanded) onClickSideNavExpand();
             document.querySelector<HTMLElement>(".kosmo-header button")?.focus();
           };
+          closeMobileNavRef.current = closeMobileNav;
           return (
             <>
               <Header aria-label="Kosmoevretis 全球情报平台" className="kosmo-header">
