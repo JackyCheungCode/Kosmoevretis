@@ -1,6 +1,6 @@
 # Meta channel backend setup
 
-This runbook applies to the `feat/global-trade-social-crm` delivery. The code provides an OAuth authorization and asset-selection flow plus a signed webhook receiver. It does not mean Meta credentials, App Review, Business Verification, or webhook subscriptions are already configured.
+This runbook applies to the `feat/global-trade-social-crm` delivery. The CRM and Meta database migrations have been applied to Supabase project `npkesfmszokmlgnzqelb`; Edge Function `meta-api` is deployed as version 1 with custom authentication. Meta credentials, App Review, Business Verification, and webhook subscriptions are not yet configured.
 
 ## Required Supabase Edge Function secrets
 
@@ -35,9 +35,9 @@ Register the callback URL exactly in the Meta App. Configure the webhook Verify 
 
 ## Deployment order
 
-1. Review and apply `supabase/migrations/20261106150000_meta_channel_integration_foundation.sql` only after the existing CRM foundation migration is approved and applied. This repository change does not apply either migration to the shared database.
-2. Deploy the `meta-api` Supabase Edge Function from this branch.
-3. Set the secrets above using the Supabase secret manager.
+1. [Completed] Apply the CRM foundation migration, followed by the Meta channel integration migration.
+2. [Completed] Deploy the `meta-api` Supabase Edge Function (version 1, `verify_jwt=false`; the function performs its own user/org authorization and validates Meta webhook signatures).
+3. Configure the secrets above using the Supabase Dashboard's Edge Function Secrets page. The current ChatGPT Supabase connection does not expose a secret-management action, so no Meta secret has been written by this deployment.
 4. Register the callback and webhook URLs in the Meta Developer App; enable the Page and WhatsApp webhook fields required by the connected products.
 5. Complete Meta Business Verification and request App Review / Advanced Access for the permissions required by the actual use case.
 6. Test with a development Business Portfolio, test Page, and WhatsApp test number before connecting production assets.
