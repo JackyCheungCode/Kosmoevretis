@@ -402,11 +402,6 @@
   align-items: center;
   min-width: 0;
 }
-.kosmo-breadcrumb li + li::before {
-  content: "/";
-  margin-right:var(--kosmo-spacing-03);
-  color: var(--cds-text-helper);
-}
 .kosmo-breadcrumb a {
   color: var(--cds-link-primary);
   text-decoration: none;
