@@ -74,10 +74,10 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           subtitle="当前环境尚未配置 Meta App ID、App Secret、回调地址和加密密钥。此页面展示的是接入配置与能力范围，不代表已经连接任何企业资产。"
         />
         <div className="meta-channel-workspace__summary">
-          <Tile><Icon size={24}/><span>渠道资产</span><strong>{config.assetTitle}</strong><small>等待管理员授权并选择资产</small></Tile>
-          <Tile><Connect size={24}/><span>OAuth 授权</span><strong>待配置</strong><small>服务端回调与单次 state 校验</small></Tile>
-          <Tile><DataBase size={24}/><span>事件同步</span><strong>待配置</strong><small>Webhook 签名校验与幂等入库</small></Tile>
-          <Tile><Locked size={24}/><span>凭证安全</span><strong>服务端加密</strong><small>密钥不进入浏览器或客户端存储</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><Icon size={24}/><span>渠道资产</span><strong>{config.assetTitle}</strong><small>等待管理员授权并选择资产</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><Connect size={24}/><span>OAuth 授权</span><strong>待配置</strong><small>服务端回调与单次 state 校验</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><DataBase size={24}/><span>事件同步</span><strong>待配置</strong><small>Webhook 签名校验与幂等入库</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><Locked size={24}/><span>凭证安全</span><strong>服务端加密</strong><small>密钥不进入浏览器或客户端存储</small></Tile>
         </div>
       </PageSection>
       <PageSection title="企业资产与授权范围" description="连接前明确需要授权的资产及最小权限集合。" headingLevel={3}>
@@ -94,8 +94,8 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
       </PageSection>
       <PageSection title="数据与业务能力" description="授权后进入统一 CRM 与消息中心的数据处理范围。" headingLevel={3}>
         <div className="meta-channel-workspace__columns">
-          <Tile><h3>计划接收与同步</h3><ul>{config.events.map(item => <li key={item}>{item}</li>)}</ul></Tile>
-          <Tile><h3>平台政策与发送约束</h3><ul>{config.policy.map(item => <li key={item}>{item}</li>)}</ul></Tile>
+          <Tile className="meta-channel-workspace__detail-tile"><h3>计划接收与同步</h3><ul>{config.events.map(item => <li key={item}>{item}</li>)}</ul></Tile>
+          <Tile className="meta-channel-workspace__detail-tile"><h3>平台政策与发送约束</h3><ul>{config.policy.map(item => <li key={item}>{item}</li>)}</ul></Tile>
         </div>
       </PageSection>
       <PageSection title="上线前检查" description="所有检查通过后才开放真实连接入口。" headingLevel={3}>
