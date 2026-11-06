@@ -29,7 +29,6 @@ import {
   DataBase,
   Search as SearchIcon,
   Email,
-  ChevronDown,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -225,7 +224,7 @@ function AppShell() {
     if (viewport === "mobile") closeMobileNavRef.current();
   };
 
-  const link = (href: string, label: string, icon: React.ElementType, active: boolean) => (
+  const link = (href: string, label: string, Icon: React.ElementType, active: boolean) => (
     <SideNavLink
       href={href}
       title={label}
@@ -234,7 +233,7 @@ function AppShell() {
       isActive={active}
       onClick={(event: React.MouseEvent<HTMLAnchorElement>) => handleNavigate(event, href)}
     >
-      <span className="kosmo-nav-item-content"><icon size={16} /><span>{label}</span></span>
+      <span className="kosmo-nav-item-content"><Icon size={16} /><span>{label}</span></span>
     </SideNavLink>
   );
   const menuItem = (href: string, label: string) => (
