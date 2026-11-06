@@ -15,54 +15,30 @@
   min-width: 0;
   overflow: hidden;
 }
-.platform-switcher__list {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  gap: 0;
+.platform-switcher .cds--tabs {
   width: 100%;
   min-width: 0;
+}
+.platform-switcher .cds--tab-list {
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
 }
-.platform-switcher__list::-webkit-scrollbar { display: none; }
-.platform-switcher__tab {
-  appearance: none;
-  display: inline-flex;
+.platform-switcher .cds--tab-list::-webkit-scrollbar { display: none; }
+.platform-switcher .cds--tab {
   flex: 0 0 auto;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--kosmo-spacing-03);
-  min-height: 3rem;
-  margin: 0;
-  padding: 0 var(--kosmo-spacing-05);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--cds-text-secondary);
-  font-family: var(--cds-font-family-sans);
-  font-size: var(--cds-body-compact-01-font-size);
-  line-height: var(--cds-body-compact-01-line-height);
+  min-width: max-content;
   white-space: nowrap;
-  cursor: pointer;
 }
-.platform-switcher__tab:hover {
-  background: var(--cds-layer-hover-01);
-  color: var(--cds-text-primary);
-}
-.platform-switcher__tab[aria-selected="true"] {
-  background: var(--cds-layer-selected-01);
-  color: var(--cds-text-primary);
-  font-weight: 600;
-}
-.platform-switcher__tab:focus-visible {
-  outline: 2px solid var(--cds-focus);
-  outline-offset: -2px;
+.platform-switcher .cds--tab-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kosmo-spacing-03);
 }
 .platform-brand-logo {
   display: block;
@@ -75,12 +51,11 @@
 }
 .platform-switcher__label {
   display: inline-block;
-  flex: 0 0 auto;
   white-space: nowrap;
-  line-height: 1.25rem;
+  line-height: var(--cds-body-compact-01-line-height);
 }
 @media (max-width: 671px) {
-  .platform-switcher__tab {
+  .platform-switcher .cds--tab {
     min-height: 2.875rem;
     padding-inline: var(--kosmo-spacing-04);
   }
