@@ -1,8 +1,7 @@
-/* Shared platform switcher for social and commerce discovery workspaces. */
+/* Shared workspace content layout for social and commerce discovery pages. */
 .social-platform-workspace-shell {
   display: flex;
   flex-direction: column;
-  gap: var(--kosmo-spacing-05);
   width: 100%;
   min-width: 0;
 }
@@ -10,28 +9,6 @@
   min-width: 0;
   max-width: 100%;
 }
-.platform-switcher {
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-}
-.platform-brand-logo {
-  display: block;
-  flex: 0 0 1.25rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  max-width: 1.25rem;
-  max-height: 1.25rem;
-  object-fit: contain;
-}
-.platform-switcher__label {
-  display: inline-block;
-  white-space: nowrap;
-  line-height: var(--cds-body-compact-01-line-height);
-}
-@media (max-width: 671px) {
-}
-
 
 /* Carbon-aligned collapsible primary navigation groups. */
 .kosmo-nav-group-label {
