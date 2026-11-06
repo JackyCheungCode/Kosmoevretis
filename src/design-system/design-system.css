@@ -98,7 +98,7 @@
   display: block;
   width: 100%;
   min-width: 0;
-  padding:var(--kosmo-spacing-05) 0 0;
+  padding:0;
   margin:0;
   background: transparent;
   background-color: transparent;
@@ -151,7 +151,7 @@
 }
 @media (max-width: 671px) {
   .kosmo-page-header {
-    padding:var(--kosmo-spacing-05) 0 0;
+    padding:0;
   }
   .kosmo-page-header__body { align-items: flex-start; flex-direction: column; gap:var(--kosmo-spacing-05); }
   .kosmo-page-header__title { font-size: var(--cds-heading-compact-02-font-size); line-height: 1.2; letter-spacing: -.025em; }
