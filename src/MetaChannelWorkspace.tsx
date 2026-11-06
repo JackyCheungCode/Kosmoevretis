@@ -10,6 +10,8 @@ import { PageSection } from "./design-system/components";
 import "./meta-channel-workspace.css";
 
 type MetaChannel = "facebook" | "whatsapp" | "messenger";
+type MetaProvider = "facebook_pages" | "whatsapp_business" | "messenger";
+const providerFor = (channel: MetaChannel): MetaProvider => channel === "facebook" ? "facebook_pages" : channel === "whatsapp" ? "whatsapp_business" : "messenger";
 
 const definitions = {
   facebook: {
@@ -57,7 +59,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
   const navigate = useNavigate();
   const { session } = useAuth();
   const [organizationId, setOrganizationId] = useState("");
-  const [connections, setConnections] = useState<Array<{id:string;provider:MetaChannel;display_name:string;status:string;external_asset_id:string}>>([]);
+  const [connections, setConnections] = useState<Array<{id:string;provider:MetaProvider;display_name:string;status:string;external_asset_id:string}>>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -69,7 +71,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
     });
     if (invokeError) throw invokeError;
     if (data?.error) throw new Error(data.error);
-    setConnections((data?.connections || []).filter((item: {provider:string}) => item.provider === channel));
+    setConnections((data?.connections || []).filter((item: {provider:string}) => item.provider === providerFor(channel)));
   };
 
   useEffect(() => {
@@ -99,7 +101,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
     setBusy(true); setError("");
     try {
       const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
-        body: { action: "start_oauth", organization_id: organizationId, provider: channel },
+        body: { action: "start_oauth", organization_id: organizationId, provider: providerFor(channel) },
       });
       if (invokeError) throw invokeError;
       if (data?.error) throw new Error(data.error);
