@@ -1,6 +1,6 @@
 # Meta Channel Integration Architecture
 
-Status: OAuth, asset selection, token encryption, connection metadata, and webhook ingestion foundations are implemented on the feature branch. Both database migrations are applied to Supabase project `npkesfmszokmlgnzqelb`, and Edge Function `meta-api` is deployed (version 1, custom authentication enabled). Meta credentials and App Review are not configured, and message synchronization/send is not enabled.
+Status: Organization-isolated Meta App configuration, server-side encrypted credential storage, OAuth routing, and organization-aware webhook verification are implemented on the feature branch. The organization Meta App migration and updated Edge Function have not yet been applied/deployed. The currently deployed function is the earlier global-credential version; message synchronization/send is not enabled.
 
 ## Current implementation boundary
 
@@ -10,7 +10,7 @@ Implemented in `feat/global-trade-social-crm`:
 - AES-GCM encryption for temporary OAuth tokens and saved connection credentials.
 - Organization-scoped connection metadata and audit events.
 - Webhook GET challenge verification, raw-body HMAC-SHA256 validation, and idempotent event inbox persistence.
-- Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.
+- Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.\n- Settings center provides per-organization Meta App ID, App Secret, Webhook Verify Token, and Graph API version configuration; secret fields are encrypted server-side and never returned to the browser.\n- OAuth callback selects the organization's Meta App using the organization-bound OAuth state. Webhook challenge tokens and POST signatures are matched against enabled organization configurations; accepted events are restricted to connections in the matched organization.
 
 Not deployed or enabled:
 - The CRM and Meta schema migrations are applied to the connected Supabase project.
@@ -41,7 +41,7 @@ No connector may read arbitrary personal accounts, private groups, or data outsi
 6. Record scopes, asset IDs, token expiry, last validation time, and connection status. Never log access tokens, app secrets, authorization codes, or raw Authorization headers.
 7. Support disconnect and token rotation/re-authorization; revoke remote permissions when the provider supports it.
 
-Meta App ID and App Secret are server environment secrets. Per-organization Page and WhatsApp tokens are encrypted in a private schema table. No secret belongs in Vite environment variables or browser storage.
+Each organization owns a separate Meta Developer App. App ID is ordinary configuration; App Secret and Webhook Verify Token are submitted to the authenticated Edge Function and encrypted with `SETTINGS_ENCRYPTION_KEY` before storage in `public.crm_meta_app_configs`. The browser receives only masked/saved-state metadata. Per-organization Page and WhatsApp access tokens remain encrypted at rest. No Meta secret belongs in Vite environment variables or browser storage.
 
 ## 3. Webhook contract
 
@@ -51,13 +51,13 @@ The public webhook endpoint is separate from authenticated channel-management AP
 
 - Accept only GET verification requests.
 - Require hub.mode=subscribe.
-- Compare hub.verify_token against the server secret using a constant-time comparison.
+- Compare hub.verify_token against the encrypted, organization-specific Verify Token after server-side decryption, using a constant-time comparison.
 - Return the exact hub.challenge only after successful verification.
 
 ### Event delivery
 
 - Read the raw request body before parsing JSON.
-- Validate X-Hub-Signature-256 as sha256=<hex> using HMAC-SHA256 with the Meta App Secret.
+- Match X-Hub-Signature-256 against enabled organization Meta App Secrets using HMAC-SHA256, then restrict event lookup to the matched organization.
 - Reject missing or invalid signatures with 401.
 - Resolve each event's Page ID / Phone Number ID to an active organization connection.
 - Persist the event with a provider event ID / payload hash idempotency key before returning 200.
