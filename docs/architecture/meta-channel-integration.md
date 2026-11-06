@@ -1,6 +1,6 @@
 # Meta Channel Integration Architecture
 
-Status: OAuth, asset selection, token encryption, connection metadata, and webhook ingestion foundations are implemented on the feature branch. The Supabase migration and Edge Function are not deployed, Meta credentials and App Review are not configured, and message synchronization/send is not enabled.
+Status: OAuth, asset selection, token encryption, connection metadata, and webhook ingestion foundations are implemented on the feature branch. Both database migrations are applied to Supabase project `npkesfmszokmlgnzqelb`, and Edge Function `meta-api` is deployed (version 1, custom authentication enabled). Meta credentials and App Review are not configured, and message synchronization/send is not enabled.
 
 ## Current implementation boundary
 
@@ -13,8 +13,8 @@ Implemented in `feat/global-trade-social-crm`:
 - Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.
 
 Not deployed or enabled:
-- `supabase/migrations/20261106150000_meta_channel_integration_foundation.sql` is pending review and application.
-- `supabase/functions/meta-api` is committed but not deployed.
+- The CRM and Meta schema migrations are applied to the connected Supabase project.
+- `supabase/functions/meta-api` is deployed, but its Meta-specific secrets and callback/webhook registration remain to be configured.
 - Meta App secrets, callback registration, webhook subscription, Business Verification, and App Review remain external setup tasks.
 - Webhook event processing into conversations/messages, message send, templates, opt-in capture, and delivery receipts remain future work.
 
@@ -68,7 +68,7 @@ Webhook delivery is not a user session and must not be protected by Supabase JWT
 
 ## 4. Data model contract
 
-The following schema is a proposed migration contract; it has not been applied to the shared database.
+The following schema contract is applied to the connected Supabase project.
 
 - crm_channel_connections: organization, provider, external business asset ID, display name, status, scopes, token expiry, metadata, audit fields. Unique by organization + provider + external asset ID.
 - private.crm_channel_credentials: connection ID, encrypted access token, IV, credential version, update timestamp. No authenticated or anon grants.
