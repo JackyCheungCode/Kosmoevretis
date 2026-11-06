@@ -8,7 +8,7 @@ import { PageSection } from "./design-system/components";
 import "./meta-content-studio.css";
 
 type Connection = { id:string; provider:string; external_asset_id:string; display_name:string; status:string };
-type Post = { id:string; connection_id:string; content_text:string; link_url:string|null; status:string; external_post_id:string|null; permalink_url:string|null; published_at:string|null; created_at:string; last_error_message:string|null };
+type Comment = { id:string; message:string; from?:{name?:string}; created_time?:string; };\ntype Post = { id:string; connection_id:string; content_text:string; link_url:string|null; status:string; external_post_id:string|null; permalink_url:string|null; published_at:string|null; created_at:string; last_error_message:string|null };
 const labelFor=(status:string)=>({draft:"草稿",publishing:"发布中",published:"已发布",failed:"发布失败",scheduled:"已排程",cancelled:"已取消"}[status]||status);
 const tagFor=(status:string)=>status==="published"?"green":status==="failed"?"red":status==="draft"?"blue":"cool-gray";
 
@@ -22,7 +22,7 @@ export default function MetaContentStudio(){
   const [link,setLink]=useState("");
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
-  const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);
+  const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);\n  const [selectedPost,setSelectedPost]=useState<Post|null>(null);\n  const [comments,setComments]=useState<Comment[]>([]);\n  const [replyText,setReplyText]=useState("");\n  const [replyingTo,setReplyingTo]=useState("");\n  const [insights,setInsights]=useState<any[]>([]);
   const selected=useMemo(()=>connections.find(c=>c.id===selectedConnection)||null,[connections,selectedConnection]);
   const call=useCallback(async(action:string,extra:Record<string,unknown>={})=>{
     const {data,error}=await supabase.functions.invoke("meta-operations",{body:{action,organization_id:organizationId,...extra}});
@@ -56,6 +56,10 @@ export default function MetaContentStudio(){
     catch(err){setNotice({kind:"error",title:"操作未完成",message:err instanceof Error?err.message:"未知错误"});}
     finally{setBusy(false);}
   };
+  const loadComments=async(post:Post)=>{if(!post.external_post_id)return;setSelectedPost(post);try{const d=await call("list_comments",{connection_id:post.connection_id,external_post_id:post.external_post_id});setComments(d.comments||[]);}catch(err){setNotice({kind:"error",title:"读取帖子评论失败",message:err instanceof Error?err.message:"未知错误"});}};
+  const loadInsights=async()=>{if(!selectedConnection)return;try{const d=await call("page_insights",{connection_id:selectedConnection});setInsights(d.insights||[]);setNotice({kind:"success",title:"主页数据已更新",message:"已读取当前 Page 可访问的 Insights 指标。"});}catch(err){setNotice({kind:"error",title:"读取主页数据失败",message:err instanceof Error?err.message:"未知错误"});}};
+  const replyComment=async(commentId:string)=>{if(!selectedPost||!replyText.trim())return;await run("reply_comment",{connection_id:selectedPost.connection_id,comment_id:commentId,message:replyText.trim()},"评论回复已提交");setReplyText("");setReplyingTo("");await loadComments(selectedPost);};
+  const moderateComment=async(commentId:string,hidden:boolean)=>{if(!selectedPost)return;await run("moderate_comment",{connection_id:selectedPost.connection_id,comment_id:commentId,hidden},hidden?"评论已隐藏":"评论已恢复显示");await loadComments(selectedPost);};
   const createDraft=async()=>{
     if(!selectedConnection){setNotice({kind:"error",title:"尚未连接 Facebook Page",message:"先到 Meta 渠道管理完成 Page 授权。"});return;}
     setBusy(true);setNotice(null);
@@ -71,7 +75,7 @@ export default function MetaContentStudio(){
       {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} onCloseButtonClick={()=>setNotice(null)}/>}
       {connections.length>0?<div className="meta-content-toolbar">
         <Dropdown id="meta-content-page" titleText="Facebook Page" label="选择主页" items={connectionItems} itemToString={(item)=>item?.text||""} selectedItem={connectionItems.find(i=>i.id===selectedConnection)||null} onChange={({selectedItem})=>setSelectedConnection(selectedItem?.id||"")}/>
-        <Button kind="tertiary" renderIcon={Renew} disabled={busy||!selectedConnection} onClick={()=>void run("sync_posts",{connection_id:selectedConnection},"帖子同步完成")}>同步主页帖子</Button>
+        <Button kind="tertiary" renderIcon={Renew} disabled={busy||!selectedConnection} onClick={()=>void run("sync_posts",{connection_id:selectedConnection},"帖子同步完成")}>同步主页帖子</Button><Button kind="ghost" disabled={busy||!selectedConnection} onClick={()=>void loadInsights()}>查看主页数据</Button>
       </div>:<InlineNotification kind="warning" lowContrast title="尚未连接 Facebook Page" subtitle="先在「Meta 渠道管理 → Facebook Pages」完成应用配置、授权和 Page 资产选择。"} />}
     </PageSection>
     <PageSection title="创建帖子" description="先保存草稿，再由有权限的组织管理员执行发布。请确保素材 URL 可被 Meta 服务器公开访问。" headingLevel={3}>
@@ -93,7 +97,7 @@ export default function MetaContentStudio(){
             {post.permalink_url&&<Button kind="ghost" size="sm" href={post.permalink_url} target="_blank">查看 Facebook 帖子</Button>}
             {(post.status==="draft"||post.status==="failed")&&<Button kind="primary" size="sm" renderIcon={CloudUpload} disabled={busy} onClick={()=>void publish(post)}>发布</Button>}
             {post.status!=="published"&&<Button kind="ghost" size="sm" renderIcon={TrashCan} disabled={busy} onClick={()=>void remove(post)}>删除草稿</Button>}
-            {post.external_post_id&&<Button kind="ghost" size="sm" renderIcon={Checkmark} disabled>Meta ID：{post.external_post_id}</Button>}
+            {post.external_post_id&&<><Button kind="ghost" size="sm" onClick={()=>void loadComments(post)}>管理评论</Button><Button kind="ghost" size="sm" renderIcon={Checkmark} disabled>Meta ID：{post.external_post_id}</Button></>}
           </div>
         </Tile>)}
       </div>}
