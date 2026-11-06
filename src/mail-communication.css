@@ -38,3 +38,8 @@
 .mail-compose-dialog>footer{justify-content:flex-end;margin-top:var(--kosmo-space-3)}
 @media(max-width:1100px){.mail-three-pane{grid-template-columns:11rem minmax(16rem,1fr)}.mail-reader-pane{grid-column:1/-1;border-top:1px solid var(--cds-border-subtle);grid-template-columns:minmax(0,1fr) 18rem}}
 @media(max-width:671px){.mail-workspace{padding:var(--kosmo-space-3) 0}.mail-three-pane{grid-template-columns:minmax(0,1fr);min-height:0}.mail-folder-pane,.mail-list-pane{border-right:0;border-bottom:1px solid var(--cds-border-subtle)}.mail-folder-pane{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}.mail-pane-label{grid-column:1/-1}.mail-folder-divider{display:none}.mail-no-accounts{grid-column:1/-1}.mail-reader-pane{grid-column:auto;grid-template-columns:minmax(0,1fr)}.mail-empty-state{min-height:12rem}.mail-reader-placeholder{min-height:12rem}}
+
+.mail-account-item{display:flex;align-items:center;gap:var(--kosmo-space-2);width:100%;min-width:0;padding:var(--kosmo-space-2);border:0;background:transparent;color:var(--cds-text-secondary);text-align:left;cursor:pointer;font-size:var(--cds-label-01-font-size)}
+.mail-account-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mail-account-item:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
+.mail-account-item.is-active{background:var(--cds-layer-selected);color:var(--cds-text-primary);font-weight:600}
