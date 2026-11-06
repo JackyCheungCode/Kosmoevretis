@@ -41,6 +41,7 @@ create table if not exists public.crm_channel_oauth_states (
   user_id uuid not null references auth.users(id) on delete cascade,
   provider text not null check (provider in ('facebook_pages','whatsapp_business','messenger')),
   requested_scopes text[] not null default '{}',
+  granted_scopes text[] not null default '{}',
   status text not null default 'pending' check (status in ('pending','processing','assets_ready','consumed','failed')),
   access_token_ciphertext text,
   access_token_iv text,
