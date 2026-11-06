@@ -47,7 +47,6 @@ import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import AuthGuard from "./auth/AuthGuard";
 import LoginPage from "./auth/LoginPage";
 import "./social-platform-workspace.css";
-import GlobalPageIllustration from "./components/GlobalPageIllustration";
 
 type Viewport = "desktop" | "tablet" | "mobile";
 
@@ -481,7 +480,6 @@ function AppShell() {
         <Grid fullWidth className="kosmo-content-grid">
           <Column sm={4} md={8} lg={16}>
         <RouteBreadcrumbs path={path} />
-        <GlobalPageIllustration path={path} />
 
         {path === "/intelligence" && <GlobalIntelligence />}
         {path === "/trade-access" && <TradeAccessPage />}
