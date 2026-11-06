@@ -63,6 +63,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [appConfigStatus, setAppConfigStatus] = useState<"loading"|"missing"|"not_tested"|"valid"|"invalid"|"unavailable">("loading");
   const config = definitions[channel];
 
   const loadConnections = async (orgId: string) => {
@@ -85,6 +86,14 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
         if (!membership?.organization_id) throw new Error("当前账号尚未加入企业工作区。");
         if (!active) return;
         setOrganizationId(membership.organization_id);
+        const { data: appConfig, error: appConfigError } = await supabase.functions.invoke("meta-api", {
+          body: { action: "config_get", organization_id: membership.organization_id },
+        });
+        if (appConfigError || appConfig?.error) {
+          setAppConfigStatus("unavailable");
+        } else {
+          setAppConfigStatus(appConfig?.config?.validation_status || "missing");
+        }
         await loadConnections(membership.organization_id);
       } catch (err) {
         if (active) setError(err instanceof Error ? err.message : "无法读取渠道连接。");
@@ -98,6 +107,10 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
 
   const startOAuth = async () => {
     if (!organizationId || busy) return;
+    if (appConfigStatus !== "valid") {
+      setError("请先到「系统设置 → Meta 应用配置」保存 App ID、App Secret 和 Verify Token，并通过凭证测试。凭证测试通过不代表 Meta 权限审核已获批。");
+      return;
+    }
     setBusy(true); setError("");
     try {
       const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
@@ -128,8 +141,8 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
       <PageSection title="渠道状态" description={config.purpose} headingLevel={3}>
         {error && <InlineNotification kind="error" lowContrast title="渠道连接操作失败" subtitle={error} />}
         <div className="meta-channel-workspace__connection-actions">
-          <Button kind="primary" size="md" onClick={() => void startOAuth()} disabled={!organizationId || busy}>
-            {busy ? "正在准备授权…" : "连接 Meta 企业资产"}
+          <Button kind="primary" size="md" onClick={() => void startOAuth()} disabled={!organizationId || busy || appConfigStatus !== "valid"}>
+            {busy ? "正在准备授权…" : appConfigStatus === "valid" ? "连接 Meta 企业资产" : "完成应用配置后连接"}
           </Button>
           <Button kind="ghost" size="md" onClick={() => organizationId && void loadConnections(organizationId).catch(err => setError(err.message))} disabled={!organizationId || loading}>
             刷新连接
@@ -137,11 +150,11 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           {loading && <InlineLoading description="正在读取当前组织的连接…" />}
         </div>
         <InlineNotification
-          kind="info"
+          kind={appConfigStatus === "valid" ? "info" : "warning"}
           lowContrast
           hideCloseButton
-          title={connections.length ? "企业资产连接已建立" : "等待配置 Meta App 服务端凭证"}
-          subtitle={connections.length ? "当前组织已授权 " + connections.length + " 个 " + config.name + " 资产。消息同步与外发仍需完成 Webhook 订阅及合规策略验收。" : "真实 OAuth 流程已接入代码。启用前需在 Supabase Edge Function secrets 配置 Meta App ID、App Secret、回调地址、Webhook Verify Token、Graph API 版本及加密密钥。"}
+          title={appConfigStatus === "valid" ? "应用凭证已通过基础验证" : appConfigStatus === "invalid" ? "应用凭证验证未通过" : appConfigStatus === "unavailable" ? "无法读取应用配置" : appConfigStatus === "loading" ? "正在检查应用配置" : "尚未完成 Meta App 凭证配置"}
+          subtitle={appConfigStatus === "valid" ? "Graph API 已接受当前 App 凭证。注意：这只验证 App ID / Secret，不代表 Business Verification、App Review 或所需权限已获批；正式接入仍以 Meta 审核结果为准。" : appConfigStatus === "invalid" ? "请返回 Meta 应用配置检查 App ID、App Secret 和 Graph API 版本，并重新测试。" : appConfigStatus === "unavailable" ? "请由组织 Owner/Admin 检查 Meta 应用配置权限，或联系组织管理员完成凭证设置。" : "先到「系统设置 → Meta 应用配置」保存组织 App 凭证并完成基础验证。Meta 权限未获批前，只能在 Meta 允许的开发模式和测试资产范围内联调。"}
         />
         <div className="meta-channel-workspace__connected-list">
           <h3>已授权企业资产</h3>
