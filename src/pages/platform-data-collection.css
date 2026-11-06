@@ -55,3 +55,12 @@
  .pdc-history-meta{max-width:40%;align-items:flex-end;overflow-wrap:anywhere}
  .pdc-table-wrap .cds--data-table{min-width:620px}
 }
+
+
+/* Task activity log: enforce readable Carbon-like contrast in every theme. */
+.pdc-log-console{background:#f4f4f4;color:#161616}
+.pdc-log-line{color:#161616}
+.pdc-log-line time{color:#525252}
+.pdc-log-line.success{color:#198038}
+.pdc-log-line.error{color:#da1e28}
+.pdc-log-empty{color:#525252}
