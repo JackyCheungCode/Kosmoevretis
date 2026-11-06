@@ -16,6 +16,9 @@ const explicitFiles = [
   ["src/facebook-discovery.css", new URL("../src/facebook-discovery.css", import.meta.url)],
   ["src/google-maps-discovery.css", new URL("../src/google-maps-discovery.css", import.meta.url)],
   ["src/linkedin-discovery.css", new URL("../src/linkedin-discovery.css", import.meta.url)],
+  ["src/auth/auth.css", new URL("../src/auth/auth.css", import.meta.url)],
+  ["src/components/carbon-select.css", new URL("../src/components/carbon-select.css", import.meta.url)],
+  ["src/mail-communication.css", new URL("../src/mail-communication.css", import.meta.url)],
 ];
 const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
