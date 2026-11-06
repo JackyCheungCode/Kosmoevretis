@@ -341,21 +341,21 @@
   overflow: hidden;
   isolation: isolate;
   background:
-    radial-gradient(ellipse at 76% 50%, rgba(120, 169, 255, .16), transparent 48%),
-    linear-gradient(105deg, rgba(237, 245, 255, .88), rgba(237, 245, 255, .18) 58%, rgba(8, 189, 186, .035));
+    radial-gradient(ellipse at 76% 50%, var(--cds-layer-accent-01), transparent 48%),
+    linear-gradient(105deg, var(--cds-layer-01), var(--cds-background));
 }
 .kosmo-illustration::before {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, rgba(255,255,255,.4), transparent 52%);
+  background: linear-gradient(90deg, var(--cds-background), transparent 52%);
   content: "";
 }
 .kosmo-illustration__label {
   position: relative;
   z-index: 1;
   padding-left: clamp(1rem, 3vw, 2.5rem);
-  color: #525252;
+  color: var(--cds-text-secondary);
   font-size: .6875rem;
   font-weight: 600;
   letter-spacing: .16em;
