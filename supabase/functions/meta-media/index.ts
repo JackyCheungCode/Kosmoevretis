@@ -6,6 +6,12 @@ const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const BUCKET = "meta-channel-media";
 const MAX_BYTES = 500 * 1024 * 1024;
+const channelLimit = (provider:string, mediaType:string) => {
+  if (provider === "whatsapp_business") return ({image:5,video:16,audio:16,document:100} as Record<string,number>)[mediaType] ?? 0;
+  if (provider === "messenger") return ({image:25,video:25,audio:25,file:25} as Record<string,number>)[mediaType] ?? 0;
+  if (provider === "facebook_pages") return ({image:30,video:1024} as Record<string,number>)[mediaType] ?? 0;
+  return 0;
+};
 const MIME = new Set([
   "image/jpeg","image/png","image/webp","image/gif",
   "video/mp4","video/quicktime",
@@ -55,14 +61,20 @@ Deno.serve(async (req:Request) => {
       const name = String(body.file_name || "upload").replace(/[^a-zA-Z0-9._-]/g,"_").slice(0,120);
       const type = String(body.content_type || "").toLowerCase();
       const size = Number(body.file_size);
+      const mediaType = String(body.media_type || "").toLowerCase();
+      const limitMb = channelLimit(connection.provider,mediaType);
       if (!MIME.has(type)) fail("File type is not supported");
-      if (!Number.isFinite(size) || size <= 0 || size > MAX_BYTES) fail("File must be between 1 byte and 500 MB");
+      if (!limitMb) fail("This media type is not supported for the connected channel");
+      const mimeMatches = mediaType === "image" ? type.startsWith("image/") : mediaType === "video" ? type.startsWith("video/") : mediaType === "audio" ? type.startsWith("audio/") : ["document","file"].includes(mediaType) && type === "application/pdf";
+      if (!mimeMatches) fail("Selected file format does not match the media type");
+      if (!Number.isFinite(size) || size <= 0 || size > Math.min(MAX_BYTES,limitMb*1024*1024)) fail(`File exceeds the ${limitMb} MB limit for this channel and media type`);
       const extension = name.includes(".") ? name.split(".").pop()!.toLowerCase() : "bin";
       const random = crypto.randomUUID();
       const path = `${org}/${connectionId}/${random}.${extension}`;
       const {data,error} = await admin.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
       if (error || !data) throw error || new Error("Could not create signed upload URL");
-      await admin.from("crm_channel_audit_logs").insert({organization_id:org,actor_id:userData.user.id,connection_id:connectionId,action:"meta.media.upload_prepared",metadata:{path,content_type:type,file_size:size}});
+      const {error:auditError} = await admin.from("crm_channel_audit_logs").insert({organization_id:org,actor_id:userData.user.id,connection_id:connectionId,action:"meta.media.upload_prepared",metadata:{path,content_type:type,file_size:size,media_type:mediaType,channel:connection.provider,maximum_size_bytes:limitMb*1024*1024}});
+      if (auditError) throw auditError;
       return response({bucket:BUCKET,path,token:data.token,signed_url:data.signedUrl,expires_in_seconds:7200,maximum_size_bytes:MAX_BYTES});
     }
     if (action === "create_download_url") {
@@ -71,6 +83,8 @@ Deno.serve(async (req:Request) => {
       const expires = Math.min(Math.max(Number(body.expires_in_seconds)||3600,60),21600);
       const {data,error} = await admin.storage.from(BUCKET).createSignedUrl(path,expires);
       if (error || !data) fail("Uploaded media was not found or could not be signed",404);
+      const {error:auditError} = await admin.from("crm_channel_audit_logs").insert({organization_id:org,actor_id:userData.user.id,connection_id:connectionId,action:"meta.media.download_url_created",metadata:{path,expires_in_seconds:expires,channel:connection.provider}});
+      if (auditError) throw auditError;
       return response({url:data.signedUrl,expires_in_seconds:expires});
     }
     fail("Unsupported action");
