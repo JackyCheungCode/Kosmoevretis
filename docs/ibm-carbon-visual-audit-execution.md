@@ -30,7 +30,7 @@
 - TypeScript / TSX：37
 - CSS / SCSS：23
 - 主要业务页面组件：13
-- 路由白名单：覆盖情报、贸易、社媒、线索、电商、产品、SEO、设置和邮件等多组路径；路由子路径需逐一回归，不能只按组件数量验收。
+- 路由白名单：50 条有效路径，覆盖情报、贸易、社媒、线索、电商、产品、SEO、设置和邮件；路由子路径需逐一回归，不能只按组件数量验收。
 
 ### 页面与工作区清单
 - 全局框架 / 登录：AppShell、认证、登录
@@ -127,3 +127,35 @@
 - Carbon Color / Layering: https://www.carbondesignsystem.com/building-blocks/foundations/color/guidelines
 - Carbon Spacing: https://www.carbondesignsystem.com/guidelines/spacing
 - Carbon v11 overview: https://www.carbondesignsystem.com/getting-started/migrating/guide/overview
+
+
+## 执行进度（2026-11-06）
+
+### P0
+- [x] 完成 Git tree 全量盘点与主要页面/样式清单。
+- [x] 确认 50 条有效前端路由。
+- [x] 确认自动设计系统门禁覆盖范围不足。
+- [x] 建立本文件作为审计基线和 P0–P4 验收记录。
+
+### P1（进行中）
+- [x] 在 HTML 入口明确加载 IBM Plex Sans（300–700）和 IBM Plex Mono（400–600），并设置字体 CDN preconnect。
+- [x] 将浏览器 theme-color 从旧深色 Header 色值调整为 Gray 10 画布色。
+- [ ] 全量清理旧 CSS 中仍被引用的硬编码颜色、字号与间距。
+- [ ] 扩展自动审计覆盖至所有 60 个 src 文件，并区分阻断项与历史债务。
+
+### P2（进行中）
+- [x] AppShell Header 改为 Gray 10 主题、透明背景，不再使用独立深色背景层。
+- [x] 恢复路由面包屑导航，隐藏产品/工作区品牌名，保留首页、业务分类和当前页面层级。
+- [ ] 继续核对 Header / SideNav / Content / Grid 尺寸、平板与移动端导航行为。
+- [ ] 共享页面标题、Tabs、表格、表单和反馈组件逐项统一。
+
+### P3 / P4
+- [ ] 尚未开始逐页重构和截图像素差异验收。
+- [ ] 尚未完成桌面 / 平板 / 手机全路由视觉回归。
+- [ ] 尚未完成线上浏览器交互验收。
+
+### 本轮代码提交
+- `0855d2f` — P0 全站审计记录。
+- `20bfa46` — 加载 IBM Plex 字体与 Gray 10 浏览器主题色。
+- `567694e` / `cffba4e` / `91b1c22` — Header 透明化与 Gray 10 主题校准（最终样式提交为 `91b1c22`）。
+- `e2889a9` / `6f26262` / `db2a1fd` — 恢复路由面包屑与层级标签（最终路由组件提交为 `db2a1fd`）。
