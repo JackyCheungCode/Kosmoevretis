@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, InlineNotification, Search, Tag, Tile } from "@carbon/react";
-import { Add, Archive, Attachment, Document, Email, Inbox, Reply, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
+import { Add, Archive, Document, Email, Inbox, Search as SearchIcon, Send, Settings, Star, TrashCan, UserMultiple } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
 import "./mail-communication.css";
 
