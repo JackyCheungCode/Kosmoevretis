@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button, InlineNotification, PasswordInput, Select, SelectItem, Tag, TextInput, Tile } from "@carbon/react";
 import { Add, Building, Email, TrashCan } from "@carbon/icons-react";
 import { supabase } from "./lib/supabase";
+import "./mail-settings.css";
 
 const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 type MailAccount = {
