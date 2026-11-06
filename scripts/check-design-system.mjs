@@ -6,6 +6,11 @@ const allowedExtensions = new Set([".tsx", ".ts", ".css", ".scss"]);
 const violations = [];
 
 function inspect(relative, source) {
+  if (relative === "src/ProductCenter.tsx") {
+    if (!/\bClickableTile\b/.test(source) || /<button\b[^>]*className=["']pc-product-row["']/.test(source)) {
+      violations.push(relative + ": product catalog rows must use Carbon ClickableTile, not hand-built button tiles.");
+    }
+  }
   if (relative === "src/App.tsx") {
     for (const component of ["Header", "SideNav", "Content", "Grid", "Column"]) {
       if (!new RegExp("\\b" + component + "\\b").test(source)) {
