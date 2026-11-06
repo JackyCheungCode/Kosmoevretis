@@ -63,8 +63,9 @@
 .kosmo-form-field.is-invalid .cds--list-box__field { border-block-end-color:var(--cds-border-invalid); }
 
 /* Shared Carbon form rhythm and understated helper text across template-based pages. */
-.kosmo-template .cds--form-item,.kosmo-form-field{min-width:0;gap:var(--kosmo-field-gap)}
+.kosmo-template .cds--form-item{min-width:0;margin-block-end:var(--kosmo-form-row-gap)}
+.kosmo-form-field{min-width:0;gap:var(--kosmo-field-gap)}
 .kosmo-template .cds--label,.kosmo-form-field .cds--label{margin:0;color:var(--cds-text-primary);font-size:var(--cds-label-01-font-size);line-height:var(--cds-label-01-line-height)}
 .kosmo-template .cds--form__helper-text,.kosmo-form-field__message{color:var(--cds-text-helper);font-size:var(--kosmo-type-helper);line-height:var(--kosmo-type-helper-line-height)}
 .kosmo-template .cds--text-input,.kosmo-template .cds--text-area,.kosmo-template .cds--list-box__field,.kosmo-form-field .cds--text-input,.kosmo-form-field .cds--text-area,.kosmo-form-field .cds--list-box__field{font-family:var(--cds-font-family-sans)}
-.kosmo-template .cds--form-item+.cds--form-item{margin-block-start:var(--kosmo-form-row-gap)}
+
