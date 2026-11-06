@@ -28,6 +28,7 @@ import {
   Logout,
   DataBase,
   Email,
+  Share,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -36,6 +37,7 @@ import GlobalIntelligence from "./GlobalIntelligence";
 import CustomerCenter from "./CustomerCenter";
 import SalesPipeline from "./SalesPipeline";
 import UnifiedMessageCenter from "./UnifiedMessageCenter";
+import MetaChannelManagement from "./MetaChannelManagement";
 import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
 import MailCommunication from "./MailCommunication";
@@ -69,7 +71,7 @@ const validPaths = new Set([
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
   "/settings/governance", "/settings/audit", "/settings/design-system", "/settings/mail",
-  "/communication/mail", "/communication/inbox", "/tasks", "/customers", "/opportunities",
+  "/communication/mail", "/communication/inbox", "/tasks", "/customers", "/opportunities", "/meta-channels",
 ]);
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
@@ -106,7 +108,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 const routeLabels: Record<string, string> = {
   "/intelligence": "工作台", "/tasks": "分析任务", "/trade-access": "贸易与市场准入",
   "/products": "产品中心", "/platform-data-collection": "线索发现", "/seo-analysis": "独立站智能诊断",
-  "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
+  "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/meta-channels": "Meta 渠道管理", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
   "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
   "/settings/channels": "数据渠道", "/settings/runs": "运行记录",
@@ -246,7 +248,7 @@ function AppShell() {
   );
   const productActive = path === "/products" || path.startsWith("/ecommerce-discovery");
   const intelligenceActive = ["/trade-access", "/seo-analysis"].includes(path);
-  const customerActive = path === "/customers" || path === "/opportunities" || path === "/communication/inbox" || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
+  const customerActive = path === "/customers" || path === "/opportunities" || path === "/communication/inbox" || path === "/meta-channels" || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
   
   return (
     <Theme theme="g10">
@@ -336,6 +338,7 @@ function AppShell() {
                   <SideNavMenu title="客户与渠道" renderIcon={Email} defaultExpanded={customerActive} isActive={customerActive}>
                     {menuItem("/customers", "全球客户中心")}
                     {menuItem("/opportunities", "销售商机")}
+                    {menuItem("/meta-channels", "Meta 渠道管理")}
                     {menuItem("/communication/inbox", "统一消息中心")}
                     {menuItem("/communication/mail", "邮件沟通")}
                   </SideNavMenu>
@@ -363,6 +366,7 @@ function AppShell() {
         {path === "/opportunities" && <SalesPipeline />}
         {isMailWorkspace && <MailCommunication />}
         {path === "/communication/inbox" && <UnifiedMessageCenter />}
+        {path === "/meta-channels" && <MetaChannelManagement />}
         
         
         
