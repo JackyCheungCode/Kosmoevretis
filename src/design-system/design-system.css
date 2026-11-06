@@ -80,3 +80,14 @@
 @media(max-width:671px){
  .kosmo-app-shell :is(.fb-config-panel,.li-config,.gm-config,.ec-config-panel,.ig-config-panel,.pdc-config-panel){padding:var(--kosmo-spacing-04)}
 }
+
+/* Carbon v11 tabs for the settings category navigation. */
+.settings-tabs-shell .cds--tabs{min-width:0;width:100%}
+.settings-tabs-shell .settings-line-tabs{display:flex;flex-wrap:nowrap;align-items:stretch;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--cds-border-subtle);background:transparent;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+.settings-tabs-shell .settings-line-tabs::-webkit-scrollbar{display:none}
+.settings-tabs-shell .settings-line-tabs .cds--tab{display:inline-flex;align-items:center;flex:0 0 auto;min-height:3rem;padding:0 1rem;border-bottom:3px solid transparent;color:var(--cds-text-secondary);font:inherit;font-size:var(--cds-body-compact-01-font-size);white-space:nowrap}
+.settings-tabs-shell .settings-line-tabs .cds--tab-content{display:inline-flex;align-items:center;gap:.5rem}
+.settings-tabs-shell .settings-line-tabs .cds--tab[aria-selected=true]{border-bottom-color:var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
+.settings-tabs-shell .settings-line-tabs .cds--tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
+.settings-tabs-shell .settings-line-tabs .cds--tab svg{flex:none;width:1.125rem;height:1.125rem}
+@media(max-width:671px){.settings-tabs-shell .settings-line-tabs .cds--tab{min-height:2.875rem;padding:0 .875rem;font-size:var(--cds-label-01-font-size)}}
