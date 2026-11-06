@@ -1,0 +1,103 @@
+@use "@carbon/react/scss/spacing" as carbon-spacing;
+
+/* Kosmoevretis foundation tokens — Carbon v11 Sass spacing + semantic theme aliases. */
+:root {
+  color-scheme: light;
+
+  /* Carbon Gray 10 application canvas and layered surfaces. */
+  --kosmo-color-background: var(--cds-background);
+  --kosmo-color-layer: var(--cds-layer-01);
+  --kosmo-color-layer-raised: var(--cds-layer-02);
+  --kosmo-color-text: var(--cds-text-primary);
+  --kosmo-color-text-secondary: var(--cds-text-secondary);
+  --kosmo-color-border: var(--cds-border-subtle);
+  --kosmo-color-interactive: var(--cds-interactive);
+  --kosmo-color-focus: var(--cds-focus);
+
+  /* Carbon spacing Sass tokens are emitted as runtime semantic aliases. */
+  --kosmo-spacing-01: #{carbon-spacing.$spacing-01};
+  --kosmo-spacing-02: #{carbon-spacing.$spacing-02};
+  --kosmo-spacing-03: #{carbon-spacing.$spacing-03};
+  --kosmo-spacing-04: #{carbon-spacing.$spacing-04};
+  --kosmo-spacing-05: #{carbon-spacing.$spacing-05};
+  --kosmo-spacing-06: #{carbon-spacing.$spacing-06};
+  --kosmo-spacing-07: #{carbon-spacing.$spacing-07};
+  --kosmo-spacing-08: #{carbon-spacing.$spacing-08};
+  --kosmo-spacing-09: #{carbon-spacing.$spacing-09};
+  --kosmo-spacing-10: #{carbon-spacing.$spacing-10};
+  --kosmo-spacing-11: #{carbon-spacing.$spacing-11};
+  --kosmo-spacing-12: #{carbon-spacing.$spacing-12};
+
+  /* Backward-compatible aliases. New code should use semantic tokens or --kosmo-spacing-*. */
+  --kosmo-space-1: var(--kosmo-spacing-02);
+  --kosmo-space-2: var(--kosmo-spacing-03);
+  --kosmo-space-3: var(--kosmo-spacing-04);
+  --kosmo-space-4: var(--kosmo-spacing-05);
+  --kosmo-space-5: var(--kosmo-spacing-06);
+  --kosmo-space-6: var(--kosmo-spacing-07);
+  --kosmo-space-7: var(--kosmo-spacing-08);
+  --kosmo-space-8: var(--kosmo-spacing-09);
+  --kosmo-space-9: var(--kosmo-spacing-10);
+  --kosmo-space-10: var(--kosmo-spacing-11);
+  --kosmo-space-11: var(--kosmo-spacing-12);
+
+  /* Carbon 2x Grid and shell geometry. */
+  --kosmo-grid-breakpoint-xs: 320px;
+  --kosmo-grid-breakpoint-sm: 672px;
+  --kosmo-grid-breakpoint-md: 1056px;
+  --kosmo-grid-breakpoint-lg: 1312px;
+  --kosmo-grid-breakpoint-xlg: 1584px;
+  --kosmo-shell-header-height: 3rem;
+  --kosmo-shell-sidebar-width: 16rem;
+  --kosmo-shell-sidebar-collapsed-width: 3rem;
+  --kosmo-shell-sidebar-mobile-width: 17.5rem;
+  --kosmo-shell-breakpoint-tablet: 1055px;
+  --kosmo-shell-breakpoint-mobile: 671px;
+  --kosmo-content-max-width: 1584px;
+
+
+  /* Shared typography and page rhythm; semantic values map to Carbon v11 type scale. */
+  --kosmo-type-page-title: var(--cds-heading-04-font-size);
+  --kosmo-type-page-title-line-height: var(--cds-heading-04-line-height);
+  --kosmo-type-section-title: var(--cds-heading-compact-02-font-size);
+  --kosmo-type-section-title-line-height: var(--cds-heading-compact-02-line-height);
+  --kosmo-type-body: var(--cds-body-01-font-size);
+  --kosmo-type-body-line-height: var(--cds-body-01-line-height);
+  --kosmo-type-description: var(--cds-body-compact-01-font-size);
+  --kosmo-type-description-line-height: var(--cds-body-compact-01-line-height);
+  --kosmo-type-helper: var(--cds-helper-text-01-font-size);
+  --kosmo-type-helper-line-height: var(--cds-helper-text-01-line-height);
+  --kosmo-page-section-gap: var(--kosmo-spacing-06);
+  --kosmo-page-header-gap: var(--kosmo-spacing-05);
+  --kosmo-field-gap: var(--kosmo-spacing-02);
+  --kosmo-form-row-gap: var(--kosmo-spacing-04);
+  --kosmo-collection-card-gap: var(--kosmo-spacing-03);
+  --kosmo-collection-card-gap-mobile: var(--kosmo-spacing-02);
+  --kosmo-collection-card-min-height: 5.25rem;
+  --kosmo-collection-card-min-height-mobile: 4.75rem;
+  --kosmo-collection-card-padding: var(--kosmo-spacing-04);
+  --kosmo-collection-card-padding-mobile: var(--kosmo-spacing-03);
+
+  /* Shared brand logo tile geometry. */
+  --kosmo-brand-logo-size: 2.25rem;
+  --kosmo-brand-logo-image-size: 1.75rem;
+  --kosmo-brand-logo-padding: var(--kosmo-spacing-02);
+  --kosmo-brand-logo-radius: 0.5rem;
+
+  /* Reusable business component dimensions, not global design scales. */
+  --kosmo-collection-mode-card-min-width: 13rem;
+  --kosmo-collection-mode-card-height: 6rem;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--kosmo-color-text);
+  background: var(--kosmo-color-background);
+}
+

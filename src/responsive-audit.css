@@ -1,0 +1,155 @@
+/* Shared responsive rhythm. All values use Carbon semantic type and spacing tokens. */
+
+/* Settings tabs retain horizontal touch scrolling on narrow viewports. */
+@media (max-width: 671px) {
+  .settings-line-tabs {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .settings-line-tabs::-webkit-scrollbar { display: none; }
+}
+
+/* Shared page-introduction hierarchy. */
+@media (max-width: 671px) {
+  .kosmo-page-header {
+    gap: var(--kosmo-spacing-05);
+    margin-block: 0 var(--kosmo-spacing-06);
+  }
+  .kosmo-page-header__title {
+    font-size: var(--cds-heading-compact-02-font-size);
+    line-height: var(--cds-heading-compact-02-line-height);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .kosmo-page-header__description {
+    margin-top: var(--kosmo-spacing-03);
+    font-size: var(--cds-body-01-font-size);
+    line-height: var(--cds-body-01-line-height);
+  }
+  .kosmo-page-section__title,
+  .kosmo-discovery-object-selector__header h3 {
+    font-size: var(--cds-heading-compact-01-font-size);
+    line-height: var(--cds-heading-compact-01-line-height);
+    font-weight: 600;
+  }
+}
+
+/* Discovery-object cards share one Carbon-aligned geometry. */
+.kosmo-collection-mode-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--kosmo-spacing-03);
+}
+.kosmo-collection-mode-grid__item {
+  min-height: 6.25rem;
+  padding: var(--kosmo-spacing-04);
+  gap: var(--kosmo-spacing-04);
+}
+.kosmo-collection-mode-grid__icon {
+  flex: 0 0 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+.kosmo-collection-mode-grid__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.kosmo-collection-mode-grid__copy strong {
+  font-size: var(--cds-body-01-font-size);
+  line-height: var(--cds-body-01-line-height);
+}
+.kosmo-collection-mode-grid__copy > span {
+  font-size: var(--cds-body-compact-01-font-size);
+  line-height: var(--cds-body-compact-01-line-height);
+}
+@media (max-width: 671px) {
+  .kosmo-collection-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--kosmo-spacing-03);
+  }
+  .kosmo-collection-mode-grid__item {
+    min-height: 6rem;
+    padding: var(--kosmo-spacing-03);
+    gap: var(--kosmo-spacing-03);
+  }
+  .kosmo-collection-mode-grid__icon {
+    flex-basis: 1.625rem;
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+  .kosmo-collection-mode-grid__icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/* Avoid double padding when a template source contains its own panel. */
+.kosmo-template__source:has(> .ig-config-panel),
+.kosmo-template__source:has(> .ec-config-panel),
+.kosmo-template__source:has(> .pdc-config-panel) {
+  padding: 0;
+  background: transparent;
+}
+
+/* Consistent source-panel spacing across discovery channels. */
+.kosmo-app-shell :is(
+  .fb-config-panel,
+  .li-config,
+  .gm-config,
+  .ig-config-panel,
+  .ec-config-panel,
+  .pdc-config-panel
+) {
+  padding: var(--kosmo-spacing-06);
+  min-width: 0;
+}
+@media (max-width: 671px) {
+  .kosmo-app-shell :is(
+    .fb-config-panel,
+    .li-config,
+    .gm-config,
+    .ig-config-panel,
+    .ec-config-panel,
+    .pdc-config-panel
+  ) {
+    padding: var(--kosmo-spacing-05);
+  }
+}
+
+/* Carbon form rhythm and helper-text hierarchy within the application shell. */
+.kosmo-app-shell .cds--form-item {
+  min-width: 0;
+  margin-block-end: var(--kosmo-spacing-05);
+}
+.kosmo-app-shell .cds--label {
+  margin-block-end: var(--kosmo-spacing-02);
+  color: var(--cds-text-primary);
+  font-size: var(--cds-label-01-font-size);
+  line-height: var(--cds-label-01-line-height);
+}
+.kosmo-app-shell :is(.cds--form__helper-text, .cds--form-requirement, .ig-helper, .pdc-help, .fb-field small, .li-field small, .gm-field small, .ec-field small) {
+  color: var(--cds-text-helper);
+  font-size: var(--cds-helper-text-01-font-size);
+  line-height: var(--cds-helper-text-01-line-height);
+}
+.kosmo-app-shell :is(.fb-field, .li-field, .gm-field, .ec-field, .ig-control, .ig-form-source, .pdc-field) {
+  gap: var(--kosmo-spacing-03);
+}
+@media (max-width: 671px) {
+  .kosmo-app-shell .cds--form-item { margin-block-end: var(--kosmo-spacing-04); }
+  .kosmo-app-shell :is(.cds--text-input, .cds--text-area, .cds--list-box__field) {
+    font-size: var(--cds-body-01-font-size);
+  }
+}
+
+/* Prevent accidental page overflow while preserving horizontally scrollable data tables. */
+.kosmo-main,
+.kosmo-content-grid,
+.kosmo-page-frame,
+.kosmo-template {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 671px) {
+  .kosmo-main { overflow-x: clip; }
+}

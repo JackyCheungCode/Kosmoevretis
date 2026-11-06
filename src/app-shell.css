@@ -1,0 +1,104 @@
+/* IBM Carbon Design System Global Modern Layout Standard */
+:root {
+  --cds-interactive-01: #0f62fe;
+  --cds-interactive-02: #393939;
+  --cds-field-01: #f4f4f4;
+  --cds-field-02: #ffffff;
+  --cds-active-ui: #c6c6c6;
+  --cds-hover-ui: #e5e5e5;
+  --cds-text-01: #161616;
+  --cds-text-02: #525252;
+  --cds-text-03: #8d8d8d;
+  --cds-text-04: #ffffff;
+  --cds-ui-01: #f4f4f4;
+  --cds-ui-02: #ffffff;
+  --cds-ui-03: #e0e0e0;
+  --cds-ui-04: #8d8d8d;
+  --cds-ui-05: #161616;
+  --cds-spacing-01: 0.125rem;
+  --cds-spacing-02: 0.25rem;
+  --cds-spacing-03: 0.5rem;
+  --cds-spacing-04: 0.75rem;
+  --cds-spacing-05: 1rem;
+  --cds-spacing-06: 1.5rem;
+  --cds-spacing-07: 2rem;
+  --cds-spacing-08: 2.5rem;
+  --cds-spacing-09: 3rem;
+  --cds-font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+[data-theme="g100"] {
+  --cds-field-01: #262626;
+  --cds-field-02: #161616;
+  --cds-text-01: #f4f4f4;
+  --cds-text-02: #c6c6c6;
+  --cds-ui-01: #161616;
+  --cds-ui-02: #262626;
+  --cds-ui-03: #393939;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--cds-font-family);
+  background-color: var(--cds-ui-01);
+  color: var(--cds-text-01);
+  -webkit-font-smoothing: antialiased;
+}
+
+.cds--header {
+  height: 3rem;
+  background-color: #161616;
+  border-bottom: 1px solid #393939;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  color: #ffffff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+}
+
+.cds--header__name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.1px;
+  color: #ffffff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cds--header__name--prefix {
+  font-weight: 400;
+  color: #c6c6c6;
+}
+
+.cds--content {
+  margin-top: 3rem;
+  margin-left: 16rem;
+  padding: 2rem;
+  min-height: calc(100vh - 3rem);
+  transition: margin-left 0.11s cubic-bezier(0.2, 0, 0.38, 0.9);
+}
+
+.cds--side-nav {
+  position: fixed;
+  top: 3rem;
+  left: 0;
+  bottom: 0;
+  width: 16rem;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  z-index: 8000;
+  overflow-y: auto;
+}
+
+[data-theme="g100"] .cds--side-nav {
+  background-color: #161616;
+  border-right-color: #393939;
+}

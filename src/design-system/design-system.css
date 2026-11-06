@@ -1,0 +1,139 @@
+/* Shared page primitives and templates. Use Carbon tokens; avoid page-local redefinitions. */
+.kosmo-page-frame { display: flex; flex-direction: column; gap:var(--kosmo-page-section-gap); min-width: 0; }
+.kosmo-page-header__eyebrow { margin:0 0 var(--kosmo-spacing-03); color: var(--kosmo-color-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); letter-spacing: 0; text-transform: none; }
+.kosmo-page-section__actions { display: flex; align-items: center; flex-wrap: wrap; gap:var(--kosmo-spacing-03); }
+.kosmo-page-section { min-width: 0; }
+.kosmo-page-section__header { display: flex; justify-content: space-between; align-items: flex-start; gap:var(--kosmo-spacing-04); margin-bottom:var(--kosmo-spacing-04); }
+.kosmo-page-section__title { margin:0; font-size: var(--kosmo-type-section-title); font-weight: var(--cds-heading-compact-02-font-weight); line-height: var(--kosmo-type-section-title-line-height); }
+.kosmo-page-section__description { margin:var(--kosmo-spacing-02) 0 0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-helper-text-01-font-size); line-height: var(--cds-helper-text-01-line-height); }
+.kosmo-page-section__content { min-width: 0; }
+.kosmo-empty-state { display: grid; justify-items: center; gap:var(--kosmo-spacing-04); padding:var(--kosmo-spacing-08) var(--kosmo-spacing-05); text-align: center; background: var(--cds-layer-01); }
+.kosmo-empty-state__title { margin:0; font-size: var(--cds-heading-compact-02-font-size); font-weight: var(--cds-heading-compact-02-font-weight); }
+.kosmo-empty-state__description { max-width: 56ch; margin:0; color: var(--kosmo-color-text-secondary); font-size: var(--cds-body-01-font-size); line-height: var(--cds-body-01-line-height); }
+.kosmo-loading-state { display: flex; align-items: center; min-height: 3rem; }
+.kosmo-error-state, .kosmo-success-state { display: flex; align-items: center; flex-wrap: wrap; gap:var(--kosmo-spacing-03); }
+.kosmo-template { gap:var(--kosmo-spacing-05); }
+.kosmo-template__source, .kosmo-template__toolbar, .kosmo-template__context, .kosmo-template__summary, .kosmo-template__navigation, .kosmo-template__content, .kosmo-template__metadata, .kosmo-template__configuration-nav { min-width: 0; }
+.kosmo-template__source, .kosmo-template__context { padding:var(--kosmo-spacing-05); background: var(--cds-layer-01); }
+.kosmo-template__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap:var(--kosmo-spacing-04); }
+.kosmo-template__summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap:var(--kosmo-spacing-04); }
+.kosmo-template__content { display: flex; flex-direction: column; gap:var(--kosmo-spacing-05); }
+.kosmo-template__metadata { color: var(--kosmo-color-text-secondary); font-size: var(--cds-helper-text-01-font-size); }
+.kosmo-template__configuration-layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap:var(--kosmo-spacing-06); align-items: start; }
+.kosmo-template__configuration-nav { min-width: 0; }
+@media (max-width: 671px) {
+  .kosmo-page-section__header { flex-direction: column; }
+  .kosmo-page-header__actions { width: 100%; }
+  .kosmo-template__configuration-layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Unified collection result workspace: match the white Carbon layer used by sibling page sections. */
+.kosmo-template__results { min-width:0; padding:var(--kosmo-spacing-05); background:var(--cds-layer-01); }
+.kosmo-template__results .kosmo-template__content { gap:0; }
+.kosmo-template__results .kosmo-page-section { min-width:0; }
+.kosmo-template__results .kosmo-page-section__header { margin-bottom:var(--kosmo-spacing-05); }
+ .ig-results-tabs { min-width:0; }
+.kosmo-page-header {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: var(--cds-text-primary);
+  font-family: var(--cds-font-family-sans);
+}
+.kosmo-page-header__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--kosmo-spacing-07);
+  min-width: 0;
+}
+.kosmo-page-header__copy { min-width: 0; }
+.kosmo-page-header__title {
+  max-width: 28ch;
+  margin: 0;
+  color: var(--cds-text-primary);
+  font-family: "IBM Plex Sans", "IBM Plex Sans TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-size: var(--cds-heading-05-font-size);
+  font-weight: var(--cds-heading-05-font-weight);
+  line-height: var(--cds-heading-05-line-height);
+  letter-spacing: 0;
+}
+.kosmo-page-header__description {
+  max-width: 68ch;
+  margin: var(--kosmo-spacing-04) 0 0;
+  color: var(--cds-text-secondary);
+  font-family: var(--cds-font-family-sans);
+  font-size: var(--cds-body-01-font-size);
+  font-weight: var(--cds-body-01-font-weight);
+  line-height: var(--cds-body-01-line-height);
+}
+.kosmo-page-header__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--kosmo-spacing-04);
+}
+.kosmo-page-header__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--kosmo-spacing-04);
+}
+.kosmo-page-header__scope {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: var(--kosmo-spacing-02) var(--kosmo-spacing-03);
+  color: var(--cds-text-secondary);
+  background: var(--cds-background);
+  font-size: var(--cds-helper-text-01-font-size);
+}
+@media (max-width: 671px) {
+  .kosmo-page-header__body {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--kosmo-spacing-05);
+  }
+  .kosmo-page-header__title {
+    max-width: none;
+    font-size: var(--cds-heading-04-font-size);
+    line-height: var(--cds-heading-04-line-height);
+  }
+  .kosmo-page-header__description {
+    margin-top: var(--kosmo-spacing-03);
+    font-size: var(--cds-body-01-font-size);
+    line-height: var(--cds-body-01-line-height);
+  }
+  .kosmo-page-header__meta {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .kosmo-template__results { padding: var(--kosmo-spacing-04); }
+}
+
+/* Shared brand logo tile; geometry is owned by semantic component tokens. */
+.kosmo-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--kosmo-brand-logo-size);
+  height: var(--kosmo-brand-logo-size);
+  min-width: var(--kosmo-brand-logo-size);
+  padding: var(--kosmo-brand-logo-padding);
+  overflow: hidden;
+  border-radius: var(--kosmo-brand-logo-radius);
+  background: var(--cds-layer-02);
+  color: var(--cds-text-primary);
+}
+.kosmo-brand-logo__image {
+  display: block;
+  width: var(--kosmo-brand-logo-image-size);
+  height: var(--kosmo-brand-logo-image-size);
+  object-fit: contain;
+}

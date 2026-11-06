@@ -1,0 +1,6 @@
+create index product_attribute_definitions_id_org_idx on public.product_attribute_definitions(id, organization_id);
+create index product_attribute_definition_values_definition_org_idx on public.product_attribute_definition_values(definition_id, organization_id);
+create index product_attribute_values_attribute_definition_org_idx on public.product_attribute_values(attribute_id, product_id, organization_id, definition_id);
+create index product_attribute_values_definition_value_fk_idx on public.product_attribute_values(definition_value_id, definition_id, organization_id);
+create index product_attributes_definition_org_idx on public.product_attributes(definition_id, organization_id);
+create trigger product_attribute_definitions_touch_updated_at before update on public.product_attribute_definitions for each row execute function private.touch_updated_at();

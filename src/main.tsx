@@ -1,0 +1,12 @@
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "@carbon/styles/css/styles.css";
+import "./design-tokens.scss";
+import "./styles.css";
+import "./settings-center.css";
+import "./app-shell.css";
+import "./auth/auth.css";
+import "./design-system/design-system.css";
+import App from "./App";
+import "./responsive-audit.css";
+ReactDOM.createRoot(document.getElementById("root")!).render(<React.StrictMode><App /></React.StrictMode>);
