@@ -33,3 +33,10 @@
   .meta-app-endpoint { grid-template-columns: minmax(0, 1fr); }
   .meta-app-endpoint button { justify-self: start; }
 }
+
+.meta-app-preparation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kosmo-space-3,0.75rem)}
+.meta-app-preparation-grid>div{display:flex;flex-direction:column;align-items:flex-start;gap:var(--kosmo-space-2,0.5rem);padding:var(--kosmo-space-4,1rem);background:var(--cds-layer-01)}
+.meta-app-preparation-grid strong{color:var(--cds-text-primary)}
+.meta-app-preparation-grid p{margin:0 0 var(--kosmo-space-2,0.5rem);color:var(--cds-text-secondary);font-size:var(--cds-body-compact-01-font-size);line-height:1.55}
+.meta-app-official-links{display:flex;flex-wrap:wrap;gap:var(--kosmo-space-2,0.5rem);margin-top:var(--kosmo-space-3,0.75rem)}
+@media(max-width:671px){.meta-app-preparation-grid{grid-template-columns:1fr}}
