@@ -63,6 +63,12 @@ function inspect(relative, source) {
     if (/\bstyle\s*=\s*\{\{[^}]*\b(?:color|backgroundColor|borderColor|fill|stroke)\s*:\s*["']#[0-9a-f]{3,8}\b/is.test(source)) {
       violations.push(relative + ": inline style colors must use Carbon semantic tokens, not hard-coded hex values.");
     }
+    if (/\bstyle\s*=\s*\{\{[^}]*\b(?:margin|marginTop|marginBottom|padding|paddingTop|paddingBottom|gap|rowGap|columnGap)\s*:\s*\d+(?:\.\d+)?(?:\s*[,}])/is.test(source)) {
+      violations.push(relative + ": inline layout spacing must use shared CSS classes and Carbon spacing tokens.");
+    }
+    if (/\bstyle\s*=\s*\{\{[^}]*\b(?:fontSize|fontFamily|fontWeight|lineHeight)\s*:/is.test(source)) {
+      violations.push(relative + ": inline typography must use Carbon type tokens and shared CSS classes.");
+    }
   }
   if (relative.endsWith(".css")) {
     if (/var\(--kosmo-space-\d+\)/.test(source)) violations.push(relative + ": migrate legacy --kosmo-space-* aliases to canonical --kosmo-spacing-* tokens.");
