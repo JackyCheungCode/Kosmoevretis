@@ -35,11 +35,10 @@
  .fb-log-line{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
 }
 
-
-/* Task activity log: enforce readable Carbon-like contrast in every theme. */
-.fb-log-console{background:#f4f4f4;color:#161616}
-.fb-log-line{color:#161616}
-.fb-log-line time{color:#525252}
-.fb-log-line.success{color:#198038}
-.fb-log-line.error{color:#da1e28}
-.fb-log-placeholder{color:#525252}
+/* Task activity log: semantic Carbon colors for accessible contrast. */
+.fb-log-console{background:var(--cds-layer-01);color:var(--cds-text-primary)}
+.fb-log-line{color:var(--cds-text-primary)}
+.fb-log-line time{color:var(--cds-text-secondary)}
+.fb-log-line.success{color:var(--cds-support-success)}
+.fb-log-line.error{color:var(--cds-support-error)}
+.fb-log-placeholder{color:var(--cds-text-secondary)}
