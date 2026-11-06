@@ -1,6 +1,10 @@
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, Tile } from "@carbon/react";
 import { ArrowLeft, Chat, Connect, DataBase, Locked, Phone, Share } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { InlineLoading } from "@carbon/react";
+import { supabase } from "./lib/supabase";
+import { useAuth } from "./auth/AuthProvider";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
 import "./meta-channel-workspace.css";
@@ -51,7 +55,61 @@ const definitions = {
 
 export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel }) {
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const [organizationId, setOrganizationId] = useState("");
+  const [connections, setConnections] = useState<Array<{id:string;provider:MetaChannel;display_name:string;status:string;external_asset_id:string}>>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const config = definitions[channel];
+
+  const loadConnections = async (orgId: string) => {
+    const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
+      body: { action: "list_connections", organization_id: orgId },
+    });
+    if (invokeError) throw invokeError;
+    if (data?.error) throw new Error(data.error);
+    setConnections((data?.connections || []).filter((item: {provider:string}) => item.provider === channel));
+  };
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      if (!session?.user.id) { setLoading(false); return; }
+      try {
+        const { data: membership, error: membershipError } = await supabase.from("organization_members")
+          .select("organization_id").eq("user_id", session.user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+        if (membershipError) throw membershipError;
+        if (!membership?.organization_id) throw new Error("当前账号尚未加入企业工作区。");
+        if (!active) return;
+        setOrganizationId(membership.organization_id);
+        await loadConnections(membership.organization_id);
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : "无法读取渠道连接。");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void load();
+    return () => { active = false; };
+  }, [session?.user.id]);
+
+  const startOAuth = async () => {
+    if (!organizationId || busy) return;
+    setBusy(true); setError("");
+    try {
+      const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
+        body: { action: "start_oauth", organization_id: organizationId, provider: channel },
+      });
+      if (invokeError) throw invokeError;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.authorization_url) throw new Error("服务端没有返回 Meta 授权地址。");
+      window.location.assign(data.authorization_url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "无法启动 Meta 授权。");
+      setBusy(false);
+    }
+  };
   const Icon = config.icon;
   return (
     <ConfigurationPageTemplate
@@ -66,6 +124,16 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
         <Tag type="cool-gray">尚未连接</Tag>
       </div>
       <PageSection title="渠道状态" description={config.purpose} headingLevel={3}>
+        {error && <InlineNotification kind="error" lowContrast title="渠道连接操作失败" subtitle={error} />}
+        <div className="meta-channel-workspace__connection-actions">
+          <Button kind="primary" size="md" onClick={() => void startOAuth()} disabled={!organizationId || busy}>
+            {busy ? "正在准备授权…" : "连接 Meta 企业资产"}
+          </Button>
+          <Button kind="ghost" size="md" onClick={() => organizationId && void loadConnections(organizationId).catch(err => setError(err.message))} disabled={!organizationId || loading}>
+            刷新连接
+          </Button>
+          {loading && <InlineLoading description="正在读取当前组织的连接…" />}
+        </div>
         <InlineNotification
           kind="info"
           lowContrast
@@ -73,6 +141,23 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           title="真实授权尚未启用"
           subtitle="当前环境尚未配置 Meta App ID、App Secret、回调地址和加密密钥。此页面展示的是接入配置与能力范围，不代表已经连接任何企业资产。"
         />
+        <div className="meta-channel-workspace__connected-list">
+          <h3>已授权企业资产</h3>
+          {connections.length ? connections.map(item => (
+            <div className="meta-channel-workspace__connected-row" key={item.id}>
+              <div><strong>{item.display_name}</strong><small>{item.external_asset_id}</small></div>
+              <Tag type={item.status === "connected" ? "green" : "cool-gray"}>{item.status === "connected" ? "已连接" : item.status}</Tag>
+              <Button kind="ghost" size="sm" onClick={async () => {
+                if (!organizationId) return;
+                const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
+                  body: { action: "disconnect_connection", organization_id: organizationId, connection_id: item.id },
+                });
+                if (invokeError || data?.error) { setError(data?.error || invokeError?.message || "断开连接失败"); return; }
+                await loadConnections(organizationId);
+              }}>断开连接</Button>
+            </div>
+          )) : <p className="meta-channel-workspace__empty">当前组织尚未连接此渠道的企业资产。</p>}
+        </div>
         <div className="meta-channel-workspace__summary">
           <Tile className="meta-channel-workspace__metric-tile"><Icon size={24}/><span>渠道资产</span><strong>{config.assetTitle}</strong><small>等待管理员授权并选择资产</small></Tile>
           <Tile className="meta-channel-workspace__metric-tile"><Connect size={24}/><span>OAuth 授权</span><strong>待配置</strong><small>服务端回调与单次 state 校验</small></Tile>
