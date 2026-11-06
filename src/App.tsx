@@ -26,6 +26,7 @@ import {
   ShoppingCart,
   Search as SearchIcon,
   Email,
+  Forum,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
