@@ -55,6 +55,29 @@
   --kosmo-shell-breakpoint-mobile: 671px;
   --kosmo-content-max-width: 1680px;
 
+
+  /* Shared typography and page rhythm; semantic values map to Carbon v11 type scale. */
+  --kosmo-type-page-title: var(--cds-heading-04-font-size);
+  --kosmo-type-page-title-line-height: var(--cds-heading-04-line-height);
+  --kosmo-type-section-title: var(--cds-heading-compact-02-font-size);
+  --kosmo-type-section-title-line-height: var(--cds-heading-compact-02-line-height);
+  --kosmo-type-body: var(--cds-body-01-font-size);
+  --kosmo-type-body-line-height: var(--cds-body-01-line-height);
+  --kosmo-type-description: var(--cds-body-compact-01-font-size);
+  --kosmo-type-description-line-height: var(--cds-body-compact-01-line-height);
+  --kosmo-type-helper: var(--cds-helper-text-01-font-size);
+  --kosmo-type-helper-line-height: var(--cds-helper-text-01-line-height);
+  --kosmo-page-section-gap: var(--kosmo-spacing-06);
+  --kosmo-page-header-gap: var(--kosmo-spacing-05);
+  --kosmo-field-gap: var(--kosmo-spacing-02);
+  --kosmo-form-row-gap: var(--kosmo-spacing-04);
+  --kosmo-collection-card-gap: var(--kosmo-spacing-03);
+  --kosmo-collection-card-gap-mobile: var(--kosmo-spacing-02);
+  --kosmo-collection-card-min-height: 5.25rem;
+  --kosmo-collection-card-min-height-mobile: 4.75rem;
+  --kosmo-collection-card-padding: var(--kosmo-spacing-04);
+  --kosmo-collection-card-padding-mobile: var(--kosmo-spacing-03);
+
   /* Reusable business component dimensions, not global design scales. */
   --kosmo-collection-mode-card-min-width: 13rem;
   --kosmo-collection-mode-card-height: 6rem;
