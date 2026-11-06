@@ -21,6 +21,12 @@ Not yet configured or enabled:
 - Meta App secrets, callback registration, webhook subscription, Business Verification, and App Review remain external setup tasks.
 - Webhook event processing into conversations/messages, message send, templates, opt-in capture, and delivery receipts remain future work.
 
+## Documentation
+
+- [组织 Meta 应用配置与渠道接入操作指南](../operations/meta-app-organization-user-guide.zh-CN.md)
+- [Meta 组织隔离接入验收清单](../operations/meta-integration-acceptance-checklist.zh-CN.md)
+- [后端部署与配置手册](../operations/meta-channel-backend-setup.md)
+
 ## 1. Scope and channel model
 
 Keep all channels inside the existing Kosmoevretis organization workspace. Do not create a separate CRM or Supabase project.
