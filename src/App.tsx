@@ -318,8 +318,8 @@ function AppShell() {
   return (
     <div className="shell kosmo-app-shell">
       <SkipToContent href="#main-content">跳转到主要内容</SkipToContent>
-      {/* Carbon inverse Header layer on the Gray 10 application canvas. */}
-      <Theme theme="g100">
+      {/* Header shares the Gray 10 application canvas; no separate opaque surface. */}
+      <Theme theme="g10">
       <Header aria-label="Kosmoevretis 全球情报平台" className="kosmo-header">
         <HeaderMenuButton
           aria-label={sideNavExpanded && viewport !== "desktop" ? "收起导航菜单" : "展开导航菜单"}
