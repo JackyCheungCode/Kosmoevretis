@@ -106,7 +106,7 @@
 - `dc6d0ca`：关闭 Carbon Breadcrumb 的尾部分隔符，保持路径显示简洁。
 - `5c98bee`：移除面包屑列表自定义 gap，让 Carbon 自己控制分隔符两侧间距。
 - `3996c26`：增加 AppShell Carbon Breadcrumb 防回归检查。
-- 生产部署最近一次已成功：Deployment ID `d90ce35e-814c-4281-8b30-8b650bcee1ad`，commit `81eee9745565b5a55689cf043b86f9d1fc50a82b`，URL `https://d90ce35e.kosmoevretis-platform.pages.dev`。此部署早于本轮 spacing 与 `ClickableTile` 变更；本轮最新提交 `5c98bee` 已触发新部署，等待 Build/Deploy 验证。
+- 生产部署最近一次已成功：Deployment ID `d90ce35e-814c-4281-8b30-8b650bcee1ad`，commit `81eee9745565b5a55689cf043b86f9d1fc50a82b`，URL `https://d90ce35e.kosmoevretis-platform.pages.dev`。此部署早于本轮 spacing 与 `ClickableTile` 变更；本轮提交 `b2bcbeceb31456ca3c1390911732513cfeb1a95b` 已于 2026-11-06 完成生产部署：Deployment ID `35fd72e1-f517-4a51-a104-2b6dd3f12133`，URL `https://35fd72e1.kosmoevretis-platform.pages.dev`；Build、Carbon design-system guard、Worker 编译与 Deploy 均成功。该部署包含 Carbon Breadcrumb、ClickableTile 历史列表与精确间距令牌迁移。
 - 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c`、`27da24f` 的部署均已成功。最新部署 `b906ced`：`https://2b845189.kosmoevretis-platform.pages.dev`，Deployment ID `2b845189-e532-48e6-8516-709b3547e33d`。中间提交 `8bc4623`、`5f131d4` 因 ContentSwitcher 的必需属性和可选索引类型检查失败；已在 `27da24f` 修正并通过构建。
 
 ## 7. 后续执行顺序
