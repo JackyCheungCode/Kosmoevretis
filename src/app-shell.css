@@ -423,7 +423,6 @@
   background: var(--cds-layer-01);
   color: var(--cds-text-primary);
   border-bottom: 1px solid var(--cds-border-subtle);
-  box-shadow: none;
 }
 .kosmo-header .kosmo-header-menu-button.cds--header__menu-trigger {
   display: flex;
@@ -456,7 +455,7 @@
   height: 1.5rem;
   background: var(--cds-interactive);
   color: var(--cds-layer-01);
-  font-size: 1rem;
+  font-size: var(--cds-body-compact-01-font-size);
   font-weight: 600;
   letter-spacing: 0;
 }
