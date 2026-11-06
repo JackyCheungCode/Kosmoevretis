@@ -44,7 +44,7 @@
 .kosmo-side-nav .kosmo-nav-item-content {
   display: inline-flex;
   align-items: center;
-  gap: var(--kosmo-spacing-03);
+  gap:var(--kosmo-spacing-03);
   min-width: 0;
 }
 
@@ -70,15 +70,15 @@
   width: min(calc(100% - var(--kosmo-shell-sidebar-width)), var(--kosmo-content-max-width));
   max-width: var(--kosmo-content-max-width);
   min-height: calc(100vh - var(--kosmo-shell-header-height));
-  margin-top: var(--kosmo-shell-header-height);
-  margin-left: calc(var(--kosmo-shell-sidebar-width) + max(0px, calc((100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2)));
-  padding: 0;
+  margin-top:var(--kosmo-shell-header-height);
+  margin-left:calc(var(--kosmo-shell-sidebar-width) + max(0px, calc((100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2)));
+  padding:0;
 }
 
 .kosmo-content-grid.cds--css-grid {
   width: 100%;
   max-width: 100%;
-  margin-inline: auto;
+  margin-inline:auto;
 }
 
 .kosmo-main--template-page {
@@ -114,12 +114,12 @@
 
   .kosmo-side-nav .cds--side-nav__link {
     justify-content: center;
-    padding-inline: 0;
+    padding-inline:0;
   }
 
   .kosmo-side-nav .kosmo-nav-item-content {
     justify-content: center;
-    gap: 0;
+    gap:0;
   }
 
   .kosmo-side-nav .kosmo-nav-item-content > span {
@@ -132,7 +132,7 @@
 
   .kosmo-side-nav-tablet-expanded .kosmo-nav-item-content {
     justify-content: flex-start;
-    gap: var(--kosmo-spacing-03);
+    gap:var(--kosmo-spacing-03);
   }
 
   .kosmo-side-nav-tablet-expanded .kosmo-nav-item-content > span {
@@ -141,7 +141,7 @@
 
   .kosmo-main.cds--content {
     width: min(calc(100% - var(--kosmo-shell-sidebar-collapsed-width)), var(--kosmo-content-max-width));
-    margin-left: calc(var(--kosmo-shell-sidebar-collapsed-width) + max(0px, calc((100% - var(--kosmo-shell-sidebar-collapsed-width) - var(--kosmo-content-max-width)) / 2)));
+    margin-left:calc(var(--kosmo-shell-sidebar-collapsed-width) + max(0px, calc((100% - var(--kosmo-shell-sidebar-collapsed-width) - var(--kosmo-content-max-width)) / 2)));
   }
 }
 
@@ -156,7 +156,7 @@
     width: min(var(--kosmo-shell-sidebar-mobile-width), 84vw);
     max-width: 17.5rem;
     z-index: 9100;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom:env(safe-area-inset-bottom);
     overscroll-behavior: contain;
   }
 
@@ -165,12 +165,12 @@
   }
 
   .kosmo-side-nav .cds--side-nav__items {
-    padding-bottom: calc(var(--kosmo-spacing-07) + env(safe-area-inset-bottom));
+    padding-bottom:calc(var(--kosmo-spacing-07) + env(safe-area-inset-bottom));
   }
 
   .kosmo-main.cds--content {
     width: 100%;
-    margin-left: 0;
+    margin-left:0;
     min-height: calc(100vh - var(--kosmo-shell-header-height));
   }
 
@@ -182,7 +182,7 @@
   }
 
   .kosmo-account-menu {
-    margin-right: var(--kosmo-spacing-02);
+    margin-right:var(--kosmo-spacing-02);
   }
 }
 
@@ -198,8 +198,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin-left: auto;
-  margin-right: var(--kosmo-spacing-05);
+  margin-left:auto;
+  margin-right:var(--kosmo-spacing-05);
 }
 
 .kosmo-account-avatar {
@@ -207,7 +207,7 @@
   place-items: center;
   width: 2rem;
   height: 2rem;
-  padding: 0;
+  padding:0;
   overflow: hidden;
   border: 0;
   border-radius: 50%;
@@ -238,13 +238,13 @@
   right: 0;
   z-index: 10000;
   width: 14rem;
-  padding-block: var(--kosmo-spacing-02);
+  padding-block:var(--kosmo-spacing-02);
   background: var(--cds-layer-01);
   border: 1px solid var(--cds-border-subtle);
 }
 
 .kosmo-account-email {
-  padding: var(--kosmo-spacing-04) var(--kosmo-spacing-05);
+  padding:var(--kosmo-spacing-04) var(--kosmo-spacing-05);
   color: var(--cds-text-secondary);
   font-size: var(--cds-label-01-font-size);
   line-height: var(--cds-label-01-line-height);
@@ -255,10 +255,10 @@
 .kosmo-account-signout {
   display: flex;
   align-items: center;
-  gap: var(--kosmo-spacing-03);
+  gap:var(--kosmo-spacing-03);
   width: 100%;
   min-height: 2.75rem;
-  padding: var(--kosmo-spacing-03) var(--kosmo-spacing-05);
+  padding:var(--kosmo-spacing-03) var(--kosmo-spacing-05);
   border: 0;
   background: transparent;
   color: var(--cds-text-primary);
@@ -285,7 +285,7 @@
   align-items: center;
   width: 100%;
   min-height: 9.25rem;
-  margin: 0 0 var(--kosmo-spacing-05);
+  margin:0 0 var(--kosmo-spacing-05);
   overflow: hidden;
   isolation: isolate;
   background:
@@ -302,7 +302,7 @@
 .kosmo-illustration__label {
   position: relative;
   z-index: 1;
-  padding-left: clamp(1rem, 3vw, 2.5rem);
+  padding-left:clamp(var(--kosmo-spacing-05), 3vw, var(--kosmo-spacing-08));
   color: var(--cds-text-secondary);
   font-size: var(--cds-label-01-font-size);
   font-weight: 600;
@@ -366,9 +366,9 @@
   to { stroke-dashoffset: -104; }
 }
 @media (max-width: 671px) {
-  .kosmo-illustration { min-height: 6.5rem; margin-bottom: 1rem; }
+  .kosmo-illustration { min-height: 6.5rem; margin-bottom:var(--kosmo-spacing-05); }
   .kosmo-illustration__art { right: -2.5rem; width: 88%; min-height: 7rem; opacity: .88; }
-  .kosmo-illustration__label { max-width: 8rem; padding-left: var(--kosmo-spacing-04); font-size: var(--cds-helper-text-01-font-size); letter-spacing: .12em; }
+  .kosmo-illustration__label { max-width: 8rem; padding-left:var(--kosmo-spacing-04); font-size: var(--cds-helper-text-01-font-size); letter-spacing: .12em; }
 }
 @media (prefers-reduced-motion: reduce) {
   .kosmo-illustration *,
@@ -383,16 +383,16 @@
 /* Route hierarchy: keep navigation context without repeating the product brand. */
 .kosmo-breadcrumb {
   min-width: 0;
-  padding: var(--kosmo-spacing-04) var(--kosmo-spacing-05) 0;
+  padding:var(--kosmo-spacing-04) var(--kosmo-spacing-05) 0;
   color: var(--cds-text-secondary);
 }
 .kosmo-breadcrumb ol {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--kosmo-spacing-03);
-  margin: 0;
-  padding: 0;
+  gap:var(--kosmo-spacing-03);
+  margin:0;
+  padding:0;
   list-style: none;
   font-size: var(--cds-label-01-font-size);
   line-height: var(--cds-label-01-line-height);
@@ -404,7 +404,7 @@
 }
 .kosmo-breadcrumb li + li::before {
   content: "/";
-  margin-right: var(--kosmo-spacing-03);
+  margin-right:var(--kosmo-spacing-03);
   color: var(--cds-text-helper);
 }
 .kosmo-breadcrumb a {
@@ -418,5 +418,5 @@
 }
 .kosmo-breadcrumb [aria-current="page"] { color: var(--cds-text-primary); }
 @media (max-width: 671px) {
-  .kosmo-breadcrumb { padding: var(--kosmo-spacing-03) var(--kosmo-spacing-03) 0; }
+  .kosmo-breadcrumb { padding:var(--kosmo-spacing-03) var(--kosmo-spacing-03) 0; }
 }
