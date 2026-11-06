@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, InlineNotification, PasswordInput, TextInput } from "@carbon/react";
+import { Button, InlineNotification, PasswordInput, TextInput, Theme } from "@carbon/react";
 import { ArrowRight, Locked } from "@carbon/icons-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -16,7 +16,7 @@ function ParticleGlobe() {
     if (!canvas || !context) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const carbon = getComputedStyle(document.documentElement);
+    const carbon = getComputedStyle(canvas);
     const blue30 = carbon.getPropertyValue("--cds-blue-30").trim();
     const blue40 = carbon.getPropertyValue("--cds-blue-40").trim();
     const blue60 = carbon.getPropertyValue("--cds-blue-60").trim();
@@ -163,6 +163,7 @@ export default function LoginPage() {
   };
 
   return (
+    <Theme theme="g10">
     <main className="kosmo-login-screen">
       <section className="kosmo-login-visual" aria-label="全球市场情报视觉展示">
         <div className="kosmo-visual-grid" />
@@ -210,5 +211,6 @@ export default function LoginPage() {
         <div className="kosmo-login-panel-footer">© KOSMOEVRETIS <span>GLOBAL INTELLIGENCE</span></div>
       </section>
     </main>
+    </Theme>
   );
 }
