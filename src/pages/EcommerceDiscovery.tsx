@@ -307,11 +307,7 @@ export default function EcommerceDiscovery({ platform }: { platform: EcommercePl
     eyebrow="全球电商发现"
     actions={<Tag type="green">{organizationName || "企业工作区"}</Tag>}
     sourceConfiguration={<section className="ec-config-panel">
-      <div className="fb-section-head discovery-object-heading">
-        <div><span className="eyebrow">发现对象</span><h3>选择发现对象</h3></div>
-        <span>一个平台，多种商品情报</span>
-      </div>
-      <CollectionModeGrid ariaLabel={"选择 " + config.name + " 发现对象"} options={modes.filter(item => item.id !== "keyword" || config.supportsKeyword)} selectedId={mode} onSelect={id => {
+      <CollectionModeGrid title="选择发现对象" description="一个平台，多种商品情报" ariaLabel={"选择 " + config.name + " 发现对象"} options={modes.filter(item => item.id !== "keyword" || config.supportsKeyword)} selectedId={mode} onSelect={id => {
         setMode(id as Mode); setError(""); setNotice(""); setRows([]); setActiveTab("overview");
       }} />
       <div className="ec-form-grid">
