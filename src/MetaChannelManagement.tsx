@@ -1,5 +1,5 @@
 import { Accordion, AccordionItem, InlineNotification, Tag, Tile } from "@carbon/react";
-import { Chat, Connect, DataBase, Security, Share, Phone } from "@carbon/icons-react";
+import { Chat, Connect, DataBase, Locked, Share, Phone } from "@carbon/icons-react";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
 import { PageSection } from "./design-system/components";
 import "./meta-channel-management.css";
@@ -86,7 +86,7 @@ export default function MetaChannelManagement() {
       <PageSection title="统一接入架构" description="三种渠道共享授权、安全、事件处理和 CRM 关联基础设施。" headingLevel={3}>
         <div className="meta-architecture-grid">
           <div><Connect size={20}/><strong>企业资产授权</strong><p>管理员发起授权，选择 Page、WhatsApp Business Account 或电话号码，并将资产绑定到当前组织。</p></div>
-          <div><Security size={20}/><strong>凭证与权限安全</strong><p>Token 和 App Secret 仅保存在服务端加密存储；浏览器只读取非敏感连接元数据。</p></div>
+          <div><Locked size={20}/><strong>凭证与权限安全</strong><p>Token 和 App Secret 仅保存在服务端加密存储；浏览器只读取非敏感连接元数据。</p></div>
           <div><DataBase size={20}/><strong>Webhook 与数据归档</strong><p>校验 Meta 签名、事件幂等入库，再将会话、消息和客户线索关联到 CRM。</p></div>
           <div><Chat size={20}/><strong>统一消息工作区</strong><p>真实会话进入统一消息中心，按渠道筛选，并支持 AI 草稿与人工审批发送。</p></div>
         </div>
