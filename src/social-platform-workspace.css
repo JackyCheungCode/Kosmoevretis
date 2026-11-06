@@ -31,3 +31,53 @@
 }
 @media (max-width: 671px) {
 }
+
+
+/* Carbon-aligned collapsible primary navigation groups. */
+.kosmo-nav-group-label {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+
+.kosmo-nav-group-label--first {
+  margin-top: 0.5rem;
+}
+
+.kosmo-nav-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--cds-text-secondary);
+  font: inherit;
+  font-size: var(--cds-label-01-font-size);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: var(--cds-label-01-line-height);
+  text-align: left;
+  cursor: pointer;
+}
+
+.kosmo-nav-group-toggle:hover {
+  background: var(--cds-layer-hover);
+  color: var(--cds-text-primary);
+}
+
+.kosmo-nav-group-toggle:focus-visible {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
+}
+
+.kosmo-nav-group-chevron {
+  flex: 0 0 auto;
+  transition: transform 160ms ease;
+}
+
+.kosmo-nav-group-chevron--expanded {
+  transform: rotate(180deg);
+}
