@@ -123,7 +123,7 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
     >
       <div className="meta-channel-workspace__back">
         <Button kind="ghost" size="md" renderIcon={ArrowLeft} onClick={() => navigate("/meta-channels")}>返回 Meta 渠道管理</Button>
-        <Tag type="cool-gray">尚未连接</Tag>
+        <Tag type={connections.length ? "green" : "cool-gray"}>{connections.length ? `${connections.length} 个资产已连接` : "尚未连接"}</Tag>
       </div>
       <PageSection title="渠道状态" description={config.purpose} headingLevel={3}>
         {error && <InlineNotification kind="error" lowContrast title="渠道连接操作失败" subtitle={error} />}
@@ -140,8 +140,8 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           kind="info"
           lowContrast
           hideCloseButton
-          title="真实授权尚未启用"
-          subtitle="当前环境尚未配置 Meta App ID、App Secret、回调地址和加密密钥。此页面展示的是接入配置与能力范围，不代表已经连接任何企业资产。"
+          title={connections.length ? "企业资产连接已建立" : "等待配置 Meta App 服务端凭证"}
+          subtitle={connections.length ? "当前组织已授权 " + connections.length + " 个 " + config.name + " 资产。消息同步与外发仍需完成 Webhook 订阅及合规策略验收。" : "真实 OAuth 流程已接入代码。启用前需在 Supabase Edge Function secrets 配置 Meta App ID、App Secret、回调地址、Webhook Verify Token、Graph API 版本及加密密钥。"}
         />
         <div className="meta-channel-workspace__connected-list">
           <h3>已授权企业资产</h3>
@@ -161,9 +161,9 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           )) : <p className="meta-channel-workspace__empty">当前组织尚未连接此渠道的企业资产。</p>}
         </div>
         <div className="meta-channel-workspace__summary">
-          <Tile className="meta-channel-workspace__metric-tile"><Icon size={24}/><span>渠道资产</span><strong>{config.assetTitle}</strong><small>等待管理员授权并选择资产</small></Tile>
-          <Tile className="meta-channel-workspace__metric-tile"><Connect size={24}/><span>OAuth 授权</span><strong>待配置</strong><small>服务端回调与单次 state 校验</small></Tile>
-          <Tile className="meta-channel-workspace__metric-tile"><DataBase size={24}/><span>事件同步</span><strong>待配置</strong><small>Webhook 签名校验与幂等入库</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><Icon size={24}/><span>渠道资产</span><strong>{config.assetTitle}</strong><small>{connections.length ? `已授权 ${connections.length} 个资产` : "等待管理员授权并选择资产"}</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><Connect size={24}/><span>OAuth 授权</span><strong>服务端流程已接入</strong><small>单次 state 校验与资产选择</small></Tile>
+          <Tile className="meta-channel-workspace__metric-tile"><DataBase size={24}/><span>事件同步</span><strong>接入基础已实现</strong><small>签名校验与幂等事件持久化</small></Tile>
           <Tile className="meta-channel-workspace__metric-tile"><Locked size={24}/><span>凭证安全</span><strong>服务端加密</strong><small>密钥不进入浏览器或客户端存储</small></Tile>
         </div>
       </PageSection>
