@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Button, InlineNotification, Search, Select, SelectItem, Tag, TextArea, TextInput,
+  Button, Dropdown, InlineNotification, Search, Tag, TextArea, TextInput,
   Tile, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow
 } from "@carbon/react";
 import { Add, Building, Renew, UserMultiple } from "@carbon/icons-react";
@@ -25,6 +25,9 @@ type FormState = { company: string; website: string; country: string; industry: 
 const emptyForm: FormState = { company: "", website: "", country: "", industry: "消费电子", product: "", source: "manual", sourceUrl: "", summary: "" };
 const statusLabels: Record<string, string> = { new: "新线索", qualified: "已筛选", contacted: "已联系", negotiating: "洽谈中", converted: "已转化", disqualified: "已排除" };
 const sourceLabels: Record<string, string> = { manual: "手动录入", facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", google_maps: "Google Maps", whatsapp: "WhatsApp", messenger: "Messenger", website: "网站", trade_show: "展会", referral: "客户推荐", other: "其他" };
+const statusItems = [{ id: "all", text: "全部状态" }, ...Object.entries(statusLabels).map(([id, text]) => ({ id, text }))];
+const sourceItems = Object.entries(sourceLabels).map(([id, text]) => ({ id, text }));
+const itemToString = (item: { id: string; text: string } | null) => item?.text || "";
 
 export default function CustomerCenter() {
   const [organizationId, setOrganizationId] = useState("");
@@ -147,15 +150,7 @@ export default function CustomerCenter() {
       </div>
       <div className="crm-toolbar">
         <Search size="lg" labelText="搜索客户" placeholder="搜索企业、国家、产品或采购需求" value={query} onChange={(event) => setQuery(event.target.value)} />
-        <Select id="crm-status-filter" labelText="线索状态" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-          <SelectItem value="all" text="全部状态" />
-          <SelectItem value="new" text="新线索" />
-          <SelectItem value="qualified" text="已筛选" />
-          <SelectItem value="contacted" text="已联系" />
-          <SelectItem value="negotiating" text="洽谈中" />
-          <SelectItem value="converted" text="已转化" />
-          <SelectItem value="disqualified" text="已排除" />
-        </Select>
+        <Dropdown id="crm-status-filter" titleText="线索状态" label="全部状态" items={statusItems} itemToString={itemToString} selectedItem={statusItems.find((item) => item.id === statusFilter) || statusItems[0]} onChange={({ selectedItem }) => setStatusFilter(selectedItem?.id || "all")} />
         <Button kind="tertiary" renderIcon={Renew} hasIconOnly iconDescription="刷新客户数据" onClick={() => organizationId && void loadLeads(organizationId)} />
         <Button kind="primary" renderIcon={Add} onClick={() => setShowForm((value) => !value)}>新增客户线索</Button>
       </div>
@@ -167,9 +162,7 @@ export default function CustomerCenter() {
           <TextInput id="crm-country" labelText="国家 / 地区" value={form.country} onChange={(event) => updateForm("country", event.target.value)} placeholder="例如：Germany" />
           <TextInput id="crm-industry" labelText="行业" value={form.industry} onChange={(event) => updateForm("industry", event.target.value)} />
           <TextInput id="crm-product" labelText="感兴趣的产品" value={form.product} onChange={(event) => updateForm("product", event.target.value)} placeholder="例如：TWS 耳机、智能家居" />
-          <Select id="crm-source" labelText="线索来源" value={form.source} onChange={(event) => updateForm("source", event.target.value)}>
-            {Object.entries(sourceLabels).map(([value, label]) => <SelectItem key={value} value={value} text={label} />)}
-          </Select>
+          <Dropdown id="crm-source" titleText="线索来源" label="选择来源" items={sourceItems} itemToString={itemToString} selectedItem={sourceItems.find((item) => item.id === form.source) || sourceItems[0]} onChange={({ selectedItem }) => updateForm("source", selectedItem?.id || "manual")} />
           <TextInput id="crm-source-url" labelText="来源链接" value={form.sourceUrl} onChange={(event) => updateForm("sourceUrl", event.target.value)} placeholder="公开主页、网站或原始内容链接" />
           <TextArea id="crm-summary" labelText="采购需求 / 客户备注" value={form.summary} onChange={(event) => updateForm("summary", event.target.value)} rows={3} placeholder="记录客户可能的采购需求、目标市场或合作信息" />
         </div>
@@ -185,7 +178,7 @@ export default function CustomerCenter() {
           </TableRow></TableHead><TableBody>{filteredLeads.map((lead) => <TableRow key={lead.id}>
             <TableCell><div className="crm-company-cell"><Building size={16}/><div><strong>{lead.crm_companies?.name || "未命名企业"}</strong>{lead.crm_companies?.website && <a href={lead.crm_companies.website} target="_blank" rel="noreferrer">{lead.crm_companies.website}</a>}</div></div></TableCell>
             <TableCell>{lead.crm_companies?.country || "—"}</TableCell><TableCell>{lead.product_interest || "—"}</TableCell>
-            <TableCell>{sourceLabels[lead.source] || lead.source}</TableCell><TableCell><Select id={"crm-lead-status-" + lead.id} labelText="" hideLabel size="sm" value={lead.status} onChange={(event) => void updateLeadStatus(lead, event.target.value)}>{Object.entries(statusLabels).map(([value, label]) => <SelectItem key={value} value={value} text={label} />)}</Select></TableCell>
+            <TableCell>{sourceLabels[lead.source] || lead.source}</TableCell><TableCell><Dropdown id={"crm-lead-status-" + lead.id} aria-label="更新线索状态" size="sm" label="选择状态" items={Object.entries(statusLabels).map(([id, text]) => ({ id, text }))} itemToString={itemToString} selectedItem={{ id: lead.status, text: statusLabels[lead.status] || lead.status }} onChange={({ selectedItem }) => selectedItem && void updateLeadStatus(lead, selectedItem.id)} /></TableCell>
             <TableCell>{lead.score}</TableCell><TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
           </TableRow>)}</TableBody>
         </Table></TableContainer></div>}
