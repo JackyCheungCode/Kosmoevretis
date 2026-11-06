@@ -1,7 +1,7 @@
 .kosmo-collection-mode-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kosmo-collection-mode-card-min-width)), 1fr));
-  gap: var(--kosmo-spacing-03);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--kosmo-collection-card-gap);
   width: 100%;
   min-width: 0;
   margin-bottom: var(--kosmo-spacing-05);
@@ -15,11 +15,11 @@
   gap: var(--kosmo-spacing-04);
   width: 100%;
   min-width: 0;
-  min-height: var(--kosmo-collection-mode-card-height);
-  height: var(--kosmo-collection-mode-card-height);
-  max-height: var(--kosmo-collection-mode-card-height);
+  min-height: var(--kosmo-collection-card-min-height);
+  height: auto;
+  max-height: none;
   max-width: 100%;
-  padding: var(--kosmo-spacing-04);
+  padding: var(--kosmo-collection-card-padding);
   color: var(--cds-text-primary);
   background: var(--cds-layer-02);
   text-align: left;
@@ -34,9 +34,9 @@
 }
 .kosmo-collection-mode-grid__icon {
   display: grid !important;
-  flex: 0 0 1.5rem;
-  width: 1.5rem !important;
-  height: 1.5rem;
+  flex: 0 0 2rem;
+  width: 2rem !important;
+  height: 2rem;
   place-items: center;
   color: var(--cds-icon-secondary);
 }
@@ -73,14 +73,17 @@
   line-height: 1.4;
 }
 
-
-
-@media(max-width:671px) and (min-width:361px){
- .kosmo-collection-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kosmo-spacing-03)}
- .kosmo-collection-mode-grid__item.cds--btn{height:auto;min-height:7rem;max-height:none;flex-direction:column;gap:var(--kosmo-spacing-03);padding:var(--kosmo-spacing-04)}
- .kosmo-collection-mode-grid__icon{flex-basis:1.25rem;width:1.25rem!important;height:1.25rem}
- .kosmo-collection-mode-grid__copy{width:100%!important}
+@media(max-width:1100px) {
+  .kosmo-collection-mode-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-@media(max-width:360px){
- .kosmo-collection-mode-grid{grid-template-columns:minmax(0,1fr)}
+@media(max-width:800px) {
+  .kosmo-collection-mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media(max-width:560px) {
+  .kosmo-collection-mode-grid { gap: var(--kosmo-collection-card-gap-mobile); }
+  .kosmo-collection-mode-grid__item.cds--btn { min-height: var(--kosmo-collection-card-min-height-mobile); padding: var(--kosmo-collection-card-padding-mobile); gap: var(--kosmo-spacing-03); }
+  .kosmo-collection-mode-grid__icon { flex-basis: 1.65rem; width: 1.65rem !important; height: 1.65rem; }
+}
+@media(max-width:360px) {
+  .kosmo-collection-mode-grid { grid-template-columns: minmax(0, 1fr); }
 }
