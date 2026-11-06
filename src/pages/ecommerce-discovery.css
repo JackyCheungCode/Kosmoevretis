@@ -17,17 +17,12 @@
 .ec-raw-actions{display:flex;justify-content:flex-end;margin:var(--kosmo-spacing-04) 0}
 .ec-raw-json{max-height:34rem;overflow:auto;padding:var(--kosmo-spacing-05);background:var(--cds-background-inverse);color:var(--cds-text-inverse);font: var(--cds-code-01-font-size)/1.6 var(--cds-code-01-font-family,monospace);white-space:pre-wrap;overflow-wrap:anywhere}
 .ec-history-refresh{display:flex;justify-content:flex-end;padding-top:.5rem}
-.ec-results-section .cds--tabs{min-width:0}
-.ec-results-section .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;background:transparent;border-bottom:1px solid var(--cds-border-subtle)}
-.ec-results-section .cds--tab-content{padding:var(--kosmo-spacing-05) 0 0}
 @media(max-width:800px){.ec-form-grid{grid-template-columns:minmax(0,1fr)}.ec-input-field,.ec-options{grid-column:auto}.ec-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.ec-config-panel,.ec-results-section,.ec-logs-section{padding:var(--kosmo-spacing-04)}.ec-options{flex-direction:column;gap:var(--kosmo-spacing-03)}.ec-kpis>div{padding:var(--kosmo-spacing-04)}.ec-kpis strong{font-size:var(--cds-body-compact-01-font-size)}}
 
 
 /* Unslop refinement: horizontally navigable data and readable execution logs. */
 .ecommerce-discovery,.ec-results-section,.ec-logs-section{min-width:0;max-width:100%}
-.ec-results-section .cds--tab-list{scrollbar-width:thin;overscroll-behavior-x:contain}
-.ec-results-section .cds--tab{flex:0 0 auto;white-space:nowrap}
 .fb-carbon-table{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
 .fb-carbon-table table{width:max-content;min-width:46rem}
 .fb-carbon-table th{white-space:nowrap}
@@ -37,7 +32,5 @@
 .fb-log-line time{white-space:nowrap}
 .ec-actor-meta span{min-width:0;overflow-wrap:anywhere}
 @media(max-width:560px){
- .ec-results-section .cds--tab-list{scroll-snap-type:x proximity}
- .ec-results-section .cds--tab{scroll-snap-align:start}
  .fb-log-line{grid-template-columns:3.6rem .45rem minmax(0,1fr);gap:var(--kosmo-spacing-03)}
 }
