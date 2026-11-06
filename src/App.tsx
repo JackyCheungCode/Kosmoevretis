@@ -8,6 +8,7 @@ import {
   Column,
   Theme,
   HeaderMenuButton,
+  Button,
   SideNav,
   SideNavItems,
   SideNavLink,
@@ -395,8 +396,9 @@ function AppShell() {
           className="kosmo-header-menu-button"
         />
 <div className="kosmo-account-menu" ref={accountMenuRef}>
-          <button
-            type="button"
+          <Button
+            kind="ghost"
+            size="sm"
             className="kosmo-account-avatar"
             aria-label="打开账户菜单"
             aria-haspopup="menu"
@@ -408,12 +410,13 @@ function AppShell() {
             ) : (
               <span>{(session?.user.email?.trim().charAt(0) || "U").toUpperCase()}</span>
             )}
-          </button>
+          </Button>
           {accountMenuOpen && (
             <div className="kosmo-account-dropdown" role="menu" aria-label="账户菜单">
               <div className="kosmo-account-email">{session?.user.email}</div>
-              <button
-                type="button"
+              <Button
+                kind="ghost"
+                size="md"
                 role="menuitem"
                 className="kosmo-account-signout"
                 onClick={() => {
@@ -423,7 +426,7 @@ function AppShell() {
               >
                 <Logout size={16} aria-hidden="true" />
                 <span>退出系统</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>
