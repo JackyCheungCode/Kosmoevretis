@@ -2,6 +2,8 @@ import React from "react";
 import {
   Header,
   Content,
+  Breadcrumb,
+  BreadcrumbItem,
   Grid,
   Column,
   Theme,
@@ -239,11 +241,15 @@ function RouteBreadcrumbs({ path }: { path: string }) {
   } else {
     items.push({ label: routeLabels[path] || "页面" });
   }
-  return <nav className="kosmo-breadcrumb" aria-label="面包屑导航"><ol>
-    {items.map((item, index) => <li key={item.label + index}>
-      {item.to ? <Link to={item.to}>{item.label}</Link> : <span aria-current="page">{item.label}</span>}
-    </li>)}
-  </ol></nav>;
+  return (
+    <Breadcrumb className="kosmo-breadcrumb" aria-label="面包屑导航">
+      {items.map((item, index) => (
+        <BreadcrumbItem key={item.label + index} isCurrentPage={!item.to}>
+          {item.to ? <Link to={item.to}>{item.label}</Link> : item.label}
+        </BreadcrumbItem>
+      ))}
+    </Breadcrumb>
+  );
 }
 
 function AppShell() {
