@@ -38,8 +38,9 @@
 - 修复设计规范检查中字体令牌正则的空白回溯误报。
 - 修复审计脚本递归目录时未保留子目录路径的问题。
 - 修复 Facebook 发现页、AppShell 插画区、共享 PageHeader、登录页中发现的无效 spacing 表达式。
-- 扩展 `scripts/check-design-system.mjs`：将 TSX/TS 中 SVG `fill`、`stroke`、`stopColor`、内联颜色、内联布局间距、内联字体样式，以及手工 tab 语义纳入审计。
-- 对 `src/` 下 60 个 TSX/TS/CSS/SCSS 文件完成首轮静态扫描：未发现旧 spacing alias、损坏 spacing 表达式、CSS HEX/RGB 颜色、原生 `<select>` 或 SVG HEX 颜色；发现的 `BrandLogo.tsx` 内联尺寸已迁移到共享组件令牌和 CSS。此轮扫描不等于浏览器视觉验收，也不代表所有非标准 CSS 尺寸都已迁移。
+- 扩展 `scripts/check-design-system.mjs`：将 TSX/TS 中 SVG `fill`、`stroke`、`stopColor`、内联颜色、内联布局间距、内联字体样式、手工 tab 语义，以及路由页面共享 PageHeader/模板使用纳入审计。
+- 移除 `public/_redirects` 中会被 Cloudflare 判定为无限循环并忽略的 `/* /index.html 200`。项目没有顶层 `404.html`，由 Cloudflare Pages 默认 SPA 路由接管。
+- 对 `src/` 下 60 个 TSX/TS/CSS/SCSS 文件完成首轮静态扫描：未发现旧 spacing alias、损坏 spacing 表达式、CSS HEX/RGB 颜色、原生 `<select>` 或 SVG HEX 颜色；发现的 `BrandLogo.tsx` 内联尺寸已迁移到共享组件令牌和 CSS。此轮扫描不等于浏览器视觉验收，也不代表所有非标准 CSS 尺寸都已迁移。另一次对 23 个 CSS/SCSS 文件的间距声明扫描，仍发现约 **386 条** margin / padding / gap 声明含 px/rem 字面量；其中包含特殊微间距、组件尺寸与布局计算，需按页面逐项判断，不能机械替换。
 - 上述修复仅写入 `3c-platform`，没有写入 `main`，没有修改数据库或后端业务逻辑。
 
 ## 4. 样式债务抽样结果
@@ -88,7 +89,12 @@
 - `0b5f02a`、`7d420a0`：平台导航改用 Carbon Tabs。
 - `dd2c872`：恢复共享 PageHeader eyebrow 渲染。
 - `0f7afed`：增加手工 tab 语义防回归检查。
-- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468` 的部署已成功；包含后续 Carbon Tabs / PageHeader 改动的部署仍需以最新部署状态为准。
+- `069e53e`：增加路由页面共享 PageHeader/模板检查。
+- `aefbc69`：PageHeader 字体统一使用 Carbon font-family token。
+- `8dc160e`：清理共享 PageHeader 重复 CSS 规则。
+- `97854c9`：删除 Cloudflare Pages 冗余 SPA 重写规则。
+- `7006d3c`：移除设置页 eyebrow 中的工作区名称；该版本 Cloudflare Build 与 Deploy 均成功，设计系统 guard 通过，且部署日志不再出现 `_redirects` 无限循环警告。
+- 所有上述 GitHub 写操作仅针对 `3c-platform`。`41e1468`、`dd2c872`、`aefbc69`、`97854c9`、`7006d3c` 的部署均已成功。最新部署 `7006d3c`：`https://ab388534.kosmoevretis-platform.pages.dev`，Deployment ID `ab388534-2666-4799-8fb6-05435a60bd14`。
 
 ## 8. 后续执行顺序
 
