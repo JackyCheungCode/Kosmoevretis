@@ -22,6 +22,7 @@ export default function MetaUnifiedInbox(){
  const [channelView,setChannelView]=useState<Record<string,{query:string;selected:string}>>({messenger:{query:"",selected:""},whatsapp_business:{query:"",selected:""}});
  const channelViewRef=useRef(channelView);
  useEffect(()=>{channelViewRef.current=channelView;},[channelView]);
+ const conversationRequestRef=useRef(0);
  const query=channelView[channel]?.query||"";
  const [body,setBody]=useState("");
  const [mediaType,setMediaType]=useState("image");
@@ -54,7 +55,10 @@ export default function MetaUnifiedInbox(){
  const call=useCallback(async(action:string,extra:Record<string,unknown>={})=>{const {data,error}=await supabase.functions.invoke("meta-operations",{body:{action,organization_id:org,...extra}});if(error||data?.error)throw new Error(error?.message||data?.error||"操作失败");return data;},[org]);
  const loadConversations=useCallback(async(orgId?:string)=>{
    const activeOrg=orgId||org;if(!activeOrg)return;
+   const requestId=++conversationRequestRef.current;
    const {data,error}=await supabase.functions.invoke("meta-operations",{body:{action:"list_conversations",organization_id:activeOrg,channel:channel==="all"?undefined:channel}});
+   // Ignore out-of-order responses when users switch channels or refresh quickly.
+   if(requestId!==conversationRequestRef.current)return;
    if(error||data?.error)throw new Error(error?.message||data?.error||"无法读取会话");
    const rows=(data?.conversations||[]) as Conversation[];
    setConversations(rows);
