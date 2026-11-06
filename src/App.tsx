@@ -12,6 +12,9 @@ import {
   SideNavMenu,
   SideNavMenuItem,
   SkipToContent,
+  Tabs,
+  TabList,
+  Tab,
 } from "@carbon/react";
 import {
   Currency,
@@ -110,28 +113,25 @@ function PlatformSwitcher({ items, selectedId, ariaLabel, onSelect }: {
   ariaLabel: string;
   onSelect: (id: string) => void;
 }) {
+  const selectedIndex = Math.max(0, items.findIndex((item) => item.id === selectedId));
   return (
     <nav className="platform-switcher" aria-label={ariaLabel}>
-      <div className="platform-switcher__list" role="tablist" aria-label={ariaLabel}>
-        {items.map((item) => {
-          const selected = item.id === selectedId;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              className="platform-switcher__tab"
-              aria-selected={selected}
-              aria-current={selected ? "page" : undefined}
-              tabIndex={selected ? 0 : -1}
-              onClick={() => onSelect(item.id)}
-            >
+      <Tabs
+        selectedIndex={selectedIndex}
+        onChange={({ selectedIndex: nextIndex }) => {
+          const nextItem = items[nextIndex];
+          if (nextItem) onSelect(nextItem.id);
+        }}
+      >
+        <TabList aria-label={ariaLabel}>
+          {items.map((item) => (
+            <Tab key={item.id}>
               <BrandLogo brand={item.brand} label={item.label} />
               <span className="platform-switcher__label">{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
+            </Tab>
+          ))}
+        </TabList>
+      </Tabs>
     </nav>
   );
 }
