@@ -69,7 +69,7 @@ export default function PlatformDataCollectionDirectory() {
           labelText="搜索采集渠道"
           placeholder="搜索平台名称或数据类型"
           value={query}
-          onChange={(event) => setQuery(event.currentTarget.value)}
+          onChange={(event) => setQuery(event.target.value)}
           onClear={() => setQuery("")}
         />
         <Button kind="ghost" renderIcon={Filter} hasIconOnly iconDescription={filtersOpen ? "收起筛选" : "展开筛选"} onClick={() => setFiltersOpen((open) => !open)} />
