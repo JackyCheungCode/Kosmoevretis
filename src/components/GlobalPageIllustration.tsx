@@ -1,5 +1,3 @@
-import React from "react";
-
 type IllustrationKind = "intelligence" | "products" | "trade" | "social" | "commerce" | "seo" | "mail" | "settings";
 
 function getKind(path: string): IllustrationKind {
