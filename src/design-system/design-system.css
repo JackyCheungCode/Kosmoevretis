@@ -69,3 +69,14 @@
 .kosmo-template .cds--form__helper-text,.kosmo-form-field__message{color:var(--cds-text-helper);font-size:var(--kosmo-type-helper);line-height:var(--kosmo-type-helper-line-height)}
 .kosmo-template .cds--text-input,.kosmo-template .cds--text-area,.kosmo-template .cds--list-box__field,.kosmo-form-field .cds--text-input,.kosmo-form-field .cds--text-area,.kosmo-form-field .cds--list-box__field{font-family:var(--cds-font-family-sans)}
 
+
+/* Shared vertical rhythm for the platform's non-template business workspaces. */
+.kosmo-app-shell :is(.pc-workspace,.mail-workspace,.global-intelligence,.facebook-discovery,.linkedin-discovery,.google-maps-discovery,.ecommerce-discovery){gap:var(--kosmo-page-section-gap)}
+/* Shared discovery form fields and quiet helper text. */
+.kosmo-app-shell :is(.fb-field,.li-field,.gm-field,.ec-field,.ig-control,.pdc-field){gap:var(--kosmo-field-gap)}
+.kosmo-app-shell :is(.fb-field small,.li-field small,.gm-field small,.ec-field small,.ig-helper,.pdc-help){color:var(--cds-text-helper);font-size:var(--kosmo-type-helper);line-height:var(--kosmo-type-helper-line-height)}
+/* Shared source-configuration panel padding across discovery channels. */
+.kosmo-app-shell :is(.fb-config-panel,.li-config,.gm-config,.ec-config-panel,.ig-config-panel,.pdc-config-panel){padding:var(--kosmo-spacing-06)}
+@media(max-width:671px){
+ .kosmo-app-shell :is(.fb-config-panel,.li-config,.gm-config,.ec-config-panel,.ig-config-panel,.pdc-config-panel){padding:var(--kosmo-spacing-04)}
+}
