@@ -177,7 +177,7 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
     } catch { /* Keep the short-lived token; UI will surface the expiry metadata. */ }
     let grantedScopes: string[] = [];
     try {
-      const permissionResult = await graphGet(version, "/me/permissions", accessToken);
+      const permissionResult = await graphGet(meta.config.graph_api_version, "/me/permissions", accessToken);
       grantedScopes = (Array.isArray(permissionResult.data) ? permissionResult.data : [])
         .filter((item: {permission?:string;status?:string}) => item.status === "granted" && typeof item.permission === "string")
         .map((item: {permission:string}) => item.permission);
