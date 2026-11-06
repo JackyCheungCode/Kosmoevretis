@@ -57,6 +57,7 @@ export default function UnifiedMessageCenter() {
     void load();
     return () => { active = false; };
   }, [session?.user.id]);
+  const emailStatus = loadingAccounts ? "读取中" : mailAccounts.length ? `${mailAccounts.length} 个账户已配置` : "未连接";
   const visibleChannels = useMemo(
     () => channelDetails.filter((item) => channel === "all" || item.id === channel),
     [channel]
@@ -89,10 +90,8 @@ export default function UnifiedMessageCenter() {
               </div>
               <h4>{item.name}</h4>
               <p>{item.description}</p>
-              <span className="umc-channel-detail">{item.detail}</span>
-              <Button kind="ghost" size="sm" renderIcon={SettingsAdjust} onClick={() => setShowPolicy(true)}>
-                查看接入要求
-              </Button>
+              <span className="umc-channel-detail">{item.id === "email" && mailAccounts.length ? mailAccounts.map((account) => account.email_address).join("、") : item.detail}</span>
+              {item.id === "email" ? <Button kind="ghost" size="sm" renderIcon={Email} onClick={() => navigate("/settings/mail")}>管理邮箱连接</Button> : <Button kind="ghost" size="sm" renderIcon={SettingsAdjust} onClick={() => setShowPolicy(true)}>查看接入要求</Button>}
             </Tile>
           ))}
         </div>
@@ -118,14 +117,14 @@ export default function UnifiedMessageCenter() {
             selectedItem={channels.find((item) => item.id === channel) || channels[0]}
             onChange={({ selectedItem }) => setChannel((selectedItem?.id || "all") as ChannelId)}
           />
-          <Button kind="tertiary" renderIcon={Add} disabled>
-            新建消息
+          <Button kind="tertiary" renderIcon={Add} onClick={() => navigate("/communication/mail")}>
+            进入邮件工作区
           </Button>
         </div>
         <div className="umc-empty-state">
           <Chat size={32} />
-          <strong>暂无已接入的客户会话</strong>
-          <span>{query ? "当前没有匹配的会话。" : "完成渠道授权和 Webhook 接入后，客户消息会自动归档到这里。"}</span>
+          <strong>{loadingAccounts ? "正在读取渠道连接…" : mailAccounts.length ? "邮箱账户已连接，消息同步尚未启用" : "暂无已接入的客户会话"}</strong>
+          <span>{query ? "当前没有匹配的会话。" : mailAccounts.length ? `已读取 ${mailAccounts.length} 个邮箱账户。完成邮件同步和 Meta Webhook 接入后，真实会话将在此汇总。` : "完成邮箱授权及 Meta 渠道授权和 Webhook 接入后，真实客户消息会归档到这里。"}</span>
           <div className="umc-empty-tags">
             {visibleChannels.map((item) => <Tag key={item.id} type="cool-gray">{item.name}</Tag>)}
           </div>
