@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@carbon/react";
 
 type MarkdownReportProps = { content: string };
 
@@ -58,7 +59,7 @@ export default function MarkdownReport({ content }: MarkdownReportProps) {
       i += 2;
       const rows: string[][] = [];
       while (i < lines.length && lines[i].includes("|") && lines[i].trim()) rows.push(cells(lines[i++]));
-      blocks.push(<div className="gi-md-table-wrap" key={blocks.length}><table><thead><tr>{headers.map((cell, n) => <th key={n}>{inlineMarkdown(cell)}</th>)}</tr></thead><tbody>{rows.map((row, n) => <tr key={n}>{headers.map((_, c) => <td key={c}>{inlineMarkdown(row[c] || "")}</td>)}</tr>)}</tbody></table></div>);
+      blocks.push(<div className="gi-md-table-wrap" key={blocks.length}><Table size="sm"><TableHead><TableRow>{headers.map((cell, n) => <TableHeader key={n}>{inlineMarkdown(cell)}</TableHeader>)}</TableRow></TableHead><TableBody>{rows.map((row, n) => <TableRow key={n}>{headers.map((_, c) => <TableCell key={c}>{inlineMarkdown(row[c] || "")}</TableCell>)}</TableRow>)}</TableBody></Table></div>);
       continue;
     }
 
