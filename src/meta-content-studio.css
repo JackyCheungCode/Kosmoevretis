@@ -2,3 +2,16 @@
 .meta-content-upload{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;padding:.75rem;background:var(--cds-layer-01)}.meta-content-upload>span{flex:1;min-width:12rem;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
 
 .meta-content-channel-status{display:flex;gap:var(--cds-spacing-03);flex-wrap:wrap;margin-top:var(--cds-spacing-04)}
+
+ .meta-content-compose{width:100%;max-width:none;min-width:0}
+.meta-content-compose>*{min-width:0;max-width:100%}
+.meta-content-post-list{width:100%;min-width:0}
+@media(min-width:1056px){
+  .meta-content-compose{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  .meta-content-compose>:first-child,
+  .meta-content-compose>:nth-child(4),
+  .meta-content-compose>.meta-content-actions{grid-column:1/-1}
+}
+@media(max-width:1055px){
+  .meta-content-compose{grid-template-columns:minmax(0,1fr)}
+}
