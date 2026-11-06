@@ -1,6 +1,6 @@
 # Meta Channel Integration Architecture
 
-Status: Organization-isolated Meta App configuration, server-side encrypted credential storage, OAuth routing, and organization-aware webhook verification are implemented on the feature branch. The organization Meta App migration has been applied to Supabase project `npkesfmszokmlgnzqelb`; the updated Edge Function is not yet deployed. The currently deployed function is the earlier global-credential version; message synchronization/send is not enabled.
+Status: Organization-isolated Meta App configuration, server-side encrypted credential storage, OAuth routing, and organization-aware webhook verification are implemented on the feature branch. The organization Meta App migration has been applied to Supabase project `npkesfmszokmlgnzqelb`; the organization-aware Edge Function is deployed as `meta-api` version 2 (`verify_jwt=false`). Message synchronization/send is not enabled.
 
 ## Current implementation boundary
 
@@ -12,9 +12,10 @@ Implemented in `feat/global-trade-social-crm`:
 - Webhook GET challenge verification, raw-body HMAC-SHA256 validation, and idempotent event inbox persistence.
 - Channel pages call the backend to start authorization, choose an asset, list connections, and disconnect locally.\n- Settings center provides per-organization Meta App ID, App Secret, Webhook Verify Token, and Graph API version configuration; secret fields are encrypted server-side and never returned to the browser.\n- OAuth callback selects the organization's Meta App using the organization-bound OAuth state. Webhook challenge tokens and POST signatures are matched against enabled organization configurations; accepted events are restricted to connections in the matched organization.
 
-Not deployed or enabled:
-- The CRM and Meta schema migrations are applied to the connected Supabase project.
-- `supabase/functions/meta-api` is deployed, but its Meta-specific secrets and callback/webhook registration remain to be configured.
+Not yet configured or enabled:
+- The CRM, Meta channel, and organization Meta App schema migrations are applied to the connected Supabase project.
+- `meta-api` version 2 is deployed. Platform encryption secret `SETTINGS_ENCRYPTION_KEY` and `APP_ORIGIN` must be verified in Edge Function secrets before configuration testing.
+- Each organization must enter its own Meta App credentials and register callback/webhook URLs.
 - Meta App secrets, callback registration, webhook subscription, Business Verification, and App Review remain external setup tasks.
 - Webhook event processing into conversations/messages, message send, templates, opt-in capture, and delivery receipts remain future work.
 
