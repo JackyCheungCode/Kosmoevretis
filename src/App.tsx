@@ -30,6 +30,7 @@ import {
   DataBase,
   Search as SearchIcon,
   Email,
+  ChevronDown,
 } from "@carbon/icons-react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
@@ -265,6 +266,7 @@ function AppShell() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = React.useState(false);
+  const [expandedNavGroup, setExpandedNavGroup] = React.useState<string | null>(null);
   const accountMenuRef = React.useRef<HTMLDivElement>(null);
   const closeMobileNavRef = React.useRef<() => void>(() => {});
 
@@ -441,23 +443,20 @@ function AppShell() {
                 <SideNavItems>
                   {navGroups.map((group, groupIndex) => (
                     <React.Fragment key={group.id}>
-                      <li
-                        className="kosmo-nav-group-label"
-                        role="presentation"
-                        style={{
-                          listStyle: "none",
-                          marginTop: groupIndex === 0 ? "0.5rem" : "1.25rem",
-                          padding: "0.5rem 1rem 0.375rem",
-                          color: "var(--cds-text-secondary)",
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                          letterSpacing: "0.04em",
-                          lineHeight: 1.25,
-                        }}
-                      >
-                        {group.label}
+                      <li className={"kosmo-nav-group-label" + (groupIndex === 0 ? " kosmo-nav-group-label--first" : "")}>
+                        <button type="button" className="kosmo-nav-group-toggle"
+                          aria-expanded={expandedNavGroup === group.id}
+                          aria-controls={"kosmo-nav-group-" + group.id}
+                          onClick={() => setExpandedNavGroup((current) => current === group.id ? null : group.id)}>
+                          <span>{group.label}</span>
+                          <ChevronDown size={16} className={"kosmo-nav-group-chevron" + (expandedNavGroup === group.id ? " kosmo-nav-group-chevron--expanded" : "")} aria-hidden="true" />
+                        </button>
                       </li>
-                      {navItems.filter((item) => group.items.includes(item.id)).map(renderRailLink)}
+                      {expandedNavGroup === group.id && (
+                        <li id={"kosmo-nav-group-" + group.id} className="kosmo-nav-group-items" role="presentation">
+                          {navItems.filter((item) => group.items.includes(item.id)).map(renderRailLink)}
+                        </li>
+                      )}
                     </React.Fragment>
                   ))}
                 </SideNavItems>
