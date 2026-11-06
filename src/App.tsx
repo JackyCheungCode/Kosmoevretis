@@ -19,7 +19,6 @@ import {
 import {
   Currency,
   Dashboard,
-  Map,
   Product,
   Settings,
   Logout,
