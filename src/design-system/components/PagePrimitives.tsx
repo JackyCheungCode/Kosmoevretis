@@ -1,6 +1,4 @@
 import type { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
-import GlobalPageIllustration from "../../components/GlobalPageIllustration";
 import { Button, InlineLoading, InlineNotification, Tag } from "@carbon/react";
 
 export type PageHeaderProps = {
@@ -13,13 +11,11 @@ export type PageHeaderProps = {
 };
 
 export function PageHeader({ title, description, eyebrow, scope, actions, headingLevel = 1 }: PageHeaderProps) {
-  const { pathname } = useLocation();
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   return (
     <header className="kosmo-page-header">
       <div className="kosmo-page-header__body">
         <div className="kosmo-page-header__copy">
-          {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
           <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
           {description && <p className="kosmo-page-header__description">{description}</p>}
         </div>
@@ -28,7 +24,6 @@ export function PageHeader({ title, description, eyebrow, scope, actions, headin
           {scope && <span className="kosmo-page-header__scope">{scope}</span>}
         </div>
       </div>
-      <GlobalPageIllustration path={pathname} />
     </header>
   );
 }
