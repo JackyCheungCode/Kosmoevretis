@@ -233,6 +233,7 @@
 }
 @media (max-width: 1055px) {
   .kosmo-login-screen { grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 1fr); }
+  .kosmo-visual-status { display: none; }
   .kosmo-login-visual { padding: var(--kosmo-spacing-07) calc(var(--kosmo-spacing-07) + var(--kosmo-spacing-02)) var(--kosmo-spacing-06); }
   .kosmo-login-panel { padding: var(--kosmo-spacing-08) var(--kosmo-spacing-07); }
   .kosmo-visual-copy h1 { font-size: clamp(2.35rem, 4.5vw, 3.5rem); }
