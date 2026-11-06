@@ -104,7 +104,7 @@ export default function MetaContentStudio(){
   const connectionItems=connections.map(c=>({id:c.id,text:c.display_name||c.external_asset_id}));
   return <ConfigurationPageTemplate className="module meta-content-studio" title="内容发布中心" description="在统一工作区管理各社交渠道的内容草稿、发布、排程与表现。当前开放 Facebook Pages；Instagram Business 发布待接入。真实发布受 Meta 权限与审核状态限制。" eyebrow="META PAGE PUBLISHING" headingLevel={1}>
     <PageSection title="发布渠道" description="先选择发布渠道，再选择该渠道下已授权的账号。未接入渠道会明确标记，不提供虚假操作。" headingLevel={3}>
-      <ContentSwitcher selectedIndex={publishChannel==="facebook"?0:1} onChange={(item)=>setPublishChannel(item.name||"facebook")}>
+      <ContentSwitcher size="md" selectedIndex={publishChannel==="facebook"?0:1} onChange={(item)=>setPublishChannel(String(item.name||"facebook"))}>
         <Switch name="facebook" text="Facebook" />
         <Switch name="instagram" text="Instagram（待接入）" disabled />
       </ContentSwitcher>
