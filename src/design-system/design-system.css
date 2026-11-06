@@ -104,7 +104,7 @@
   background-color: transparent;
   border: 0;
   color: var(--cds-text-primary);
-  font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--cds-font-family-sans);
 }
 .kosmo-page-header__body {
   display: flex;
@@ -117,7 +117,7 @@
 .kosmo-page-header__title {
   margin:0;
   color: var(--cds-text-primary);
-  font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--cds-font-family-sans);
   font-size: clamp(2rem, 3.2vw, 2.75rem);
   font-weight: 400;
   letter-spacing: -.035em;
@@ -127,7 +127,7 @@
   max-width: 68ch;
   margin:var(--kosmo-spacing-05) 0 0;
   color: var(--cds-text-secondary);
-  font-family: "IBM Plex Sans", var(--cds-font-family-sans), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--cds-font-family-sans);
   font-size: var(--cds-body-01-font-size);
   font-weight: 400;
   line-height: 1.55;
