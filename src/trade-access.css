@@ -13,7 +13,7 @@
 .trade-results-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}
 .trade-result-section{min-width:0;padding:var(--kosmo-spacing-05);background:var(--cds-layer-01);border-radius:4px;display:grid;align-content:start;gap:var(--kosmo-spacing-04)}
 .trade-result-heading{align-items:flex-start}.trade-result-heading>div{display:grid;gap:var(--kosmo-spacing-02)}
-.trade-table-wrap{overflow:auto;max-width:100%}.trade-table{width:100%;border-collapse:collapse;font-size:var(--cds-label-01-font-size)}.trade-table th{text-align:left;color:var(--cds-text-secondary);font-weight:600;background:var(--cds-layer-02)}.trade-table td,.trade-table th{padding:.55rem .6rem;border-bottom:1px solid var(--cds-border-subtle);vertical-align:top}.trade-table td{color:var(--cds-text-primary)}
+.trade-table-wrap{overflow:auto;max-width:100%}
 .trade-country-block+.trade-country-block{margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--cds-border-subtle)}.trade-country-block h4{font-size:var(--cds-label-01-font-size);margin:0 0 var(--kosmo-spacing-03)}
 .trade-port-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}.trade-port-card{display:grid;gap:.3rem;padding:.7rem;background:var(--cds-layer-02);border-radius:3px}.trade-port-card strong{font-size:var(--cds-body-compact-01-font-size)}.trade-port-card small{font-size: var(--cds-label-01-font-size);color:var(--cds-text-secondary)}
 .trade-json{max-height:320px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size: var(--cds-label-01-font-size);background:var(--cds-layer-02);padding:.7rem}
@@ -78,9 +78,6 @@
 .trade-input-panel,.trade-compliance-panel{padding:calc(var(--kosmo-spacing-05) + var(--kosmo-spacing-02));background:var(--cds-layer-01)}
 .trade-results-grid{gap:1px;background:var(--cds-border-subtle);border:1px solid var(--cds-border-subtle)}
 .trade-result-section{padding:var(--kosmo-spacing-05);background:var(--cds-layer-01);border-radius:0}
-.trade-table{font-size: var(--cds-label-01-font-size)}
-.trade-table th{background:var(--cds-layer-02)}
-.trade-table td,.trade-table th{padding:var(--kosmo-spacing-03) .55rem}
 .trade-source-foot{margin-top:.4rem;color:var(--cds-text-secondary)}
 .trade-access .cds--label{font-size: var(--cds-label-01-font-size);color:var(--cds-text-secondary)}
 .trade-access .cds--select-input{font-size: var(--cds-label-01-font-size)}
