@@ -72,10 +72,10 @@
 .pdc-crawler { transform-box: fill-box; transform-origin: center; animation: pdc-crawler-scan 5s ease-in-out infinite; }
 .pdc-crawler-eye { animation: pdc-eye-pulse 1.5s ease-in-out infinite alternate; }
 .pdc-scan-beam { transform-box: view-box; animation: pdc-beam-sweep 8s ease-in-out infinite; }
-.pdc-server-led { animation: pdc-led-blink 1.15s steps(2, end) infinite; filter: drop-shadow(0 0 4px #42be65); }
+.pdc-server-led { animation: pdc-led-blink 1.15s steps(2, end) infinite; filter: drop-shadow(0 0 4px var(--cds-support-04)); }
 .pdc-server-led--two { animation-delay: -.35s; }
 .pdc-server-led--three { animation-delay: -.7s; }
-.pdc-packets { filter: drop-shadow(0 0 5px #08bdba); }
+.pdc-packets { filter: drop-shadow(0 0 5px var(--cds-support-04)); }
 @keyframes pdc-window-drift { 0%,100% { translate: 0 0; } 50% { translate: 0 -4px; } }
 @keyframes pdc-route-flow { to { stroke-dashoffset: -64; } }
 @keyframes pdc-crawler-scan { 0%,100% { translate: -8px 0; rotate: -2deg; } 50% { translate: 9px -3px; rotate: 2deg; } }
