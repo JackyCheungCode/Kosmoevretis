@@ -4,6 +4,7 @@ import { DataBase } from "@carbon/icons-react";
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle, Tabs, TabList, Tab } from "@carbon/react";
 import SettingsBackend from "./SettingsBackend";
 import MailSettings from "./MailSettings";
+import MetaAppSettings from "./MetaAppSettings";
 import BrandLogo from "./BrandLogo";
 import DesignSystemPreview from "./DesignSystemPreview";
 import { ConfigurationPageTemplate } from "./design-system/patterns";
@@ -61,10 +62,12 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  mail:{title:"邮箱账户与邮件",desc:"统一管理邮箱授权、企业邮箱连接、同步范围和 AI 邮件处理策略。",eyebrow:"COMMUNICATION & FOLLOW-UP"},
  governance:{title:"数据治理",desc:"配置数据保留、来源追踪、质量与导出策略。",eyebrow:"PLATFORM GOVERNANCE"},
  audit:{title:"安全与审计",desc:"查看配置变更、密钥管理和权限操作的审计信息。",eyebrow:"PLATFORM GOVERNANCE"},
- "design-system":{title:"设计系统",desc:"查看并验收 Kosmoevretis 全站统一的 Carbon 设计规范与基础组件。",eyebrow:"DESIGN GOVERNANCE"}
+ "design-system":{title:"设计系统",desc:"查看并验收 Kosmoevretis 全站统一的 Carbon 设计规范与基础组件。",eyebrow:"DESIGN GOVERNANCE"},
+ "meta-apps":{title:"Meta 应用配置",desc:"为当前组织配置独立的 Meta Developer App、OAuth 与 Webhook 凭证。",eyebrow:"CHANNEL INTEGRATIONS"}
 };
 const settingsGroups = [
  {title:"API 与数据源",items:[["providers","服务连接"],["channels","数据渠道"]]},
+ {title:"渠道集成",items:[["meta-apps","Meta 应用配置"]]},
  {title:"AI 与模型",items:[["ai-providers","AI 服务商"],["models","模型目录"],["routes","任务模型路由"],["prompts","提示词与成本"]]},
  {title:"采集与分析配置",items:[["actors","采集能力与 Actor"]]},
  {title:"用户与权限",items:[["organization","组织与企业资料"],["members","用户与权限"]]},
@@ -88,6 +91,7 @@ export default function Settings(){
   case"prompts":return <Prompts/>;
   case"design-system":return <DesignSystemPreview/>;
   case"mail":return <MailSettings/>;
+  case"meta-apps":return <MetaAppSettings/>;
   default:return <SystemPage page={active}/>;
  }};
  const activeIndex=Math.max(0,settingsGroups.findIndex(group=>group.items.some(([id])=>id===active)));
