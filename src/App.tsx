@@ -33,6 +33,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate 
 import ProductCenter from "./ProductCenter";
 import TaskCenter from "./TaskCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
+import CustomerCenter from "./CustomerCenter";
 import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
 import MailCommunication from "./MailCommunication";
@@ -65,7 +66,7 @@ const validPaths = new Set([
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
   "/settings/governance", "/settings/audit", "/settings/design-system", "/settings/mail",
-  "/communication/mail", "/tasks",
+  "/communication/mail", "/tasks", "/customers",
 ]);
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
@@ -102,7 +103,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 const routeLabels: Record<string, string> = {
   "/intelligence": "工作台", "/tasks": "分析任务", "/trade-access": "贸易与市场准入",
   "/products": "产品中心", "/platform-data-collection": "平台数据采集", "/seo-analysis": "独立站智能诊断",
-  "/communication/mail": "邮件沟通", "/social-discovery": "社媒平台发现",
+  "/communication/mail": "邮件沟通", "/customers": "全球客户中心", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
   "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
   "/settings/channels": "数据渠道", "/settings/runs": "运行记录",
@@ -242,7 +243,7 @@ function AppShell() {
   );
   const productActive = path === "/products" || path.startsWith("/ecommerce-discovery");
   const intelligenceActive = ["/trade-access", "/platform-data-collection", "/seo-analysis"].includes(path);
-  const customerActive = path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
+  const customerActive = path === "/customers" || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
   const productPlatforms = ["amazon","walmart","ebay","aliexpress","temu","etsy","shopify","mercado-libre","rakuten"];
   const socialPlatforms = ["facebook","instagram","linkedin","google-maps","x","reddit","pinterest","tiktok","youtube"];
 
@@ -336,6 +337,7 @@ function AppShell() {
                   <SideNavMenu title="客户与渠道" renderIcon={Email} defaultExpanded={customerActive} isActive={customerActive}>
                     {menuItem("/social-discovery", "社交平台发现")}
                     {socialPlatforms.map(id => menuItem("/social-discovery/" + id, socialLabels[id] || id))}
+                    {menuItem("/customers", "全球客户中心")}
                     {menuItem("/communication/mail", "邮件沟通")}
                   </SideNavMenu>
                   {link("/tasks", "分析任务", DataBase, path === "/tasks")}
@@ -358,6 +360,7 @@ function AppShell() {
         {path === "/products" && <ProductCenter />}
         {path === "/platform-data-collection" && <PlatformDataCollectionDirectory />}
         {path === "/seo-analysis" && <SeoAnalysis />}
+        {path === "/customers" && <CustomerCenter />}
         {isMailWorkspace && <MailCommunication />}
         
         
