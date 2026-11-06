@@ -7,3 +7,5 @@
 .meta-inbox-template-create{display:grid;gap:.75rem;padding:1rem;background:var(--cds-layer-01);margin-top:1rem}
 .meta-inbox-template-create>strong{font-weight:600}
 .meta-inbox-template-create .meta-inbox-send-actions>*{flex:1;min-width:12rem}
+
+.meta-inbox-media-upload{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}.meta-inbox-media-upload>span{color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size);min-width:10rem;flex:1}
