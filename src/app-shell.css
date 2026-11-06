@@ -65,7 +65,7 @@
 }
 
 /* Carbon Content owns the header offset; Carbon Grid owns the page gutters. */
-.kosmo-main.cds--content {
+.kosmo-main.cds--content,\n.page-main-container.cds--content {
   box-sizing: border-box;
   width: min(calc(100% - var(--kosmo-shell-sidebar-width)), var(--kosmo-content-max-width));
   max-width: var(--kosmo-content-max-width);

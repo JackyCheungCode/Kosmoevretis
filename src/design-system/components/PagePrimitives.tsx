@@ -13,11 +13,11 @@ export type PageHeaderProps = {
 export function PageHeader({ title, description, scope, actions, headingLevel = 1 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
   return (
-    <header className="kosmo-page-header">
+    <header className="page-header-section kosmo-page-header">
       <div className="kosmo-page-header__body">
         <div className="kosmo-page-header__copy">
-          <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
-          {description && <p className="kosmo-page-header__description">{description}</p>}
+          <HeadingTag className="cds--page-title kosmo-page-header__title">{title}</HeadingTag>
+          {description && <p className="cds--page-subtitle kosmo-page-header__description">{description}</p>}
         </div>
         <div className="kosmo-page-header__meta">
           {actions && <div className="kosmo-page-header__actions">{actions}</div>}
@@ -38,7 +38,7 @@ export function PageSection({ title, description, actions, children, className =
 }) {
   const HeadingTag = headingLevel === 3 ? "h3" : "h2";
   return (
-    <section className={["kosmo-page-section", className].filter(Boolean).join(" ")}>
+    <section className={["page-module-section", "kosmo-page-section", className].filter(Boolean).join(" ")}>
       {(title || description || actions) && (
         <div className="kosmo-page-section__header">
           <div className="kosmo-page-section__copy">
