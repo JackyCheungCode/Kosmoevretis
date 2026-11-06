@@ -7,11 +7,8 @@ type RuntimeEnv = {
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
-  META_APP_ID: string;
-  META_APP_SECRET: string;
-  META_OAUTH_REDIRECT_URI: string;
-  META_WEBHOOK_VERIFY_TOKEN: string;
-  META_GRAPH_API_VERSION: string;
+  SETTINGS_ENCRYPTION_KEY: string;
+  APP_ORIGIN: string;
   SETTINGS_ENCRYPTION_KEY: string;
   APP_ORIGIN: string;
 };
@@ -71,26 +68,26 @@ async function authenticate(env: RuntimeEnv, req: Request, organizationId: strin
   }
   return { admin, user: data.user, role: membership.role };
 }
-function graphBase(env: RuntimeEnv) {
-  const version = required(env.META_GRAPH_API_VERSION, "META_GRAPH_API_VERSION");
-  if (!/^v\d+\.\d+$/.test(version)) throw new Error("META_GRAPH_API_VERSION must look like vNN.N");
+function graphBase(versionValue: string) {
+  const version = required(versionValue, "Graph API version");
+  if (!/^v\d+\.\d+$/.test(version)) throw new Error("Graph API version must look like vNN.N");
   return "https://graph.facebook.com/" + version;
 }
-async function graphGet(env: RuntimeEnv, path: string, token: string) {
-  const url = new URL(graphBase(env) + path);
+async function graphGet(version: string, path: string, token: string) {
+  const url = new URL(graphBase(version) + path);
   url.searchParams.set("access_token", token);
   const response = await fetch(url, { headers: { Accept: "application/json" } });
   const body = await response.json().catch(() => ({}));
   if (!response.ok || body.error) throw new Error(String(body?.error?.message || "Meta Graph API request failed"));
   return body;
 }
-async function discoverAssets(env: RuntimeEnv, provider: Provider, token: string): Promise<{ assets: Asset[]; pageTokens: Record<string,string> }> {
+async function discoverAssets(version: string, provider: Provider, token: string): Promise<{ assets: Asset[]; pageTokens: Record<string,string> }> {
   const assets: Asset[] = [];
   const pageTokens: Record<string,string> = {};
   if (provider === "facebook_pages" || provider === "messenger") {
     let path = "/me/accounts?fields=id,name,access_token,tasks&limit=100";
     for (let page=0;page<5 && path;page++) {
-      const result = await graphGet(env, path, token);
+      const result = await graphGet(version, path, token);
       for (const item of Array.isArray(result.data) ? result.data : []) {
         if (!item.id || !item.access_token) continue;
         const id = String(item.id);
@@ -104,9 +101,9 @@ async function discoverAssets(env: RuntimeEnv, provider: Provider, token: string
       path = nextUrl.pathname + nextUrl.search;
     }
   } else {
-    const businesses = await graphGet(env, "/me/businesses?fields=id,name&limit=100", token);
+    const businesses = await graphGet(version, "/me/businesses?fields=id,name&limit=100", token);
     for (const business of Array.isArray(businesses.data) ? businesses.data.slice(0,50) : []) {
-      const wabas = await graphGet(env, "/" + encodeURIComponent(String(business.id)) + "/owned_whatsapp_business_accounts?fields=id,name,phone_numbers{id,display_phone_number,verified_name,quality_rating}&limit=100", token);
+      const wabas = await graphGet(version, "/" + encodeURIComponent(String(business.id)) + "/owned_whatsapp_business_accounts?fields=id,name,phone_numbers{id,display_phone_number,verified_name,quality_rating}&limit=100", token);
       for (const item of Array.isArray(wabas.data) ? wabas.data : []) {
         assets.push({ id: String(item.id), name: String(item.name || "WhatsApp Business Account"), asset_type: "whatsapp_business_account", details: { business_id: String(business.id), phone_numbers: item.phone_numbers?.data || [] } });
       }
@@ -122,6 +119,25 @@ const scopes: Record<Provider,string[]> = {
 const validProvider = (value: unknown): value is Provider => ["facebook_pages","whatsapp_business","messenger"].includes(String(value));
 async function audit(admin: SupabaseClient, organizationId: string, actorId: string | null, action: string, connectionId: string | null, metadata: Record<string,unknown> = {}) {
   await admin.from("crm_channel_audit_logs").insert({ organization_id: organizationId, actor_id: actorId, connection_id: connectionId, action, metadata });
+}
+type MetaAppConfig = {
+  organization_id: string; app_id: string; app_secret_ciphertext: string; app_secret_iv: string;
+  webhook_verify_token_ciphertext: string; webhook_verify_token_iv: string; graph_api_version: string;
+};
+async function getMetaConfig(admin: SupabaseClient, env: RuntimeEnv, organizationId: string) {
+  const { data, error } = await admin.from("crm_meta_app_configs").select("*")
+    .eq("organization_id", organizationId).eq("enabled", true).maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Meta App 尚未由当前组织管理员配置");
+  return { config: data as MetaAppConfig,
+    appSecret: await decrypt(env, data.app_secret_ciphertext, data.app_secret_iv),
+    verifyToken: await decrypt(env, data.webhook_verify_token_ciphertext, data.webhook_verify_token_iv) };
+}
+async function appSignatureMatches(raw: Uint8Array, signature: string, secret: string) {
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, raw));
+  const hex = Array.from(digest).map(x => x.toString(16).padStart(2,"0")).join("");
+  return constantTimeEqual(signature, hex);
 }
 async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
   const url = new URL(req.url);
@@ -139,10 +155,11 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
     .eq("id",row.id).eq("status","pending").select("id").maybeSingle();
   if (claimError || !claimed) return json({ error: "OAuth state has already been consumed" }, 409);
   try {
-    const callback = required(env.META_OAUTH_REDIRECT_URI,"META_OAUTH_REDIRECT_URI");
-    const tokenUrl = new URL(graphBase(env) + "/oauth/access_token");
-    tokenUrl.searchParams.set("client_id", required(env.META_APP_ID,"META_APP_ID"));
-    tokenUrl.searchParams.set("client_secret", required(env.META_APP_SECRET,"META_APP_SECRET"));
+    const meta = await getMetaConfig(admin, env, row.organization_id);
+    const callback = new URL("/functions/v1/meta-api?action=oauth_callback", required(env.SUPABASE_URL,"SUPABASE_URL")).toString();
+    const tokenUrl = new URL(graphBase(meta.config.graph_api_version) + "/oauth/access_token");
+    tokenUrl.searchParams.set("client_id", meta.config.app_id);
+    tokenUrl.searchParams.set("client_secret", meta.appSecret);
     tokenUrl.searchParams.set("redirect_uri", callback);
     tokenUrl.searchParams.set("code", code);
     const tokenResponse = await fetch(tokenUrl);
@@ -151,10 +168,10 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
     let accessToken = String(tokenBody.access_token);
     let expiresIn = Number(tokenBody.expires_in || 0);
     try {
-      const longUrl = new URL(graphBase(env) + "/oauth/access_token");
+      const longUrl = new URL(graphBase(meta.config.graph_api_version) + "/oauth/access_token");
       longUrl.searchParams.set("grant_type","fb_exchange_token");
-      longUrl.searchParams.set("client_id", required(env.META_APP_ID,"META_APP_ID"));
-      longUrl.searchParams.set("client_secret", required(env.META_APP_SECRET,"META_APP_SECRET"));
+      longUrl.searchParams.set("client_id", meta.config.app_id);
+      longUrl.searchParams.set("client_secret", meta.appSecret);
       longUrl.searchParams.set("fb_exchange_token", accessToken);
       const longResponse = await fetch(longUrl);
       const longBody = await longResponse.json().catch(()=>({}));
@@ -162,12 +179,12 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
     } catch { /* Keep the short-lived token; UI will surface the expiry metadata. */ }
     let grantedScopes: string[] = [];
     try {
-      const permissionResult = await graphGet(env, "/me/permissions", accessToken);
+      const permissionResult = await graphGet(version, "/me/permissions", accessToken);
       grantedScopes = (Array.isArray(permissionResult.data) ? permissionResult.data : [])
         .filter((item: {permission?:string;status?:string}) => item.status === "granted" && typeof item.permission === "string")
         .map((item: {permission:string}) => item.permission);
     } catch { /* Keep the actual-grant list empty if Meta does not return permission metadata. */ }
-    const discovered = await discoverAssets(env, row.provider as Provider, accessToken);
+    const discovered = await discoverAssets(meta.config.graph_api_version, row.provider as Provider, accessToken);
     const encryptedUserToken = await encrypt(env, accessToken);
     const encryptedPageTokens = await encrypt(env, JSON.stringify(discovered.pageTokens));
     const expiry = expiresIn > 0 ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
@@ -195,53 +212,50 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
   }
 }
 async function handleWebhook(req: Request, env: RuntimeEnv) {
+  const { admin } = clients(env);
+  const { data: configs, error: configError } = await admin.from("crm_meta_app_configs").select("*").eq("enabled", true).limit(500);
+  if (configError) throw configError;
   if (req.method === "GET") {
-    const url = new URL(req.url);
-    const mode = url.searchParams.get("hub.mode") || "";
-    const token = url.searchParams.get("hub.verify_token") || "";
-    const challenge = url.searchParams.get("hub.challenge") || "";
-    const expected = required(env.META_WEBHOOK_VERIFY_TOKEN,"META_WEBHOOK_VERIFY_TOKEN");
-    if (mode !== "subscribe" || !challenge || !(await constantTimeEqual(token,expected))) return new Response("Forbidden",{status:403});
-    return new Response(challenge,{status:200,headers:{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"}});
+    const url = new URL(req.url), mode = url.searchParams.get("hub.mode") || "", token = url.searchParams.get("hub.verify_token") || "", challenge = url.searchParams.get("hub.challenge") || "";
+    if (mode !== "subscribe" || !challenge) return new Response("Forbidden",{status:403});
+    for (const row of configs || []) {
+      const expected = await decrypt(env,row.webhook_verify_token_ciphertext,row.webhook_verify_token_iv);
+      if (await constantTimeEqual(token,expected)) return new Response(challenge,{status:200,headers:{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"}});
+    }
+    return new Response("Forbidden",{status:403});
   }
   if (req.method !== "POST") return new Response("Method not allowed",{status:405});
   const raw = new Uint8Array(await req.arrayBuffer());
   if (raw.byteLength > 1_000_000) return new Response("Payload too large",{status:413});
-  const signature = req.headers.get("X-Hub-Signature-256") || "";
-  const match = /^sha256=([a-f0-9]{64})$/i.exec(signature);
+  const match = /^sha256=([a-f0-9]{64})$/i.exec(req.headers.get("X-Hub-Signature-256") || "");
   if (!match) return new Response("Invalid signature",{status:401});
-  const key = await crypto.subtle.importKey("raw",encoder.encode(required(env.META_APP_SECRET,"META_APP_SECRET")),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
-  const expected = new Uint8Array(await crypto.subtle.sign("HMAC",key,raw));
-  const expectedHex = Array.from(expected).map(x=>x.toString(16).padStart(2,"0")).join("");
-  if (!(await constantTimeEqual(match[1].toLowerCase(),expectedHex))) return new Response("Invalid signature",{status:401});
+  let matchedConfig: MetaAppConfig | null = null;
+  for (const row of configs || []) {
+    const secret = await decrypt(env,row.app_secret_ciphertext,row.app_secret_iv);
+    if (await appSignatureMatches(raw,match[1].toLowerCase(),secret)) { matchedConfig = row as MetaAppConfig; break; }
+  }
+  if (!matchedConfig) return new Response("Invalid signature",{status:401});
   let payload: Record<string,unknown>;
   try { payload = JSON.parse(new TextDecoder().decode(raw)); } catch { return new Response("Invalid JSON",{status:400}); }
   const object = String(payload.object || "");
   const provider = object === "whatsapp_business_account" ? "whatsapp_business" : object === "page" ? "page" : "";
-  if (!provider || !Array.isArray(payload.entry)) return new Response("Unsupported event",{status:200});
-  const { admin } = clients(env);
-  const entries = payload.entry.slice(0,100);
-  for (const entry of entries) {
-    const assetId = String(entry?.id || "");
-    if (!assetId) continue;
+  if (!provider || !Array.isArray(payload.entry)) return new Response("EVENT_RECEIVED",{status:200});
+  for (const entry of payload.entry.slice(0,100)) {
+    const assetId = String(entry?.id || ""); if (!assetId) continue;
     const providers: Provider[] = provider === "whatsapp_business" ? ["whatsapp_business"] : ["facebook_pages","messenger"];
-    const { data: connections, error: connectionLookupError } = await admin.from("crm_channel_connections").select("id,organization_id,provider")
-      .eq("external_asset_id",assetId).eq("status","connected").in("provider",providers);
-    if (connectionLookupError) throw connectionLookupError;
+    const { data: connections, error: lookupError } = await admin.from("crm_channel_connections").select("id,organization_id,provider")
+      .eq("organization_id",matchedConfig.organization_id).eq("external_asset_id",assetId).eq("status","connected").in("provider",providers);
+    if (lookupError) throw lookupError;
     for (const connection of connections || []) {
-      const digest = await sha256(encoder.encode(JSON.stringify(entry)));
-      const dedupeKey = await sha256(String(connection.id) + ":" + object + ":" + digest);
-      const { error } = await admin.from("crm_channel_webhook_events").insert({
-        organization_id: connection.organization_id, connection_id: connection.id, provider: connection.provider,
-        dedupe_key: dedupeKey, provider_event_id: assetId + ":" + digest, payload: { object, entry },
-      });
-      if (error && error.code !== "23505") throw error;
+      const digest=await sha256(encoder.encode(JSON.stringify(entry))), dedupeKey=await sha256(String(connection.id)+":"+object+":"+digest);
+      const {error}=await admin.from("crm_channel_webhook_events").insert({organization_id:connection.organization_id,connection_id:connection.id,provider:connection.provider,dedupe_key:dedupeKey,provider_event_id:assetId+":"+digest,payload:{object,entry}});
+      if(error&&error.code!=="23505") throw error;
     }
   }
   return new Response("EVENT_RECEIVED",{status:200,headers:{"Content-Type":"text/plain; charset=utf-8"}});
 }
 Deno.serve(async (req: Request) => {
-  const env = Object.fromEntries(["SUPABASE_URL","SUPABASE_ANON_KEY","SUPABASE_SERVICE_ROLE_KEY","META_APP_ID","META_APP_SECRET","META_OAUTH_REDIRECT_URI","META_WEBHOOK_VERIFY_TOKEN","META_GRAPH_API_VERSION","SETTINGS_ENCRYPTION_KEY","APP_ORIGIN"].map(key => [key,Deno.env.get(key) || ""])) as unknown as RuntimeEnv;
+  const env = Object.fromEntries(["SUPABASE_URL","SUPABASE_ANON_KEY","SUPABASE_SERVICE_ROLE_KEY","SETTINGS_ENCRYPTION_KEY","APP_ORIGIN"].map(key => [key,Deno.env.get(key) || ""])) as unknown as RuntimeEnv;
   const url = new URL(req.url);
   if (req.method === "OPTIONS") return new Response("ok",{status:200,headers:{"Access-Control-Allow-Origin":env.APP_ORIGIN || "null","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Vary":"Origin"}});
   try {
@@ -252,13 +266,44 @@ Deno.serve(async (req: Request) => {
     const organizationId = required(body.organization_id,"organization_id");
     const { admin,user } = await authenticate(env,req,organizationId,body.action !== "list_connections");
     switch (body.action) {
+      case "config_get": {
+        const {data,error}=await admin.from("crm_meta_app_configs").select("app_id,graph_api_version,enabled,validation_status,validation_message,last_validated_at,updated_at").eq("organization_id",organizationId).maybeSingle();
+        if(error) throw error;
+        return json({config:data?{...data,has_app_secret:true,has_webhook_verify_token:true}:null,
+          oauth_redirect_uri:new URL("/functions/v1/meta-api?action=oauth_callback",required(env.SUPABASE_URL,"SUPABASE_URL")).toString(),
+          webhook_url:new URL("/functions/v1/meta-api/webhook",required(env.SUPABASE_URL,"SUPABASE_URL")).toString()});
+      }
+      case "config_save": {
+        const appId=required(body.app_id,"app_id"), graphVersion=required(body.graph_api_version,"graph_api_version"); graphBase(graphVersion);
+        const {data:existing,error:existingError}=await admin.from("crm_meta_app_configs").select("*").eq("organization_id",organizationId).maybeSingle();
+        if(existingError) throw existingError;
+        const appSecret=typeof body.app_secret==="string"&&body.app_secret.trim()?body.app_secret.trim():existing?await decrypt(env,existing.app_secret_ciphertext,existing.app_secret_iv):"";
+        const verifyToken=typeof body.webhook_verify_token==="string"&&body.webhook_verify_token.trim()?body.webhook_verify_token.trim():existing?await decrypt(env,existing.webhook_verify_token_ciphertext,existing.webhook_verify_token_iv):"";
+        required(appSecret,"app_secret"); required(verifyToken,"webhook_verify_token");
+        const secret=await encrypt(env,appSecret), verify=await encrypt(env,verifyToken);
+        const {error}=await admin.from("crm_meta_app_configs").upsert({organization_id:organizationId,app_id:appId,
+          app_secret_ciphertext:secret.ciphertext,app_secret_iv:secret.iv,webhook_verify_token_ciphertext:verify.ciphertext,webhook_verify_token_iv:verify.iv,
+          graph_api_version:graphVersion,enabled:true,validation_status:"not_tested",validation_message:null,updated_by:user.id,updated_at:new Date().toISOString(),created_by:existing?.created_by||user.id},{onConflict:"organization_id"});
+        if(error) throw error;
+        await audit(admin,organizationId,user.id,"meta.app_config.saved",null,{app_id:appId,graph_api_version:graphVersion});
+        return json({success:true,has_app_secret:true,has_webhook_verify_token:true});
+      }
+      case "config_test": {
+        const meta=await getMetaConfig(admin,env,organizationId), testUrl=new URL(graphBase(meta.config.graph_api_version)+"/oauth/access_token");
+        testUrl.searchParams.set("client_id",meta.config.app_id); testUrl.searchParams.set("client_secret",meta.appSecret); testUrl.searchParams.set("grant_type","client_credentials");
+        const response=await fetch(testUrl), result=await response.json().catch(()=>({})), valid=Boolean(response.ok&&result.access_token);
+        const message=valid?"Meta App 凭证验证成功":String(result?.error?.message||"Meta App 凭证验证失败").slice(0,240);
+        const {error}=await admin.from("crm_meta_app_configs").update({validation_status:valid?"valid":"invalid",validation_message:message,last_validated_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("organization_id",organizationId);
+        if(error) throw error;
+        await audit(admin,organizationId,user.id,"meta.app_config.tested",null,{valid});
+        return json({valid,message});
+      }
       case "start_oauth": {
         if (!validProvider(body.provider)) return json({error:"Unsupported Meta provider"},400);
-        required(env.META_APP_ID,"META_APP_ID");
-        required(env.META_APP_SECRET,"META_APP_SECRET");
-        required(env.META_OAUTH_REDIRECT_URI,"META_OAUTH_REDIRECT_URI");
+        const meta=await getMetaConfig(admin,env,organizationId);
         required(env.APP_ORIGIN,"APP_ORIGIN");
-        graphBase(env);
+        const redirectUri=new URL("/functions/v1/meta-api?action=oauth_callback",required(env.SUPABASE_URL,"SUPABASE_URL")).toString();
+        graphBase(meta.config.graph_api_version);
         await encryptionKey(env);
         const stateBytes = crypto.getRandomValues(new Uint8Array(32));
         const state = base64url(stateBytes);
@@ -269,9 +314,9 @@ Deno.serve(async (req: Request) => {
           requested_scopes:scopes[body.provider],expires_at:expiry,
         });
         if (error) throw error;
-        const authUrl = new URL("https://www.facebook.com/" + graphBase(env).split("/").pop() + "/dialog/oauth");
-        authUrl.searchParams.set("client_id",required(env.META_APP_ID,"META_APP_ID"));
-        authUrl.searchParams.set("redirect_uri",required(env.META_OAUTH_REDIRECT_URI,"META_OAUTH_REDIRECT_URI"));
+        const authUrl = new URL("https://www.facebook.com/" + meta.config.graph_api_version + "/dialog/oauth");
+        authUrl.searchParams.set("client_id",meta.config.app_id);
+        authUrl.searchParams.set("redirect_uri",redirectUri);
         authUrl.searchParams.set("state",state);
         authUrl.searchParams.set("response_type","code");
         authUrl.searchParams.set("scope",scopes[body.provider].join(","));
