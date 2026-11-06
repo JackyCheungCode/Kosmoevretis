@@ -33,7 +33,6 @@ export default function UnifiedMessageCenter() {
   const [channel, setChannel] = useState<ChannelId>("all");
   const [query, setQuery] = useState("");
   const [showPolicy, setShowPolicy] = useState(false);
-  const [organizationId, setOrganizationId] = useState("");
   const [mailAccounts, setMailAccounts] = useState<MailAccount[]>([]);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [connectionError, setConnectionError] = useState("");
@@ -48,8 +47,7 @@ export default function UnifiedMessageCenter() {
       if (!active) return;
       if (membershipError) { setConnectionError(membershipError.message); setLoadingAccounts(false); return; }
       const selectedOrg = memberships?.[0]?.organization_id;
-      if (!selectedOrg) { setOrganizationId(""); setMailAccounts([]); setLoadingAccounts(false); return; }
-      setOrganizationId(selectedOrg);
+      if (!selectedOrg) { setMailAccounts([]); setLoadingAccounts(false); return; }
       const { data, error } = await supabase.functions.invoke("mail-api", { body: { action: "list_accounts", organization_id: selectedOrg } });
       if (!active) return;
       if (error || data?.error) setConnectionError(error?.message || data?.error || "无法读取邮箱连接");
