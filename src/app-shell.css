@@ -71,7 +71,7 @@
   max-width: var(--kosmo-content-max-width);
   min-height: calc(100vh - var(--kosmo-shell-header-height));
   margin-top: var(--kosmo-shell-header-height);
-  margin-left: calc(var(--kosmo-shell-sidebar-width) + max(0px, (100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2));
+  margin-left: calc(var(--kosmo-shell-sidebar-width) + max(0px, calc((100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2)));
   padding: 0;
 }
 
@@ -141,7 +141,7 @@
 
   .kosmo-main.cds--content {
     width: min(calc(100% - var(--kosmo-shell-sidebar-collapsed-width)), var(--kosmo-content-max-width));
-    margin-left: calc(var(--kosmo-shell-sidebar-collapsed-width) + max(0px, (100% - var(--kosmo-shell-sidebar-collapsed-width) - var(--kosmo-content-max-width)) / 2));
+    margin-left: calc(var(--kosmo-shell-sidebar-collapsed-width) + max(0px, calc((100% - var(--kosmo-shell-sidebar-collapsed-width) - var(--kosmo-content-max-width)) / 2)));
   }
 }
 
