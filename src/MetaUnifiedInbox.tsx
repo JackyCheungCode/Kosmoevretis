@@ -109,7 +109,7 @@ export default function MetaUnifiedInbox(){
  return <ConfigurationPageTemplate className="module meta-unified-inbox" title="统一消息中心" description="在统一工作区处理 Messenger、Instagram 与 WhatsApp 客户对话。当前开放 Messenger 与 WhatsApp；Instagram DM 待接入。消息发送保留人工审批与渠道规则校验。" eyebrow="META CUSTOMER INBOX" headingLevel={1}>
   {notice&&<InlineNotification kind={notice.kind} lowContrast title={notice.title} subtitle={notice.message} onCloseButtonClick={()=>setNotice(null)}/>}
   <PageSection title="会话收件箱" description="仅展示真实 Webhook 已归档的客户会话，不创建演示消息。" headingLevel={3}>
-   <ContentSwitcher selectedIndex={channel==="messenger"?0:channel==="whatsapp_business"?1:2} onChange={(item)=>{if(item.name)setChannel(item.name);}}>
+   <ContentSwitcher size="md" selectedIndex={channel==="messenger"?0:channel==="whatsapp_business"?1:2} onChange={(item)=>{if(item.name)setChannel(String(item.name));}}>
     <Switch name="messenger" text="Messenger" />
     <Switch name="whatsapp_business" text="WhatsApp" />
     <Switch name="instagram" text="Instagram（待接入）" disabled />
