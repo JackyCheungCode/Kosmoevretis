@@ -34,12 +34,14 @@ import {
   ShoppingCart,
   Search as SearchIcon,
   Menu,
+  Mail,
 } from "@carbon/icons-react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import ProductCenter from "./ProductCenter";
 import GlobalIntelligence from "./GlobalIntelligence";
 import TradeAccessPage from "./TradeAccessPage";
 import SettingsPage from "./Settings";
+import MailCommunication from "./MailCommunication";
 import FacebookDiscovery from "./FacebookDiscovery";
 import LinkedInDiscovery from "./LinkedInDiscovery";
 import InstagramDiscovery from "./pages/InstagramDiscovery";
@@ -67,7 +69,8 @@ const validPaths = new Set([
   "/products", "/seo-analysis", "/settings/providers", "/settings/actors", "/settings/channels", "/settings/runs",
   "/settings/ai-providers", "/settings/models", "/settings/routes", "/settings/prompts",
   "/settings/organization", "/settings/members", "/settings/locale", "/settings/notifications",
-  "/settings/governance", "/settings/audit", "/settings/design-system",
+  "/settings/governance", "/settings/audit", "/settings/design-system", "/settings/mail",
+  "/communication/mail",
 ]);
 
 type SocialPlatform = "facebook" | "instagram" | "linkedin" | "google-maps" | "x" | "reddit" | "pinterest" | "tiktok" | "youtube";
@@ -244,6 +247,7 @@ function AppShell() {
   const navigate = useNavigate();
   const path = location.pathname.replace(/\/$/, "") || "/";
   const isSettings = path.startsWith("/settings/");
+  const isMailWorkspace = path === "/communication/mail";
   const isTemplatePage = path === "/seo-analysis" || path.startsWith("/social-discovery") || path.startsWith("/ecommerce-discovery") || ["/leads/facebook", "/leads/linkedin", "/leads/google-maps", "/leads/instagram"].includes(path) || path.startsWith("/platform-data/");
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
@@ -318,6 +322,7 @@ function AppShell() {
     : path === "/products" ? "产品中心"
     : path === "/seo-analysis" ? "独立站智能诊断"
     : path === "/trade-access" ? "贸易与市场准入"
+    : isMailWorkspace ? "邮件沟通"
     : path.startsWith("/leads/") ? "潜在客户"
     : isSettings ? "设置中心"
     : "全球情报中心";
@@ -335,6 +340,7 @@ function AppShell() {
     { id: "social-discovery", label: "社媒平台发现", href: "/social-discovery", icon: Forum, active: path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/") },
     { id: "ecommerce-discovery", label: "电商平台发现", href: "/ecommerce-discovery/amazon", icon: ShoppingCart, active: path.startsWith("/ecommerce-discovery") },
     { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
+    { id: "mail", label: "邮件沟通", href: "/communication/mail", icon: Mail, active: isMailWorkspace },
     { id: "settings", label: "设置中心", href: "/settings/providers", icon: Settings, active: isSettings },
   ];
 
@@ -454,8 +460,11 @@ function AppShell() {
               <SideNavMenu title="独立站运维" defaultExpanded renderIcon={SearchIcon}>
                 {renderMenuItem(navItems[5])}
               </SideNavMenu>
-              <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
+              <SideNavMenu title="沟通与跟进" defaultExpanded renderIcon={Mail}>
                 {renderMenuItem(navItems[6])}
+              </SideNavMenu>
+              <SideNavMenu title="系统设置" defaultExpanded renderIcon={Settings}>
+                {renderMenuItem(navItems[7])}
               </SideNavMenu>
             </>
           )}
@@ -486,6 +495,7 @@ function AppShell() {
         {path === "/trade-access" && <TradeAccessPage />}
         {path === "/products" && <ProductCenter />}
         {path === "/seo-analysis" && <SeoAnalysis />}
+        {isMailWorkspace && <MailCommunication />}
         
         
         
