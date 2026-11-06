@@ -323,7 +323,7 @@ function AppShell() {
     { id: "trade", label: "贸易与市场准入", href: "/trade-access", icon: Currency, active: path === "/trade-access" },
     { id: "platform-data-collection", label: "平台数据采集", href: "/platform-data-collection", icon: DataBase, active: path === "/platform-data-collection" },
     { id: "seo-analysis", label: "独立站智能诊断", href: "/seo-analysis", icon: SearchIcon, active: path === "/seo-analysis" },
-    { id: "mail", label: "邮件沟通", href: "/communication/mail", icon: Email, active: isMailWorkspace },
+    { id: "mail", label: "邮箱", href: "/communication/mail", icon: Email, active: isMailWorkspace },
     { id: "settings-providers", label: "服务商连接", href: "/settings/providers", icon: Settings, active: path === "/settings/providers" },
     { id: "settings-actors", label: "采集能力目录", href: "/settings/actors", icon: Settings, active: path === "/settings/actors" },
     { id: "settings-channels", label: "数据渠道", href: "/settings/channels", icon: Settings, active: path === "/settings/channels" },
@@ -340,6 +340,13 @@ function AppShell() {
     { id: "settings-governance", label: "数据治理", href: "/settings/governance", icon: Settings, active: path === "/settings/governance" },
     { id: "settings-audit", label: "安全与审计", href: "/settings/audit", icon: Settings, active: path === "/settings/audit" },
     { id: "settings-design-system", label: "设计系统", href: "/settings/design-system", icon: Settings, active: path === "/settings/design-system" },
+  ];
+  const navGroups = [
+    { id: "workspace", label: "业务工作区", items: ["products", "intelligence", "trade", "seo-analysis"] },
+    { id: "data", label: "数据与采集", items: ["platform-data-collection", "settings-providers", "settings-actors", "settings-channels", "settings-runs"] },
+    { id: "ai", label: "AI 与模型", items: ["settings-ai-providers", "settings-models", "settings-routes", "settings-prompts"] },
+    { id: "communication", label: "沟通中心", items: ["mail"] },
+    { id: "admin", label: "系统管理", items: ["settings-organization", "settings-members", "settings-locale", "settings-notifications", "settings-mail", "settings-governance", "settings-audit", "settings-design-system"] },
   ];
 
   const renderRailLink = (item: typeof navItems[number]) => (
@@ -432,7 +439,27 @@ function AppShell() {
                 className={`kosmo-side-nav ${viewport === "tablet" && tabletExpanded ? "kosmo-side-nav-tablet-expanded" : ""}`}
               >
                 <SideNavItems>
-                  {navItems.map(renderRailLink)}
+                  {navGroups.map((group, groupIndex) => (
+                    <React.Fragment key={group.id}>
+                      <li
+                        className="kosmo-nav-group-label"
+                        role="presentation"
+                        style={{
+                          listStyle: "none",
+                          marginTop: groupIndex === 0 ? "0.5rem" : "1.25rem",
+                          padding: "0.5rem 1rem 0.375rem",
+                          color: "var(--cds-text-secondary)",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          letterSpacing: "0.04em",
+                          lineHeight: 1.25,
+                        }}
+                      >
+                        {group.label}
+                      </li>
+                      {navItems.filter((item) => group.items.includes(item.id)).map(renderRailLink)}
+                    </React.Fragment>
+                  ))}
                 </SideNavItems>
               </SideNav>
             </>
