@@ -105,7 +105,7 @@ function EcommercePlatformWorkspace({ platform }: { platform: EcommercePlatformI
 
 const routeLabels: Record<string, string> = {
   "/intelligence": "工作台", "/tasks": "分析任务", "/trade-access": "贸易与市场准入",
-  "/products": "产品中心", "/platform-data-collection": "平台数据采集", "/seo-analysis": "独立站智能诊断",
+  "/products": "产品中心", "/platform-data-collection": "线索发现", "/seo-analysis": "独立站智能诊断",
   "/communication/mail": "邮件沟通", "/communication/inbox": "统一消息中心", "/customers": "全球客户中心", "/opportunities": "销售商机", "/social-discovery": "社媒平台发现",
   "/ecommerce-discovery": "电商平台发现",
   "/settings/providers": "服务商连接", "/settings/actors": "采集能力目录",
@@ -245,11 +245,9 @@ function AppShell() {
     </SideNavMenuItem>
   );
   const productActive = path === "/products" || path.startsWith("/ecommerce-discovery");
-  const intelligenceActive = ["/trade-access", "/platform-data-collection", "/seo-analysis"].includes(path);
+  const intelligenceActive = ["/trade-access", "/seo-analysis"].includes(path);
   const customerActive = path === "/customers" || path === "/opportunities" || path === "/communication/inbox" || path.startsWith("/social-discovery") || path.startsWith("/leads/") || path === "/communication/mail";
-  const productPlatforms = ["amazon","walmart","ebay","aliexpress","temu","etsy","shopify","mercado-libre","rakuten"];
-  const socialPlatforms = ["facebook","instagram","linkedin","google-maps","x","reddit","pinterest","tiktok","youtube"];
-
+  
   return (
     <Theme theme="g10">
     <div className="shell kosmo-app-shell">
@@ -329,17 +327,13 @@ function AppShell() {
                   {link("/intelligence", "工作台", Dashboard, path === "/intelligence")}
                   <SideNavMenu title="产品与选品" renderIcon={Product} defaultExpanded={productActive} isActive={productActive}>
                     {menuItem("/products", "产品中心")}
-                    {menuItem("/ecommerce-discovery", "全球电商发现")}
-                    {productPlatforms.map(id => menuItem("/ecommerce-discovery/" + id, ecommerceLabels[id] || id))}
                   </SideNavMenu>
+                  {link("/platform-data-collection", "线索发现", DataBase, path === "/platform-data-collection")}
                   <SideNavMenu title="全球市场情报" renderIcon={Currency} defaultExpanded={intelligenceActive} isActive={intelligenceActive}>
                     {menuItem("/trade-access", "贸易与市场准入")}
-                    {menuItem("/platform-data-collection", "平台数据采集")}
                     {menuItem("/seo-analysis", "独立站智能诊断")}
                   </SideNavMenu>
                   <SideNavMenu title="客户与渠道" renderIcon={Email} defaultExpanded={customerActive} isActive={customerActive}>
-                    {menuItem("/social-discovery", "社交平台发现")}
-                    {socialPlatforms.map(id => menuItem("/social-discovery/" + id, socialLabels[id] || id))}
                     {menuItem("/customers", "全球客户中心")}
                     {menuItem("/opportunities", "销售商机")}
                     {menuItem("/communication/inbox", "统一消息中心")}
