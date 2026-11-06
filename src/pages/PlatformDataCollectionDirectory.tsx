@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Button, Checkbox, ClickableTile, Dropdown, Search, Tag } from "@carbon/react";
 import { ArrowRight, Filter, Search as SearchIcon } from "@carbon/icons-react";
 import { useNavigate } from "react-router-dom";
-import GlobalPageIllustration from "../components/GlobalPageIllustration";
+import { PageHeader } from "../design-system/components";
 import "./platform-data-collection-directory.css";
 
 type ChannelType = "ecommerce" | "social";
@@ -58,12 +58,10 @@ export default function PlatformDataCollectionDirectory() {
 
   return (
     <div className="pdc-directory">
-      <div className="pdc-directory__intro">
-        <div className="pdc-directory__eyebrow">DATA SOURCES</div>
-        <h1>平台数据采集</h1>
-        <p>浏览并进入全球电商与社交平台的采集工作区，发现产品、市场趋势与潜在客户。</p>
-      </div>
-      <GlobalPageIllustration path="/platform-data-collection" />
+      <PageHeader
+        title="平台数据采集"
+        description="浏览并进入全球电商与社交平台的采集工作区，发现产品、市场趋势与潜在客户。"
+      />
 
       <div className="pdc-directory__toolbar">
         <Search
