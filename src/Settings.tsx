@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
-import { Activity, Ai, Building, Document, DataBase, Earth, Email, Flow, Menu, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
+import { Activity, Ai, Building, Document, DataBase, Earth, Email, Flow, Model, Notification, Plug, Security, UserMultiple, WorkflowAutomation } from "@carbon/icons-react";
 import SettingsBackend from "./SettingsBackend";
 import MailSettings from "./MailSettings";
 import BrandLogo from "./BrandLogo";
@@ -75,35 +75,21 @@ export default function Settings(){
  const active=location.pathname.split("/")[2]||"providers";
  const [search,setSearch]=useState("");
  const [notice,setNotice]=useState<string|null>(null);
- const [mobileNavOpen,setMobileNavOpen]=useState(false);
- const navRef=useRef<HTMLDivElement|null>(null);
- const triggerRef=useRef<HTMLButtonElement|null>(null);
  const selected=pageMeta[active]||pageMeta.providers;
  const filtered=navGroups.map(g=>({...g,items:g.items.filter(i=>(i[1]+i[0]+g.title).toLowerCase().includes(search.toLowerCase()))})).filter(g=>g.items.length);
- const closeNavigation=()=>{if(mobileNavOpen)triggerRef.current?.focus();setMobileNavOpen(false);};
- useEffect(()=>{
-  if(!mobileNavOpen)return;
-  navRef.current?.querySelector<HTMLAnchorElement>("a[aria-current='page'], a")?.focus();
-  const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){setMobileNavOpen(false);triggerRef.current?.focus();}};
-  document.addEventListener("keydown",onKeyDown);
-  return()=>document.removeEventListener("keydown",onKeyDown);
- },[mobileNavOpen]);
- const navigation=<div className="settings-navigation-shell">
-  {mobileNavOpen&&<button type="button" className="settings-nav-backdrop" aria-label="关闭设置导航" onClick={closeNavigation}/>}
-  <div id="settings-nav-panel" className={mobileNavOpen?"settings-local-nav is-open":"settings-local-nav"} ref={node=>{navRef.current=node;}} role="group" aria-label="设置分类">
-   <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
-   {filtered.map(group=><div className="settings-nav-group" key={group.title}>
-    <div className="settings-nav-group-title">{group.title}</div>
-    {group.items.map(([id,label,icon])=>{
-     const Icon=navIconMap[icon];
-     return <NavLink key={id} to={"/settings/"+id} end className={({isActive})=>isActive?"settings-nav-item is-active":"settings-nav-item"} onClick={closeNavigation} aria-label={label}>
-      <Icon size={16} aria-hidden="true"/><span className="settings-nav-label">{label}</span>
-     </NavLink>;
-    })}
-   </div>)}
-  </div>
+ const navigation=<div className="settings-navigation-shell settings-tabs-shell">
+  <div className="settings-nav-search"><TextInput id="settings-nav-search" labelText="搜索设置" hideLabel placeholder="搜索设置…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
+  <nav id="settings-nav-panel" className="settings-local-nav settings-line-tabs" role="tablist" aria-label="设置分类">
+   {filtered.flatMap(group=>group.items.map(([id,label,icon])=>{
+    const Icon=navIconMap[icon];
+    return <NavLink key={id} to={"/settings/"+id} end role="tab"
+      className={({isActive})=>isActive?"settings-nav-item is-active":"settings-nav-item"}
+      aria-label={label} aria-selected={active===id}>
+      <Icon size={18} aria-hidden="true"/><span className="settings-nav-label">{label}</span>
+    </NavLink>;
+   }))}
+  </nav>
  </div>;
- const actions=<Button ref={triggerRef} className="settings-mobile-nav-trigger" kind="ghost" size="sm" renderIcon={Menu} aria-label="打开设置导航" aria-expanded={mobileNavOpen} aria-controls="settings-nav-panel" onClick={()=>setMobileNavOpen(open=>!open)}>设置分类</Button>;
  const body=()=>{switch(active){
   case"providers":return <SettingsBackend/>;
   case"actors":return <Actors/>;
@@ -123,7 +109,6 @@ export default function Settings(){
   description="统一管理数据源连接、采集能力、AI 服务与平台治理配置。"
   eyebrow="Kosmoevretis / 平台管理"
   headingLevel={2}
-  actions={actions}
   navigation={navigation}
  >
   <PageSection title={selected.title} description={selected.desc} className="settings-selected-section" headingLevel={3}>
