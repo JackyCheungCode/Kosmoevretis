@@ -4,6 +4,7 @@ import { supabase } from "./lib/supabase";
 import { TextArea, TextInput } from "@carbon/react";
 import CarbonSelect from "./components/CarbonSelect";
 import TradeAccessAnalysis from "./components/TradeAccessAnalysis";
+import { PageHeader } from "./design-system/components";
 
 type Product={id:string;name:string;brand:string|null;model:string|null;category_path:string[]|null};
 const marketOptions=[
@@ -19,6 +20,7 @@ export default function TradeAccessPage(){
  const accessToken=session?.access_token||"";
  if(!session)return <div className="trade-page-auth"><h2>请先登录企业工作区</h2><p>登录后可使用企业产品档案和贸易情报数据源。</p></div>;
  return <section className="global-intelligence trade-page">
+  <PageHeader title="贸易准入与市场分析" description="结合企业产品、目标市场与 HS / HTS 编码，分析贸易准入条件和市场机会。" />
   <section className="analysis-source trade-page-source">
    <div className="analysis-source-heading trade-page-source-head"><div><span className="eyebrow">01 / TRADE ANALYSIS SCOPE</span><h2>配置贸易分析对象</h2><p>选择产品或输入关键词，并指定目标市场。此页面独立于全球情报中心运行。</p></div><span className="trade-page-badge">独立分析工作区</span></div>
    {error&&<div className="trade-page-error">{error}</div>}
