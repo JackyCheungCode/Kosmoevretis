@@ -8,7 +8,8 @@ import { PageSection } from "./design-system/components";
 import "./meta-unified-inbox.css";
 
 type Conversation={id:string;connection_id:string;channel:string;external_contact_id:string|null;participant_summary:Record<string,unknown>;status:string;last_message_at:string|null;contact_id:string|null;company_id:string|null};
-type Template={id:string;connection_id:string;template_name:string;language_code:string;status:string;category:string|null};\ntype Message={id:string;direction:string;body_text:string;delivery_status:string;created_at:string;attachment_metadata:unknown[]};
+type Template={id:string;connection_id:string;template_name:string;language_code:string;status:string;category:string|null};
+type Message={id:string;direction:string;body_text:string;delivery_status:string;created_at:string;attachment_metadata:unknown[]};
 const filters=[{id:"all",text:"全部 Meta 渠道"},{id:"whatsapp_business",text:"WhatsApp"},{id:"messenger",text:"Messenger"}];
 const channelName=(v:string)=>v==="whatsapp_business"?"WhatsApp":v==="messenger"?"Messenger":v;
 export default function MetaUnifiedInbox(){
@@ -20,7 +21,10 @@ export default function MetaUnifiedInbox(){
  const [channel,setChannel]=useState("all");
  const [query,setQuery]=useState("");
  const [body,setBody]=useState("");
- const [draftId,setDraftId]=useState("");\n const [templates,setTemplates]=useState<Template[]>([]);\n const [templateChoice,setTemplateChoice]=useState("");\n const [consentEvidence,setConsentEvidence]=useState("");
+ const [draftId,setDraftId]=useState("");
+ const [templates,setTemplates]=useState<Template[]>([]);
+ const [templateChoice,setTemplateChoice]=useState("");
+ const [consentEvidence,setConsentEvidence]=useState("");
  const [loading,setLoading]=useState(true);
  const [sending,setSending]=useState(false);
  const [notice,setNotice]=useState<{kind:"success"|"error"|"info";title:string;message:string}|null>(null);
