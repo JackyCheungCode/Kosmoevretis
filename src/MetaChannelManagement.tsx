@@ -55,6 +55,7 @@ function ChannelCard({ channel }: { channel: typeof channels[number] }) {
         <strong>授权与权限要求</strong>
         <p>{channel.permissions}</p>
       </div>
+      <Button kind="tertiary" size="md" href={`/meta-channels/${channel.id}`}>进入渠道管理</Button>
     </Tile>
   );
 }
