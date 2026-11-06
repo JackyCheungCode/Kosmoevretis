@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { DataBase } from "@carbon/icons-react";
-import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle } from "@carbon/react";
+import { Accordion, AccordionItem, Button, InlineNotification, Tag, TextInput, Tile, Toggle, Tabs, TabList, Tab } from "@carbon/react";
 import SettingsBackend from "./SettingsBackend";
 import MailSettings from "./MailSettings";
 import BrandLogo from "./BrandLogo";
@@ -49,7 +49,7 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  providers:{title:"服务商连接",desc:"管理平台使用的外部数据采集服务和 API 凭证。",eyebrow:"API & DATA SOURCES"},
  actors:{title:"采集能力目录",desc:"注册可复用的 Actor，统一管理输入参数与输出映射。",eyebrow:"API & DATA SOURCES"},
  channels:{title:"数据渠道",desc:"按市场和业务来源组织可用的数据渠道。",eyebrow:"API & DATA SOURCES"},
- runs:{title:"运行记录",desc:"追踪采集任务执行状态、数据集和错误信息。",eyebrow:"API & DATA SOURCES"},
+ runs:{title:"运行监控与日志",desc:"追踪采集任务执行状态、数据集、服务调用与错误信息。",eyebrow:"OPERATIONS & LOGS"},
  "ai-providers":{title:"AI 服务商",desc:"管理 AI 服务商连接、认证和运行状态。",eyebrow:"AI & MODELS"},
  models:{title:"模型目录",desc:"维护模型能力、上下文、成本和可用状态。",eyebrow:"AI & MODELS"},
  routes:{title:"任务路由",desc:"为平台内部业务任务配置模型选择策略。",eyebrow:"AI & MODELS"},
@@ -63,8 +63,19 @@ const pageMeta:Record<string,{title:string;desc:string;eyebrow:string}>={
  audit:{title:"安全与审计",desc:"查看配置变更、密钥管理和权限操作的审计信息。",eyebrow:"PLATFORM GOVERNANCE"},
  "design-system":{title:"设计系统",desc:"查看并验收 Kosmoevretis 全站统一的 Carbon 设计规范与基础组件。",eyebrow:"DESIGN GOVERNANCE"}
 };
+const settingsGroups = [
+ {title:"API 与数据源",items:[["providers","服务连接"],["channels","数据渠道"]]},
+ {title:"AI 与模型",items:[["ai-providers","AI 服务商"],["models","模型目录"],["routes","任务模型路由"],["prompts","提示词与成本"]]},
+ {title:"采集与分析配置",items:[["actors","采集能力与 Actor"]]},
+ {title:"用户与权限",items:[["organization","组织与企业资料"],["members","用户与权限"]]},
+ {title:"系统管理与安全",items:[["locale","地区与语言"],["notifications","通知策略"],["mail","邮箱账户与邮件"],["governance","数据治理"],["audit","安全与审计"],["design-system","设计系统"]]},
+ {title:"运行监控与日志",items:[["runs","运行记录"]]}
+] as const;
+const settingsFlat = settingsGroups.flatMap(group=>group.items.map(([id,label])=>({id,label,href:"/settings/"+id})));
+
 export default function Settings(){
  const location=useLocation();
+ const navigate=useNavigate();
  const active=location.pathname.split("/")[2]||"providers";
  const [notice,setNotice]=useState<string|null>(null);
  const selected=pageMeta[active]||pageMeta.providers;
@@ -81,12 +92,31 @@ export default function Settings(){
   case"mail":return <MailSettings/>;
   default:return <SystemPage page={active}/>;
  }};
+ const activeIndex=Math.max(0,settingsFlat.findIndex(item=>item.id===active));
+ const navigation=(
+  <div className="settings-navigation-shell">
+   <nav className="settings-local-nav" aria-label="系统设置分类">
+    {settingsGroups.map(group=><section className="settings-nav-group" key={group.title}>
+     <h2 className="settings-nav-group-title">{group.title}</h2>
+     {group.items.map(([id,label])=><Link key={id} to={"/settings/"+id} className="settings-nav-item" aria-current={active===id?"page":undefined}>
+      <span className="settings-nav-label">{label}</span>
+     </Link>)}
+    </section>)}
+   </nav>
+   <Tabs className="settings-mobile-tabs" selectedIndex={activeIndex} onChange={({selectedIndex}:{selectedIndex:number})=>{const item=settingsFlat[selectedIndex];if(item)navigate(item.href);}}>
+    <TabList aria-label="系统设置分类" contained>
+     {settingsFlat.map(item=><Tab key={item.id}>{item.label}</Tab>)}
+    </TabList>
+   </Tabs>
+  </div>
+ );
  return <ConfigurationPageTemplate
   className="module settings-center settings-workspace"
-  title="配置管理中心"
-  description="统一管理数据源连接、采集能力、AI 服务与平台治理配置。"
-  eyebrow="平台管理"
+  title="系统设置"
+  description="集中管理 API 数据源、AI 模型、采集规则、组织权限与平台运行安全。"
+  eyebrow="SYSTEM SETTINGS"
   headingLevel={1}
+  navigation={navigation}
  >
   <PageSection title={selected.title} description={selected.desc} className="settings-selected-section" headingLevel={3}>
    {notice&&<InlineNotification kind="warning" lowContrast title="当前操作尚未执行" subtitle={notice} onCloseButtonClick={()=>setNotice(null)}/>}
