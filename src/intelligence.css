@@ -11,7 +11,7 @@
 .gi-quiet-button,.gi-expand-button{min-height:2rem;padding:0 .65rem;border:0;background:var(--cds-layer-02);color:var(--cds-text-secondary);font:inherit;font-size: var(--cds-label-01-font-size);cursor:pointer}
 .gi-quiet-button:hover,.gi-expand-button:hover{background:var(--cds-layer-hover-02);color:var(--cds-text-primary)}
 .gi-expand-button{background:transparent;color:var(--cds-link-primary)}
-.gi-expand-button span{padding-left:var(--kosmo-spacing-02)}
+.gi-expand-button__indicator{padding-left:var(--kosmo-spacing-02)}
 .gi-source-toolbar{display:flex;align-items:center;gap:var(--kosmo-spacing-03);flex-wrap:wrap;margin:var(--kosmo-spacing-03) 0 var(--kosmo-spacing-04)}
 .gi-channel-filter{display:flex;min-width:0;flex:1 1 100%}
 .gi-channel-filter .cds--content-switcher{max-width:100%;overflow-x:auto}
