@@ -5,7 +5,7 @@ import { Add, Archive, Document, Email, Search as SearchIcon, Send, Settings, St
 import { useNavigate } from "react-router-dom";
 import "./mail-communication.css";
 
-type Folder = { id: string; label: string; icon: React.ComponentType<{size?: number}> };
+type Folder = { id: string; label: string; icon: React.ElementType };
 type MailAccount = { id: string; email_address: string; display_name: string; is_default: boolean; status: string }; 
 const ORGANIZATION_ID = "d6dd93fe-75ac-4c2f-90a3-53474acdef8f";
 const folders: Folder[] = [
