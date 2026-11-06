@@ -22,11 +22,7 @@
 
 .ig-config-panel,.ig-overview,.ig-raw{min-width:0;max-width:100%}
 .ig-raw pre{width:100%;max-width:100%;overflow:auto;overscroll-behavior:contain}
-.ig-overview .cds--tab-list{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
-.ig-overview .cds--tab{flex:0 0 auto;white-space:nowrap}
 @media(max-width:671px){
- .ig-overview .cds--tab-list{scroll-snap-type:x proximity}
- .ig-overview .cds--tab{scroll-snap-align:start}
  .ig-kpis>div{min-width:0}
  .ig-kpis strong{overflow-wrap:anywhere}
 }
