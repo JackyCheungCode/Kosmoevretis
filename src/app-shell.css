@@ -65,8 +65,7 @@
 }
 
 /* Carbon Content owns the header offset; Carbon Grid owns the page gutters. */
-.kosmo-main.cds--content,
-.page-main-container.cds--content {
+.kosmo-main.cds--content {
   box-sizing: border-box;
   width: min(calc(100% - var(--kosmo-shell-sidebar-width)), var(--kosmo-content-max-width));
   max-width: var(--kosmo-content-max-width);
@@ -531,9 +530,7 @@
   font-weight: 600;
 }
 .kosmo-side-nav .kosmo-nav-item-content { gap: .75rem; }
-.kosmo-side-nav .kosmo-nav-item-content > svg { color: var(--cds-text-helper); }
-.kosmo-main.cds--content { margin-top: 3rem; }
-@media (min-width: 672px) and (max-width: 1055px) {
+.kosmo-side-nav .kosmo-nav-item-content > svg { color: var(--cds-text-helper); }\n@media (min-width: 672px) and (max-width: 1055px) {
   .kosmo-header-primary-nav { display: none; }
   .kosmo-side-nav.cds--side-nav,
   .kosmo-side-nav.cds--side-nav.cds--side-nav--rail { width: 3rem; }

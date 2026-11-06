@@ -53,7 +53,6 @@
   min-width: 0;
 }
 .kosmo-page-header__copy { min-width: 0; }
-.cds--page-title,
 .kosmo-page-header__title {
   max-width: 28ch;
   margin: 0;
@@ -64,7 +63,6 @@
   line-height: var(--cds-heading-05-line-height);
   letter-spacing: 0;
 }
-.cds--page-subtitle,
 .kosmo-page-header__description {
   max-width: 68ch;
   margin: var(--kosmo-spacing-04) 0 0;
