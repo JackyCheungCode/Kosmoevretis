@@ -300,7 +300,21 @@ async function handleWebhook(req: Request, env: RuntimeEnv) {
       const digest=await sha256(encoder.encode(JSON.stringify(entry))), dedupeKey=await sha256(String(connection.id)+":"+object+":"+digest);
       const {data:stored,error}=await admin.from("crm_channel_webhook_events").insert({organization_id:connection.organization_id,connection_id:connection.id,provider:connection.provider,dedupe_key:dedupeKey,provider_event_id:assetId+":"+digest,payload:{object,entry}}).select("id").maybeSingle();
       if(error&&error.code!=="23505") throw error;
-      if(stored) await normalizeWebhookEntry(admin,connection,object,entry);
+      let eventId=stored?.id||null;
+      if(!eventId&&error?.code==="23505"){
+        const {data:existingEvent}=await admin.from("crm_channel_webhook_events").select("id,processing_status").eq("dedupe_key",dedupeKey).maybeSingle();
+        if(existingEvent?.processing_status==="retry")eventId=existingEvent.id;
+      }
+      if(eventId){
+        try{
+          await normalizeWebhookEntry(admin,connection,object,entry);
+          const {error:processedError}=await admin.from("crm_channel_webhook_events").update({processing_status:"processed",processed_at:new Date().toISOString(),last_error_code:null,last_error_message:null}).eq("id",eventId);
+          if(processedError)throw processedError;
+        }catch(processingError){
+          await admin.from("crm_channel_webhook_events").update({processing_status:"retry",retry_count:1,last_error_code:"normalization_failed",last_error_message:(processingError instanceof Error?processingError.message:"Webhook normalization failed").slice(0,500)}).eq("id",eventId);
+          throw processingError;
+        }
+      }
     }
   }
   return new Response("EVENT_RECEIVED",{status:200,headers:{"Content-Type":"text/plain; charset=utf-8"}});
