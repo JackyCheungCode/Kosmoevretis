@@ -12,7 +12,7 @@ const channels = [
     purpose: "企业主页资产与公开互动情报",
     description: "为组织授权一个或多个 Facebook Page，后续可按获批权限读取主页资料、内容和互动信号。",
     capabilities: ["发现并选择获授权的 Page", "读取权限范围内的主页与内容数据", "将公开互动信号转为待跟进线索", "监控授权状态与资产归属"],
-    permissions: "按实际功能评估 pages_show_list、pages_read_engagement 等权限；涉及管理、发布或 Webhook 的能力需单独评估对应权限。",
+    permissions: "按功能申请 pages_show_list、pages_read_engagement、pages_manage_posts、pages_manage_engagement、pages_read_user_content、read_insights 和 pages_manage_metadata；均需满足 Meta 审核与 Advanced Access 要求。",
     icon: Share,
   },
   {
@@ -30,7 +30,7 @@ const channels = [
     purpose: "Facebook Page 私信与客户沟通",
     description: "将获授权 Page 的 Messenger 客户对话纳入统一工作区，后续用于需求识别、客户服务和人工审核回复。",
     capabilities: ["绑定启用 Messenger 的 Facebook Page", "接收授权范围内的 Page 私信", "按政策管理会话与消息状态", "关联 CRM 联系人、企业和商机"],
-    permissions: "根据实际用途评估 pages_messaging、pages_show_list、pages_manage_metadata 等权限，并遵守 Meta 的消息窗口和平台政策。",
+    permissions: "根据实际用途申请 pages_messaging、pages_show_list、pages_read_engagement 和 pages_manage_metadata，并遵守 Meta 消息窗口与平台政策。",
     icon: Chat,
   },
 ];
