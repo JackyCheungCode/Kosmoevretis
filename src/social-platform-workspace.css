@@ -77,3 +77,11 @@
 /* Platform category tabs scroll by touch without displaying a native scrollbar. */
 .platform-line-tabs::-webkit-scrollbar,.settings-line-tabs::-webkit-scrollbar{display:none}
 .settings-center .settings-local-nav.settings-line-tabs{scrollbar-width:none;-ms-overflow-style:none}
+
+/* Carbon v11 TabList / Tab sizing for the platform switchers. */
+.platform-line-tabs .cds--tab{display:inline-flex;align-items:center;flex:0 0 auto;min-height:3rem;padding:0 1rem;border-bottom:3px solid transparent;color:var(--cds-text-secondary);font:inherit;font-size:var(--cds-body-compact-01-font-size);white-space:nowrap}
+.platform-line-tabs .cds--tab-content{display:inline-flex;align-items:center;gap:.5rem}
+.platform-line-tabs .cds--tab[aria-selected=true]{border-bottom-color:var(--cds-border-interactive);color:var(--cds-text-primary);font-weight:600}
+.platform-line-tabs .cds--tab:hover{background:var(--cds-layer-hover-01);color:var(--cds-text-primary)}
+.platform-line-tabs .cds--tab svg{flex:none}
+@media(max-width:671px){.platform-line-tabs .cds--tab{min-height:2.875rem;padding:0 .875rem;font-size:var(--cds-label-01-font-size)}}
