@@ -6,9 +6,10 @@
 
 .kosmo-header.cds--header {
   height: var(--kosmo-shell-header-height);
-  background: var(--cds-background);
+  background: transparent;
   color: var(--cds-text-primary);
-  border-bottom: 1px solid var(--cds-border-subtle);
+  border-bottom: 0;
+  box-shadow: none;
   z-index: 9000;
 }
 
