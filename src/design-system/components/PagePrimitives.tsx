@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button, InlineLoading, InlineNotification, Tag } from "@carbon/react";
+import { Link, useLocation } from "react-router-dom";
 
 export type PageHeaderProps = {
   title: string;
@@ -10,18 +11,53 @@ export type PageHeaderProps = {
   headingLevel?: 1 | 2;
 };
 
-export function PageHeader({ title, description, eyebrow, scope, actions, headingLevel = 1 }: PageHeaderProps) {
+function breadcrumbGroup(path: string) {
+  if (path === "/intelligence") return [];
+  if (path === "/products") return [{ label: "企业数据", to: "/products" }];
+  if (path === "/trade-access") return [{ label: "全球情报中心", to: "/intelligence" }];
+  if (path.startsWith("/social-discovery") || path.startsWith("/leads/") || path.startsWith("/platform-data/")) {
+    return [{ label: "平台数据采集", to: "/social-discovery" }, { label: "社媒平台发现", to: "/social-discovery" }];
+  }
+  if (path.startsWith("/ecommerce-discovery")) {
+    return [{ label: "平台数据采集", to: "/ecommerce-discovery/amazon" }, { label: "电商平台发现", to: "/ecommerce-discovery/amazon" }];
+  }
+  if (path === "/seo-analysis") return [{ label: "独立站运维", to: "/seo-analysis" }];
+  if (path === "/communication/mail") return [{ label: "沟通与跟进", to: "/communication/mail" }];
+  if (path.startsWith("/settings/")) return [{ label: "系统设置", to: "/settings/providers" }];
+  return [{ label: "工作空间", to: "/intelligence" }];
+}
+
+export function PageHeader({ title, description, scope, actions, headingLevel = 1 }: PageHeaderProps) {
   const HeadingTag = headingLevel === 2 ? "h2" : "h1";
+  const { pathname } = useLocation();
+  const group = breadcrumbGroup(pathname.replace(/\/$/, "") || "/");
+  const crumbs = [{ label: "Kosmoevretis", to: "/intelligence" }, ...group];
+  const isCurrentAlreadyInGroup = group.length > 0 && group[group.length - 1].label === title;
   return (
     <header className="kosmo-page-header">
-      <div className="kosmo-page-header__copy">
-        {eyebrow && <p className="kosmo-page-header__eyebrow">{eyebrow}</p>}
-        <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
-        {description && <p className="kosmo-page-header__description">{description}</p>}
-      </div>
-      <div className="kosmo-page-header__meta">
-        {actions && <div className="kosmo-page-header__actions">{actions}</div>}
-        {scope && <span className="kosmo-page-header__scope">{scope}</span>}
+      <nav className="kosmo-page-header__breadcrumb" aria-label="面包屑导航">
+        {crumbs.map((crumb, index) => (
+          <span className="kosmo-page-header__breadcrumb-item" key={crumb.label + index}>
+            {index > 0 && <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>}
+            <Link to={crumb.to}>{crumb.label}</Link>
+          </span>
+        ))}
+        {!isCurrentAlreadyInGroup && (
+          <span className="kosmo-page-header__breadcrumb-current" aria-current="page">
+            <span className="kosmo-page-header__breadcrumb-separator" aria-hidden="true">/</span>
+            {title}
+          </span>
+        )}
+      </nav>
+      <div className="kosmo-page-header__body">
+        <div className="kosmo-page-header__copy">
+          <HeadingTag className="kosmo-page-header__title">{title}</HeadingTag>
+          {description && <p className="kosmo-page-header__description">{description}</p>}
+        </div>
+        <div className="kosmo-page-header__meta">
+          {actions && <div className="kosmo-page-header__actions">{actions}</div>}
+          {scope && <span className="kosmo-page-header__scope">{scope}</span>}
+        </div>
       </div>
     </header>
   );
