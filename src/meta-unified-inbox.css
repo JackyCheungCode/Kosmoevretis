@@ -21,3 +21,41 @@
 @media(min-width:1101px){
   .meta-inbox-layout{grid-template-columns:minmax(17rem,.9fr) minmax(0,2fr) minmax(17rem,.9fr)}
 }
+
+/* Prevent Carbon controls from retaining compact intrinsic widths in inbox columns. */
+.meta-unified-inbox .meta-inbox-layout > *,
+.meta-unified-inbox .meta-inbox-layout .cds--form-item,
+.meta-unified-inbox .meta-inbox-layout .cds--text-input-wrapper,
+.meta-unified-inbox .meta-inbox-layout .cds--text-area__wrapper,
+.meta-unified-inbox .meta-inbox-layout .cds--text-input,
+.meta-unified-inbox .meta-inbox-layout .cds--text-area,
+.meta-unified-inbox .meta-inbox-layout .cds--dropdown {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.meta-unified-inbox .meta-inbox-layout .cds--text-input,
+.meta-unified-inbox .meta-inbox-layout .cds--text-area,
+.meta-unified-inbox .meta-inbox-layout .cds--dropdown {
+  width: 100%;
+}
+.meta-inbox-filters .cds--search,
+.meta-inbox-filters .cds--search-input {
+  width: 100%;
+  max-width: none;
+}
+@media (min-width: 701px) and (max-width: 900px) {
+  .meta-inbox-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .meta-inbox-list {
+    max-height: 20rem;
+    overflow: auto;
+  }
+  .meta-inbox-profile {
+    grid-column: auto;
+  }
+  .meta-inbox-thread {
+    min-height: 28rem;
+  }
+}
