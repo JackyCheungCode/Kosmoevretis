@@ -176,3 +176,18 @@
 ### 视觉基准补充
 - IBM Design Language 官方入口：https://www.ibm.com/design/language/
 - IBM Digital Design / ibm.com 与 Carbon 的关系：IBM 官方说明 ibm.com 的 Digital Design 以 IBM Design Language 为基础，并以 Carbon 作为核心设计系统。
+
+
+## 桌面端布局基础修复（2026-11-07）
+
+- [x] 修复 `src/app-shell.css` 中字面量 `\\n@media`，恢复平板导航媒体查询的正常 CSS 解析。
+- [x] 在 `src/responsive-audit.css` 统一桌面端主内容区宽度：左侧 16rem 导航、最大内容宽度 1584px，宽屏居中。
+- [x] 为 Carbon Grid 列、页面直接子节点及社媒工作区补充 `min-width: 0` / `max-width: 100%`，减少桌面 Flex/Grid 子项撑破容器。
+- [x] 为应用层表格滚动容器提供局部横向滚动，避免表格把整页撑宽；不直接覆盖 Carbon 内部组件类名。
+- [ ] 尚未完成 50 条路由在 1440px / 1280px / 1024px / 768px / 390px 下的浏览器截图和交互验收。
+- [ ] 尚未完成各业务页固定宽度、图表、地图、复杂表单和设置页的逐页修复。
+- [x] 最新 GitHub Actions #1374（提交 `688404f`）已通过；对应 Cloudflare Preview `0b99bbb6` 当时仍处于 build 阶段，生产环境未变更。
+
+> 本批次只建立全站布局约束，不代表全站电脑端适配已经验收完成。视觉验收仍需按 P4 的路由与视口矩阵执行。
+
+- [x] 自动门禁复核：首次检查发现自定义 CSS 直接引用 Carbon 内部表格类名，已改为应用层滚动容器类；最新 CI #1374 已通过。

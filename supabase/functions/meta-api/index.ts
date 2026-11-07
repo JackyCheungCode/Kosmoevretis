@@ -79,6 +79,15 @@ async function graphGet(version: string, path: string, token: string) {
   if (!response.ok || body.error) throw new Error(String(body?.error?.message || "Meta Graph API request failed"));
   return body;
 }
+async function graphPost(version:string,path:string,token:string,params:Record<string,unknown>={}) {
+  const url = new URL(graphBase(version) + path);
+  const body = new URLSearchParams(); body.set("access_token",token);
+  for (const [key,value] of Object.entries(params)) if (value !== undefined && value !== null) body.set(key,typeof value === "string" ? value : JSON.stringify(value));
+  const response = await fetch(url,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","Accept":"application/json"},body});
+  const result = await response.json().catch(()=>({}));
+  if (!response.ok || result.error) throw new Error(String(result?.error?.message || "Meta Graph API request failed"));
+  return result;
+}
 async function discoverAssets(version: string, provider: Provider, token: string): Promise<{ assets: Asset[]; pageTokens: Record<string,string> }> {
   const assets: Asset[] = [];
   const pageTokens: Record<string,string> = {};
@@ -110,8 +119,8 @@ async function discoverAssets(version: string, provider: Provider, token: string
   return { assets, pageTokens };
 }
 const scopes: Record<Provider,string[]> = {
-  facebook_pages: ["pages_show_list","pages_read_engagement","pages_manage_metadata"],
-  messenger: ["pages_show_list","pages_messaging","pages_manage_metadata"],
+  facebook_pages: ["pages_show_list","pages_read_engagement","pages_manage_metadata","pages_manage_posts","pages_manage_engagement","pages_read_user_content","read_insights"],
+  messenger: ["pages_show_list","pages_messaging","pages_manage_metadata","pages_read_engagement"],
   whatsapp_business: ["business_management","whatsapp_business_management","whatsapp_business_messaging"],
 };
 const validProvider = (value: unknown): value is Provider => ["facebook_pages","whatsapp_business","messenger"].includes(String(value));
@@ -209,6 +218,51 @@ async function handleOAuthCallback(req: Request, env: RuntimeEnv) {
     return Response.redirect(target,302);
   }
 }
+
+function webhookTime(value:unknown){const n=Number(value||0);return new Date(n>0?(n<1e12?n*1000:n):Date.now()).toISOString();}
+async function normalizeWebhookEntry(admin:SupabaseClient,connection:{id:string;organization_id:string;provider:string},object:string,entry:Record<string,any>){
+  const org=connection.organization_id,connectionId=connection.id;
+  if(object==="whatsapp_business_account"&&connection.provider==="whatsapp_business"){
+    for(const change of Array.isArray(entry.changes)?entry.changes:[]){
+      const value=change?.value||{};
+      for(const msg of Array.isArray(value.messages)?value.messages:[]){
+        const sender=String(msg.from||"");const providerId=String(msg.id||"");if(!sender||!providerId)continue;
+        const contact=(Array.isArray(value.contacts)?value.contacts:[]).find((x:any)=>String(x.wa_id||"")===sender);
+        const type=String(msg.type||"text");const interactiveText=String(msg.interactive?.button_reply?.title||msg.interactive?.list_reply?.title||msg.button?.text||msg.location?.name||"");const text=String(msg.text?.body||msg.caption||interactiveText||"");
+        const media=msg[type]&&typeof msg[type]==="object"?[{type,id:msg[type].id||null,mime_type:msg[type].mime_type||null,filename:msg[type].filename||null,caption:msg[type].caption||null}]:[];
+        const received=webhookTime(msg.timestamp);
+        const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"whatsapp_business",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:contact?.profile?.name||sender,phone:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
+        if(conversationError||!conversation)throw conversationError||new Error("Unable to create WhatsApp conversation");
+        const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:providerId,direction:"inbound",sender_external_id:sender,body_text:text||("[WhatsApp "+type+" message]"),attachment_metadata:media,delivery_status:"received",provider_metadata:{type,context:msg.context||null,interactive:msg.interactive||null},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
+        if(messageError)throw messageError;
+      }
+      for(const status of Array.isArray(value.statuses)?value.statuses:[]){
+        const state=String(status.status||"");const mapped=["sent","delivered","read","failed"].includes(state)?state:null;
+        if(mapped&&status.id)await admin.from("crm_channel_messages").update({delivery_status:mapped,provider_metadata:{status,updated_by_webhook:true}}).eq("connection_id",connectionId).eq("provider_message_id",String(status.id));
+      }
+    }
+  }
+  if(object==="page"&&connection.provider==="messenger"){
+    for(const event of Array.isArray(entry.messaging)?entry.messaging:[]){
+      const sender=String(event?.sender?.id||"");const recipient=String(event?.recipient?.id||"");const page=String(event?.recipient?.id||entry.id||"");const message=event?.message||{};const postback=event?.postback||null;
+      if(Array.isArray(event?.delivery?.mids)){for(const mid of event.delivery.mids)await admin.from("crm_channel_messages").update({delivery_status:"delivered",provider_metadata:{messenger_delivery:event.delivery}}).eq("connection_id",connectionId).eq("provider_message_id",String(mid));continue;}
+      if(event?.read?.watermark&&recipient){const {data:readConversation}=await admin.from("crm_channel_conversations").select("id").eq("connection_id",connectionId).eq("external_conversation_id",recipient).maybeSingle();if(readConversation)await admin.from("crm_channel_messages").update({delivery_status:"read",provider_metadata:{messenger_read:event.read}}).eq("connection_id",connectionId).eq("conversation_id",readConversation.id).eq("direction","outbound").lte("created_at",webhookTime(event.read.watermark));continue;}
+      const messageId=String(message.mid||(postback?"postback:"+String(event.timestamp||"")+":"+sender+":"+String(postback.payload||postback.title||""):""));if(!sender||!messageId||message.is_echo)continue;
+      const received=webhookTime(event.timestamp);const attachments=Array.isArray(message.attachments)?message.attachments:[];
+      const {data:conversation,error:conversationError}=await admin.from("crm_channel_conversations").upsert({organization_id:org,connection_id:connectionId,channel:"messenger",external_conversation_id:sender,external_contact_id:sender,participant_summary:{id:sender,name:sender},status:"open",last_message_at:received,updated_at:received},{onConflict:"connection_id,external_conversation_id"}).select("id").single();
+      if(conversationError||!conversation)throw conversationError||new Error("Unable to create Messenger conversation");
+      const {error:messageError}=await admin.from("crm_channel_messages").upsert({organization_id:org,conversation_id:conversation.id,connection_id:connectionId,provider_message_id:messageId,direction:"inbound",sender_external_id:sender,body_text:String(message.text||message.quick_reply?.payload||(postback?"[按钮点击] "+String(postback.title||postback.payload||""):(attachments.length?"[Messenger attachment]":"[Messenger event]"))),attachment_metadata:attachments,delivery_status:"received",provider_metadata:{page_id:page,quick_reply:message.quick_reply||null,postback},received_at:received},{onConflict:"connection_id,provider_message_id",ignoreDuplicates:true});
+      if(messageError)throw messageError;
+    }
+  }
+  if(object==="page"&&connection.provider==="facebook_pages"){
+    for(const change of Array.isArray(entry.changes)?entry.changes:[]){
+      const value=change?.value||{};if(String(value.item||"")==="post"&&String(value.verb||"")==="add"){const externalPostId=String(value.post_id||value.id||"");if(externalPostId)await admin.from("crm_channel_posts").update({status:"published",published_at:webhookTime(value.created_time),provider_response:{webhook:value},updated_at:new Date().toISOString()}).eq("connection_id",connectionId).eq("external_post_id",externalPostId);continue;}if(String(value.item||"")!=="comment"||!value.comment_id||!value.post_id)continue;
+      await admin.from("crm_channel_post_comments").upsert({organization_id:org,connection_id:connectionId,external_post_id:String(value.post_id),external_comment_id:String(value.comment_id),author_external_id:value.from?.id||null,author_name:value.from?.name||null,message_text:String(value.message||""),provider_created_at:webhookTime(value.created_time),provider_metadata:value},{onConflict:"connection_id,external_comment_id"});
+    }
+  }
+}
+
 async function handleWebhook(req: Request, env: RuntimeEnv) {
   const { admin } = clients(env);
   const { data: configs, error: configError } = await admin.from("crm_meta_app_configs").select("*").eq("enabled", true).limit(500);
@@ -246,8 +300,23 @@ async function handleWebhook(req: Request, env: RuntimeEnv) {
     if (lookupError) throw lookupError;
     for (const connection of connections || []) {
       const digest=await sha256(encoder.encode(JSON.stringify(entry))), dedupeKey=await sha256(String(connection.id)+":"+object+":"+digest);
-      const {error}=await admin.from("crm_channel_webhook_events").insert({organization_id:connection.organization_id,connection_id:connection.id,provider:connection.provider,dedupe_key:dedupeKey,provider_event_id:assetId+":"+digest,payload:{object,entry}});
+      const {data:stored,error}=await admin.from("crm_channel_webhook_events").insert({organization_id:connection.organization_id,connection_id:connection.id,provider:connection.provider,dedupe_key:dedupeKey,provider_event_id:assetId+":"+digest,payload:{object,entry}}).select("id").maybeSingle();
       if(error&&error.code!=="23505") throw error;
+      let eventId=stored?.id||null;
+      if(!eventId&&error?.code==="23505"){
+        const {data:existingEvent}=await admin.from("crm_channel_webhook_events").select("id,processing_status").eq("dedupe_key",dedupeKey).maybeSingle();
+        if(existingEvent?.processing_status==="retry")eventId=existingEvent.id;
+      }
+      if(eventId){
+        try{
+          await normalizeWebhookEntry(admin,connection,object,entry);
+          const {error:processedError}=await admin.from("crm_channel_webhook_events").update({processing_status:"processed",processed_at:new Date().toISOString(),last_error_code:null,last_error_message:null}).eq("id",eventId);
+          if(processedError)throw processedError;
+        }catch(processingError){
+          await admin.from("crm_channel_webhook_events").update({processing_status:"retry",retry_count:1,last_error_code:"normalization_failed",last_error_message:(processingError instanceof Error?processingError.message:"Webhook normalization failed").slice(0,500)}).eq("id",eventId);
+          throw processingError;
+        }
+      }
     }
   }
   return new Response("EVENT_RECEIVED",{status:200,headers:{"Content-Type":"text/plain; charset=utf-8"}});
@@ -368,6 +437,15 @@ Deno.serve(async (req: Request) => {
         const {error:activateError}=await admin.from("crm_channel_connections").update({status:"connected",updated_at:new Date().toISOString()})
           .eq("id",connection.id).eq("organization_id",organizationId);
         if(activateError) throw activateError;
+        let webhookSubscription: Record<string,unknown> = { status: "pending" };
+        try {
+          const fields = provider === "messenger" ? "messages,messaging_postbacks,messaging_optins" : provider === "facebook_pages" ? "feed" : null;
+          const result = await graphPost(meta.config.graph_api_version, "/" + encodeURIComponent(asset.id) + "/subscribed_apps", token, fields ? { subscribed_fields: fields } : {});
+          webhookSubscription = { status: "subscribed", subscribed_fields: fields, response: result };
+        } catch (subscriptionError) {
+          webhookSubscription = { status: "failed", message: (subscriptionError instanceof Error ? subscriptionError.message : "Webhook subscription failed").slice(0,240) };
+        }
+        await admin.from("crm_channel_connections").update({ provider_metadata: { asset_type: asset.asset_type, ...(asset.details || {}), webhook_subscription: webhookSubscription }, updated_at: new Date().toISOString() }).eq("id",connection.id).eq("organization_id",organizationId);
         const {error:consumeError}=await admin.from("crm_channel_oauth_states").update({status:"consumed",consumed_at:new Date().toISOString(),access_token_ciphertext:null,access_token_iv:null,asset_tokens_ciphertext:null,asset_tokens_iv:null})
           .eq("id",oauth.id).eq("status","processing");
         if(consumeError) throw consumeError;

@@ -1,0 +1,48 @@
+.meta-content-toolbar{display:flex;align-items:end;gap:1rem;flex-wrap:wrap}.meta-content-toolbar .cds--dropdown{min-width:min(100%,22rem)}.meta-content-compose{display:grid;gap:1rem;max-width:52rem}.meta-content-actions{display:flex;justify-content:flex-start}.meta-content-post-list{display:grid;gap:1rem}.meta-content-post{background:var(--cds-layer-01);display:grid;gap:0.75rem}.meta-content-post__top,.meta-content-post__actions{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}.meta-content-post__top{justify-content:space-between;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}.meta-content-post__body{white-space:pre-wrap;margin:0;color:var(--cds-text-primary)}.meta-content-post__actions{margin-top:0.25rem}.meta-content-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1rem}.meta-content-insights .cds--tile{display:grid;gap:.5rem;background:var(--cds-layer-01)}.meta-content-insights span,.meta-content-comment span{font-size:var(--cds-label-01-font-size);color:var(--cds-text-secondary)}.meta-content-comments{display:grid;gap:.75rem}.meta-content-comment{display:grid;gap:.75rem;background:var(--cds-layer-01)}.meta-content-comment>div:first-child{display:flex;justify-content:space-between;gap:1rem}.meta-content-comment p{margin:0;white-space:pre-wrap}.meta-content-comment-reply{display:flex;align-items:end;gap:.75rem;flex-wrap:wrap}
+.meta-content-upload{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;padding:.75rem;background:var(--cds-layer-01)}.meta-content-upload>span{flex:1;min-width:12rem;color:var(--cds-text-secondary);font-size:var(--cds-label-01-font-size)}
+
+.meta-content-channel-status{display:flex;gap:var(--cds-spacing-03);flex-wrap:wrap;margin-top:var(--cds-spacing-04)}
+
+ .meta-content-compose{width:100%;max-width:none;min-width:0}
+.meta-content-compose>*{min-width:0;max-width:100%}
+.meta-content-post-list{width:100%;min-width:0}
+@media(min-width:1056px){
+  .meta-content-compose{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  .meta-content-compose>:first-child,
+  .meta-content-compose>:nth-child(4),
+  .meta-content-compose>.meta-content-actions{grid-column:1/-1}
+}
+@media(max-width:1055px){
+  .meta-content-compose{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Let Carbon form controls use the full width of their responsive grid cell. */
+.meta-content-compose .cds--form-item,
+.meta-content-compose .cds--text-input-wrapper,
+.meta-content-compose .cds--text-area__wrapper,
+.meta-content-compose .cds--text-input,
+.meta-content-compose .cds--text-area,
+.meta-content-compose .cds--date-picker,
+.meta-content-compose .cds--date-picker-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.meta-content-compose .cds--text-input,
+.meta-content-compose .cds--text-area {
+  inline-size: 100%;
+}
+.meta-content-compose .meta-content-upload {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+@media (min-width: 672px) and (max-width: 1055px) {
+  .meta-content-compose {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .meta-content-compose > * {
+    grid-column: 1 / -1;
+  }
+}

@@ -153,3 +153,94 @@
 @media (max-width: 671px) {
   .kosmo-main { overflow-x: clip; }
 }
+
+
+/* Desktop workspace baseline — keep Carbon's 2x grid inside the AppShell content area. */
+@media (min-width: 1056px) {
+  .kosmo-main.cds--content {
+    box-sizing: border-box;
+    min-width: 0;
+    width: min(
+      calc(100% - var(--kosmo-shell-sidebar-width)),
+      var(--kosmo-content-max-width)
+    );
+    max-width: var(--kosmo-content-max-width);
+    margin-left: calc(
+      var(--kosmo-shell-sidebar-width) +
+      max(0px, calc((100% - var(--kosmo-shell-sidebar-width) - var(--kosmo-content-max-width)) / 2))
+    );
+  }
+
+  .kosmo-content-grid.cds--css-grid {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-inline: 0;
+  }
+
+  .kosmo-content-grid > .cds--css-grid-column {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Shared containment for desktop, tablet and mobile business workspaces. */
+.kosmo-main,
+.kosmo-content-grid,
+.kosmo-content-grid > .cds--css-grid-column,
+.kosmo-content-grid > .cds--css-grid-column > *,
+.kosmo-main :is(
+  .kosmo-page-frame,
+  .kosmo-template,
+  .social-platform-workspace-shell,
+  .social-platform-content
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.kosmo-main :is(
+  .kosmo-table-scroll,
+  .table-scroll,
+  .data-table-scroll
+) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.kosmo-main :is(
+  .page-head,
+  .section-head,
+  .kosmo-page-header,
+  .kosmo-page-section__header
+) {
+  min-width: 0;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.kosmo-main :is(
+  .page-head > *,
+  .section-head > *,
+  .kosmo-page-header > *,
+  .kosmo-page-section__header > *
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (min-width: 672px) and (max-width: 1055px) {
+  .kosmo-main.cds--content {
+    min-width: 0;
+    width: calc(100% - var(--kosmo-shell-sidebar-collapsed-width));
+    max-width: none;
+    margin-left: var(--kosmo-shell-sidebar-collapsed-width);
+  }
+
+  .kosmo-content-grid > .cds--css-grid-column {
+    min-width: 0;
+  }
+}

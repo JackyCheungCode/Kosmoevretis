@@ -22,7 +22,7 @@ const definitions = {
     icon: Share,
     assetTitle: "Facebook Page",
     assets: ["管理员授权的 Page 列表", "Page ID、名称、头像与公开主页资料", "获授权范围内的帖子与互动指标"],
-    permissions: ["pages_show_list：读取当前用户可管理的主页列表", "pages_read_engagement：读取获授权主页的内容与互动", "pages_manage_metadata：仅在确有 Webhook 订阅需求时申请", "发布、评论管理等权限需按实际功能单独申请并通过审核"],
+    permissions: ["pages_show_list：发现可授权的 Page", "pages_read_engagement：读取获授权主页内容与互动", "pages_manage_posts：创建和发布 Page 帖子", "pages_manage_engagement：管理获授权范围内的评论互动", "pages_read_user_content：读取允许访问的用户生成内容", "read_insights：读取 Page Insights", "pages_manage_metadata：订阅 Page Webhook；所有权限均以 Meta 审核为准"],
     events: ["主页资料与授权状态变化", "帖子发布与公开互动信号", "评论或提及等获授权事件", "潜在线索归档并关联 CRM 联系人/企业"],
     policy: ["仅处理授权 Page 资产，不读取个人账号私密内容或私人群组", "不得将公开互动量直接等同于购买意向或真实销量", "任何后续自动回复或内容发布都需要单独的权限与人工审批流程"],
   },
@@ -46,7 +46,7 @@ const definitions = {
     icon: Chat,
     assetTitle: "Facebook Page + Messenger",
     assets: ["已授权且启用 Messenger 的 Facebook Page", "Page ID 与消息 Webhook 订阅", "应用权限审核状态和允许用途配置"],
-    permissions: ["pages_show_list：发现可授权的 Page", "pages_messaging：在适用场景下处理 Page 私信", "pages_manage_metadata：订阅 Page Webhook 时按需申请"],
+    permissions: ["pages_show_list：发现可授权的 Page", "pages_messaging：处理获准的 Page 私信", "pages_read_engagement：读取 Page 互动上下文", "pages_manage_metadata：订阅 Page Webhook；所有权限均以 Meta 审核为准"],
     events: ["Page 范围内客户入站私信", "会话参与者与消息附件元数据", "消息发送状态与 Webhook 事件", "对话摘要、客户需求与 CRM 关联"],
     policy: ["只访问 Page 授权的对话，不访问个人 Messenger 收件箱", "严格执行 Meta 消息窗口、允许用途及标签规则", "窗口外联系仅限平台明确允许的场景与方式", "AI 可以摘要和起草，但外发必须经过人员确认"],
   },
@@ -59,10 +59,11 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
   const navigate = useNavigate();
   const { session } = useAuth();
   const [organizationId, setOrganizationId] = useState("");
-  const [connections, setConnections] = useState<Array<{id:string;provider:MetaProvider;display_name:string;status:string;external_asset_id:string}>>([]);
+  const [connections, setConnections] = useState<Array<{id:string;provider:MetaProvider;display_name:string;status:string;external_asset_id:string;provider_metadata?:Record<string,any>}>>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [appConfigStatus, setAppConfigStatus] = useState<"loading"|"missing"|"not_tested"|"valid"|"invalid"|"unavailable">("loading");
   const config = definitions[channel];
 
   const loadConnections = async (orgId: string) => {
@@ -85,6 +86,14 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
         if (!membership?.organization_id) throw new Error("当前账号尚未加入企业工作区。");
         if (!active) return;
         setOrganizationId(membership.organization_id);
+        const { data: appConfig, error: appConfigError } = await supabase.functions.invoke("meta-api", {
+          body: { action: "config_get", organization_id: membership.organization_id },
+        });
+        if (appConfigError || appConfig?.error) {
+          setAppConfigStatus("unavailable");
+        } else {
+          setAppConfigStatus(appConfig?.config?.validation_status || "missing");
+        }
         await loadConnections(membership.organization_id);
       } catch (err) {
         if (active) setError(err instanceof Error ? err.message : "无法读取渠道连接。");
@@ -98,6 +107,10 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
 
   const startOAuth = async () => {
     if (!organizationId || busy) return;
+    if (appConfigStatus !== "valid") {
+      setError("请先到「系统设置 → Meta 应用配置」保存 App ID、App Secret 和 Verify Token，并通过凭证测试。凭证测试通过不代表 Meta 权限审核已获批。");
+      return;
+    }
     setBusy(true); setError("");
     try {
       const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {
@@ -128,8 +141,8 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
       <PageSection title="渠道状态" description={config.purpose} headingLevel={3}>
         {error && <InlineNotification kind="error" lowContrast title="渠道连接操作失败" subtitle={error} />}
         <div className="meta-channel-workspace__connection-actions">
-          <Button kind="primary" size="md" onClick={() => void startOAuth()} disabled={!organizationId || busy}>
-            {busy ? "正在准备授权…" : "连接 Meta 企业资产"}
+          <Button kind="primary" size="md" onClick={() => void startOAuth()} disabled={!organizationId || busy || appConfigStatus !== "valid"}>
+            {busy ? "正在准备授权…" : appConfigStatus === "valid" ? "连接 Meta 企业资产" : "完成应用配置后连接"}
           </Button>
           <Button kind="ghost" size="md" onClick={() => organizationId && void loadConnections(organizationId).catch(err => setError(err.message))} disabled={!organizationId || loading}>
             刷新连接
@@ -137,18 +150,19 @@ export default function MetaChannelWorkspace({ channel }: { channel: MetaChannel
           {loading && <InlineLoading description="正在读取当前组织的连接…" />}
         </div>
         <InlineNotification
-          kind="info"
+          kind={appConfigStatus === "valid" ? "info" : "warning"}
           lowContrast
           hideCloseButton
-          title={connections.length ? "企业资产连接已建立" : "等待配置 Meta App 服务端凭证"}
-          subtitle={connections.length ? "当前组织已授权 " + connections.length + " 个 " + config.name + " 资产。消息同步与外发仍需完成 Webhook 订阅及合规策略验收。" : "真实 OAuth 流程已接入代码。启用前需在 Supabase Edge Function secrets 配置 Meta App ID、App Secret、回调地址、Webhook Verify Token、Graph API 版本及加密密钥。"}
+          title={appConfigStatus === "valid" ? "应用凭证已通过基础验证" : appConfigStatus === "invalid" ? "应用凭证验证未通过" : appConfigStatus === "unavailable" ? "无法读取应用配置" : appConfigStatus === "loading" ? "正在检查应用配置" : "尚未完成 Meta App 凭证配置"}
+          subtitle={appConfigStatus === "valid" ? "Graph API 已接受当前 App 凭证。注意：这只验证 App ID / Secret，不代表 Business Verification、App Review 或所需权限已获批；正式接入仍以 Meta 审核结果为准。" : appConfigStatus === "invalid" ? "请返回 Meta 应用配置检查 App ID、App Secret 和 Graph API 版本，并重新测试。" : appConfigStatus === "unavailable" ? "请由组织 Owner/Admin 检查 Meta 应用配置权限，或联系组织管理员完成凭证设置。" : "先到「系统设置 → Meta 应用配置」保存组织 App 凭证并完成基础验证。Meta 权限未获批前，只能在 Meta 允许的开发模式和测试资产范围内联调。"}
         />
         <div className="meta-channel-workspace__connected-list">
           <h3>已授权企业资产</h3>
           {connections.length ? connections.map(item => (
             <div className="meta-channel-workspace__connected-row" key={item.id}>
               <div><strong>{item.display_name}</strong><small>{item.external_asset_id}</small></div>
-              <Tag type={item.status === "connected" ? "green" : "cool-gray"}>{item.status === "connected" ? "已连接" : item.status}</Tag>
+              <div className="meta-channel-workspace__status-stack"><Tag type={item.status === "connected" ? "green" : "cool-gray"}>{item.status === "connected" ? "已连接" : item.status}</Tag>{item.provider_metadata?.webhook_subscription?.status&&<Tag type={item.provider_metadata.webhook_subscription.status==="subscribed"?"green":"warm-gray"}>{item.provider_metadata.webhook_subscription.status==="subscribed"?"Webhook 已订阅":item.provider_metadata.webhook_subscription.status==="failed"?"Webhook 订阅失败":"Webhook 待处理"}</Tag>}</div>
+              {item.provider_metadata?.webhook_subscription?.status!=="subscribed"&&<Button kind="ghost" size="sm" onClick={async()=>{if(!organizationId)return;const {data,error:invokeError}=await supabase.functions.invoke("meta-operations",{body:{action:"subscribe_webhooks",organization_id:organizationId,connection_id:item.id}});if(invokeError){setError(invokeError.message||"Webhook 订阅失败");return;}await loadConnections(organizationId);if(data?.status==="failed"){setError(data?.error||"Meta Webhook 订阅失败，请检查应用产品与权限。");return;}}}>重试 Webhook</Button>}
               <Button kind="ghost" size="sm" onClick={async () => {
                 if (!organizationId) return;
                 const { data, error: invokeError } = await supabase.functions.invoke("meta-api", {

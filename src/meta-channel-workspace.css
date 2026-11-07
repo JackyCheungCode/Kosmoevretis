@@ -122,3 +122,4 @@
     flex-wrap: wrap;
   }
 }
+.meta-channel-workspace__status-stack{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-start}
