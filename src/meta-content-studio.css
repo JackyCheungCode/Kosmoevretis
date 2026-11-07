@@ -15,3 +15,34 @@
 @media(max-width:1055px){
   .meta-content-compose{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Let Carbon form controls use the full width of their responsive grid cell. */
+.meta-content-compose .cds--form-item,
+.meta-content-compose .cds--text-input-wrapper,
+.meta-content-compose .cds--text-area__wrapper,
+.meta-content-compose .cds--text-input,
+.meta-content-compose .cds--text-area,
+.meta-content-compose .cds--date-picker,
+.meta-content-compose .cds--date-picker-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.meta-content-compose .cds--text-input,
+.meta-content-compose .cds--text-area {
+  inline-size: 100%;
+}
+.meta-content-compose .meta-content-upload {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+@media (min-width: 672px) and (max-width: 1055px) {
+  .meta-content-compose {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .meta-content-compose > * {
+    grid-column: 1 / -1;
+  }
+}
